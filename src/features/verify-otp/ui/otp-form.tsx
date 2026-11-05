@@ -115,7 +115,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
         <p className="text-sm text-muted-foreground">
           {t('auth.otp.sent_to', { phone: ltrIsolate(maskPhone(pending.phone)), channel })}
         </p>
-        <Button type="button" variant="link" className="self-start px-0" onClick={onChangePhone}>
+        <Button type="button" variant="ghost" className="self-start" onClick={onChangePhone}>
           {t('auth.otp.change_phone')}
         </Button>
       </div>

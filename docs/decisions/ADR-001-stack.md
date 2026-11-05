@@ -61,3 +61,5 @@
 | `culori` | 4.0.2 | 4a | скрипт контраста |
 | `zod` | 4.6.7 | 5a | D-065; схемы портов — единственный источник типов сущностей |
 | `happy-dom` | 21.0.4 | 6a | DOM для тестов маршрутизации в Node (`// @vitest-environment happy-dom`, A-037) |
+| `@playwright/test` | 1.63.0 | 6d | = `playwright` и предустановленный Chromium (облачная сессия) |
+| `@axe-core/playwright` | 4.14.0 | 6d | axe на экранах v1 (WCAG 2.2 AA) |

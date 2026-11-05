@@ -15,8 +15,8 @@
 | 5c | done | `6d3575a` | 73 события и 18 экранов сверены с §3; `verify` += `check:events`, `contract:md --check` |
 | 6a | done | `0af52fb` | вход SC-01 A1–A14; гарды — чистые функции + роутер в памяти; формы — истории с play-тестами |
 | 6b | done | `80ebd33` | оболочка-гипотеза, настройки, выход; истории в матрице AR/EN × light/dark (A-041) |
-| 6c | done | см. git log | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
-| 6d | todo | — | |
+| 6c | done | `28f507f` | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
+| 6d | done | см. git log | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
 | 7a | todo | — | |
 | 7b | todo | — | |
 | 8a | todo | — | |
@@ -178,6 +178,20 @@
 - `VITE_DEMO_PANEL=0 pnpm build` — кода демо-панели в `dist` нет (`pnpm check:demo-excluded`, в `verify`);
 - `pnpm verify` зелёный.
 
+## План и проверка блока 6d
+
+1. `playwright.config.ts`: `android-chrome`, `iphone-safari`, `desktop-chrome`; `desktop-safari`, `desktop-edge` — CI по расписанию; фиксированное время, `reducedMotion: reduce`, `vite preview`.
+2. Сценарии v1 (`tests/e2e/v1.spec.ts`), axe на 14 экранах × AR/EN × light/dark (`a11y.spec.ts`), скриншоты 360/768/1280 (`screenshots.spec.ts`, артефакты D-074).
+3. `test:e2e:smoke` (android-chrome, `@smoke`) — в `verify`.
+
+**Проверка блока 6d (2026-11-05):**
+- `android-chrome` и `desktop-chrome`: 11 сценариев v1 + 56 проверок axe в каждом — 134 теста зелёные; axe без нарушений;
+- `iphone-safari` не запускался: загрузка WebKit заблокирована сетевой политикой окружения (A-045, ⏸);
+- 168 скриншотов в `tests/screenshots/`;
+- e2e нашли и закрыли три дефекта (A-046); регрессия «Подписание» вместо «Лимит активен» валит новый e2e-тест без исправления;
+- нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
+- `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
+
 ## Решения Кирилла по ходу
 
 - 2026-11-05: блоки 6b–6c — рабочий каркас интерфейса на пресете без отдельной визуальной проработки; к дизайну переходим после выполнения всего мастер-промпта.
@@ -205,5 +219,7 @@
 - **Пресет shadcn (D-077):** `pnpm dlx shadcn@latest init --preset b1ZQ7Gl9c --base radix --template vite --rtl --pointer`. Токены темы — `docs/setup/inputs/shadcn-theme-tokens.css` (переносить в `src/styles/tokens.css` без изменений). В блоке 4a флаг `--template vite` не используется: проект к тому времени уже создан вручную (§1.2, 4a.1). Остальные флаги (`--preset b1ZQ7Gl9c --base radix --rtl --pointer`) применяются как есть, после сверки с `--help`.
 
 ## ⏸ ожидают Кирилла
+
+- Network access окружения: разрешить `cdn.playwright.dev` и `playwright.download.prss.microsoft.com` (загрузка WebKit для проекта `iphone-safari`, 6d).
 
 1. **Токен Cloudflare для `wrangler`** (нужен к блокам 7a и 9; `--dry-run` блока 1 прошёл без него). Кирилл сам ставит его в переменные окружения облачной сессии; агент токен не видит. Блоки без Cloudflare продолжаются.

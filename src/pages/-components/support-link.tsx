@@ -6,7 +6,7 @@ import { Button } from '@/shared/ui';
 
 const whatsapp = `https://wa.me/${import.meta.env.VITE_SUPPORT_WHATSAPP ?? ''}`;
 
-export function SupportLink({ context, variant = 'link' }: { context: 'auth' | 'error'; variant?: 'link' | 'outline' }) {
+export function SupportLink({ context, variant = 'ghost' }: { context: 'auth' | 'error'; variant?: 'ghost' | 'outline' }) {
   const { t } = useTranslation();
   return (
     <Button asChild variant={variant}>

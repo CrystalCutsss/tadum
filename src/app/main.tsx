@@ -12,10 +12,11 @@ const container = document.getElementById('root');
 if (!container) throw new Error('#root not found');
 
 onStorageUnavailable(() => track('storage_unavailable', {}));
-initApi();
-
-createRoot(container).render(
+// Первая отрисовка — после применения ?persona= (без параметра — сразу).
+void initApi().finally(() =>
+  createRoot(container).render(
   <StrictMode>
     <Providers />
-  </StrictMode>,
+    </StrictMode>,
+  ),
 );

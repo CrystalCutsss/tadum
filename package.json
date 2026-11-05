@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "typecheck": "tsr generate && tsc -b --noEmit",
     "deploy:preview": "pnpm build && wrangler deploy",
-    "verify": "pnpm typecheck && pnpm lint && pnpm deps:check && pnpm lint:i18n && pnpm check:events && pnpm contract:md --check && pnpm check:contrast && pnpm test && pnpm storybook:build && pnpm test:stories && pnpm build && pnpm check:first-chunk && pnpm check:demo-excluded",
+    "verify": "pnpm typecheck && pnpm lint && pnpm deps:check && pnpm lint:i18n && pnpm check:events && pnpm contract:md --check && pnpm check:contrast && pnpm test && pnpm storybook:build && pnpm test:stories && pnpm build && pnpm check:first-chunk && pnpm test:e2e:smoke && pnpm check:demo-excluded",
     "lint": "eslint . --max-warnings=0 && stylelint \"src/**/*.css\"",
     "deps:check": "depcruise src --config .dependency-cruiser.cjs",
     "deps:graph": "depcruise src --config .dependency-cruiser.cjs --include-only \"^src\" --output-type mermaid > docs/architecture/deps.mmd",
@@ -27,7 +27,10 @@
     "check:first-chunk": "node scripts/check-first-chunk.mjs",
     "check:events": "node scripts/check-events.mjs",
     "contract:md": "node scripts/contract-md.mjs",
-    "check:demo-excluded": "node scripts/check-demo-excluded.mjs"
+    "check:demo-excluded": "node scripts/check-demo-excluded.mjs",
+    "test:e2e": "playwright test --grep-invert @screenshot",
+    "test:e2e:smoke": "playwright test --project=android-chrome --grep @smoke",
+    "screenshots": "playwright test tests/e2e/screenshots.spec.ts --project=desktop-chrome"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -57,7 +60,9 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
     "@storybook/addon-a11y": "10.6.5",
     "@storybook/addon-docs": "10.6.5",
     "@storybook/addon-vitest": "10.6.5",

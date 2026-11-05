@@ -68,8 +68,8 @@ export function DemoPanel() {
   const run = async (spec: (typeof DEMO_ACTIONS)[number]) => {
     try {
       await spec.run(await getApi());
+      // После expireSession любой перезапрос получит 401 — приложение само уйдёт на /session-expired.
       await refresh();
-      if (spec.id === 'expireSession') await navigate({ to: '/c/home' });
     } catch (e) {
       toast(t('demo.action_failed', { code: e instanceof DomainError ? e.code : e instanceof Error ? e.message : 'error' }));
     }

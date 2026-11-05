@@ -100,3 +100,14 @@ export const StatusChangedWhileOpen: Story = {
     await expect(storage.get('status:last_seen')).toBe('approved');
   },
 };
+
+export const ApprovedLimitActive: Story = {
+  name: 'approved, лимит active — текущий шаг «Лимит активен»',
+  loaders: [async () => ({ api: await signedIn('client_active') })],
+  play: async ({ canvasElement }) => {
+    const c = within(canvasElement);
+    const list = await c.findByRole('list', { name: tr('timeline.title') });
+    await expect(list.querySelector('li[aria-current="step"]')).toHaveTextContent(tr('timeline.client.limit_active'));
+    await expect(c.getByText(tr('next_step.how_to_buy'))).toBeVisible();
+  },
+};

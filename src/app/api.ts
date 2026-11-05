@@ -49,8 +49,9 @@ async function applyPersonaFromUrl(): Promise<void> {
   demoPersona.set(persona);
 }
 
-export function initApi(): void {
+/** Готово, когда персона из ?persona= применена: гарды маршрутов спрашивают сессию уже у неё. */
+export async function initApi(): Promise<void> {
   const mode = import.meta.env.VITE_API_MODE ?? 'mock';
   configureApi({ mode, domain: mockDomain, landingUrl });
-  if (mode === 'mock' && import.meta.env.VITE_DEMO_PANEL !== '0') void applyPersonaFromUrl();
+  if (mode === 'mock' && import.meta.env.VITE_DEMO_PANEL !== '0') await applyPersonaFromUrl();
 }

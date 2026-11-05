@@ -116,7 +116,9 @@ export function ClientHome() {
   }, [overdue]);
 
   if (app.isError) return <LoadError onRetry={() => void app.refetch()} support={<SupportBar context="error" />} />;
-  if (!data) {
+  // Шкала одобренной заявки зависит от лимита: пока он грузится, не показываем промежуточное состояние.
+  const waitingLimit = (status === 'approved' || status === 'first_purchase') && limit.isPending;
+  if (!data || waitingLimit) {
     return (
       <div className="flex flex-col gap-4" aria-busy="true">
         <Skeleton className="h-24 w-full" />
@@ -163,7 +165,7 @@ export function ClientHome() {
       {data.client_status !== 'docs_required' && sent > 0 ? (
         <div className="flex items-center justify-between gap-2 rounded-lg border px-4 py-3">
           <span className="text-sm">{t('home.documents_summary', { count: sent })}</span>
-          <Button asChild variant="link" className="px-0">
+          <Button asChild variant="ghost" className="px-0">
             <Link to="/c/documents">{t('home.documents_view')}</Link>
           </Button>
         </div>
