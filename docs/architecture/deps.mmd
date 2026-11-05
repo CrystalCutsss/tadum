@@ -1,0 +1,113 @@
+flowchart LR
+
+subgraph 0["src"]
+subgraph 1["app"]
+2["main.tsx"]
+5["providers.tsx"]
+6["router.tsx"]
+end
+subgraph 3["styles"]
+4["globals.css"]
+end
+subgraph 7["entities"]
+subgraph 8["application"]
+9["index.ts"]
+end
+subgraph A["document"]
+B["index.ts"]
+end
+subgraph C["limit"]
+D["index.ts"]
+end
+subgraph E["offer"]
+F["index.ts"]
+end
+subgraph G["referred-client"]
+H["index.ts"]
+end
+subgraph I["session"]
+J["index.ts"]
+end
+subgraph K["supplier"]
+L["index.ts"]
+end
+end
+subgraph M["features"]
+subgraph N["logout"]
+O["index.ts"]
+end
+subgraph P["request-otp"]
+Q["index.ts"]
+end
+subgraph R["switch-language"]
+S["index.ts"]
+end
+subgraph T["switch-role"]
+U["index.ts"]
+end
+subgraph V["switch-theme"]
+W["index.ts"]
+end
+subgraph X["verify-otp"]
+Y["index.ts"]
+end
+end
+subgraph Z["pages"]
+10["__root.tsx"]
+11["index.tsx"]
+end
+subgraph 12["shared"]
+subgraph 13["analytics"]
+14["index.ts"]
+end
+subgraph 15["api"]
+16["index.ts"]
+end
+subgraph 17["config"]
+18["index.ts"]
+end
+subgraph 19["i18n"]
+1A["index.ts"]
+end
+subgraph 1B["lib"]
+1C["clock.ts"]
+1D["index.ts"]
+1E["storage.ts"]
+end
+subgraph 1F["ui"]
+1G["index.ts"]
+end
+end
+1H["vite-env.d.ts"]
+subgraph 1I["widgets"]
+subgraph 1J["cabinet-shell"]
+1K["index.ts"]
+end
+subgraph 1L["demo-panel"]
+1M["index.ts"]
+end
+subgraph 1N["language-switch"]
+1O["index.ts"]
+end
+subgraph 1P["next-step-card"]
+1Q["index.ts"]
+end
+subgraph 1R["role-switch"]
+1S["index.ts"]
+end
+subgraph 1T["status-timeline"]
+1U["index.ts"]
+end
+subgraph 1V["support-bar"]
+1W["index.ts"]
+end
+subgraph 1X["theme-switch"]
+1Y["index.ts"]
+end
+end
+end
+2-->5
+2-->4
+5-->6
+1D-->1C
+1D-->1E

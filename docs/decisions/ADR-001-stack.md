@@ -33,3 +33,11 @@
 | `vite-plugin-pwa` | 1.3.0 | 1 | 2.x вышел; мажор 1 по §1.2 |
 | `workbox-window` | 7.4.1 | 1 | peer `vite-plugin-pwa` |
 | `wrangler` | 4.157.0 | 1 | |
+| `eslint` | 10.14.0 | 2 | ESLint 10: его поддерживают `typescript-eslint`, `boundaries`, `react-hooks`, `rtl-friendly`, `storybook` (peer) |
+| `@eslint/js` | 10.0.1 | 2 | |
+| `typescript-eslint` | 8.72.1 | 2 | `recommendedTypeChecked` |
+| `eslint-plugin-boundaries` | 7.4.1 | 2 | только правило `dependencies`: `element-types` и `entry-point` в 7.x устарели (A-010) |
+| `eslint-plugin-react-hooks` | 7.1.1 | 2 | |
+| `eslint-import-resolver-typescript` | 4.4.5 | 2 | алиас `@/` для `boundaries` |
+| `globals` | 17.14.0 | 2 | |
+| `dependency-cruiser` | 18.7.2 | 2 | |

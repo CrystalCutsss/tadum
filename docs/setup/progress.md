@@ -6,8 +6,8 @@
 | :--- | :--- | :--- | :--- |
 | 0 | done | `0e3fcfa` | Репозиторий создал Кирилл; `main` создан из коммита блока 0 без push (A-003) |
 | 1 | done | `37ad462` | `verify` = `typecheck && build`; `wrangler deploy --dry-run` проходит без токена; `account_id` — до 7a (A-005) |
-| 1b | done | см. git log | 31 файл (28 в `docs/product/` + шаблоны), побайтно с Drive (A-008) |
-| 2 | todo | — | |
+| 1b | done | `80e3461` | 31 файл (28 в `docs/product/` + шаблоны), побайтно с Drive (A-008) |
+| 2 | done | см. git log | `verify` += `lint && deps:check`; boundaries 7.x — правило `dependencies` (A-010) |
 | 3 | todo | — | |
 | 4a | todo | — | Пресет получен (2026-11-05), см. ниже |
 | 5a | todo | — | |
@@ -55,6 +55,18 @@
 5. Таблица «файл · Drive ID · дата» в `docs/product/README.md`.
 
 **Проверка блока 1b (2026-11-05):** все 28 файлов `docs/product/` и 3 шаблона на месте; размер тела каждого совпадает с `fileSize` Drive. Дополнительно каждый файл сверен побайтно с исходным ответом коннектора: 31/31 MATCH. `JSON.parse` для `tov-lexicon.json` проходит, `version` = `1.0.0` в обеих копиях. Файлов без шапки в `docs/product/` нет, кроме JSON и `README.md`. `pnpm verify` зелёный.
+
+## План блока 2
+
+1. Сверить мастер-промпт с Drive (решение Кирилла: источник — Drive; A-009).
+2. ESLint 10 (flat) + `typescript-eslint` + `boundaries` + `react-hooks`; dependency-cruiser.
+3. Срезы `widgets/features/entities/shared/*` с `index.ts`; `shared/lib/clock.ts`, `shared/lib/index.ts`; `content/offer.{ar,en}.json`.
+4. Запреты: слои, только `index.ts`, горизонтальные импорты, `shared/ui` → `shared/analytics`, `odoo_stage` в `widgets/pages`, прямое хранилище и `Date`.
+5. `deps:graph` → `docs/architecture/deps.mmd`; `docs/architecture/layers.md`.
+
+**Проверка блока 2 (2026-11-05):** 26 срезов с `index.ts` (в `pages/` его нет); `routeTree.gen.ts` содержит только `/`. На временной ветке `test/guards` `pnpm lint` упал на всех нарушениях: `features → pages`, `localStorage.getItem`, `window.sessionStorage`, `Date.now()`, `features → features`, глубокий импорт `@/entities/session/model`, `shared/ui → shared/analytics`, `odoo_stage` в виджете. Разрешённые импорты (`widget → @/entities/session`, `@/shared/lib`) прошли. `deps:check` поймал `no-cross-slice` и `features-down-only`. Ветка удалена. `pnpm verify` (состав блока 2) зелёный.
+
+Примечание: при удалении временной ветки `git clean`/`git checkout` стёрли незакоммиченную работу блока; её восстановили и перепроверили. Дальше — коммит до любых проверок на временных ветках.
 
 ## Проверка среды (§0.4), 2026-11-05
 
