@@ -55,6 +55,7 @@ jobs:
       - run: pnpm contract:md --check
       - run: pnpm check:contrast
       - run: pnpm check:docs
+      - run: pnpm check:claude
 
   commits:
     if: github.event_name == 'pull_request'

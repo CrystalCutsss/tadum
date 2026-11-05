@@ -19,6 +19,7 @@
 | :--- | :--- |
 | [`../README.md`](../README.md) | запуск без Claude: установка, персоны, команды, переменные, CI |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | ветки, worktree, коммиты, changesets, PR, секреты |
+| [`../CLAUDE.md`](../CLAUDE.md) | контекст для Claude Code: инварианты, структура, цикл фичи; правила `.claude/rules/`, агенты `.claude/agents/`, скиллы `.claude/skills/` |
 | [`architecture/layers.md`](architecture/layers.md) | слои FSD-lite, правила импорта, где что проверяется |
 | [`architecture/deps.mmd`](architecture/deps.mmd) | граф зависимостей `src/` (Mermaid, `pnpm deps:graph`) |
 | [`decisions/ADR-001-stack.md`](decisions/ADR-001-stack.md) | стек и архитектура; таблица версий пакетов |

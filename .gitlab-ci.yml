@@ -78,6 +78,7 @@ lint:
     - pnpm contract:md --check
     - pnpm check:contrast
     - pnpm check:docs
+    - pnpm check:claude
 
 commits:
   stage: check

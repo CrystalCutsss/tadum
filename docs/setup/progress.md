@@ -19,7 +19,7 @@
 | 6d | done | `7e5047c` | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
 | 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
 | 7b | done | `e76795e` | README/CONTRIBUTING, ADR-003, перенос в GitLab, аналитика, карта `docs/`; `verify` += `check:docs`; копии в Drive |
-| 8a | todo | — | |
+| 8a | done | см. git log | `CLAUDE.md` 56 строк, 9 правил, 7 агентов, 12 скиллов; `verify` += `check:claude` (A-050) |
 | 8b | todo | — | |
 | 9 | todo | — | |
 | 10 | todo | — | |
@@ -191,6 +191,23 @@
 - e2e нашли и закрыли три дефекта (A-046); регрессия «Подписание» вместо «Лимит активен» валит новый e2e-тест без исправления;
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
+
+## План и проверка блока 8a
+
+Ветка `chore/setup-2`. Тексты на русском (D-062); имена файлов и ключи фронтматтера — английские. Формат фронтматтера сверен с документацией Claude Code (code.claude.com/docs: sub-agents, skills) — Context7 в сессии нет.
+
+1. `CLAUDE.md` (< 200 строк) по приложению B: что это · источник правды · инварианты §0.3 · структура и команды · цикл фичи · когда спрашивать · где решения · языки.
+2. `.claude/rules/*.md` с `paths:`: `i18n`, `rtl`, `design-system`, `data`, `analytics`, `tov`, `product-docs`, `testing`, `secrets-and-shared`.
+3. `.claude/agents/*.md`: `design-system-owner`, `ux-researcher`, `a11y-usability-reviewer`, `rtl-qa`, `ux-writer`, `code-reviewer`, `release-manager` — задача, вход, формат отчёта, ссылки на правила, минимальные `tools`.
+4. `.claude/skills/*/SKILL.md`: `feature-brief`, `plan`, `verify`, `design-review`, `rtl-qa`, `ux-copy-review`, `a11y-review`, `mobbin-research`, `sync-product-docs`, `release-proto`, `pr`, `adr`.
+5. Проверка: `CLAUDE.md` < 200 строк; фронтматтер всех агентов и скиллов валиден (скрипт `check:claude`); `claude -p "Перечисли инварианты проекта"` выводит §0.3.
+
+**Проверка блока 8a (2026-11-05):**
+- `CLAUDE.md` — 57 строк (< 200);
+- `pnpm check:claude`: фронтматтер 7 агентов и 12 скиллов валиден, ключи — из документации Claude Code, имена совпадают с файлами, ссылки скиллов на агентов существуют. Первый прогон нашёл три файла с невалидным YAML (двоеточие в `description`) — исправлено. Подменённое имя агента валит проверку;
+- `claude -p "Перечисли инварианты проекта"` — новая сессия выводит все 12 инвариантов §0.3 из `CLAUDE.md`;
+- новая сессия видит 7 агентов и 8 скиллов, которые вызывает модель; `/feature-brief`, `/pr`, `/release-proto`, `/sync-product-docs` — только по команде человека (A-050);
+- `pnpm verify` зелёный (502 unit, 113 историй, 9 smoke).
 
 ## План и проверка блока 7b
 
