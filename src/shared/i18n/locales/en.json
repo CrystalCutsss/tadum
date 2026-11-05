@@ -1,0 +1,57 @@
+{
+  "common": {
+    "cached_at": "Shown as of {time}",
+    "copy_link": "Copy link",
+    "load_error": "We couldn't load this page",
+    "offline_action_hint": "Available when you're back online",
+    "offline_actions_disabled": "You're offline. Uploads will be available when you're back online",
+    "offline_banner": "You're offline. Some actions are unavailable until you're back online",
+    "offline_retry": "No connection. Check your internet and try again",
+    "open_in_browser": "This link opens best in your browser",
+    "retry": "Try again",
+    "server_error_retry": "Something went wrong on our side. Please try again",
+    "storage_unavailable": "Your browser doesn't keep data between visits. You may need to sign in again next time"
+  },
+  "lang": {
+    "switch_to_ar": "العربية",
+    "switch_to_en": "English"
+  },
+  "nav": {
+    "clients": "Clients",
+    "documents": "Documents",
+    "help": "Help",
+    "home": "Home",
+    "more": "More",
+    "offer": "Terms",
+    "referral": "Link"
+  },
+  "relative": {
+    "days_ago_one": "{count} day ago",
+    "days_ago_other": "{count} days ago",
+    "hours_ago_one": "{count} hour ago",
+    "hours_ago_other": "{count} hours ago",
+    "minutes_ago_one": "{count} minute ago",
+    "minutes_ago_other": "{count} minutes ago"
+  },
+  "support": {
+    "cta": {
+      "question": "Have a question? Message us"
+    },
+    "email": "Email",
+    "prefill": {
+      "closed": "Hello, I have a question about my Tadum application for {company}.",
+      "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
+      "under_review": "Hello, I have a question about my Tadum application for {company}."
+    },
+    "whatsapp": "WhatsApp"
+  },
+  "theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "system": "Same as device"
+  },
+  "units": {
+    "kb": "KB",
+    "mb": "MB"
+  }
+}

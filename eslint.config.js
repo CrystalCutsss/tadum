@@ -1,7 +1,9 @@
 // Конфигурация ESLint (flat). Границы слоёв FSD-lite описаны в docs/architecture/layers.md.
 import js from '@eslint/js';
 import boundaries from 'eslint-plugin-boundaries';
+import i18next from 'eslint-plugin-i18next';
 import reactHooks from 'eslint-plugin-react-hooks';
+import rtlFriendly from 'eslint-plugin-rtl-friendly';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -15,6 +17,19 @@ const ENTRY = {
   entities: 'index.ts',
   shared: '{index.ts,utils.ts}',
 };
+// Наборы запретов no-restricted-syntax.
+const DATE = [
+  { selector: "NewExpression[callee.name='Date']", message: 'Время — только через @/shared/lib (clock.ts).' },
+  { selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']", message: 'Время — только через @/shared/lib (clock.ts).' },
+];
+const INTL = [
+  { selector: "Identifier[name='Intl']", message: 'Форматирование — только через @/shared/i18n (format.ts, D-071).' },
+  { selector: "CallExpression[callee.property.name=/^toLocale/]", message: 'Форматирование — только через @/shared/i18n (format.ts, D-071).' },
+];
+const ODOO = [
+  { selector: "Identifier[name='odoo_stage'], Literal[value='odoo_stage']", message: 'odoo_stage не используется в widgets/ и pages/ — только клиентский статус (01-roles.md §6).' },
+];
+
 const target = (type) => ({ element: { type, ...(ENTRY[type] ? { fileInternalPath: ENTRY[type] } : {}) } });
 
 export default tseslint.config(
@@ -39,7 +54,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['*.config.{js,ts}', 'eslint.config.js'],
+    files: ['*.config.{js,ts}', 'eslint.config.js', 'scripts/**/*.{js,mjs}'],
     languageOptions: { globals: globals.node },
   },
   {
@@ -117,37 +132,35 @@ export default tseslint.config(
       ],
     },
   },
-  {
-    files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/shared/lib/clock.ts'],
-    rules: {
-      'no-restricted-syntax': [
-        'error',
-        { selector: "NewExpression[callee.name='Date']", message: 'Время — только через @/shared/lib (clock.ts).' },
-        {
-          selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
-          message: 'Время — только через @/shared/lib (clock.ts).',
-        },
-      ],
-    },
-  },
-
-  // --- odoo_stage не доходит до виджетов и страниц (01-roles.md §6) ---
+  // no-restricted-syntax: правило одно, поэтому наборы селекторов собираются по группам файлов
+  // (в flat config последний подходящий блок перекрывает предыдущие).
+  { files: ['src/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL] } },
+  { files: ['src/shared/i18n/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE] } },
+  { files: ['src/shared/lib/clock.ts'], rules: { 'no-restricted-syntax': ['error', ...INTL] } },
+  // odoo_stage не доходит до виджетов и страниц (01-roles.md §6).
   {
     files: ['src/widgets/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...ODOO] },
+  },
+  // Тесты могут создавать даты напрямую.
+  { files: ['src/**/*.test.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...INTL] } },
+
+  // --- Тексты и направление (01-nfr-locale-brand.md §1.2, §1.4) ---
+  {
+    files: ['src/**/*.tsx'],
+    ignores: ['src/**/*.test.tsx', 'src/**/*.stories.tsx'],
+    plugins: { i18next },
     rules: {
-      'no-restricted-syntax': [
-        'error',
-        { selector: "NewExpression[callee.name='Date']", message: 'Время — только через @/shared/lib (clock.ts).' },
-        {
-          selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
-          message: 'Время — только через @/shared/lib (clock.ts).',
-        },
-        {
-          selector: "Identifier[name='odoo_stage'], Literal[value='odoo_stage']",
-          message: 'odoo_stage не используется в widgets/ и pages/ — только клиентский статус (01-roles.md §6).',
-        },
-      ],
+      // Ни одной пользовательской строки в JSX: тексты, aria-label, title, placeholder — только ключи i18n.
+      'i18next/no-literal-string': ['error', { mode: 'jsx-only', 'jsx-attributes': { include: ['^(aria-label|aria-description|title|placeholder|alt|label)$'] } }],
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    plugins: { 'rtl-friendly': rtlFriendly },
+    rules: {
+      // Только логические классы: ms-/me-/ps-/pe-/start-/end-/text-start…; физические ml-/mr-/left-/text-left… запрещены.
+      'rtl-friendly/no-physical-properties': 'error',
     },
   },
 );

@@ -41,3 +41,10 @@
 | `eslint-import-resolver-typescript` | 4.4.5 | 2 | алиас `@/` для `boundaries` |
 | `globals` | 17.14.0 | 2 | |
 | `dependency-cruiser` | 18.7.2 | 2 | |
+| `i18next` | 26.7.1 | 3 | плейсхолдеры `{…}` (D-075) |
+| `react-i18next` | 17.1.12 | 3 | |
+| `lucide-react` | 1.69.0 | 3 | |
+| `vitest` | 5.1.0 | 3 | совместим с `@storybook/addon-vitest` 10.6 (peer `^4 \|\| ^5`) |
+| `i18next-cli` | 1.83.0 | 3 | заменил устаревший `i18next-parser` (A-012) |
+| `eslint-plugin-i18next` | 6.1.5 | 3 | `no-literal-string`, режим `jsx-only` |
+| `eslint-plugin-rtl-friendly` | 0.5.1 | 3 | `no-physical-properties` |

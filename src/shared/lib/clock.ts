@@ -22,3 +22,8 @@ export function setClock(fn: NowFn): () => void {
     nowFn = previous;
   };
 }
+
+/** Привести вход (Date, мс, ISO-строка) к Date. Единственное место, где создаются Date из данных. */
+export function toDate(input: Date | number | string): Date {
+  return input instanceof Date ? input : new Date(input);
+}

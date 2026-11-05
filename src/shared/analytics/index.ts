@@ -1,2 +1,2 @@
 // Публичный API сегмента shared/analytics.
-export {};
+export { track, type TrackEvents } from './track';

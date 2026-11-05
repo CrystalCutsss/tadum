@@ -1,0 +1,69 @@
+{
+  "common": {
+    "cached_at": "البيانات كما في {time}",
+    "copy_link": "نسخ الرابط",
+    "load_error": "تعذّر تحميل هذه الصفحة",
+    "offline_action_hint": "متاح عند عودة الاتصال",
+    "offline_actions_disabled": "أنت غير متصل. سيتوفر الرفع عند عودة الاتصال",
+    "offline_banner": "أنت غير متصل. بعض الإجراءات غير متاحة حتى عودة الاتصال",
+    "offline_retry": "لا يوجد اتصال. تحقق من الإنترنت وحاول مجددًا",
+    "open_in_browser": "يُفضَّل فتح هذا الرابط في المتصفح",
+    "retry": "إعادة المحاولة",
+    "server_error_retry": "حدث خطأ من جهتنا. يرجى المحاولة مرة أخرى",
+    "storage_unavailable": "متصفحك لا يحتفظ بالبيانات بين الزيارات. قد تحتاج إلى تسجيل الدخول مجددًا في المرة القادمة"
+  },
+  "lang": {
+    "switch_to_ar": "العربية",
+    "switch_to_en": "English"
+  },
+  "nav": {
+    "clients": "العملاء",
+    "documents": "المستندات",
+    "help": "المساعدة",
+    "home": "الرئيسية",
+    "more": "المزيد",
+    "offer": "الشروط",
+    "referral": "الرابط"
+  },
+  "relative": {
+    "days_ago_zero": "منذ {count} يوم",
+    "days_ago_one": "منذ يوم",
+    "days_ago_two": "منذ يومين",
+    "days_ago_few": "منذ {count} أيام",
+    "days_ago_many": "منذ {count} يومًا",
+    "days_ago_other": "منذ {count} يوم",
+    "hours_ago_zero": "منذ {count} ساعة",
+    "hours_ago_one": "منذ ساعة",
+    "hours_ago_two": "منذ ساعتين",
+    "hours_ago_few": "منذ {count} ساعات",
+    "hours_ago_many": "منذ {count} ساعة",
+    "hours_ago_other": "منذ {count} ساعة",
+    "minutes_ago_zero": "منذ {count} دقيقة",
+    "minutes_ago_one": "منذ دقيقة",
+    "minutes_ago_two": "منذ دقيقتين",
+    "minutes_ago_few": "منذ {count} دقائق",
+    "minutes_ago_many": "منذ {count} دقيقة",
+    "minutes_ago_other": "منذ {count} دقيقة"
+  },
+  "support": {
+    "cta": {
+      "question": "لديك سؤال؟ راسلنا"
+    },
+    "email": "البريد الإلكتروني",
+    "prefill": {
+      "closed": "مرحبًا، لديّ سؤال بخصوص طلبي في تدوم لشركة {company}.",
+      "quotation": "مرحبًا، أرغب في إجراء عملية شراء عبر تدوم لشركة {company}. إليكم عرض السعر:",
+      "under_review": "مرحبًا، لديّ سؤال بخصوص طلبي في تدوم لشركة {company}."
+    },
+    "whatsapp": "واتساب"
+  },
+  "theme": {
+    "dark": "داكن",
+    "light": "فاتح",
+    "system": "مثل الجهاز"
+  },
+  "units": {
+    "kb": "كيلوبايت",
+    "mb": "ميجابايت"
+  }
+}

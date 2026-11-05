@@ -7,8 +7,8 @@
 | 0 | done | `0e3fcfa` | Репозиторий создал Кирилл; `main` создан из коммита блока 0 без push (A-003) |
 | 1 | done | `37ad462` | `verify` = `typecheck && build`; `wrangler deploy --dry-run` проходит без токена; `account_id` — до 7a (A-005) |
 | 1b | done | `80e3461` | 31 файл (28 в `docs/product/` + шаблоны), побайтно с Drive (A-008) |
-| 2 | done | см. git log | `verify` += `lint && deps:check`; boundaries 7.x — правило `dependencies` (A-010) |
-| 3 | todo | — | |
+| 2 | done | `06c166a` | `verify` += `lint && deps:check`; boundaries 7.x — правило `dependencies` (A-010) |
+| 3 | done | см. git log | `verify` += `lint:i18n && test`; `i18next-cli` (A-012) |
 | 4a | todo | — | Пресет получен (2026-11-05), см. ниже |
 | 5a | todo | — | |
 | 5b | todo | — | |
@@ -67,6 +67,16 @@
 **Проверка блока 2 (2026-11-05):** 26 срезов с `index.ts` (в `pages/` его нет); `routeTree.gen.ts` содержит только `/`. На временной ветке `test/guards` `pnpm lint` упал на всех нарушениях: `features → pages`, `localStorage.getItem`, `window.sessionStorage`, `Date.now()`, `features → features`, глубокий импорт `@/entities/session/model`, `shared/ui → shared/analytics`, `odoo_stage` в виджете. Разрешённые импорты (`widget → @/entities/session`, `@/shared/lib`) прошли. `deps:check` поймал `no-cross-slice` и `features-down-only`. Ветка удалена. `pnpm verify` (состав блока 2) зелёный.
 
 Примечание: при удалении временной ветки `git clean`/`git checkout` стёрли незакоммиченную работу блока; её восстановили и перепроверили. Дальше — коммит до любых проверок на временных ветках.
+
+## План блока 3
+
+1. `shared/i18n/config.ts`: `ar`/`en`, `fallbackLng: 'ar'`, `?lang=` → `storage('lang')` → `ar`, плейсхолдеры `{…}`, `lang`/`dir` на `<html>`, `track('language_changed')` через заглушку `shared/analytics/track.ts`.
+2. `types.d.ts` — типы ключей по `ar.json`.
+3. `format.ts` по §1.3 (D-071) и побайтные unit-тесты.
+4. `shared/ui/ltr.tsx`, `shared/ui/icon/` со списком `mirroredIcons`.
+5. ESLint: `Intl`/`toLocale*` вне `shared/i18n`, `i18next/no-literal-string`, `rtl-friendly`.
+6. `i18next-cli` + `scripts/lint-i18n-tov.mjs` → `pnpm lint:i18n`.
+7. Стартовые ключи `common/lang/theme/nav/support/relative/units`; дописанные формы — в `docs/i18n/needs-review.md`.
 
 ## Проверка среды (§0.4), 2026-11-05
 
