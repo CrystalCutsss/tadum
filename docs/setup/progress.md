@@ -202,6 +202,12 @@
 4. ⏸ Кирилл: пароль Tadum в `PROTOTYPE_PASSWORDS`.
 5. Проверка на витрине, тег `v1`.
 
+**Проверка блока 9 — подготовка (2026-11-05):**
+- `pnpm run release:proto v1 --proto-dir /home/user/proto --proto-branch claude/epic-wozniak-hjs4n8`: `pnpm verify` зелёный; сборка `/p/tadum/v1/`; в Proto `registry:validate` — «Registry OK: 3 prototypes, 7 versions», `site:build` — 11 задач, 365 файлов, 24 МБ; локальный коммит Proto `fd8e046` (79 файлов, без push);
+- первый прогон остановила проверка реестра Proto: ось меню ≤ 6 пунктов, id через дефис — ось «Персона» сокращена до 6, Tadum принимает `?persona=client-active` (A-052, тест + e2e);
+- локальный просмотр (`pnpm site:preview` в Proto): `/p/tadum/v1/` уводит в просмотрщик; ось «Клиент: лимит активен» + English → `/c/home`, шкала «Limit active»; «Вход по номеру» + العربية → `/login`, `dir=rtl`; меню «Персона / Язык»; «Единая активация» открывается; Tadum на главной витрины; ошибок в консоли нет;
+- ⏸ Кирилл: «да» на push ветки Proto и PR; merge PR Tadum (`chore/release-v1`) и PR Proto; пароль Tadum в `PROTOTYPE_PASSWORDS`.
+
 ## План и проверка блока 8b
 
 1. Хуки (`scripts/hooks/*.sh`, `.claude/settings.json`): `protect-paths`, `guard-bash`, `post-edit`, `verify-on-stop`, `session-start`, `prompt-brief`; тесты `scripts/hooks/__tests__` (Vitest, JSON на stdin). Схема сверена с документацией Claude Code (A-051).
