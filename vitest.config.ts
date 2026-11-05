@@ -16,7 +16,7 @@ export default defineConfig({
         resolve: { alias },
         test: {
           name: 'unit',
-          include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.mjs'],
+          include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.{mjs,ts}'],
           environment: 'node',
         },
       },

@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["exec", "shadcn", "mcp"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "@playwright/mcp@0.0.84", "--headless", "--isolated"]
+    },
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "pnpm",
+      "args": ["dlx", "chrome-devtools-mcp@1.12.0", "--headless", "--isolated"]
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "cloudflare": {
+      "type": "http",
+      "url": "https://mcp.cloudflare.com/mcp"
+    }
+  }
+}
