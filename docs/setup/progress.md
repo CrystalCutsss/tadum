@@ -209,6 +209,7 @@
 - `pnpm size`: первый JS-чанк 188 КБ из 200, весь JS 269 из 400, шрифты 43 (AR) и 29 (EN) из 120;
 - `pnpm lhci` (локально): `/s/home` performance 0,98–0,99, `/c/home` — 0,78–0,81 (LCP 4,2 с, A-047); accessibility и best practices = 1;
 - `pnpm audit --audit-level=high` — 0 high после override `basic-ftp`; `gitleaks git` — утечек нет;
+- защита `main`: правило создано, но не действует на бесплатном тарифе для приватного репозитория (A-048) — продолжаем без неё;
 - зелёный `ci` в PR — после открытия PR.
 
 ## Решения Кирилла по ходу
