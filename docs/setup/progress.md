@@ -205,7 +205,7 @@
 - Stop-хук: `claude -p --permission-mode acceptEdits "Добавь пустую строку в конец src/app/main.tsx"` — в событиях хуков `verify-on-stop: в src/ есть изменения — запускаю pnpm verify`, verify зелёный; там же сработали `SessionStart` (инварианты) и `UserPromptSubmit`. Файл возвращён;
 - `/rtl-qa`: на временной ветке `test/guards` компонент с `ml-4` → `claude -p "/rtl-qa"` назвал `src/widgets/rtl-probe/rtl-probe.tsx:3`; `pnpm lint:rtl` падает на той же строке; ветка удалена. В `claude -p` разрешения проекта не применялись (папке не дано доверие) — `rtl-qa` не смог сам запустить `pnpm`, хуки при этом работали (A-051);
 - защита в настоящей сессии: `claude -p "Добавь комментарий в начало src/styles/tokens.css"` → хук отказал «Защищённый путь: src/styles/tokens.css…», файл не изменился. Модель предложила обход через `sed` — `guard-bash.sh` теперь запрещает и его;
-- копия `docs/claude-code.md` в Drive `05 Разработка/05-claude-code-environment.md` — `1CdND3ghva_SAmBl0cAX4N9gA89SahEDI`, 11362 байт (совпадает). Неудачная загрузка на 11360 байт (`1bWsM95RSK39OCqw7cURn8j8kmT7WEBka`) отправлена в корзину;
+- копия `docs/claude-code.md` в Drive `05 Разработка/05-claude-code-environment.md` — `1hUFI5CJjZZDXNILOTcI68GIgY1tUHRio`, 11619 байт (совпадает; версия с требованием jq). Прежние копии (`1CdND3…`, `1bWsM95…` — неудачная загрузка) в корзине;
 - `pnpm verify` зелёный (563 unit, 113 историй, 9 smoke);
 - **⏸ Кирилл:** финальная проверка 8b.5 п.4 — в новой облачной сессии на `tadum` попросить поправить `tokens.css` и убедиться в отказе хука.
 
