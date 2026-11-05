@@ -17,10 +17,10 @@
 | 6b | done | `80ebd33` | оболочка-гипотеза, настройки, выход; истории в матрице AR/EN × light/dark (A-041) |
 | 6c | done | `28f507f` | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
 | 6d | done | `7e5047c` | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
-| 7a | in progress | см. git log | скрипты, husky/commitlint/changesets, CI ×2, knip/jscpd/`lint:gitlab-ci` в `verify`; ⏸ PR → merge Кириллом, ⏸ первый деплой превью |
-| 7b | todo | — | |
-| 8a | todo | — | |
-| 8b | todo | — | |
+| 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
+| 7b | done | `e76795e` | README/CONTRIBUTING, ADR-003, перенос в GitLab, аналитика, карта `docs/`; `verify` += `check:docs`; копии в Drive |
+| 8a | done | см. git log | `CLAUDE.md` 56 строк, 9 правил, 7 агентов, 12 скиллов; `verify` += `check:claude` (A-050) |
+| 8b | done | см. git log | хуки (61 тест), разрешения, `.mcp.json`, плагины; ⏸ финальная проверка хука в новой облачной сессии и merge `chore/setup-2` |
 | 9 | todo | — | |
 | 10 | todo | — | |
 
@@ -192,6 +192,57 @@
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
 
+## План и проверка блока 8b
+
+1. Хуки (`scripts/hooks/*.sh`, `.claude/settings.json`): `protect-paths`, `guard-bash`, `post-edit`, `verify-on-stop`, `session-start`, `prompt-brief`; тесты `scripts/hooks/__tests__` (Vitest, JSON на stdin). Схема сверена с документацией Claude Code (A-051).
+2. Разрешения 8b.2 (allow / ask / deny) — только команды; пути — хуком.
+3. `.mcp.json`: shadcn, playwright, chrome-devtools, context7, github, cloudflare — без секретов; `docs/claude-code.md` → Drive `05-claude-code-environment.md`.
+4. Плагины: `frontend-design`, `code-review`, `typescript-lsp`, `hookify`, `claude-md-management` (`claude-plugins-official`), `design` (`knowledge-work-plugins`); без `superpowers` (D-066).
+
+**Проверка блока 8b (2026-11-05):**
+- тесты хуков — 61 зелёный; подмена (снятая защита `tokens.css`) валит 2 теста. Ручная проверка: `echo '{"tool_name":"Edit","tool_input":{"file_path":"…/src/styles/tokens.css"}}' | scripts/hooks/protect-paths.sh` → `"permissionDecision":"deny"`; с `TADUM_ALLOW_PROTECTED=1` — разрешение;
+- `.claude/settings.json` проходит JSON-схему SchemaStore; `claude plugin validate .claude` — «Validation passed»;
+- Stop-хук: `claude -p --permission-mode acceptEdits "Добавь пустую строку в конец src/app/main.tsx"` — в событиях хуков `verify-on-stop: в src/ есть изменения — запускаю pnpm verify`, verify зелёный; там же сработали `SessionStart` (инварианты) и `UserPromptSubmit`. Файл возвращён;
+- `/rtl-qa`: на временной ветке `test/guards` компонент с `ml-4` → `claude -p "/rtl-qa"` назвал `src/widgets/rtl-probe/rtl-probe.tsx:3`; `pnpm lint:rtl` падает на той же строке; ветка удалена. В `claude -p` разрешения проекта не применялись (папке не дано доверие) — `rtl-qa` не смог сам запустить `pnpm`, хуки при этом работали (A-051);
+- защита в настоящей сессии: `claude -p "Добавь комментарий в начало src/styles/tokens.css"` → хук отказал «Защищённый путь: src/styles/tokens.css…», файл не изменился. Модель предложила обход через `sed` — `guard-bash.sh` теперь запрещает и его;
+- копия `docs/claude-code.md` в Drive `05 Разработка/05-claude-code-environment.md` — `1hUFI5CJjZZDXNILOTcI68GIgY1tUHRio`, 11619 байт (совпадает; версия с требованием jq). Прежние копии (`1CdND3…`, `1bWsM95…` — неудачная загрузка) в корзине;
+- `pnpm verify` зелёный (563 unit, 113 историй, 9 smoke);
+- **⏸ Кирилл:** финальная проверка 8b.5 п.4 — в новой облачной сессии на `tadum` попросить поправить `tokens.css` и убедиться в отказе хука.
+
+## План и проверка блока 8a
+
+Ветка `chore/setup-2`. Тексты на русском (D-062); имена файлов и ключи фронтматтера — английские. Формат фронтматтера сверен с документацией Claude Code (code.claude.com/docs: sub-agents, skills) — Context7 в сессии нет.
+
+1. `CLAUDE.md` (< 200 строк) по приложению B: что это · источник правды · инварианты §0.3 · структура и команды · цикл фичи · когда спрашивать · где решения · языки.
+2. `.claude/rules/*.md` с `paths:`: `i18n`, `rtl`, `design-system`, `data`, `analytics`, `tov`, `product-docs`, `testing`, `secrets-and-shared`.
+3. `.claude/agents/*.md`: `design-system-owner`, `ux-researcher`, `a11y-usability-reviewer`, `rtl-qa`, `ux-writer`, `code-reviewer`, `release-manager` — задача, вход, формат отчёта, ссылки на правила, минимальные `tools`.
+4. `.claude/skills/*/SKILL.md`: `feature-brief`, `plan`, `verify`, `design-review`, `rtl-qa`, `ux-copy-review`, `a11y-review`, `mobbin-research`, `sync-product-docs`, `release-proto`, `pr`, `adr`.
+5. Проверка: `CLAUDE.md` < 200 строк; фронтматтер всех агентов и скиллов валиден (скрипт `check:claude`); `claude -p "Перечисли инварианты проекта"` выводит §0.3.
+
+**Проверка блока 8a (2026-11-05):**
+- `CLAUDE.md` — 56 строк (< 200);
+- `pnpm check:claude`: фронтматтер 7 агентов и 12 скиллов валиден, ключи — из документации Claude Code, имена совпадают с файлами, ссылки скиллов на агентов существуют. Первый прогон нашёл три файла с невалидным YAML (двоеточие в `description`) — исправлено. Подменённое имя агента валит проверку;
+- `claude -p "Перечисли инварианты проекта"` — новая сессия выводит все 12 инвариантов §0.3 из `CLAUDE.md`;
+- новая сессия видит 7 агентов и 8 скиллов, которые вызывает модель; `/feature-brief`, `/pr`, `/release-proto`, `/sync-product-docs` — только по команде человека (A-050);
+- `pnpm verify` зелёный (502 unit, 113 историй, 9 smoke).
+
+## План и проверка блока 7b
+
+Ветка `chore/setup-2` от `main` (`be7f62a`). Всё на русском.
+
+1. `README.md` — полная инструкция запуска без Claude; `CONTRIBUTING.md` — ветки, коммиты, PR, worktree, проверки, changesets.
+2. `docs/architecture/layers.md` — актуализировать (knip/jscpd уже в `verify`); `deps.mmd` — перегенерировать.
+3. `docs/decisions/ADR-003-showcase-publishing.md` — текст приложения A; ADR-001 (таблица версий) и ADR-002 уже есть; `assumptions.md` — дополнить по ходу.
+4. `docs/05-migration-to-gitlab.md` — чек-лист плана §3.5 по фактическому состоянию; `docs/analytics.md`; `docs/README.md` — таблица «что где лежит» (план §3.6).
+5. `scripts/check-doc-links.mjs` (`pnpm check:docs`) — относительные ссылки в `*.md` репозитория не битые; в `verify` и CI.
+6. Копии `docs/05-backend-contract.md` и `docs/05-migration-to-gitlab.md` — в Drive `05 Разработка` (`19icVaCN1pyAZs5MeDuNv9N8ahrzgOu6w`), через субагента со сверкой размера.
+
+**Проверка блока 7b (2026-11-05):**
+- все файлы на месте: `README.md`, `CONTRIBUTING.md`, `docs/architecture/layers.md`, `docs/architecture/deps.mmd` (перегенерирован), `docs/decisions/ADR-001…003`, `assumptions.md` (A-049), `docs/05-backend-contract.md`, `docs/05-migration-to-gitlab.md`, `docs/analytics.md`, `docs/README.md`;
+- `pnpm check:docs`: 49 файлов, 25 относительных ссылок — битых нет; ссылка на несуществующий файл валит проверку;
+- копии в Drive `05 Разработка`: `05-backend-contract.md` (`1v0ikNYOF2HfDRfp59boR8_ePjHpSGOFR`, 14632 байт) и `05-migration-to-gitlab.md` (`1EShUpnPkduJ_QmMCnoZmxazDkV_g-MSM`, 6084 байт) — размер совпадает с репозиторием;
+- `pnpm verify` зелёный (502 unit, 113 историй, 9 smoke).
+
 ## План и проверка блока 7a
 
 1. Скрипты `package.json` по списку 7a п.1: добавлены `lint:rtl`, `lint:gitlab-ci`, `test:a11y`, `screenshots:update`, `knip`, `jscpd`, `size`, `lhci`, `release:proto` (заглушка до блока 9).
@@ -209,6 +260,7 @@
 - `pnpm size`: первый JS-чанк 188 КБ из 200, весь JS 269 из 400, шрифты 43 (AR) и 29 (EN) из 120;
 - `pnpm lhci` (локально): `/s/home` performance 0,98–0,99, `/c/home` — 0,78–0,81 (LCP 4,2 с, A-047); accessibility и best practices = 1;
 - `pnpm audit --audit-level=high` — 0 high после override `basic-ftp`; `gitleaks git` — утечек нет;
+- превью-воркер: первый деплой — `deploy-preview` вручную с `main` (run 42074875447), https://tadum.kirillgloba.workers.dev — `X-Robots-Tag: noindex`; проверено в браузере: вход кодом `0000` → `/c/home` (AR, RTL), `?persona=supplier_active&lang=en` → `/s/home`. Проверка нашла гонку в e2e (код вводился в поле телефона, пока экран кода ещё грузился) — исправлено ожиданием заголовка в `enterCode` (ветка `chore/setup-2`);
 - защита `main`: правило создано, но не действует на бесплатном тарифе для приватного репозитория (A-048) — продолжаем без неё;
 - `ci` в PR https://github.com/CrystalCutsss/tadum/pull/1 зелёный на `e094981` (run 42061603260): все 11 jobs, включая `e2e` в android-chrome, iphone-safari (WebKit из образа Playwright) и desktop-chrome. Первый прогон упал на axe в истории `shared/ui/Toggle` (`aria-label` скрывал видимый текст) — исправлено в `ad1bc29`.
 
@@ -242,8 +294,6 @@
 
 ## ⏸ ожидают Кирилла
 
-- Network access окружения: разрешить `cdn.playwright.dev` и `playwright.download.prss.microsoft.com` (загрузка WebKit для проекта `iphone-safari`, 6d).
+- (необязательно) Network access окружения: `cdn.playwright.dev` и `playwright.download.prss.microsoft.com` — WebKit в облачной сессии. `iphone-safari` уже прогоняется в CI из образа Playwright, так что это только для локальных прогонов в сессии.
 
-1. **Секреты Cloudflare в GitHub** (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) — Кирилл задаёт после merge PR #1; в облачную сессию токен не ставится (решение 2026-11-05). Для блока 9 (деплой Proto) — отдельный вопрос, решается там.
-2. **Merge PR https://github.com/CrystalCutsss/tadum/pull/1** merge-коммитом — после зелёного `ci`.
-3. **Первый деплой превью** — dry-run показан → «да» → `deploy-preview` вручную на `main`.
+1. Деплой Proto в блоке 9 (доступ к Cloudflare для витрины) — решается там.

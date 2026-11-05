@@ -1,6 +1,6 @@
 // Сценарии v1 (мастер-промпт 6d п.2): вход, персоны, роли dual, поставщик, неизвестный номер, истечение сессии.
 // @smoke — входят в test:e2e:smoke (android-chrome, в verify).
-import { asPersona, expect, signIn, test, tr } from './fixtures';
+import { asPersona, enterCode, expect, signIn, test, tr } from './fixtures';
 
 const timeline = (lang: 'ar' | 'en') => ({ name: tr(lang, 'timeline.title') });
 
@@ -76,7 +76,7 @@ test('@smoke expireSession() → /session-expired → вход → возвра�
   // returnTo хранится в sessionStorage (SC-01 §7) — после входа открывается исходный маршрут.
   await page.getByRole('main').getByRole('textbox').fill('500000007');
   await page.getByRole('button', { name: tr('en', 'auth.phone.submit') }).click();
-  await page.getByRole('main').getByRole('textbox').fill('0000');
+  await enterCode(page, 'en');
   await expect(page).toHaveURL(/\/c\/home$/);
 });
 
@@ -86,7 +86,7 @@ test('A14: диплинк /c/documents?lang=en без сессии → /login �
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await page.getByRole('main').getByRole('textbox').fill('500000001');
   await page.getByRole('button', { name: tr('en', 'auth.phone.submit') }).click();
-  await page.getByRole('main').getByRole('textbox').fill('0000');
+  await enterCode(page, 'en');
   await expect(page).toHaveURL(/\/c\/documents$/);
 });
 

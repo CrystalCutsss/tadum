@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install*)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm verify*)",
+      "Bash(pnpm test*)",
+      "Bash(pnpm lint*)",
+      "Bash(pnpm typecheck*)",
+      "Bash(pnpm build*)",
+      "Bash(pnpm dlx shadcn@*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git switch*)",
+      "Bash(git branch*)",
+      "Bash(git push origin chore/*)",
+      "Bash(git push origin feat/*)",
+      "Bash(git push origin fix/*)",
+      "Bash(git push origin docs/*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh run *)",
+      "Bash(gh issue *)",
+      "Bash(wrangler deploy --dry-run*)",
+      "Bash(wrangler whoami*)"
+    ],
+    "ask": [
+      "Bash(pnpm run release:proto*)",
+      "Bash(pnpm run deploy:preview*)",
+      "Bash(gh pr merge*)",
+      "Bash(gh api *)",
+      "Bash(git -C * push*)",
+      "Bash(git push origin v*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push * main*)",
+      "Bash(gh repo delete*)",
+      "Bash(gh secret*)",
+      "Bash(wrangler secret*)",
+      "Bash(wrangler delete*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/protect-paths.sh", "timeout": 10 }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/guard-bash.sh", "timeout": 10 }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/post-edit.sh", "timeout": 120 }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/verify-on-stop.sh", "timeout": 900 }]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/session-start.sh", "timeout": 10 }]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/prompt-brief.sh", "timeout": 10 }]
+      }
+    ]
+  },
+  "enabledMcpjsonServers": ["shadcn", "playwright", "chrome-devtools", "context7", "github", "cloudflare"],
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": { "source": { "source": "github", "repo": "anthropics/claude-plugins-official" } },
+    "knowledge-work-plugins": { "source": { "source": "github", "repo": "anthropics/knowledge-work-plugins" } }
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "design@knowledge-work-plugins": true
+  }
+}

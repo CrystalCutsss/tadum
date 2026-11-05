@@ -40,6 +40,8 @@ default:
   variables:
     PNPM_HOME: /root/.local/share/pnpm
   before_script:
+    # jq нужен хукам Claude Code (scripts/hooks) и их тестам; в образе Playwright его нет.
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends jq
     - export PATH="$PNPM_HOME:$PATH"
     - npm install -g "pnpm@$PNPM_VERSION"
     - pnpm env use --global 22
@@ -77,6 +79,8 @@ lint:
     - pnpm check:events
     - pnpm contract:md --check
     - pnpm check:contrast
+    - pnpm check:docs
+    - pnpm check:claude
 
 commits:
   stage: check

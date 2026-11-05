@@ -1,5 +1,5 @@
 // Превью-воркер tadum: только статика из dist/, без Worker-скрипта (D-063).
-// account_id добавляется, когда в сессии появится доступ wrangler к Cloudflare (см. assumptions A-005).
+// account_id не хранится здесь: деплой идёт из CI, wrangler берёт его из секрета CLOUDFLARE_ACCOUNT_ID (A-005).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tadum",

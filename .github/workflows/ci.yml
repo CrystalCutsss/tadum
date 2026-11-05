@@ -54,6 +54,8 @@ jobs:
       - run: pnpm check:events
       - run: pnpm contract:md --check
       - run: pnpm check:contrast
+      - run: pnpm check:docs
+      - run: pnpm check:claude
 
   commits:
     if: github.event_name == 'pull_request'
@@ -75,6 +77,8 @@ jobs:
     container: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # jq нужен хукам Claude Code (scripts/hooks) и их тестам; в образе Playwright его нет.
+      - run: apt-get update -qq && apt-get install -y -qq --no-install-recommends jq
       - uses: ./.github/actions/setup
       - run: pnpm test
       - run: pnpm storybook:build
