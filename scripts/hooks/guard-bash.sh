@@ -41,6 +41,19 @@ for raw in "${parts[@]}"; do
     done
   fi
 
+  # Запись в защищённые пути через Bash — те же правила, что у protect-paths.sh для Edit/Write.
+  if [[ "$part" =~ (^|[[:space:]])(sed[[:space:]]+(-[a-zA-Z]*i|--in-place)|tee|cp|mv|rm|truncate|perl[[:space:]]+-[a-zA-Z]*i)([[:space:]]|$) || "$part" =~ \>[^\&] ]]; then
+    for target in "src/styles/tokens.css" "src/shared/ui/" "docs/product/" "tov-lexicon.json" "src/shared/api/ports/" "pnpm-lock.yaml" ".github/" ".gitlab-ci.yml" "wrangler.jsonc" ".claude/settings.json"; do
+      [[ "$part" == *"$target"* ]] || continue
+      case "$target" in
+        docs/product/ | tov-lexicon.json) [[ "${TADUM_DOCS_SYNC:-0}" == 1 ]] && continue ;;
+        src/styles/tokens.css | src/shared/ui/) [[ "$agent" == design-system-owner || "${TADUM_ALLOW_PROTECTED:-0}" == 1 ]] && continue ;;
+        *) [[ "${TADUM_ALLOW_PROTECTED:-0}" == 1 ]] && continue ;;
+      esac
+      deny "Запись в защищённый путь ($target) через Bash запрещена — те же правила, что для Edit/Write (protect-paths.sh)."
+    done
+  fi
+
   [[ "$part" =~ ^(pnpm[[:space:]]+(exec[[:space:]]+)?|npx[[:space:]]+)?wrangler[[:space:]]+secret ]] && deny "Секреты ставит только Кирилл (D-068): скажите, где и что поставить."
   [[ "$part" =~ ^gh[[:space:]]+secret ]] && deny "Секреты ставит только Кирилл (D-068): скажите, где и что поставить."
 

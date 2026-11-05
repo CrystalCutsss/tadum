@@ -98,6 +98,11 @@ describe('guard-bash.sh', () => {
     'pnpm exec wrangler deploy',
     'pnpm release:proto v1',
     'pnpm dlx shadcn@latest add button',
+    "sed -i 's/a/b/' src/styles/tokens.css",
+    'echo x >> docs/product/01-roles.md',
+    'cat /tmp/x | tee src/shared/ui/button.tsx',
+    'cp /tmp/ci.yml .github/workflows/ci.yml',
+    'echo {} > .claude/settings.json',
   ])('запрещает: %s', (command) => {
     expect(decision(run('guard-bash.sh', bash(command)).stdout)).toBe('deny');
   });
@@ -113,8 +118,17 @@ describe('guard-bash.sh', () => {
     'pnpm run deploy:preview',
     'pnpm run release:proto v1',
     'pnpm verify',
+    'cat src/styles/tokens.css',
+    'grep -n primary src/shared/ui/button.tsx',
+    'git diff -- docs/product',
+    'pnpm lint 2>&1 | tail -5',
   ])('пропускает: %s', (command) => {
     expect(decision(run('guard-bash.sh', bash(command)).stdout)).toBeUndefined();
+  });
+
+  it('запись в токены через Bash — разрешена design-system-owner', () => {
+    expect(decision(run('guard-bash.sh', bash("sed -i 's/a/b/' src/styles/tokens.css", 'design-system-owner')).stdout)).toBeUndefined();
+    expect(decision(run('guard-bash.sh', bash('echo x >> docs/product/a.md'), { TADUM_DOCS_SYNC: '1' }).stdout)).toBeUndefined();
   });
 
   it('shadcn add — только design-system-owner', () => {

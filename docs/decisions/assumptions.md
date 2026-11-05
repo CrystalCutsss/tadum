@@ -229,3 +229,14 @@
   - **Папка «03 Исследования/Бенчмарки и Mobbin»** — `10nc5nJwxC5Or7_ZWkkG4D5mfsyZ6oZXV` (найдена в Drive, в таблице §0.2 её нет).
 
   Проверено: `claude -p "Перечисли инварианты проекта"` выводит все 12 пунктов §0.3; новая сессия видит 7 агентов и 8 скиллов, вызываемых моделью.
+- **A-051.** Хуки, разрешения, MCP, плагины (блок 8b):
+  - **Схема хуков** сверена с документацией Claude Code (code.claude.com/docs/en/hooks; Context7 в сессии нет). Вызвавший субагент определяется по полю `agent_type` — это `name` из фронтматтера агента. Отказ — `hookSpecificOutput.permissionDecision: "deny"`; блокировка остановки — `{"decision":"block","reason":…}`; текст промпта — поле `prompt`; файл — `tool_input.file_path` (`notebook_path` у NotebookEdit).
+  - **Запись в защищённые пути через Bash** (`sed -i`, `>`, `tee`, `cp`, `mv`, `rm`) `guard-bash.sh` тоже запрещает, хотя в 8b.1 этого не было. При проверке в `claude -p` модель после отказа хука на Edit сама предложила `sed` как обход. Правила те же, что у `protect-paths.sh`. Проверка эвристическая — по подстроке пути в команде.
+  - **PostToolUse без Prettier.** Prettier в проекте не используется: форматирование и импорты держит ESLint. Поэтому хук делает только `eslint --fix`, плюс проверку физических классов и паритета ключей. Замечания уходят Claude через exit 2.
+  - **Stop-хук** запускает полный `pnpm verify` (несколько минут), только если `git status -- src` не пуст; повторный вызов (`stop_hook_active`) пропускается.
+  - **`rm -rf`** разрешён ещё для `playwright-report`, `.lighthouseci`, `tests/screenshots` — это тоже артефакты.
+  - **Разрешения.** К списку 8b.2 добавлены `pnpm verify/test/lint/typecheck/build` (без `run`) и push в `docs/*`. В `claude -p` разрешения проекта игнорируются, пока папке не дано доверие (сообщение Claude Code 2.1.318). Хуки работают и без доверия.
+  - **`.mcp.json`.** shadcn — `pnpm exec shadcn mcp` (версия зафиксирована в `package.json`), Playwright MCP 0.0.84 и chrome-devtools-mcp 1.12.0 — версии с npm на 2026-11-05, флаги сверены с `--help`. HTTP-адреса Context7, GitHub (`api.githubcopilot.com/mcp/`) и Cloudflare взяты из документации: из облачной сессии они недоступны (прокси), проверка — у команды.
+  - **Плагины** объявлены в `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`) и не устанавливались в облачную сессию. Имена сверены с `marketplace.json` маркетплейсов `anthropics/claude-plugins-official` и `anthropics/knowledge-work-plugins`. `superpowers` не включён (D-066). `settings.json` проходит JSON-схему SchemaStore `claude-code-settings`.
+
+  Проверить: финальная проверка 8b.5 п.4 — Кирилл в новой облачной сессии просит поправить `tokens.css` и получает отказ хука.
