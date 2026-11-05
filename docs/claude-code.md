@@ -44,6 +44,8 @@
 
 ## Хуки
 
+Хукам нужны `bash`, `jq` и `realpath` (coreutils). Без `jq` защитные хуки (`protect-paths`, `guard-bash`) блокируют действие, остальные молчат — защита не отключается тихо.
+
 | Событие | Скрипт | Что делает |
 | :--- | :--- | :--- |
 | `PreToolUse` Edit/Write/MultiEdit/NotebookEdit | `protect-paths.sh` | запрет правки защищённых путей (ниже); `ux-writer` — только тексты |

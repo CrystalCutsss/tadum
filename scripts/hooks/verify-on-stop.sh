@@ -2,6 +2,7 @@
 # Stop: не останавливаться с красным verify (инвариант 8). Только если менялся src/ и это не повторный вызов.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+require_jq_or_skip
 
 input=$(cat)
 [[ "$(jq -r '.stop_hook_active // false' <<<"$input")" == true ]] && exit 0

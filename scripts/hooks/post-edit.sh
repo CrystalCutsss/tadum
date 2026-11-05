@@ -3,6 +3,7 @@
 # замечания уходят Claude (exit 2 + stderr), чтобы он сразу поправил.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+require_jq_or_skip
 
 input=$(cat)
 file=$(jq -r '.tool_input.file_path // empty' <<<"$input")

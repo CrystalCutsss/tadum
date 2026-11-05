@@ -17,6 +17,7 @@ B2B-портал для рынка KSA: кабинет клиента (заяв�
 | Node.js | 22 (`.nvmrc`) | https://nodejs.org или `nvm use` |
 | pnpm | 10.28.0 (`packageManager` в `package.json`) | `corepack enable` — Node поставит нужную версию сам |
 | Git | 2.4x | — |
+| jq | любая | для хуков Claude Code (`scripts/hooks`) и их тестов; `apt install jq` / `brew install jq` |
 | Браузеры Playwright | — | `pnpm exec playwright install chromium webkit` (для e2e и Storybook-тестов) |
 
 В `.npmrc` включён `engine-strict`: с другой мажорной версией Node установка зависимостей остановится с ошибкой.

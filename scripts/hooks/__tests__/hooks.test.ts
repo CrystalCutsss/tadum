@@ -1,6 +1,6 @@
 // Тесты хуков Claude Code (мастер-промпт 8b.1): JSON на stdin → решение хука.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -153,6 +153,26 @@ describe('verify-on-stop.sh', () => {
     const repo = mkdtempSync(join(tmpdir(), 'tadum-stop-'));
     execFileSync('git', ['init', '-q', repo]);
     expect(run('verify-on-stop.sh', { stop_hook_active: false }, { CLAUDE_PROJECT_DIR: repo })).toMatchObject({ code: 0, stdout: '' });
+  });
+});
+
+describe('без jq', () => {
+  // PATH только с bash и coreutils, без jq: защитные хуки отказывают (fail closed), остальные молчат.
+  const nojq = mkdtempSync(join(tmpdir(), 'tadum-nojq-'));
+  for (const tool of ['bash', 'sed', 'realpath', 'dirname', 'basename', 'cat', 'git']) {
+    const path = execFileSync('bash', ['-c', `command -v ${tool}`], { encoding: 'utf8' }).trim();
+    symlinkSync(path, join(nojq, tool));
+  }
+  const env = { PATH: nojq };
+
+  it.each(['protect-paths.sh', 'guard-bash.sh'])('%s блокирует действие (exit 2)', (name) => {
+    const r = run(name, edit('src/styles/tokens.css'), env);
+    expect(r.code).toBe(2);
+    expect(r.stderr).toContain('jq');
+  });
+
+  it.each(['post-edit.sh', 'verify-on-stop.sh', 'prompt-brief.sh'])('%s ничего не делает (exit 0)', (name) => {
+    expect(run(name, { prompt: 'TD-001' }, env).code).toBe(0);
   });
 });
 

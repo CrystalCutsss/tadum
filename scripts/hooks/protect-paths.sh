@@ -4,6 +4,7 @@
 # docs/product и tov-lexicon.json — только с TADUM_DOCS_SYNC=1 (скилл /sync-product-docs).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+require_jq_or_block
 
 input=$(cat)
 file=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty' <<<"$input")

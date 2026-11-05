@@ -16,3 +16,16 @@ deny() {
   jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
   exit 0
 }
+
+# Защитные хуки работают по принципу fail closed: без jq ввод не разобрать — отказываем (exit 2 блокирует
+# действие, stderr видит Claude). Иначе ошибка 127 считалась бы «некритичной» и действие прошло бы.
+require_jq_or_block() {
+  command -v jq >/dev/null 2>&1 && return 0
+  echo "Хук $(basename "$0"): не найден jq — действие заблокировано. Установите jq (apt-get install jq / brew install jq)." >&2
+  exit 2
+}
+
+# Вспомогательные хуки без jq просто ничего не делают.
+require_jq_or_skip() {
+  command -v jq >/dev/null 2>&1 || exit 0
+}

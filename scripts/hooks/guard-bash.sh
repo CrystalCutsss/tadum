@@ -2,6 +2,7 @@
 # PreToolUse (Bash): опасные и запрещённые команды (мастер-промпт 8b.1, инварианты 9–10, D-068, D-069).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+require_jq_or_block
 
 input=$(cat)
 cmd=$(jq -r '.tool_input.command // empty' <<<"$input")
