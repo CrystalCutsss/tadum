@@ -44,7 +44,9 @@ export const PROTOTYPE_META = {
   owner: 'Кирилл',
   tags: ['tadum', 'b2b', 'rtl', 'pwa'],
   status: 'active',
-  platform: 'mobile',
+  // На компьютере — всё окно, в меню просмотрщика «Экран» переключает на мокап телефона (ADR-0025 Proto).
+  platform: 'desktop',
+  platforms: ['desktop', 'mobile'],
   defaultVersion: 'latest',
   separatePassword: true,
 };
@@ -251,6 +253,7 @@ function tag(version) {
   if (sh('git', ['-C', ROOT, 'tag', '--list', version])) stop(`тег ${version} уже есть`);
   run('git', ['-C', ROOT, 'fetch', 'origin', 'main']);
   run('git', ['-C', ROOT, 'tag', '-a', version, 'origin/main', '-m', `Tadum ${version} on the Proto showcase`]);
+  // В облачной сессии push тегов закрыт git-прокси: тогда тег ставят через GitHub → Releases (docs/release.md).
   run('git', ['-C', ROOT, 'push', 'origin', version]);
   console.log(`✓ Тег ${version} на origin/main. Ссылка: https://proto.kirillgloba.workers.dev/p/${SLUG}/${version}/`);
   console.log('Откат витрины: revert PR публикации в Proto (после merge Workers Builds задеплоит предыдущее состояние).');
