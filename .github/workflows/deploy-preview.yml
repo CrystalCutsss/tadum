@@ -1,6 +1,6 @@
 # Превью-воркер tadum (D-063): деплой dist/ с main.
-# Включается, когда Кирилл сам задаст секреты репозитория CLOUDFLARE_API_TOKEN и CLOUDFLARE_ACCOUNT_ID (D-068);
-# до этого job пропускает деплой с пояснением. Первый деплой — вручную после ⏸ (D-069).
+# Токен Cloudflare живёт только в секретах репозитория CLOUDFLARE_API_TOKEN и CLOUDFLARE_ACCOUNT_ID — их задаёт Кирилл (D-068);
+# без них job пропускает деплой с пояснением. Первый деплой — запуск вручную (workflow_dispatch) после ⏸ (D-069).
 name: deploy-preview
 
 on:
