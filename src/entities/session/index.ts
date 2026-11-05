@@ -1,2 +1,13 @@
-// Публичный API сущности session. Типы и схемы — в блоке 5a.
-export {};
+// Публичный API сущности session.
+export type * from './model/types';
+export {
+  initialActiveRole,
+  isClientRole,
+  resolveRoles,
+  roleFamily,
+  routePrefix,
+  sessionKind,
+  type LeadMatch,
+  type RoleLookups,
+  type SessionKind,
+} from './model/roles';

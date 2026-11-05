@@ -10,7 +10,7 @@
 | 2 | done | `06c166a` | `verify` += `lint && deps:check`; boundaries 7.x — правило `dependencies` (A-010) |
 | 3 | done | `3939ac8` | `verify` += `lint:i18n && test`; `i18next-cli` (A-012) |
 | 4a | done | `44249f8` | пресет применён CLI; иконки Remix (A-015); `verify` += `check:contrast && storybook:build && test:stories` |
-| 5a | todo | — | |
+| 5a | done | см. git log | 261 unit-тест; таблицы документов разбираются в тестах (A-021) |
 | 5b | todo | — | |
 | 5c | todo | — | |
 | 6a | todo | — | |
@@ -92,6 +92,14 @@
 **Проверка блока 4a (2026-11-05):** токены `tokens.css` побайтно совпали с выводом CLI и с файлом Кирилла (64 строки). `pnpm check:contrast` — AA для всех токенов Tadum в обеих темах. `pnpm storybook:build` собирается, `storybook-static/index.json` — 64 записи `shared/ui`. `pnpm test:stories` — 40/40, в том числе: в `locale=ar` стрелка и шеврон зеркалятся (`scale: -1 1`), часы — нет; `document.fonts.check` для `"IBM Plex Sans Arabic"` и `"Geist Variable"` — `true`. На временной ветке `className="ml-4"` и `style={{color:'#333'}}` валят `pnpm lint` (см. ниже). `pnpm verify` зелёный.
 
 Блокер по ходу: `ui.shadcn.com` был закрыт сетевой политикой окружения; Кирилл добавил домен в Allowed domains, после этого CLI отработал.
+
+## План блока 5a
+
+1. Zod-схемы всех сущностей `01-entities.md` §2 и перечислений `01-statuses.md` в `shared/api/ports/schemas.ts`; типы в `entities/*/model/types.ts` — из схем.
+2. Чистые функции: `mapOdooStage` (`odoo-stage-map.ts`), `deriveClientStatus`, `deriveSupplierStatus`, `resolveRoles`, `computeClientTimeline`/`computeSupplierTimeline`, `clientNextStep`/`supplierNextStep`, права клиента и поставщика, машина состояний документа, сортировка, расчёты лимита и оборота.
+3. Тесты, которые разбирают таблицы из `docs/product/*.md` и проверяют каждую строку.
+
+**Проверка блока 5a (2026-11-05):** 261 unit-тест зелёный. Каждая строка покрыта: маппинг стадий (§1 — 14, §2 — 14), состояния прав (`01-roles.md` §4 — 4 строки и 56 ячеек матрицы), права поставщика (§5 — 17 прав × 6 контекстов), правила блокировок (§9 — 7), переходы документа (§5 — 8), статус поставщика (§3 — 3), таблица истинности шкалы (§8 — 7 строк со всеми комбинациями `any`/`≥2`), шкала `01-cabinet-structure.md` §5 (7), «следующий шаг» §6 (11), роли (`01-roles.md` §2 — 5), перечисления (`01-entities.md` §4 — 8), каталог документов (§3 — 11), статусы лимита (§6 — 5). Мутация одной строки маппинга валит ровно один тест. `pnpm verify` зелёный.
 
 ## Решения Кирилла по ходу
 

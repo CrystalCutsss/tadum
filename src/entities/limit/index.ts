@@ -1,2 +1,3 @@
-// Публичный API сущности limit. Типы и схемы — в блоке 5a.
-export {};
+// Публичный API сущности limit.
+export type * from './model/types';
+export { computeLimitAmounts, computeTurnover, isChecklistCompleted, limitView } from './model/amounts';

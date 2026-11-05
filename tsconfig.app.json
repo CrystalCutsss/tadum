@@ -38,5 +38,10 @@
     "src",
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/test-utils"
   ]
 }

@@ -1,2 +1,2 @@
-// Публичный API сущности offer. Типы и схемы — в блоке 5a.
-export {};
+// Публичный API сущности offer.
+export type * from './model/types';
