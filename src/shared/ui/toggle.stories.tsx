@@ -12,11 +12,11 @@ type Story = StoryObj<typeof meta>;
 export const Variants: Story = {
   render: () => (
     <div className="flex gap-2">
-      <Toggle aria-label="dark">
+      <Toggle>
         <Icon icon={RiMoonLine} />
         <T k="theme.dark" />
       </Toggle>
-      <Toggle variant="outline" defaultPressed aria-label="dark">
+      <Toggle variant="outline" defaultPressed>
         <Icon icon={RiMoonLine} />
         <T k="theme.dark" />
       </Toggle>
