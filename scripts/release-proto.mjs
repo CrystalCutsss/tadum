@@ -22,23 +22,18 @@ export const SLUG = 'tadum';
 const VERSION_RE = /^v[1-9][0-9]{0,3}$/;
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
-/** Персоны демо-режима для оси меню просмотрщика «Персона» (README.md). Первая — без персоны: обычный вход. */
+/**
+ * Ось меню просмотрщика «Персона». Ограничения Proto: не больше 6 пунктов, id через дефис (Tadum принимает
+ * ?persona=client-active так же, как client_active). Первый пункт — без персоны: обычный вход. Остальные
+ * персоны — в демо-панели внутри прототипа.
+ */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру' },
-  { id: 'client_new', title: 'Клиент: новая заявка' },
-  { id: 'client_partial', title: 'Клиент: часть документов' },
-  { id: 'client_rejected', title: 'Клиент: документ отклонён' },
-  { id: 'client_submitted', title: 'Клиент: на проверке' },
-  { id: 'client_more_docs', title: 'Клиент: нужны документы' },
-  { id: 'client_approved_unsigned', title: 'Клиент: одобрено, подписание' },
-  { id: 'client_active', title: 'Клиент: лимит активен' },
-  { id: 'client_first_purchase', title: 'Клиент: первая покупка' },
-  { id: 'client_closed_rejected', title: 'Клиент: отказ' },
-  { id: 'client_closed_lost', title: 'Клиент: заявка закрыта' },
-  { id: 'supplier_new', title: 'Поставщик: новый' },
-  { id: 'supplier_active', title: 'Поставщик: активный' },
-  { id: 'dual_active', title: 'Клиент и поставщик' },
-  { id: 'unknown_phone', title: 'Номер не найден' },
+  { id: 'client-new', title: 'Клиент: новая заявка' },
+  { id: 'client-submitted', title: 'Клиент: на проверке' },
+  { id: 'client-active', title: 'Клиент: лимит активен' },
+  { id: 'supplier-active', title: 'Поставщик' },
+  { id: 'dual-active', title: 'Клиент и поставщик' },
 ];
 
 export const PROTOTYPE_META = {

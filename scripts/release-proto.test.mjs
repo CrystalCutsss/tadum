@@ -5,6 +5,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { personaFromParam } from '../src/shared/api/demo-persona';
 import { PERSONA_IDS } from '../src/shared/api/fixtures/types';
 
 import { PERSONA_ITEMS, frozenManifest, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
@@ -49,9 +50,11 @@ describe('parseReleaseNotes', () => {
 });
 
 describe('метаданные Proto', () => {
-  it('ось «Персона» покрывает всех персон мока; первый пункт — обычный вход', () => {
+  it('ось «Персона» в рамках Proto: ≤ 6 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
+    expect(PERSONA_ITEMS.length).toBeLessThanOrEqual(6);
     expect(PERSONA_ITEMS[0].id).toBe('login');
-    expect(PERSONA_ITEMS.slice(1).map((p) => p.id)).toEqual([...PERSONA_IDS]);
+    for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+    for (const { id } of PERSONA_ITEMS.slice(1)) expect(PERSONA_IDS).toContain(personaFromParam(id));
   });
 
   it('версия заморожена, history-маршрутизация, имя пакета по правилу Proto', () => {
