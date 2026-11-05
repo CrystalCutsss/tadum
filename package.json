@@ -33,11 +33,12 @@
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:first-chunk": "node scripts/check-first-chunk.mjs",
     "check:demo-excluded": "node scripts/check-demo-excluded.mjs",
+    "check:docs": "node scripts/check-doc-links.mjs",
     "contract:md": "node scripts/contract-md.mjs",
     "i18n:extract": "i18next-cli extract",
     "size": "size-limit",
     "lhci": "lhci autorun",
-    "verify": "pnpm typecheck && pnpm lint && pnpm lint:rtl && pnpm lint:gitlab-ci && pnpm deps:check && pnpm knip && pnpm jscpd && pnpm lint:i18n && pnpm check:events && pnpm contract:md --check && pnpm check:contrast && pnpm test && pnpm storybook:build && pnpm test:stories && pnpm build && pnpm check:first-chunk && pnpm test:e2e:smoke && pnpm check:demo-excluded",
+    "verify": "pnpm typecheck && pnpm lint && pnpm lint:rtl && pnpm lint:gitlab-ci && pnpm deps:check && pnpm knip && pnpm jscpd && pnpm lint:i18n && pnpm check:events && pnpm contract:md --check && pnpm check:contrast && pnpm check:docs && pnpm test && pnpm storybook:build && pnpm test:stories && pnpm build && pnpm check:first-chunk && pnpm test:e2e:smoke && pnpm check:demo-excluded",
     "release:proto": "node scripts/release-proto.mjs",
     "deploy:preview": "pnpm build && wrangler deploy",
     "prepare": "husky"

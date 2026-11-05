@@ -50,4 +50,9 @@ app → pages → widgets → features → entities → shared
 
 `pnpm deps:graph` пишет `docs/architecture/deps.mmd` (Mermaid; Graphviz `dot` в среде нет).
 
-С блока 7a в `verify` добавятся `knip` (неиспользуемые файлы и экспорты) и `jscpd` (дубли, порог 3 %).
+## Неиспользуемый код и дубли
+
+- `knip` (`knip.config.ts`) — неиспользуемые файлы, зависимости и экспорты. Публичный API срезов (`index.ts`) — точка входа: это контракт среза, его экспорты для следующих версий не считаются мёртвыми (A-047). Внутренние экспорты без потребителя — ошибка.
+- `jscpd` (`.jscpd.json`) — дубли кода в `src/`, порог 3 %.
+
+Оба входят в `pnpm verify` и CI (job `lint`).

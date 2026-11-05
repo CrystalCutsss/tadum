@@ -18,7 +18,7 @@
 | 6c | done | `28f507f` | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
 | 6d | done | `7e5047c` | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
 | 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
-| 7b | todo | — | |
+| 7b | in progress | см. git log | документация разработки на `chore/setup-2` |
 | 8a | todo | — | |
 | 8b | todo | — | |
 | 9 | todo | — | |
@@ -191,6 +191,17 @@
 - e2e нашли и закрыли три дефекта (A-046); регрессия «Подписание» вместо «Лимит активен» валит новый e2e-тест без исправления;
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
+
+## План и проверка блока 7b
+
+Ветка `chore/setup-2` от `main` (`be7f62a`). Всё на русском.
+
+1. `README.md` — полная инструкция запуска без Claude; `CONTRIBUTING.md` — ветки, коммиты, PR, worktree, проверки, changesets.
+2. `docs/architecture/layers.md` — актуализировать (knip/jscpd уже в `verify`); `deps.mmd` — перегенерировать.
+3. `docs/decisions/ADR-003-showcase-publishing.md` — текст приложения A; ADR-001 (таблица версий) и ADR-002 уже есть; `assumptions.md` — дополнить по ходу.
+4. `docs/05-migration-to-gitlab.md` — чек-лист плана §3.5 по фактическому состоянию; `docs/analytics.md`; `docs/README.md` — таблица «что где лежит» (план §3.6).
+5. `scripts/check-doc-links.mjs` (`pnpm check:docs`) — относительные ссылки в `*.md` репозитория не битые; в `verify` и CI.
+6. Копии `docs/05-backend-contract.md` и `docs/05-migration-to-gitlab.md` — в Drive `05 Разработка` (`19icVaCN1pyAZs5MeDuNv9N8ahrzgOu6w`), через субагента со сверкой размера.
 
 ## План и проверка блока 7a
 
