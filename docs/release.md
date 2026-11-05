@@ -20,7 +20,7 @@
    pnpm run release:proto vN --proto-dir ../proto
    ```
 
-   Скрипт: `pnpm verify` → ветка Proto `feat/tadum-vN` от свежего `origin/main` → сборка Tadum с `VITE_BASE_PATH=/p/tadum/vN/ VITE_DEMO_PANEL=1 VITE_ANALYTICS=demo VITE_PROTO_VERSION=vN` → теги Proto в `index.html`, без `_headers` → `prototypes/tadum/…` → в Proto `pnpm install`, `pnpm registry:validate`, `pnpm site:build --no-previews` → коммит в ветке Proto (без push).
+   Скрипт: `pnpm verify` → ветка Proto `feat/tadum-vN` от свежего `origin/main` → сборка Tadum с `VITE_BASE_PATH=/p/tadum/vN/ VITE_DEMO_PANEL=1 VITE_ANALYTICS=demo VITE_PROTO_VERSION=vN` → теги Proto в `index.html`, без `_headers` → `prototypes/tadum/…` → в Proto `pnpm install`, Prettier по метаданным, `pnpm registry:validate`, `pnpm lint`, `pnpm site:build --no-previews` → коммит в ветке Proto (без push).
 3. **⏸ Решение Кирилла:** diff Proto (`git -C ../proto show --stat`), локальный просмотр (`cd ../proto && pnpm site:preview` → `/p/tadum/vN/`).
 4. **Push ветки и PR** (после «да»):
 

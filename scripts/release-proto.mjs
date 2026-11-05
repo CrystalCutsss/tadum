@@ -217,9 +217,13 @@ function prepare(version, proto, branch) {
   writeFileSync(join(versionDir, 'version.json'), json(versionMeta({ version, title, changelog, date })));
   writeFileSync(join(versionDir, 'package.json'), json(versionPackage(version)));
 
-  console.log('\n→ Proto: pnpm install, проверка реестра, сборка витрины');
+  console.log('\n→ Proto: pnpm install, форматирование, проверка реестра и линт, сборка витрины');
   run('pnpm', ['install'], { cwd: proto });
+  // Метаданные — в стиле Proto (его Prettier проверяет CI); .frozen/ Prettier Proto игнорирует.
+  const meta = [`prototypes/${SLUG}/prototype.json`, `prototypes/${SLUG}/versions/${version}/version.json`, `prototypes/${SLUG}/versions/${version}/package.json`];
+  run('pnpm', ['exec', 'prettier', '--write', ...meta], { cwd: proto });
   run('pnpm', ['registry:validate'], { cwd: proto });
+  run('pnpm', ['lint'], { cwd: proto });
   run('pnpm', ['site:build', '--no-previews'], { cwd: proto });
 
   run('git', ['-C', proto, 'add', `prototypes/${SLUG}`, 'pnpm-lock.yaml']);
