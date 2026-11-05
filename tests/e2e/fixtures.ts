@@ -41,6 +41,12 @@ export async function signIn(page: Page, lang: Lang, nationalDigits: string) {
   await page.getByRole('main').getByRole('textbox').fill(nationalDigits);
   await page.getByRole('button', { name: tr(lang, 'auth.phone.submit') }).click();
   await expect(page).toHaveURL(/\/login\/code$/);
+  await enterCode(page, lang);
+}
+
+/** Ввести код мока. Экран кода — ленивый чанк: адрес меняется раньше, чем он отрисован, поэтому ждём заголовок. */
+export async function enterCode(page: Page, lang: Lang) {
+  await page.getByRole('heading', { name: tr(lang, 'auth.otp.title') }).waitFor();
   await page.getByRole('main').getByRole('textbox').fill('0000');
 }
 

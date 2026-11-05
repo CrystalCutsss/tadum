@@ -17,7 +17,7 @@
 | 6b | done | `80ebd33` | оболочка-гипотеза, настройки, выход; истории в матрице AR/EN × light/dark (A-041) |
 | 6c | done | `28f507f` | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
 | 6d | done | `7e5047c` | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
-| 7a | in progress | см. git log | скрипты, husky/commitlint/changesets, CI ×2, knip/jscpd/`lint:gitlab-ci` в `verify`; ⏸ PR → merge Кириллом, ⏸ первый деплой превью |
+| 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
 | 7b | todo | — | |
 | 8a | todo | — | |
 | 8b | todo | — | |
@@ -209,6 +209,7 @@
 - `pnpm size`: первый JS-чанк 188 КБ из 200, весь JS 269 из 400, шрифты 43 (AR) и 29 (EN) из 120;
 - `pnpm lhci` (локально): `/s/home` performance 0,98–0,99, `/c/home` — 0,78–0,81 (LCP 4,2 с, A-047); accessibility и best practices = 1;
 - `pnpm audit --audit-level=high` — 0 high после override `basic-ftp`; `gitleaks git` — утечек нет;
+- превью-воркер: первый деплой — `deploy-preview` вручную с `main` (run 42074875447), https://tadum.kirillgloba.workers.dev — `X-Robots-Tag: noindex`; проверено в браузере: вход кодом `0000` → `/c/home` (AR, RTL), `?persona=supplier_active&lang=en` → `/s/home`. Проверка нашла гонку в e2e (код вводился в поле телефона, пока экран кода ещё грузился) — исправлено ожиданием заголовка в `enterCode` (ветка `chore/setup-2`);
 - защита `main`: правило создано, но не действует на бесплатном тарифе для приватного репозитория (A-048) — продолжаем без неё;
 - `ci` в PR https://github.com/CrystalCutsss/tadum/pull/1 зелёный на `e094981` (run 42061603260): все 11 jobs, включая `e2e` в android-chrome, iphone-safari (WebKit из образа Playwright) и desktop-chrome. Первый прогон упал на axe в истории `shared/ui/Toggle` (`aria-label` скрывал видимый текст) — исправлено в `ad1bc29`.
 
@@ -242,8 +243,6 @@
 
 ## ⏸ ожидают Кирилла
 
-- Network access окружения: разрешить `cdn.playwright.dev` и `playwright.download.prss.microsoft.com` (загрузка WebKit для проекта `iphone-safari`, 6d).
+- (необязательно) Network access окружения: `cdn.playwright.dev` и `playwright.download.prss.microsoft.com` — WebKit в облачной сессии. `iphone-safari` уже прогоняется в CI из образа Playwright, так что это только для локальных прогонов в сессии.
 
-1. **Секреты Cloudflare в GitHub** (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) — Кирилл задаёт после merge PR #1; в облачную сессию токен не ставится (решение 2026-11-05). Для блока 9 (деплой Proto) — отдельный вопрос, решается там.
-2. **Merge PR https://github.com/CrystalCutsss/tadum/pull/1** merge-коммитом — после зелёного `ci`.
-3. **Первый деплой превью** — dry-run показан → «да» → `deploy-preview` вручную на `main`.
+1. Деплой Proto в блоке 9 (доступ к Cloudflare для витрины) — решается там.
