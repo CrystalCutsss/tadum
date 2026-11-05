@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#090b0c" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <title>Tadum</title>
+    <script>
+      // Тема до загрузки бандла, чтобы не было вспышки. Ключ — как в src/shared/lib/storage.ts.
+      (function () {
+        try {
+          var v = localStorage.getItem('tadum:%BASE_URL%:theme');
+          var dark = v === 'dark' || ((v === null || v === 'system') && matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>

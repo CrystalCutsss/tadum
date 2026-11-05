@@ -1,0 +1,8 @@
+{
+  "threshold": 3,
+  "minTokens": 70,
+  "reporters": ["console"],
+  "path": ["src"],
+  "ignore": ["**/routeTree.gen.ts"],
+  "gitignore": true
+}

@@ -1,0 +1,11 @@
+// Превью-воркер tadum: только статика из dist/, без Worker-скрипта (D-063).
+// account_id добавляется, когда в сессии появится доступ wrangler к Cloudflare (см. assumptions A-005).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tadum",
+  "compatibility_date": "2026-11-05",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -1,0 +1,73 @@
+# ADR-001 — Стек и архитектура
+
+**Статус:** принят (D-003, D-065) · **Дата:** 2026-11-04
+
+**Контекст.** Нужен фронтенд без бэкенда, который (1) собирается в статику под произвольный базовый путь для витрины `/p/tadum/vN/`, (2) равноправно поддерживает арабский RTL и английский LTR, (3) устанавливается как PWA, (4) переезжает из GitHub в GitLab без изменений кода, (5) состоит из технологий, которые агенты знают хорошо и в актуальных версиях.
+
+**Рассмотрено.** Vite \+ React \+ TanStack Router (SPA) · React Router v7 framework mode (`ssr:false`) · TanStack Start (SPA mode) · Next.js \+ OpenNext. Сравнение — план §3.1.
+
+**Решение.** Vite 7 (проект собран вручную, без шаблона) \+ React 19 \+ TypeScript strict \+ TanStack Router (файловые маршруты в `src/pages`, дерево в `src/app/routeTree.gen.ts`, `basepath` из `import.meta.env.BASE_URL`) \+ TanStack Query как единственный слой данных \+ shadcn/ui на Radix с `rtl: true` \+ Tailwind v4 \+ react-i18next (JSON v4, плейсхолдеры `{…}`) \+ vite-plugin-pwa (`generateSW`, `autoUpdate`, `useCredentials`) \+ Cloudflare Workers static assets \+ Zod 4\. Архитектура FSD-lite (`app/pages/widgets/features/entities/shared`) с машинной проверкой границ (`eslint-plugin-boundaries`, `dependency-cruiser`, `knip`, `jscpd`). Данные — через порты; `MockAdapter` (рукописные фикстуры, динамический импорт) сейчас, `HttpAdapter` потом. Форматирование — собственный `shared/i18n/format.ts` поверх `Intl` для чисел и месяцев. Готовый стартер не используется.
+
+**Последствия.** Плюсы: чистый `dist/`, тривиальный базовый путь, типизированные маршруты, отсутствие серверного кода, одинаковый деплой в обоих CI. Минусы: нет SSR (не нужен — портал за входом); ручная сборка скелета; за актуальностью паттернов TanStack следить через Context7. Пересмотр — при появлении требований SEO или серверных функций.
+
+
+## Приложение: версии на дату инициализации (2026-11-05)
+
+Версии зафиксированы точно (`save-exact=true`). Пакеты следующих блоков (ESLint, Vitest, Storybook, i18next, Zod и др.) добавляются в таблицу в блоке, где ставятся.
+
+| Пакет | Версия | Блок | Примечание |
+| :--- | :--- | :--- | :--- |
+| Node | 22 (`.nvmrc`) | 1 | в сессии 22.23.4 |
+| pnpm | 10.28.0 | 1 | `packageManager` |
+| `vite` | 7.3.7 | 1 | последняя 7.x; 8 — только через ADR |
+| `@vitejs/plugin-react` | 5.2.0 | 1 | 6.x требует Vite 8 (A-004) |
+| `react`, `react-dom` | 19.3.1 | 1 | |
+| `@types/react`, `@types/react-dom` | 19.3.0 | 1 | |
+| `typescript` | 5.9.3 | 1 | `~5.9` |
+| `@types/node` | 22.20.5 | 1 | по мажору Node |
+| `@tanstack/react-router` | 1.170.46 | 1 | |
+| `@tanstack/router-plugin` | 1.168.48 | 1 | |
+| `@tanstack/router-cli` | 1.167.46 | 1 | `tsr generate` перед `tsc` (A-006) |
+| `@tanstack/react-query` | 5.106.0 | 1 | |
+| `tailwindcss`, `@tailwindcss/vite` | 4.3.4 | 1 | |
+| `vite-plugin-pwa` | 1.3.0 | 1 | 2.x вышел; мажор 1 по §1.2 |
+| `workbox-window` | 7.4.1 | 1 | peer `vite-plugin-pwa` |
+| `wrangler` | 4.157.0 | 1 | |
+| `eslint` | 10.14.0 | 2 | ESLint 10: его поддерживают `typescript-eslint`, `boundaries`, `react-hooks`, `rtl-friendly`, `storybook` (peer) |
+| `@eslint/js` | 10.0.1 | 2 | |
+| `typescript-eslint` | 8.72.1 | 2 | `recommendedTypeChecked` |
+| `eslint-plugin-boundaries` | 7.4.1 | 2 | только правило `dependencies`: `element-types` и `entry-point` в 7.x устарели (A-010) |
+| `eslint-plugin-react-hooks` | 7.1.1 | 2 | |
+| `eslint-import-resolver-typescript` | 4.4.5 | 2 | алиас `@/` для `boundaries` |
+| `globals` | 17.14.0 | 2 | |
+| `dependency-cruiser` | 18.7.2 | 2 | |
+| `i18next` | 26.7.1 | 3 | плейсхолдеры `{…}` (D-075) |
+| `react-i18next` | 17.1.12 | 3 | |
+| `lucide-react` | 1.69.0 | 3 | |
+| `vitest` | 5.1.0 | 3 | совместим с `@storybook/addon-vitest` 10.6 (peer `^4 \|\| ^5`) |
+| `i18next-cli` | 1.83.0 | 3 | заменил устаревший `i18next-parser` (A-012) |
+| `eslint-plugin-i18next` | 6.1.5 | 3 | `no-literal-string`, режим `jsx-only` |
+| `eslint-plugin-rtl-friendly` | 0.5.1 | 3 | `no-physical-properties` |
+| `shadcn` (CLI и `shadcn/tailwind.css`) | 4.23.0 | 4a | пресет `b1ZQ7Gl9c`, стиль `radix-maia` |
+| `radix-ui` | 1.8.1 | 4a | примитивы (D-003), `Direction.Provider` |
+| `@remixicon/react` | 4.9.0 | 4a | иконки пресета; `lucide-react` удалён (A-015) |
+| `class-variance-authority`, `cn`, `tw-animate-css` | 0.7.1, 0.5.2, 1.4.0 | 4a | от CLI shadcn |
+| `@fontsource-variable/geist` | 5.3.0 | 4a | от CLI (шрифт пресета) |
+| `@fontsource/ibm-plex-sans-arabic` | 5.3.0 | 4a | D-004 |
+| `storybook`, `@storybook/react-vite`, `addon-docs`, `addon-a11y`, `addon-vitest`, `eslint-plugin-storybook` | 10.6.5 | 4a | |
+| `@vitest/browser`, `@vitest/browser-playwright`, `@vitest/ui` | 5.1.0 | 4a | `@vitest/ui` — чтобы pnpm не ставил две копии `vitest` (A-017) |
+| `playwright` | 1.63.0 | 4a | = предустановленный в облачной сессии Chromium |
+| `stylelint` | 18.0.0 | 4a | |
+| `culori` | 4.0.2 | 4a | скрипт контраста |
+| `zod` | 4.6.7 | 5a | D-065; схемы портов — единственный источник типов сущностей |
+| `happy-dom` | 21.0.4 | 6a | DOM для тестов маршрутизации в Node (`// @vitest-environment happy-dom`, A-037) |
+| `@playwright/test` | 1.63.0 | 6d | = `playwright` и предустановленный Chromium (облачная сессия) |
+| `@axe-core/playwright` | 4.14.0 | 6d | axe на экранах v1 (WCAG 2.2 AA) |
+| `knip` | 6.44.1 | 7a | неиспользуемые файлы, зависимости, экспорты; в `verify` |
+| `jscpd` | 5.4.2 | 7a | дубли кода, порог 3 %; в `verify` |
+| `husky`, `lint-staged` | 9.1.7, 17.6.0 | 7a | хуки `pre-commit` (ESLint/Stylelint на изменённых файлах) и `commit-msg` |
+| `@commitlint/cli`, `@commitlint/config-conventional` | 21.2.4 | 7a | Conventional Commits, scope — срез или `setup`/`docs`/`release`/`design` |
+| `@changesets/cli` | 3.0.3 | 7a | версия приложения в `package.json`, `CHANGELOG.md` |
+| `size-limit`, `@size-limit/file` | 14.3.0 | 7a | бюджеты §2.2 (D-054) |
+| `@lhci/cli` | 0.16.0 | 7a | Lighthouse CI; транзитивный `basic-ftp` поднят до ≥ 6.2.1 через `pnpm.overrides` (A-047) |
+| `ajv`, `yaml` | 8.20.0, 2.9.1 | 7a | `lint:gitlab-ci` — схема GitLab CI из SchemaStore |

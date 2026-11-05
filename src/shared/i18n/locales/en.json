@@ -1,0 +1,241 @@
+{
+  "auth": {
+    "channel": {
+      "sms": "SMS",
+      "whatsapp": "WhatsApp"
+    },
+    "expired": {
+      "body": "For your security, please sign in again",
+      "login": "Sign in",
+      "title": "Your session has ended"
+    },
+    "not_found": {
+      "apply": "Apply now",
+      "body": "If you haven't applied yet, you can do it now. If you think this is a mistake, our team will help",
+      "support": "Contact support",
+      "title": "No application found for this number"
+    },
+    "otp": {
+      "change_phone": "Change number",
+      "confirm": "Confirm",
+      "expired": "This code has expired. Request a new one",
+      "invalid_one": "The code is not correct. {attempts_left} attempt left",
+      "invalid_other": "The code is not correct. {attempts_left} attempts left",
+      "invalid_retry": "The code is not correct. Try again",
+      "resend": "Send a new code",
+      "resend_in": "Send a new code in {seconds} s",
+      "resent": "New code sent",
+      "sent_to": "We sent a 4-digit code to {phone} via {channel}",
+      "title": "Enter the code",
+      "too_many_attempts": "Too many attempts. Request a new code"
+    },
+    "phone": {
+      "invalid_format": "Enter a Saudi mobile number starting with 5",
+      "label": "Mobile number",
+      "placeholder": "5X XXX XXXX",
+      "submit": "Get code",
+      "subtitle": "Enter the phone number you used in your application",
+      "title": "Sign in to your Tadum account",
+      "too_many_requests_one": "Too many attempts. Try again in {minutes} min",
+      "too_many_requests_other": "Too many attempts. Try again in {minutes} min"
+    }
+  },
+  "closed": {
+    "body": "We're not able to continue with this application right now. You're welcome to apply again, and our team is here if you have questions",
+    "title": "This application is closed"
+  },
+  "common": {
+    "cached_at": "Shown as of {time}",
+    "cancel": "Cancel",
+    "close": "Close",
+    "copy_link": "Copy link",
+    "load_error": "We couldn't load this page",
+    "offline_action_hint": "Available when you're back online",
+    "offline_actions_disabled": "You're offline. Uploads will be available when you're back online",
+    "offline_banner": "You're offline. Some actions are unavailable until you're back online",
+    "offline_retry": "No connection. Check your internet and try again",
+    "open_in_browser": "This link opens best in your browser",
+    "retry": "Try again",
+    "server_error_retry": "Something went wrong on our side. Please try again",
+    "storage_unavailable": "Your browser doesn't keep data between visits. You may need to sign in again next time"
+  },
+  "demo": {
+    "action_failed": "Not available now: {code}",
+    "actions": "Team actions",
+    "clear": "Clear",
+    "copied": "Copied",
+    "copy_json": "Copy JSON",
+    "copy_link": "Copy link",
+    "description": "Showcase tool: switch personas and simulate Tadum team actions",
+    "events": "Event feed",
+    "filter": "Filter by name",
+    "network": "Network",
+    "network_mode": {
+      "error": "Server error",
+      "offline": "Offline",
+      "ok": "Normal",
+      "slow": "Slow"
+    },
+    "open": "Demo",
+    "persona": "Persona",
+    "title": "Demo panel"
+  },
+  "document": {
+    "status": {
+      "approved": "Accepted",
+      "pending": "Needed",
+      "received": "Uploaded",
+      "rejected": "Needs a new file"
+    }
+  },
+  "help": {
+    "language": "Language",
+    "logout": "Sign out",
+    "logout_confirm": "Sign out of your account?",
+    "logout_hint": "You'll need a new code to sign in again",
+    "support": "Contact us",
+    "theme": "Appearance",
+    "title": "Help & settings",
+    "version": "Version {version}"
+  },
+  "home": {
+    "documents_summary_one": "1 document sent",
+    "documents_summary_other": "{count} documents sent",
+    "documents_view": "View"
+  },
+  "lang": {
+    "switch_to_ar": "العربية",
+    "switch_to_en": "English"
+  },
+  "nav": {
+    "clients": "Clients",
+    "documents": "Documents",
+    "help": "Help",
+    "home": "Home",
+    "main": "Main menu",
+    "more": "More",
+    "offer": "Terms",
+    "referral": "Link"
+  },
+  "next_step": {
+    "closed": "This application is closed",
+    "cta": {
+      "apply": "Apply again",
+      "documents": "Go to documents",
+      "how_to_buy": "How to buy",
+      "share_link": "Share my link",
+      "sign": "Sign documents"
+    },
+    "first_purchase_done": "Your first purchase is complete. You can keep buying the same way",
+    "how_to_buy": "Ready to buy? Here's how it works with your supplier",
+    "more_docs_requested_one": "Our team reviewed your documents and needs 1 more to continue",
+    "more_docs_requested_other": "Our team reviewed your documents and needs {count} more to continue",
+    "offer_confirmation": "Your application is approved. Our team will call you to confirm the terms",
+    "owner": {
+      "tadum": "On our side",
+      "user": "Your next step"
+    },
+    "reupload_rejected_one": "One document needs a new file",
+    "reupload_rejected_other": "{count} documents need a new file",
+    "sign_documents": "Almost done — sign the documents to activate your limit",
+    "submit_ready": "Everything is uploaded. Send the documents for review",
+    "supplier": {
+      "reupload_rejected_one": "One document needs a new file",
+      "reupload_rejected_other": "{count} documents need a new file",
+      "share_link": "You're active. Share your link with clients",
+      "under_review": "We're reviewing your documents. You can already share your link",
+      "under_review_eta_one": "We're reviewing your documents — usually up to {hours} hour. You can already share your link",
+      "under_review_eta_other": "We're reviewing your documents — usually up to {hours} hours. You can already share your link",
+      "upload_documents": "Upload your documents so we can activate your account"
+    },
+    "under_review": "Our team is reviewing your documents. Nothing is needed from you right now",
+    "under_review_eta_one": "Our team is reviewing your documents. This usually takes up to {hours} hour",
+    "under_review_eta_other": "Our team is reviewing your documents. This usually takes up to {hours} hours",
+    "under_review_longer": "Taking longer than expected? Message us and we'll check",
+    "upload_documents_one": "Upload 1 document to continue",
+    "upload_documents_other": "Upload {count} documents to continue"
+  },
+  "notfound": {
+    "home": "Go to home",
+    "title": "This page doesn't exist"
+  },
+  "relative": {
+    "days_ago_one": "{count} day ago",
+    "days_ago_other": "{count} days ago",
+    "hours_ago_one": "{count} hour ago",
+    "hours_ago_other": "{count} hours ago",
+    "minutes_ago_one": "{count} minute ago",
+    "minutes_ago_other": "{count} minutes ago"
+  },
+  "role": {
+    "client": "Client",
+    "hint_dismiss": "Got it",
+    "hint_supplier": "You also have a supplier account — switch here",
+    "supplier": "Supplier"
+  },
+  "status": {
+    "changed_banner": "Since your last visit: {status}",
+    "changed_banner_dismiss": "Got it",
+    "client": {
+      "approved": "Approved",
+      "closed": "Closed",
+      "docs_required": "Documents needed",
+      "first_purchase": "First purchase done",
+      "under_review": "Under review"
+    },
+    "supplier_view": {
+      "applied": "Applied",
+      "approved": "Approved",
+      "closed": "Closed",
+      "collecting_docs": "Collecting documents",
+      "first_purchase": "First purchase",
+      "under_review": "Under review"
+    },
+    "updated": "Your status was updated"
+  },
+  "stub": {
+    "coming_soon": {
+      "body": "We're preparing this section. The rest of your account works as usual",
+      "title": "This section is being prepared"
+    }
+  },
+  "support": {
+    "cta": {
+      "question": "Have a question? Message us"
+    },
+    "email": "Email",
+    "prefill": {
+      "closed": "Hello, I have a question about my Tadum application for {company}.",
+      "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
+      "under_review": "Hello, I have a question about my Tadum application for {company}."
+    },
+    "whatsapp": "WhatsApp"
+  },
+  "theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "system": "Same as device"
+  },
+  "timeline": {
+    "client": {
+      "decision": "Decision",
+      "documents": "Documents",
+      "limit_active": "Limit active",
+      "review": "Review",
+      "signing": "Signing"
+    },
+    "needs_more_docs": "A few more documents needed",
+    "state": {
+      "closed": "Closed",
+      "current": "In progress",
+      "done": "Done",
+      "needs_attention": "Needs your attention",
+      "upcoming": "Next"
+    },
+    "title": "Application progress"
+  },
+  "units": {
+    "kb": "KB",
+    "mb": "MB"
+  }
+}

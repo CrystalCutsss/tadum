@@ -1,0 +1,981 @@
+{
+  "$comment": "Tadum — машиночитаемый лексикон тона (TOV). Источник правил: 01-nfr-locale-brand.md §1.5, §3.4–3.6. Потребители: scripts/lint-i18n-tov.mjs (CI), скилл ux-writer, ревьюер текстов. Паттерны — регулярные выражения JavaScript (флаги указаны в поле flags), применяются к значениям ключей в shared/i18n/locales/{en,ar}.json. Изменение файла — отдельный коммит; снятие запрета — решение D-### в журнале.",
+  "version": "1.0.0",
+  "updated_at": "2026-11-04",
+  "languages": [
+    "en",
+    "ar"
+  ],
+  "severity_levels": {
+    "error": "блокирует merge",
+    "warn": "комментарий в PR, требует подтверждения ревьюера"
+  },
+  "forbidden": [
+    {
+      "id": "credit_loan",
+      "severity": "error",
+      "reason": "Продукт — торговый лимит, не кредит и не заём (требования «Бренд и тексты»)",
+      "replace_with": [
+        "trade_limit",
+        "pay_in_parts"
+      ],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bcredit\\b",
+            "\\bloans?\\b",
+            "\\blend(?:ing|er)?\\b",
+            "\\bborrow(?:ing|ed)?\\b",
+            "\\bdebt\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "قرض",
+            "قروض",
+            "ائتمان",
+            "ائتماني",
+            "اقتراض",
+            "استدانة",
+            "دَين",
+            "ديون"
+          ]
+        }
+      }
+    },
+    {
+      "id": "financing",
+      "severity": "error",
+      "reason": "«Финансирование» запрещено требованиями",
+      "replace_with": [
+        "tadum_buys_from_supplier"
+      ],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bfinanc(?:e|ing|ed)\\b",
+            "\\bfunding\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "تمويل",
+            "تمويلي",
+            "مموّل",
+            "ممول"
+          ]
+        }
+      }
+    },
+    {
+      "id": "interest_percent",
+      "severity": "error",
+      "reason": "Проценты и ставки не упоминаются; «%» допустим только для доли использованного лимита и прогресса загрузки",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\binterest\\b",
+            "\\bAPR\\b",
+            "\\binterest[- ]free\\b",
+            "\\brate\\b(?! limit)"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "فائدة",
+            "فوائد",
+            "نسبة الفائدة",
+            "بدون فوائد",
+            "ربا",
+            "ربوي"
+          ]
+        }
+      },
+      "exceptions_note": "Ключи limit.used_share и document.uploading содержат {percent} — это не процентная ставка; см. exceptions"
+    },
+    {
+      "id": "bnpl_installments",
+      "severity": "error",
+      "reason": "Термины BNPL / «рассрочка» запрещены; разрешено «платите частями» / «السداد على دفعات»",
+      "replace_with": [
+        "pay_in_parts",
+        "buy_now_pay_in_parts"
+      ],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bBNPL\\b",
+            "\\bbuy now,? pay later\\b",
+            "\\binstal?lments?\\b",
+            "\\bdefer(?:red)? payment\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "اشتر(?:ِ|ي) الآن وادفع لاحق",
+            "ادفع لاحقًا",
+            "ادفع لاحقا",
+            "تقسيط",
+            "أقساط",
+            "قسط",
+            "دفع مؤجل",
+            "تأجيل الدفع"
+          ]
+        }
+      }
+    },
+    {
+      "id": "guaranteed_instant_approval",
+      "severity": "error",
+      "reason": "Нет обещаний «гарантированного» или «мгновенного» одобрения",
+      "replace_with": [
+        "initial_response"
+      ],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bguaranteed?\\b",
+            "\\binstant(?:ly)?\\b",
+            "\\bimmediate(?:ly)?\\b",
+            "\\bin seconds\\b",
+            "\\bpre-?approved\\b",
+            "\\b100%\\s*approv"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "مضمون",
+            "مضمونة",
+            "ضمان الموافقة",
+            "فوري",
+            "فورية",
+            "فورًا",
+            "فورا",
+            "خلال ثوان",
+            "موافقة مسبقة",
+            "لحظي",
+            "لحظية"
+          ]
+        }
+      }
+    },
+    {
+      "id": "time_promises",
+      "severity": "error",
+      "reason": "Сроки называем только из данных (D-033); статические обещания сроков запрещены",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bwithin \\d+ ?(?:minutes?|mins?|hours?|hrs?|days?|business days?)\\b",
+            "\\bin \\d+ ?(?:minutes?|hours?|days?)\\b",
+            "\\b(?:same|next) day\\b",
+            "\\b24/7\\b",
+            "\\bright away\\b",
+            "\\bquick(?:ly)?\\b",
+            "\\bfast\\b",
+            "\\bsoon\\b",
+            "\\bshortly\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "خلال \\d+ ?(?:دقيقة|دقائق|ساعة|ساعات|يوم|أيام)",
+            "خلال (?:ساعتين|يومين|دقيقتين|أسبوعين|لحظات)",
+            "خلال (?:ساعة|يوم|دقيقة|أسبوع)(?!\\S)",
+            "في نفس اليوم",
+            "اليوم التالي",
+            "على مدار الساعة",
+            "بسرعة",
+            "سريع",
+            "سريعة",
+            "قريبًا",
+            "قريبا",
+            "خلال وقت قصير"
+          ]
+        }
+      },
+      "exceptions_note": "Ключи *_eta с плейсхолдером {hours} разрешены — см. exceptions; «soon/قريبًا» в пустых состояниях — warn через exceptions"
+    },
+    {
+      "id": "pressure_urgency",
+      "severity": "error",
+      "reason": "Без давления и срочности: акции, дедлайны, восклицания",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bhurry\\b",
+            "\\blimited (?:time|offer)\\b",
+            "\\bdon'?t miss\\b",
+            "\\blast chance\\b",
+            "\\bact now\\b",
+            "\\boffer ends\\b",
+            "!{1,}"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "سارع",
+            "سارعوا",
+            "لا تفوّت",
+            "لا تفوت",
+            "عرض محدود",
+            "لفترة محدودة",
+            "آخر فرصة",
+            "!"
+          ]
+        }
+      }
+    },
+    {
+      "id": "blame_language",
+      "severity": "warn",
+      "reason": "Отклонение — про файл, не про человека; без «неправильно / ошибка пользователя»",
+      "replace_with": [
+        "file_didnt_work"
+      ],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\byou (?:uploaded|entered|provided) (?:the )?wrong\\b",
+            "\\binvalid document\\b",
+            "\\byour (?:mistake|error|fault)\\b",
+            "\\brejected\\b",
+            "\\bdenied\\b",
+            "\\bfail(?:ed|ure)\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "خطأك",
+            "بسبب خطئك",
+            "مرفوض",
+            "مرفوضة",
+            "تم رفض",
+            "فشل",
+            "فاشل",
+            "خاطئ",
+            "غير صالح"
+          ]
+        }
+      },
+      "exceptions_note": "Статусы документов используют «needs a new file / يحتاج ملفًا جديدًا» и «accepted / مقبول», не «rejected / مرفوض»; checklist.status.failed → «needs attention / يحتاج متابعة»"
+    },
+    {
+      "id": "casual_register",
+      "severity": "error",
+      "reason": "Формальный MSA и нейтральный английский (D-009): без сленга, диалекта, фамильярности",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bhey\\b",
+            "\\bhi there\\b",
+            "\\bawesome\\b",
+            "\\bcool\\b",
+            "\\boops\\b",
+            "\\bwhoops\\b",
+            "\\byay\\b",
+            "\\bbuddy\\b",
+            "\\bgonna\\b",
+            "\\bwanna\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "يا صديقي",
+            "يا غالي",
+            "يا طويل العمر",
+            "أبشر",
+            "ابشر",
+            "تمام\\b",
+            "أوكي",
+            "اوكي",
+            "هلا\\b",
+            "وش ",
+            "ايش ",
+            "إيش ",
+            "كيفك",
+            "شلونك",
+            "ليش "
+          ]
+        }
+      }
+    },
+    {
+      "id": "emoji",
+      "severity": "error",
+      "reason": "Эмодзи в интерфейсе и в предзаполненных текстах WhatsApp не используются",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "u",
+          "regex": [
+            "\\p{Extended_Pictographic}"
+          ]
+        },
+        "ar": {
+          "flags": "u",
+          "regex": [
+            "\\p{Extended_Pictographic}"
+          ]
+        }
+      }
+    },
+    {
+      "id": "success_filler",
+      "severity": "warn",
+      "reason": "Тост — факт, без «успешно / بنجاح»; поздравления без пафоса",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bsuccessfully\\b",
+            "\\bcongratulations?\\b",
+            "\\bcongrats\\b",
+            "\\bgreat job\\b",
+            "\\bwell done\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "بنجاح",
+            "تهانينا",
+            "مبروك",
+            "ألف مبروك",
+            "أحسنت",
+            "رائع",
+            "ممتاز"
+          ]
+        }
+      }
+    },
+    {
+      "id": "please_filler",
+      "severity": "warn",
+      "reason": "Подсказки и кнопки — без «пожалуйста / من فضلك / يرجى»; прямое уважительное обращение",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bplease\\b",
+            "\\bkindly\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "من فضلك",
+            "من فضلكم",
+            "يرجى",
+            "يُرجى",
+            "رجاءً",
+            "لطفًا",
+            "لطفا"
+          ]
+        }
+      }
+    },
+    {
+      "id": "internal_jargon",
+      "severity": "error",
+      "reason": "Внутренние термины Odoo/UW и стадии не показываем (01-roles.md §6)",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bunderwrit(?:er|ing)\\b",
+            "\\bUW\\b",
+            "\\brisk committee\\b",
+            "\\bodoo\\b",
+            "\\bscoring\\b",
+            "\\blead\\b",
+            "\\bKYB\\b",
+            "\\bKYC\\b",
+            "\\bstage\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "الاكتتاب",
+            "لجنة المخاطر",
+            "أودو",
+            "تقييم المخاطر",
+            "التصنيف الائتماني",
+            "عميل محتمل"
+          ]
+        }
+      }
+    },
+    {
+      "id": "merchant_term",
+      "severity": "warn",
+      "reason": "Поставщик — «supplier / المورّد», не «merchant / التاجر / البائع»",
+      "replace_with": [
+        "supplier"
+      ],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bmerchants?\\b",
+            "\\bvendors?\\b",
+            "\\bsellers?\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "التاجر",
+            "تاجر",
+            "البائع",
+            "بائع"
+          ]
+        }
+      }
+    },
+    {
+      "id": "reward_commission",
+      "severity": "error",
+      "reason": "Вознаграждение поставщика — фаза 2; в MVP не упоминаем (SP-01 §4)",
+      "replace_with": [],
+      "patterns": {
+        "en": {
+          "flags": "i",
+          "regex": [
+            "\\bcommission\\b",
+            "\\bcashback\\b",
+            "\\brewards?\\b",
+            "\\bbonus\\b",
+            "\\bearn\\b",
+            "\\baffiliate\\b",
+            "\\bpartner program\\b"
+          ]
+        },
+        "ar": {
+          "flags": "",
+          "regex": [
+            "عمولة",
+            "عمولات",
+            "مكافأة",
+            "مكافآت",
+            "كاش باك",
+            "استرداد نقدي",
+            "اربح",
+            "برنامج الشركاء",
+            "التسويق بالعمولة"
+          ]
+        }
+      }
+    }
+  ],
+  "allowed": [
+    {
+      "id": "trade_limit",
+      "en": "trade limit",
+      "ar": "الحد التجاري",
+      "ru": "торговый лимит",
+      "note": "единственное название лимита; «your trade limit / حدّك التجاري»"
+    },
+    {
+      "id": "pay_in_parts",
+      "en": "pay in parts",
+      "ar": "السداد على دفعات",
+      "ru": "платите частями"
+    },
+    {
+      "id": "buy_now_pay_in_parts",
+      "en": "buy now, pay in parts",
+      "ar": "اشترِ الآن وسدّد على دفعات",
+      "ru": "купите сейчас — платите частями",
+      "note": "не «buy now pay later»"
+    },
+    {
+      "id": "tadum_buys_from_supplier",
+      "en": "Tadum buys the goods from your supplier",
+      "ar": "تشتري تدوم البضاعة من مورّدك",
+      "ru": "Tadum покупает товар у вашего поставщика"
+    },
+    {
+      "id": "initial_response",
+      "en": "initial response",
+      "ar": "الرد الأولي",
+      "ru": "первоначальный ответ"
+    },
+    {
+      "id": "application",
+      "en": "application",
+      "ar": "الطلب",
+      "ru": "заявка"
+    },
+    {
+      "id": "under_review",
+      "en": "under review",
+      "ar": "قيد المراجعة",
+      "ru": "на проверке"
+    },
+    {
+      "id": "send_for_review",
+      "en": "send for review",
+      "ar": "إرسال للمراجعة",
+      "ru": "отправить на проверку"
+    },
+    {
+      "id": "file_didnt_work",
+      "en": "this file didn't work",
+      "ar": "لم يُقبل هذا الملف",
+      "ru": "этот файл не подошёл",
+      "note": "вместо «rejected»"
+    },
+    {
+      "id": "needs_new_file",
+      "en": "needs a new file",
+      "ar": "يحتاج ملفًا جديدًا",
+      "ru": "нужен новый файл",
+      "note": "статус документа rejected"
+    },
+    {
+      "id": "accepted",
+      "en": "accepted",
+      "ar": "مقبول",
+      "ru": "принят",
+      "note": "статус документа approved"
+    },
+    {
+      "id": "application_closed",
+      "en": "application closed",
+      "ar": "تم إغلاق الطلب",
+      "ru": "заявка закрыта",
+      "note": "вместо «отказ»"
+    },
+    {
+      "id": "first_purchase",
+      "en": "first purchase",
+      "ar": "أول عملية شراء",
+      "ru": "первая покупка"
+    },
+    {
+      "id": "supplier",
+      "en": "supplier",
+      "ar": "المورّد",
+      "ru": "поставщик"
+    },
+    {
+      "id": "client",
+      "en": "client",
+      "ar": "العميل",
+      "ru": "клиент"
+    },
+    {
+      "id": "referral_link",
+      "en": "referral link",
+      "ar": "رابط الإحالة",
+      "ru": "реферальная ссылка"
+    },
+    {
+      "id": "quotation",
+      "en": "quotation",
+      "ar": "عرض السعر",
+      "ru": "квотация / коммерческое предложение"
+    },
+    {
+      "id": "message_us",
+      "en": "message us",
+      "ar": "راسلنا",
+      "ru": "напишите нам",
+      "note": "путь в поддержку"
+    },
+    {
+      "id": "our_team",
+      "en": "our team",
+      "ar": "فريقنا",
+      "ru": "наша команда",
+      "note": "вместо «менеджер / сотрудник»"
+    },
+    {
+      "id": "brand_name",
+      "en": "Tadum",
+      "ar": "تدوم",
+      "ru": "Tadum",
+      "note": "в арабском тексте — «تدوم»; «Tadum» латиницей только в URL, логотипе, <title>, манифесте (D-052)"
+    }
+  ],
+  "third_parties": {
+    "$comment": "Называем только текстом; логотипы, скриншоты и оценки запрещены. Написание фиксированное.",
+    "items": [
+      {
+        "id": "sadq",
+        "en": "Sadq",
+        "ar": "صادق"
+      },
+      {
+        "id": "nafith",
+        "en": "Nafith",
+        "ar": "نافذ"
+      },
+      {
+        "id": "zatca",
+        "en": "ZATCA",
+        "ar": "هيئة الزكاة والضريبة والجمارك"
+      },
+      {
+        "id": "spl",
+        "en": "Saudi Post (SPL)",
+        "ar": "البريد السعودي (سبل)"
+      },
+      {
+        "id": "whatsapp",
+        "en": "WhatsApp",
+        "ar": "واتساب"
+      },
+      {
+        "id": "molim",
+        "en": "Molim",
+        "ar": "مُلم"
+      },
+      {
+        "id": "simah",
+        "en": "SIMAH",
+        "ar": "سمة"
+      }
+    ],
+    "forbidden_contexts": [
+      "logo",
+      "screenshot",
+      "rating",
+      "endorsement"
+    ]
+  },
+  "formulas": {
+    "$comment": "Проверяются скиллом ux-writer и ревьюером (не регулярками). Ключевые семейства указаны по префиксу ключа.",
+    "error": {
+      "parts": [
+        "what_happened",
+        "what_to_do",
+        "where_to_ask"
+      ],
+      "note": "where_to_ask опускается в тексте, если на экране виден SupportBar",
+      "key_prefixes": [
+        "common.",
+        "auth.",
+        "document.upload_",
+        "offer.download_failed",
+        "referral.unavailable"
+      ]
+    },
+    "rejected_document": {
+      "parts": [
+        "what_didnt_fit_from_uw_tag",
+        "what_to_upload"
+      ],
+      "key_prefixes": [
+        "document.rejected",
+        "reject_reason."
+      ]
+    },
+    "status_tadum_side": {
+      "parts": [
+        "we",
+        "what_we_do",
+        "eta_only_from_data"
+      ],
+      "key_prefixes": [
+        "next_step.under_review",
+        "next_step.supplier.under_review",
+        "limit.pending_offer"
+      ]
+    },
+    "status_user_side": {
+      "parts": [
+        "action_verb",
+        "object",
+        "why_optional"
+      ],
+      "key_prefixes": [
+        "next_step.upload_documents",
+        "next_step.sign_documents",
+        "next_step.supplier.upload_documents",
+        "next_step.supplier.share_link"
+      ]
+    },
+    "status_none": {
+      "parts": [
+        "fact",
+        "what_next"
+      ],
+      "key_prefixes": [
+        "next_step.first_purchase_done",
+        "next_step.closed"
+      ]
+    },
+    "empty_state": {
+      "parts": [
+        "what_will_be_here",
+        "how_it_appears",
+        "action_optional"
+      ],
+      "key_prefixes": [
+        "clients.empty",
+        "documents.empty_waiting",
+        "offer.materials_empty",
+        "supplier.counters.empty_hint"
+      ]
+    },
+    "closure": {
+      "parts": [
+        "neutral_fact_no_reason",
+        "support_path"
+      ],
+      "key_prefixes": [
+        "closed.",
+        "limit.cancelled",
+        "status.supplier_view.closed"
+      ]
+    },
+    "confirm_dialog": {
+      "parts": [
+        "question",
+        "consequence"
+      ],
+      "buttons": [
+        "action",
+        "stay"
+      ],
+      "key_prefixes": [
+        "logout.confirm"
+      ]
+    },
+    "toast": {
+      "max_sentences": 1,
+      "key_prefixes": [
+        "toast.",
+        "documents.submitted_banner",
+        "referral.copied"
+      ]
+    },
+    "button": {
+      "pattern": "verb + object",
+      "max_words": 3,
+      "key_suffixes": [
+        ".submit",
+        ".cta",
+        ".copy",
+        ".download",
+        ".upload",
+        ".replace",
+        ".share"
+      ]
+    },
+    "whatsapp_prefill": {
+      "parts": [
+        "greeting",
+        "intent",
+        "data"
+      ],
+      "language": "interface_language_only",
+      "key_prefixes": [
+        "support.prefill.",
+        "referral.share_text"
+      ]
+    }
+  },
+  "length_limits": {
+    "$comment": "Проверяются lint-скриптом по суффиксу ключа; считаем слова (en) и слова (ar) после удаления плейсхолдеров.",
+    "rules": [
+      {
+        "match_suffix": [
+          ".title"
+        ],
+        "max_words": {
+          "en": 6,
+          "ar": 6
+        }
+      },
+      {
+        "match_suffix": [
+          ".submit",
+          ".cta",
+          ".copy",
+          ".download",
+          ".upload",
+          ".replace",
+          ".share",
+          ".open",
+          ".retry"
+        ],
+        "max_words": {
+          "en": 3,
+          "ar": 3
+        }
+      },
+      {
+        "match_prefix": [
+          "toast."
+        ],
+        "max_sentences": 1
+      },
+      {
+        "match_prefix": [
+          "next_step."
+        ],
+        "max_sentences": 2
+      }
+    ]
+  },
+  "exceptions": {
+    "$comment": "Исключения задаются здесь, не в коде. key — glob по ключу i18n; allow — id правил из forbidden, которые для этого ключа не применяются или понижаются.",
+    "items": [
+      {
+        "key": "next_step.*_eta",
+        "allow": [
+          "time_promises"
+        ],
+        "reason": "срок приходит из данных (meta.hours), D-033"
+      },
+      {
+        "key": "next_step.supplier.under_review_eta",
+        "allow": [
+          "time_promises"
+        ],
+        "reason": "то же, SP-01"
+      },
+      {
+        "key": "limit.used_share",
+        "allow": [
+          "interest_percent"
+        ],
+        "reason": "{percent} — доля использованного лимита, не ставка"
+      },
+      {
+        "key": "document.uploading",
+        "allow": [
+          "interest_percent"
+        ],
+        "reason": "{percent} — прогресс загрузки"
+      },
+      {
+        "key": "auth.otp.resend_in",
+        "allow": [
+          "time_promises"
+        ],
+        "reason": "обратный отсчёт повторной отправки кода (D-021)"
+      },
+      {
+        "key": "auth.otp.expired",
+        "allow": [
+          "time_promises"
+        ],
+        "reason": "факт истечения кода, не обещание"
+      },
+      {
+        "key": "documents.empty_waiting",
+        "downgrade": {
+          "time_promises": "warn"
+        },
+        "reason": "«shortly / قريبًا» в пустом состоянии — допускается до решения владельца текстов"
+      },
+      {
+        "key": "offer.materials_empty",
+        "downgrade": {
+          "time_promises": "warn"
+        },
+        "reason": "то же"
+      },
+      {
+        "key": "limit.fully_used_hint",
+        "allow": [],
+        "reason": "проверить вручную: нет обещаний сроков"
+      },
+      {
+        "key": "document.sup_iban_letter.hint",
+        "allow": [
+          "time_promises"
+        ],
+        "reason": "«issued within the last 3 months» — требование к документу, не обещание"
+      },
+      {
+        "key": "document.bs.hint",
+        "allow": [
+          "time_promises"
+        ],
+        "reason": "«last 6 months» — требование к документу"
+      },
+      {
+        "key": "logout.confirm*",
+        "allow": [],
+        "reason": "единственный диалог подтверждения (SC-10)"
+      },
+      {
+        "key": "status.client.closed",
+        "allow": [
+          "blame_language"
+        ],
+        "reason": "нейтральное «closed / مغلق» разрешено; «rejected» по-прежнему запрещено"
+      },
+      {
+        "key": "status.supplier_view.closed",
+        "allow": [
+          "blame_language"
+        ],
+        "reason": "то же"
+      }
+    ]
+  },
+  "glossary_source": "01-nfr-locale-brand.md §1.5",
+  "lint": {
+    "script": "scripts/lint-i18n-tov.mjs",
+    "targets": [
+      "src/shared/i18n/locales/en.json",
+      "src/shared/i18n/locales/ar.json"
+    ],
+    "fail_on": "error",
+    "report_on": "warn",
+    "also_check": {
+      "placeholders_parity": true,
+      "plural_forms_ar": [
+        "zero",
+        "one",
+        "two",
+        "few",
+        "many",
+        "other"
+      ],
+      "no_html_in_strings": true,
+      "ltr_fragments_hint": {
+        "regex": [
+          "\\+966",
+          "https?://",
+          "\\bIBAN\\b",
+          "\\bSA\\d{2}"
+        ],
+        "severity": "warn",
+        "note": "значение должно рендериться через <Ltr>; lint лишь напоминает"
+      }
+    }
+  }
+}

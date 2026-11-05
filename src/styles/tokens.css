@@ -1,0 +1,146 @@
+/* Токены дизайн-системы Tadum (ADR-002, 01-nfr-locale-brand.md §3.3).
+   Часть 1 — токены пресета shadcn Кирилла (D-077), перенесены БЕЗ ИЗМЕНЕНИЙ из вывода
+   `shadcn init --preset b1ZQ7Gl9c` (совпадают с docs/setup/inputs/shadcn-theme-tokens.css).
+   Часть 2 — семантические токены Tadum поверх пресета; как они выведены — docs/design/02-design-system.md.
+   Сырые цвета, px и мс разрешены только в этом файле. Правки — через design-system-owner. */
+
+/* ---------- Часть 1. Пресет shadcn b1ZQ7Gl9c (radix-maia, mist, blue, radius large) ---------- */
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.148 0.004 228.8);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.148 0.004 228.8);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.148 0.004 228.8);
+    --primary: oklch(0.488 0.243 264.376);
+    --primary-foreground: oklch(0.97 0.014 254.604);
+    --secondary: oklch(0.967 0.001 286.375);
+    --secondary-foreground: oklch(0.21 0.006 285.885);
+    --muted: oklch(0.963 0.002 197.1);
+    --muted-foreground: oklch(0.56 0.021 213.5);
+    --accent: oklch(0.963 0.002 197.1);
+    --accent-foreground: oklch(0.218 0.008 223.9);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.925 0.005 214.3);
+    --input: oklch(0.925 0.005 214.3);
+    --ring: oklch(0.723 0.014 214.4);
+    --chart-1: oklch(0.809 0.105 251.813);
+    --chart-2: oklch(0.623 0.214 259.815);
+    --chart-3: oklch(0.546 0.245 262.881);
+    --chart-4: oklch(0.488 0.243 264.376);
+    --chart-5: oklch(0.424 0.199 265.638);
+    --radius: 0.875rem;
+    --sidebar: oklch(0.987 0.002 197.1);
+    --sidebar-foreground: oklch(0.148 0.004 228.8);
+    --sidebar-primary: oklch(0.546 0.245 262.881);
+    --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+    --sidebar-accent: oklch(0.963 0.002 197.1);
+    --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
+    --sidebar-border: oklch(0.925 0.005 214.3);
+    --sidebar-ring: oklch(0.723 0.014 214.4);
+}
+
+.dark {
+    --background: oklch(0.148 0.004 228.8);
+    --foreground: oklch(0.987 0.002 197.1);
+    --card: oklch(0.218 0.008 223.9);
+    --card-foreground: oklch(0.987 0.002 197.1);
+    --popover: oklch(0.218 0.008 223.9);
+    --popover-foreground: oklch(0.987 0.002 197.1);
+    --primary: oklch(0.424 0.199 265.638);
+    --primary-foreground: oklch(0.97 0.014 254.604);
+    --secondary: oklch(0.274 0.006 286.033);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.275 0.011 216.9);
+    --muted-foreground: oklch(0.723 0.014 214.4);
+    --accent: oklch(0.275 0.011 216.9);
+    --accent-foreground: oklch(0.987 0.002 197.1);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.56 0.021 213.5);
+    --chart-1: oklch(0.809 0.105 251.813);
+    --chart-2: oklch(0.623 0.214 259.815);
+    --chart-3: oklch(0.546 0.245 262.881);
+    --chart-4: oklch(0.488 0.243 264.376);
+    --chart-5: oklch(0.424 0.199 265.638);
+    --sidebar: oklch(0.218 0.008 223.9);
+    --sidebar-foreground: oklch(0.987 0.002 197.1);
+    --sidebar-primary: oklch(0.623 0.214 259.815);
+    --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+    --sidebar-accent: oklch(0.275 0.011 216.9);
+    --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.56 0.021 213.5);
+}
+
+/* ---------- Часть 2. Семантические токены Tadum ---------- */
+
+/* Статусы документов и шагов: base — текст и иконка, -foreground — текст на заливке base,
+   -muted — фон бейджа. needs_attention и failed = rejected; closed у поставщика — muted, не rejected.
+   Оттенки: pending — нейтральный mist пресета, received — синий primary пресета,
+   rejected — тёплый «внимание» (не красный error), approved — спокойный зелёный. */
+:root {
+  --status-pending: oklch(0.45 0.021 213.5);
+  --status-pending-foreground: oklch(0.987 0.002 197.1);
+  --status-pending-muted: oklch(0.963 0.002 197.1);
+
+  --status-received: oklch(0.488 0.243 264.376);
+  --status-received-foreground: oklch(0.97 0.014 254.604);
+  --status-received-muted: oklch(0.955 0.025 264);
+
+  --status-rejected: oklch(0.5 0.15 45);
+  --status-rejected-foreground: oklch(0.985 0.01 60);
+  --status-rejected-muted: oklch(0.962 0.03 60);
+
+  --status-approved: oklch(0.47 0.12 155);
+  --status-approved-foreground: oklch(0.985 0.015 155);
+  --status-approved-muted: oklch(0.962 0.035 155);
+
+  /* Прогресс лимита (D-037): дорожка и заполнение от начала строки. */
+  --limit-track: oklch(0.925 0.005 214.3);
+  --limit-fill: var(--primary);
+
+  /* Тени: минимум; в тёмной теме заменяются границами. */
+  --elevation-sm: 0 1px 2px oklch(0.148 0.004 228.8 / 6%);
+  --elevation-md: 0 4px 12px oklch(0.148 0.004 228.8 / 8%);
+
+  /* Движение. */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dark {
+  --status-pending: oklch(0.8 0.016 213.5);
+  --status-pending-foreground: oklch(0.148 0.004 228.8);
+  --status-pending-muted: oklch(0.275 0.011 216.9);
+
+  --status-received: oklch(0.78 0.12 258);
+  --status-received-foreground: oklch(0.148 0.004 228.8);
+  --status-received-muted: oklch(0.3 0.07 264);
+
+  --status-rejected: oklch(0.8 0.12 60);
+  --status-rejected-foreground: oklch(0.148 0.004 228.8);
+  --status-rejected-muted: oklch(0.3 0.06 50);
+
+  --status-approved: oklch(0.8 0.13 155);
+  --status-approved-foreground: oklch(0.148 0.004 228.8);
+  --status-approved-muted: oklch(0.29 0.05 155);
+
+  --limit-track: oklch(0.275 0.011 216.9);
+  --limit-fill: var(--sidebar-primary);
+
+  --elevation-sm: none;
+  --elevation-md: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+}

@@ -1,0 +1,207 @@
+# Зеркало .github/workflows/ci.yml (мастер-промпт 7a п.3): те же jobs и команды, итоговый job `ci`.
+# Проверка схемы — pnpm lint:gitlab-ci; проверка через API GitLab (ci lint) — после переноса.
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+stages: [install, check, build, verify, ci]
+
+variables:
+  HUSKY: '0'
+  PNPM_VERSION: 10.28.0
+  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.63.0-noble
+
+default:
+  image: node:22-bookworm
+  interruptible: true
+
+# Кэш стора pnpm по lock-файлу.
+.pnpm-cache: &pnpm-cache
+  key:
+    files: [pnpm-lock.yaml]
+  paths: [.pnpm-store]
+  policy: pull
+
+.node:
+  cache: *pnpm-cache
+  before_script:
+    - corepack enable
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
+
+# Браузеры Playwright — из образа. В образе Node 24, проект зафиксирован на 22 (engine-strict) — ставит pnpm.
+.browsers:
+  image: $PLAYWRIGHT_IMAGE
+  cache: *pnpm-cache
+  variables:
+    PNPM_HOME: /root/.local/share/pnpm
+  before_script:
+    - export PATH="$PNPM_HOME:$PATH"
+    - npm install -g "pnpm@$PNPM_VERSION"
+    - pnpm env use --global 22
+    - pnpm config set store-dir .pnpm-store
+    - pnpm install --frozen-lockfile
+
+install:
+  stage: install
+  extends: .node
+  cache:
+    <<: *pnpm-cache
+    policy: pull-push
+  script:
+    - echo "dependencies installed"
+
+typecheck:
+  stage: check
+  extends: .node
+  needs: [install]
+  script:
+    - pnpm typecheck
+
+lint:
+  stage: check
+  extends: .node
+  needs: [install]
+  script:
+    - pnpm lint
+    - pnpm lint:rtl
+    - pnpm lint:i18n
+    - pnpm lint:gitlab-ci
+    - pnpm deps:check
+    - pnpm knip
+    - pnpm jscpd
+    - pnpm check:events
+    - pnpm contract:md --check
+    - pnpm check:contrast
+
+commits:
+  stage: check
+  extends: .node
+  needs: [install]
+  variables:
+    GIT_DEPTH: '0'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    - pnpm exec commitlint --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to HEAD --verbose
+    - git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - pnpm exec changeset status --since="origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+
+test:
+  stage: check
+  extends: .browsers
+  needs: [install]
+  script:
+    - pnpm test
+    - pnpm storybook:build
+    - pnpm test:stories
+
+audit:
+  stage: check
+  extends: .node
+  needs: [install]
+  script:
+    - pnpm audit --audit-level=high
+
+gitleaks:
+  stage: check
+  image:
+    name: zricethezav/gitleaks:v8.30.1
+    entrypoint: ['']
+  needs: []
+  variables:
+    GIT_DEPTH: '0'
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - gitleaks git . --no-banner --redact --exit-code 1
+
+build:
+  stage: build
+  extends: .node
+  needs: [install]
+  script:
+    - pnpm build
+    - pnpm check:first-chunk
+    - pnpm check:demo-excluded
+  artifacts:
+    paths: [dist]
+    expire_in: 7 days
+
+e2e:
+  stage: verify
+  extends: .browsers
+  needs: [build]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      variables:
+        PW_SCHEDULED: '1'
+    - when: on_success
+  script:
+    # Сценарии v1 + axe (a11y.spec.ts) во всех проектах.
+    - pnpm test:e2e
+  after_script:
+    # Скриншоты 360/768/1280 × ar/en × light/dark — артефакты, не эталоны (D-074).
+    - export PATH="$PNPM_HOME:$PATH" && pnpm screenshots
+  artifacts:
+    when: always
+    paths: [tests/screenshots, playwright-report, test-results]
+    expire_in: 14 days
+
+size:
+  stage: verify
+  extends: .node
+  needs: [build]
+  # D-054: в v1 бюджеты — отчёт без блокировки; с v2 убрать allow_failure.
+  allow_failure: true
+  script:
+    - pnpm size
+
+lighthouse:
+  stage: verify
+  extends: .browsers
+  needs: [build]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  allow_failure: true
+  script:
+    - export CHROME_PATH="$(ls -d /ms-playwright/chromium-*/chrome-linux64/chrome | head -1)"
+    - pnpm lhci
+  artifacts:
+    when: always
+    paths: [.lighthouseci/reports]
+    expire_in: 30 days
+
+ci:
+  stage: ci
+  image: alpine:3.22
+  needs:
+    - install
+    - typecheck
+    - lint
+    - job: commits
+      optional: true
+    - test
+    - audit
+    - gitleaks
+    - build
+    - e2e
+    - size
+  script:
+    - echo "all required jobs passed"
+
+# Превью-воркер (D-063): только когда секреты CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID заданы владельцем (D-068).
+deploy-preview:
+  stage: ci
+  extends: .node
+  needs: [ci]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CLOUDFLARE_API_TOKEN && $CLOUDFLARE_ACCOUNT_ID
+  resource_group: deploy-preview
+  interruptible: false
+  script:
+    - pnpm run deploy:preview

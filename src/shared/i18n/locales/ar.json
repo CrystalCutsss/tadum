@@ -1,0 +1,289 @@
+{
+  "auth": {
+    "channel": {
+      "sms": "رسالة نصية",
+      "whatsapp": "واتساب"
+    },
+    "expired": {
+      "body": "لحماية حسابك، يرجى تسجيل الدخول مرة أخرى",
+      "login": "تسجيل الدخول",
+      "title": "انتهت جلستك"
+    },
+    "not_found": {
+      "apply": "قدّم طلبك",
+      "body": "إذا لم تقدّم طلبًا بعد، يمكنك تقديمه الآن. وإذا كنت تعتقد أن هناك خطأ، فريقنا جاهز للمساعدة",
+      "support": "تواصل مع الدعم",
+      "title": "لم نجد طلبًا مرتبطًا بهذا الرقم"
+    },
+    "otp": {
+      "change_phone": "تغيير الرقم",
+      "confirm": "تأكيد",
+      "expired": "انتهت صلاحية هذا الرمز. اطلب رمزًا جديدًا",
+      "invalid_zero": "الرمز غير صحيح. لم تتبقَّ لديك محاولات",
+      "invalid_one": "الرمز غير صحيح. تبقّت لديك محاولة واحدة",
+      "invalid_two": "الرمز غير صحيح. تبقّت لديك محاولتان",
+      "invalid_few": "الرمز غير صحيح. تبقّى لديك {attempts_left} محاولات",
+      "invalid_many": "الرمز غير صحيح. تبقّى لديك {attempts_left} محاولة",
+      "invalid_other": "الرمز غير صحيح. تبقّى لديك {attempts_left} محاولة",
+      "invalid_retry": "الرمز غير صحيح. حاول مرة أخرى",
+      "resend": "إرسال رمز جديد",
+      "resend_in": "إرسال رمز جديد بعد {seconds} ث",
+      "resent": "تم إرسال رمز جديد",
+      "sent_to": "أرسلنا رمزًا من 4 أرقام إلى {phone} عبر {channel}",
+      "title": "أدخل الرمز",
+      "too_many_attempts": "محاولات كثيرة. اطلب رمزًا جديدًا"
+    },
+    "phone": {
+      "invalid_format": "أدخل رقم جوال سعودي يبدأ بالرقم 5",
+      "label": "رقم الجوال",
+      "placeholder": "5X XXX XXXX",
+      "submit": "إرسال الرمز",
+      "subtitle": "أدخل رقم الجوال الذي استخدمته في طلبك",
+      "title": "تسجيل الدخول إلى حسابك في تدوم",
+      "too_many_requests_zero": "محاولات كثيرة. حاول مجددًا بعد {minutes} دقيقة",
+      "too_many_requests_one": "محاولات كثيرة. حاول مجددًا بعد دقيقة",
+      "too_many_requests_two": "محاولات كثيرة. حاول مجددًا بعد دقيقتين",
+      "too_many_requests_few": "محاولات كثيرة. حاول مجددًا بعد {minutes} دقائق",
+      "too_many_requests_many": "محاولات كثيرة. حاول مجددًا بعد {minutes} دقيقة",
+      "too_many_requests_other": "محاولات كثيرة. حاول مجددًا بعد {minutes} دقيقة"
+    }
+  },
+  "closed": {
+    "body": "لا يمكننا المتابعة في هذا الطلب حاليًا. يسعدنا استقبال طلب جديد منك، وفريقنا جاهز للإجابة عن أسئلتك",
+    "title": "تم إغلاق هذا الطلب"
+  },
+  "common": {
+    "cached_at": "البيانات كما في {time}",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "copy_link": "نسخ الرابط",
+    "load_error": "تعذّر تحميل هذه الصفحة",
+    "offline_action_hint": "متاح عند عودة الاتصال",
+    "offline_actions_disabled": "أنت غير متصل. سيتوفر الرفع عند عودة الاتصال",
+    "offline_banner": "أنت غير متصل. بعض الإجراءات غير متاحة حتى عودة الاتصال",
+    "offline_retry": "لا يوجد اتصال. تحقق من الإنترنت وحاول مجددًا",
+    "open_in_browser": "يُفضَّل فتح هذا الرابط في المتصفح",
+    "retry": "إعادة المحاولة",
+    "server_error_retry": "حدث خطأ من جهتنا. يرجى المحاولة مرة أخرى",
+    "storage_unavailable": "متصفحك لا يحتفظ بالبيانات بين الزيارات. قد تحتاج إلى تسجيل الدخول مجددًا في المرة القادمة"
+  },
+  "demo": {
+    "action_failed": "غير متاح الآن: {code}",
+    "actions": "إجراءات الفريق",
+    "clear": "مسح",
+    "copied": "تم النسخ",
+    "copy_json": "نسخ JSON",
+    "copy_link": "نسخ الرابط",
+    "description": "أداة العرض: بدّل الشخصيات وحاكِ إجراءات فريق تدوم",
+    "events": "سجل الأحداث",
+    "filter": "تصفية حسب الاسم",
+    "network": "الشبكة",
+    "network_mode": {
+      "error": "خطأ في الخادم",
+      "offline": "غير متصل",
+      "ok": "عادية",
+      "slow": "بطيئة"
+    },
+    "open": "عرض تجريبي",
+    "persona": "الشخصية",
+    "title": "لوحة العرض التجريبي"
+  },
+  "document": {
+    "status": {
+      "approved": "مقبول",
+      "pending": "مطلوب",
+      "received": "تم الرفع",
+      "rejected": "يحتاج ملفًا جديدًا"
+    }
+  },
+  "help": {
+    "language": "اللغة",
+    "logout": "تسجيل الخروج",
+    "logout_confirm": "هل تريد تسجيل الخروج من حسابك؟",
+    "logout_hint": "ستحتاج إلى رمز جديد لتسجيل الدخول مرة أخرى",
+    "support": "تواصل معنا",
+    "theme": "المظهر",
+    "title": "المساعدة والإعدادات",
+    "version": "الإصدار {version}"
+  },
+  "home": {
+    "documents_summary_zero": "تم إرسال {count} مستند",
+    "documents_summary_one": "تم إرسال مستند واحد",
+    "documents_summary_two": "تم إرسال مستندين",
+    "documents_summary_few": "تم إرسال {count} مستندات",
+    "documents_summary_many": "تم إرسال {count} مستندًا",
+    "documents_summary_other": "تم إرسال {count} مستند",
+    "documents_view": "عرض"
+  },
+  "lang": {
+    "switch_to_ar": "العربية",
+    "switch_to_en": "English"
+  },
+  "nav": {
+    "clients": "العملاء",
+    "documents": "المستندات",
+    "help": "المساعدة",
+    "home": "الرئيسية",
+    "main": "القائمة الرئيسية",
+    "more": "المزيد",
+    "offer": "الشروط",
+    "referral": "الرابط"
+  },
+  "next_step": {
+    "closed": "تم إغلاق هذا الطلب",
+    "cta": {
+      "apply": "تقديم طلب جديد",
+      "documents": "الانتقال إلى المستندات",
+      "how_to_buy": "طريقة الشراء",
+      "share_link": "مشاركة رابطي",
+      "sign": "توقيع المستندات"
+    },
+    "first_purchase_done": "اكتملت عمليتك الأولى. يمكنك مواصلة الشراء بالطريقة نفسها",
+    "how_to_buy": "جاهز للشراء؟ إليك كيف يتم ذلك مع مورّدك",
+    "more_docs_requested_zero": "راجع فريقنا مستنداتك ويحتاج {count} مستند إضافي للمتابعة",
+    "more_docs_requested_one": "راجع فريقنا مستنداتك ويحتاج مستندًا إضافيًا واحدًا للمتابعة",
+    "more_docs_requested_two": "راجع فريقنا مستنداتك ويحتاج مستندين إضافيين للمتابعة",
+    "more_docs_requested_few": "راجع فريقنا مستنداتك ويحتاج {count} مستندات إضافية للمتابعة",
+    "more_docs_requested_many": "راجع فريقنا مستنداتك ويحتاج {count} مستندًا إضافيًا للمتابعة",
+    "more_docs_requested_other": "راجع فريقنا مستنداتك ويحتاج {count} مستند إضافي للمتابعة",
+    "offer_confirmation": "تمت الموافقة على طلبك. سيتواصل معك فريقنا هاتفيًا لتأكيد الشروط",
+    "owner": {
+      "tadum": "من جهتنا",
+      "user": "خطوتك التالية"
+    },
+    "reupload_rejected_zero": "{count} مستند تحتاج ملفًا جديدًا",
+    "reupload_rejected_one": "مستند واحد يحتاج ملفًا جديدًا",
+    "reupload_rejected_two": "مستندان يحتاجان ملفًا جديدًا",
+    "reupload_rejected_few": "{count} مستندات تحتاج ملفًا جديدًا",
+    "reupload_rejected_many": "{count} مستندًا تحتاج ملفًا جديدًا",
+    "reupload_rejected_other": "{count} مستند تحتاج ملفًا جديدًا",
+    "sign_documents": "اقتربت من النهاية — وقّع المستندات لتفعيل حدّك",
+    "submit_ready": "تم رفع كل المستندات. أرسلها للمراجعة",
+    "supplier": {
+      "reupload_rejected_zero": "{count} مستند تحتاج ملفًا جديدًا",
+      "reupload_rejected_one": "مستند واحد يحتاج ملفًا جديدًا",
+      "reupload_rejected_two": "مستندان يحتاجان ملفًا جديدًا",
+      "reupload_rejected_few": "{count} مستندات تحتاج ملفًا جديدًا",
+      "reupload_rejected_many": "{count} مستندًا تحتاج ملفًا جديدًا",
+      "reupload_rejected_other": "{count} مستند تحتاج ملفًا جديدًا",
+      "share_link": "حسابك نشط. شارك رابطك مع عملائك",
+      "under_review": "نراجع مستنداتك الآن. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_zero": "نراجع مستنداتك — عادةً خلال {hours} ساعة. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_one": "نراجع مستنداتك — عادةً خلال ساعة واحدة. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_two": "نراجع مستنداتك — عادةً خلال ساعتين. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_few": "نراجع مستنداتك — عادةً خلال {hours} ساعات. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_many": "نراجع مستنداتك — عادةً خلال {hours} ساعة. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_other": "نراجع مستنداتك — عادةً خلال {hours} ساعة. يمكنك مشاركة رابطك منذ الآن",
+      "upload_documents": "ارفع مستنداتك لنتمكن من تفعيل حسابك"
+    },
+    "under_review": "فريقنا يراجع مستنداتك الآن. لا حاجة لأي إجراء منك حاليًا",
+    "under_review_eta_zero": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعة",
+    "under_review_eta_one": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى ساعة واحدة",
+    "under_review_eta_two": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى ساعتين",
+    "under_review_eta_few": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعات",
+    "under_review_eta_many": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعة",
+    "under_review_eta_other": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعة",
+    "under_review_longer": "هل استغرق الأمر وقتًا أطول من المتوقع؟ راسلنا وسنتحقق",
+    "upload_documents_zero": "ارفع {count} مستند للمتابعة",
+    "upload_documents_one": "ارفع مستندًا واحدًا للمتابعة",
+    "upload_documents_two": "ارفع مستندين للمتابعة",
+    "upload_documents_few": "ارفع {count} مستندات للمتابعة",
+    "upload_documents_many": "ارفع {count} مستندًا للمتابعة",
+    "upload_documents_other": "ارفع {count} مستند للمتابعة"
+  },
+  "notfound": {
+    "home": "الانتقال إلى الرئيسية",
+    "title": "هذه الصفحة غير موجودة"
+  },
+  "relative": {
+    "days_ago_zero": "منذ {count} يوم",
+    "days_ago_one": "منذ يوم",
+    "days_ago_two": "منذ يومين",
+    "days_ago_few": "منذ {count} أيام",
+    "days_ago_many": "منذ {count} يومًا",
+    "days_ago_other": "منذ {count} يوم",
+    "hours_ago_zero": "منذ {count} ساعة",
+    "hours_ago_one": "منذ ساعة",
+    "hours_ago_two": "منذ ساعتين",
+    "hours_ago_few": "منذ {count} ساعات",
+    "hours_ago_many": "منذ {count} ساعة",
+    "hours_ago_other": "منذ {count} ساعة",
+    "minutes_ago_zero": "منذ {count} دقيقة",
+    "minutes_ago_one": "منذ دقيقة",
+    "minutes_ago_two": "منذ دقيقتين",
+    "minutes_ago_few": "منذ {count} دقائق",
+    "minutes_ago_many": "منذ {count} دقيقة",
+    "minutes_ago_other": "منذ {count} دقيقة"
+  },
+  "role": {
+    "client": "عميل",
+    "hint_dismiss": "فهمت",
+    "hint_supplier": "لديك أيضًا حساب مورّد — بدّل من هنا",
+    "supplier": "مورّد"
+  },
+  "status": {
+    "changed_banner": "منذ زيارتك الأخيرة: {status}",
+    "changed_banner_dismiss": "حسنًا",
+    "client": {
+      "approved": "تمت الموافقة",
+      "closed": "مغلق",
+      "docs_required": "مطلوب مستندات",
+      "first_purchase": "تمت أول عملية شراء",
+      "under_review": "قيد المراجعة"
+    },
+    "supplier_view": {
+      "applied": "تم تقديم الطلب",
+      "approved": "معتمد",
+      "closed": "مغلق",
+      "collecting_docs": "يجمع المستندات",
+      "first_purchase": "أول عملية شراء",
+      "under_review": "قيد المراجعة"
+    },
+    "updated": "تم تحديث حالة طلبك"
+  },
+  "stub": {
+    "coming_soon": {
+      "body": "نعمل على تجهيز هذا القسم. باقي حسابك يعمل كالمعتاد",
+      "title": "هذا القسم قيد التجهيز"
+    }
+  },
+  "support": {
+    "cta": {
+      "question": "لديك سؤال؟ راسلنا"
+    },
+    "email": "البريد الإلكتروني",
+    "prefill": {
+      "closed": "مرحبًا، لديّ سؤال بخصوص طلبي في تدوم لشركة {company}.",
+      "quotation": "مرحبًا، أرغب في إجراء عملية شراء عبر تدوم لشركة {company}. إليكم عرض السعر:",
+      "under_review": "مرحبًا، لديّ سؤال بخصوص طلبي في تدوم لشركة {company}."
+    },
+    "whatsapp": "واتساب"
+  },
+  "theme": {
+    "dark": "داكن",
+    "light": "فاتح",
+    "system": "مثل الجهاز"
+  },
+  "timeline": {
+    "client": {
+      "decision": "القرار",
+      "documents": "المستندات",
+      "limit_active": "تفعيل الحد",
+      "review": "المراجعة",
+      "signing": "التوقيع"
+    },
+    "needs_more_docs": "نحتاج بضعة مستندات إضافية",
+    "state": {
+      "closed": "مغلقة",
+      "current": "جارية",
+      "done": "مكتملة",
+      "needs_attention": "تحتاج إلى انتباهك",
+      "upcoming": "التالية"
+    },
+    "title": "مراحل الطلب"
+  },
+  "units": {
+    "kb": "كيلوبايت",
+    "mb": "ميجابايت"
+  }
+}
