@@ -55,6 +55,14 @@ const SHADCN_GENERATED = [
   'progress', 'separator', 'sheet', 'skeleton', 'sonner', 'table', 'tabs', 'toggle', 'toggle-group', 'tooltip',
 ].map((name) => `src/shared/ui/${name}.tsx`);
 
+// Аналитика: имя события — только литерал из EventName (04-metrics-and-events.md §4).
+const TRACK = [
+  {
+    selector: "CallExpression[callee.name='track'][arguments.0.type!='Literal']",
+    message: 'track(): имя события — строковый литерал из словаря (04-metrics-and-events.md §3).',
+  },
+];
+
 const ODOO = [
   { selector: "Identifier[name='odoo_stage'], Literal[value='odoo_stage']", message: 'odoo_stage не используется в widgets/ и pages/ — только клиентский статус (01-roles.md §6).' },
 ];
@@ -165,17 +173,17 @@ export default tseslint.config(
   },
   // no-restricted-syntax: правило одно, поэтому наборы селекторов собираются по группам файлов
   // (в flat config последний подходящий блок перекрывает предыдущие).
-  { files: ['src/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...RAW] } },
-  { files: SHADCN_GENERATED, rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL] } },
-  { files: ['src/shared/i18n/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...RAW] } },
-  { files: ['src/shared/lib/clock.ts'], rules: { 'no-restricted-syntax': ['error', ...INTL] } },
+  { files: ['src/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...RAW, ...TRACK] } },
+  { files: SHADCN_GENERATED, rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...TRACK] } },
+  { files: ['src/shared/i18n/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...RAW, ...TRACK] } },
+  { files: ['src/shared/lib/clock.ts'], rules: { 'no-restricted-syntax': ['error', ...INTL, ...TRACK] } },
   // odoo_stage не доходит до виджетов и страниц (01-roles.md §6).
   {
     files: ['src/widgets/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
-    rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...ODOO, ...RAW] },
+    rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...ODOO, ...RAW, ...TRACK] },
   },
   // Тесты могут создавать даты напрямую.
-  { files: ['src/**/*.test.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...INTL] } },
+  { files: ['src/**/*.test.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...INTL, ...TRACK] } },
 
   // --- Тексты и направление (01-nfr-locale-brand.md §1.2, §1.4) ---
   {

@@ -48,8 +48,11 @@ export class Unauthorized extends ApiError {
 /** Метод HttpAdapter ещё не подключён к бэкенду. */
 export class NotImplementedError extends ApiError {
   readonly kind = 'not_implemented';
-  constructor(method: string) {
-    super(`not implemented: ${method}`);
+  constructor(
+    readonly port: string,
+    readonly method: string,
+  ) {
+    super(`not implemented: ${port}.${method}`);
   }
 }
 

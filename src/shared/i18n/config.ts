@@ -4,7 +4,7 @@
 import i18next, { type i18n } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import { track } from '@/shared/analytics';
+import { setAnalyticsContext, track } from '@/shared/analytics';
 import { storage } from '@/shared/lib';
 
 import ar from './locales/ar.json';
@@ -39,6 +39,7 @@ export function resolveLanguage(search: string, stored: string | null): { lang: 
 
 /** Проставить lang/dir на <html> без перезагрузки. */
 export function applyDocumentLanguage(lang: Language, doc: Document = document): void {
+  setAnalyticsContext({ lang, dir: directionOf(lang) });
   doc.documentElement.lang = lang;
   doc.documentElement.dir = directionOf(lang);
 }

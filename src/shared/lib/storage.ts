@@ -1,7 +1,7 @@
 // Единственная точка доступа к localStorage/sessionStorage (D-072).
 // Ключи получают префикс `tadum:<BASE_URL>:`: версии на одном домене витрины не видят друг друга.
 // Если хранилище недоступно (приватный режим, запрет cookie), данные живут в памяти до перезагрузки.
-// TODO(блок 5c): при переходе на память отправлять событие `storage_unavailable`.
+// О переходе на память сообщает onStorageUnavailable (app отправляет событие `storage_unavailable`).
 
 type StorageKind = 'local' | 'session';
 
@@ -12,6 +12,22 @@ const memory: Record<StorageKind, Map<string, string>> = {
   session: new Map(),
 };
 
+let unavailable = false;
+const unavailableListeners = new Set<() => void>();
+
+/** Подписка на «хранилище недоступно, данные в памяти»; срабатывает один раз за загрузку страницы. */
+export function onStorageUnavailable(listener: () => void): () => void {
+  unavailableListeners.add(listener);
+  if (unavailable) listener();
+  return () => unavailableListeners.delete(listener);
+}
+
+function markUnavailable() {
+  if (unavailable) return;
+  unavailable = true;
+  unavailableListeners.forEach((l) => l());
+}
+
 function backend(kind: StorageKind): Storage | null {
   try {
     const store = kind === 'local' ? window.localStorage : window.sessionStorage;
@@ -20,6 +36,7 @@ function backend(kind: StorageKind): Storage | null {
     store.removeItem(probe);
     return store;
   } catch {
+    markUnavailable();
     return null;
   }
 }

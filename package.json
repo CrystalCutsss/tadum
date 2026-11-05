@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "typecheck": "tsr generate && tsc -b --noEmit",
     "deploy:preview": "pnpm build && wrangler deploy",
-    "verify": "pnpm typecheck && pnpm lint && pnpm deps:check && pnpm lint:i18n && pnpm check:contrast && pnpm test && pnpm storybook:build && pnpm test:stories && pnpm build && pnpm check:first-chunk",
+    "verify": "pnpm typecheck && pnpm lint && pnpm deps:check && pnpm lint:i18n && pnpm check:events && pnpm contract:md --check && pnpm check:contrast && pnpm test && pnpm storybook:build && pnpm test:stories && pnpm build && pnpm check:first-chunk",
     "lint": "eslint . --max-warnings=0 && stylelint \"src/**/*.css\"",
     "deps:check": "depcruise src --config .dependency-cruiser.cjs",
     "deps:graph": "depcruise src --config .dependency-cruiser.cjs --include-only \"^src\" --output-type mermaid > docs/architecture/deps.mmd",
@@ -24,7 +24,9 @@
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build --quiet",
     "test:stories": "vitest run --project storybook",
-    "check:first-chunk": "node scripts/check-first-chunk.mjs"
+    "check:first-chunk": "node scripts/check-first-chunk.mjs",
+    "check:events": "node scripts/check-events.mjs",
+    "contract:md": "node scripts/contract-md.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

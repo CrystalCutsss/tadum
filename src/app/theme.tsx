@@ -4,6 +4,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { setAnalyticsContext } from '@/shared/analytics';
 import { storage } from '@/shared/lib';
 
 export type ThemeChoice = 'system' | 'light' | 'dark';
@@ -27,6 +28,7 @@ function systemTheme(): ResolvedTheme {
 function applyTheme(resolved: ResolvedTheme, choice: ThemeChoice): void {
   const root = document.documentElement;
   root.classList.toggle('dark', resolved === 'dark');
+  setAnalyticsContext({ theme: resolved });
   root.style.colorScheme = resolved;
   // При ручном выборе обе мета-строки показывают выбранную тему; при системной — каждая свою.
   for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {

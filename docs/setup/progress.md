@@ -11,8 +11,8 @@
 | 3 | done | `3939ac8` | `verify` += `lint:i18n && test`; `i18next-cli` (A-012) |
 | 4a | done | `44249f8` | пресет применён CLI; иконки Remix (A-015); `verify` += `check:contrast && storybook:build && test:stories` |
 | 5a | done | `9424c28` | 261 unit-тест; таблицы документов разбираются в тестах (A-021) |
-| 5b | done | см. git log | 14 персон, мок по §10; бизнес-правила мока — из `entities` через `MockDomain` (A-024) |
-| 5c | todo | — | |
+| 5b | done | `1ecb0e9` | 14 персон, мок по §10; бизнес-правила мока — из `entities` через `MockDomain` (A-024) |
+| 5c | done | см. git log | 73 события и 18 экранов сверены с §3; `verify` += `check:events`, `contract:md --check` |
 | 6a | todo | — | |
 | 6b | todo | — | |
 | 6c | todo | — | |
@@ -117,6 +117,21 @@
 - `pnpm check:first-chunk`: в первом чанке (172 КБ gzip) кода мока и фикстур нет, мок — отдельный чанк 38 КБ;
 - `@faker-js/*` в `src/` нет и запрещён ESLint;
 - `pnpm verify` зелёный: 337 unit-тестов, 40 тестов историй.
+
+## План блока 5c
+
+1. `shared/analytics/events.ts` — все события `04-metrics-and-events.md` §3 как discriminated union и `EVENT_VERSIONS`; `screen_viewed` различается по `screen_id` (§3.6).
+2. `context.ts` (общие свойства §2.2), `buckets.ts` (§2.4, тесты границ), провайдеры `console`, `demo` (лента для демо-панели), `posthog` (заглушка до SFL-895), `pii-guard.ts` (dev, §2.3); `track()` заменяет заглушку блока 3. ESLint: имя в `track()` — только литерал.
+3. `scripts/check-events.mjs` (`pnpm check:events`, в `verify`): имена, обязательные и необязательные свойства и версии в `events.ts` против таблиц §3 и §3.6.
+4. `HttpAdapter` — явный каркас всех портов: каждый метод бросает `NotImplementedError(port, method)`.
+5. `scripts/contract-md.mjs` (`pnpm contract:md`) → `docs/05-backend-contract.md` из `ports.ts` и `errors.ts`; в `verify` — проверка, что документ актуален.
+
+**Проверка блока 5c (2026-11-05):**
+- `pnpm check:events` зелёный: 73 события и 18 экранов `screen_viewed` совпадают с `04-metrics-and-events.md`; порча имени, свойства, версии и экрана даёт 6 расхождений;
+- `VITE_API_MODE=http pnpm build` собирается; каждый метод `HttpAdapter` бросает `NotImplementedError(port, method)` (тест на все 16 методов);
+- корзины §2.4 покрыты тестами границ, PII-guard — на телефон, e-mail, ссылку, сумму, запрещённые поля;
+- `docs/05-backend-contract.md` сгенерирован, `pnpm contract:md --check` зелёный;
+- `pnpm verify` зелёный: 403 unit-теста, 40 тестов историй; первый чанк — 169 КБ gzip.
 
 ## Решения Кирилла по ходу
 

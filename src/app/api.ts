@@ -9,6 +9,7 @@ import { findDocumentType, hintFor, transitionDocument } from '@/entities/docume
 import { computeLimitAmounts, computeTurnover, isChecklistCompleted } from '@/entities/limit';
 import { initialActiveRole, resolveRoles } from '@/entities/session';
 import { deriveSupplierStatus, supplierNextStep } from '@/entities/supplier';
+import { setAnalyticsContext } from '@/shared/analytics';
 import { PERSONA_IDS, configureApi, getApi, type MockDomain } from '@/shared/api';
 
 export const mockDomain: MockDomain = {
@@ -42,6 +43,7 @@ async function applyPersonaFromUrl(): Promise<void> {
   if (!persona || !(PERSONA_IDS as readonly string[]).includes(persona)) return;
   const api = await getApi();
   api.demo?.setPersona(persona);
+  setAnalyticsContext({ persona });
   url.searchParams.delete(PERSONA_PARAM);
   window.history.replaceState(window.history.state, '', url);
 }
