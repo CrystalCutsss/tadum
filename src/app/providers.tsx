@@ -1,16 +1,18 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import { Direction } from 'radix-ui';
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 
+import { setAnalyticsContext } from '@/shared/analytics';
 import { directionOf, isLanguage } from '@/shared/i18n';
+import { ThemeProvider, useTheme } from '@/shared/lib';
 import { Toaster, TooltipProvider } from '@/shared/ui';
 
 import { i18n } from './i18n';
 import { queryClient } from './query-client';
 import { router } from './router';
-import { ThemeProvider, useTheme } from './theme';
+
 
 // Направление для порталов Radix (Dialog, Popover, Sheet, Tooltip, Toast) следует за языком без перезагрузки.
 function DirectionFromLanguage({ children }: { children: ReactNode }) {
@@ -21,6 +23,8 @@ function DirectionFromLanguage({ children }: { children: ReactNode }) {
 
 function ThemedToaster() {
   const { resolved } = useTheme();
+  // Контекст аналитики: применённая тема (§2.2), не выбор пользователя.
+  useEffect(() => setAnalyticsContext({ theme: resolved }), [resolved]);
   return <Toaster theme={resolved} />;
 }
 

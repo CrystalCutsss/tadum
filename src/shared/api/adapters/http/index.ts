@@ -41,6 +41,9 @@ const application: ApplicationPort = {
   async getCurrent() {
     return todo('application', 'getCurrent');
   },
+  async getCompany() {
+    return todo('application', 'getCompany');
+  },
   async createApplication() {
     return todo('application', 'createApplication');
   },

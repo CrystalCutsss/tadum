@@ -1,9 +1,10 @@
-// Кабинет клиента /c/*: есть сессия и клиентская роль (01-cabinet-structure.md §1). Оболочка — блок 6b.
+// Кабинет клиента /c/*: есть сессия и клиентская роль (01-cabinet-structure.md §1). Ошибка данных маршрута — карточка внутри оболочки (SC-10 §1.8).
 import { Outlet, createFileRoute } from '@tanstack/react-router';
 
 import { decideCabinet, familyMemory, loadSessionState } from '@/entities/session';
 import { setAnalyticsContext } from '@/shared/analytics';
 
+import { CabinetLayout, CabinetRouteError } from '../-components/cabinet-layout';
 import { enforce } from '../-guard';
 
 export const Route = createFileRoute('/c')({
@@ -13,5 +14,10 @@ export const Route = createFileRoute('/c')({
     familyMemory.remember('client');
     setAnalyticsContext({ role: 'client' });
   },
-  component: Outlet,
+  component: () => (
+    <CabinetLayout family="client">
+      <Outlet />
+    </CabinetLayout>
+  ),
+  errorComponent: () => <CabinetRouteError family="client" />,
 });

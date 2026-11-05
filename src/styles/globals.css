@@ -95,3 +95,7 @@
     line-height: var(--leading-heading);
     }
 }
+/* Нижняя навигация над «домашней полосой» iOS (01-cabinet-structure.md §2: учёт safe-area-inset-bottom). */
+@utility pb-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}

@@ -4,7 +4,6 @@
       "sms": "SMS",
       "whatsapp": "WhatsApp"
     },
-    "dual_hint": "You also have a supplier account. Switch here anytime",
     "expired": {
       "body": "For your security, please sign in again",
       "login": "Sign in",
@@ -43,6 +42,7 @@
   },
   "common": {
     "cached_at": "Shown as of {time}",
+    "cancel": "Cancel",
     "close": "Close",
     "copy_link": "Copy link",
     "load_error": "We couldn't load this page",
@@ -63,6 +63,16 @@
       "rejected": "Needs a new file"
     }
   },
+  "help": {
+    "language": "Language",
+    "logout": "Sign out",
+    "logout_confirm": "Sign out of your account?",
+    "logout_hint": "You'll need a new code to sign in again",
+    "support": "Contact us",
+    "theme": "Appearance",
+    "title": "Help & settings",
+    "version": "Version {version}"
+  },
   "lang": {
     "switch_to_ar": "العربية",
     "switch_to_en": "English"
@@ -72,6 +82,7 @@
     "documents": "Documents",
     "help": "Help",
     "home": "Home",
+    "main": "Main menu",
     "more": "More",
     "offer": "Terms",
     "referral": "Link"
@@ -87,6 +98,12 @@
     "hours_ago_other": "{count} hours ago",
     "minutes_ago_one": "{count} minute ago",
     "minutes_ago_other": "{count} minutes ago"
+  },
+  "role": {
+    "client": "Client",
+    "hint_dismiss": "Got it",
+    "hint_supplier": "You also have a supplier account — switch here",
+    "supplier": "Supplier"
   },
   "status": {
     "supplier_view": {

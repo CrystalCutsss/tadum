@@ -16,3 +16,6 @@
 | `auth.otp.invalid_retry` | ar, en | «The code is not correct. Try again» / «الرمز غير صحيح. حاول مرة أخرى» | SC-01 §4: остаток попыток показываем только после 3-й ошибки — для 1-й и 2-й нужен текст без числа |
 | `auth.not_found.title` | en | «No application found for this number» вместо «We couldn't find an application for this number» | лексикон: заголовок не длиннее 6 слов (`length_words`) |
 | `stub.coming_soon.title`, `.body` | ar, en | «This section is being prepared» / «هذا القسم قيد التجهيز»; «We're preparing this section. The rest of your account works as usual» / «نعمل على تجهيز هذا القسم. باقي حسابك يعمل كالمعتاد» | тексты заглушек v1 (D-067) в документах не заданы; «скоро / قريبًا» лексикон запрещает (D-033) |
+| `help.logout_hint` | ar, en | «You'll need a new code to sign in again» / «ستحتاج إلى رمز جديد لتسجيل الدخول مرة أخرى» | у диалога выхода нужно описание (a11y); в SC-10 §4 только вопрос |
+| `common.cancel` | ar, en | Cancel / إلغاء | кнопка отмены в диалоге выхода; в документах не задана |
+| `nav.main` | ar, en | Main menu / القائمة الرئيسية | подпись `<nav>` для скринридера |

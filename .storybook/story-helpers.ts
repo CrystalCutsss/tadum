@@ -36,3 +36,11 @@ export async function pendingLogin(phone: string, persona: string, agoMs = 0): P
     restore();
   }
 }
+
+/** Мок с сессией персоны (setPersona сразу входит под её номером). */
+export async function signedIn(persona: string): Promise<Api> {
+  const api = await getApi();
+  api.demo!.setNetwork('ok');
+  api.demo!.setPersona(persona);
+  return api;
+}

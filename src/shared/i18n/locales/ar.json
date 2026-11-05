@@ -4,7 +4,6 @@
       "sms": "رسالة نصية",
       "whatsapp": "واتساب"
     },
-    "dual_hint": "لديك أيضًا حساب مورّد. يمكنك التبديل من هنا في أي وقت",
     "expired": {
       "body": "لحماية حسابك، يرجى تسجيل الدخول مرة أخرى",
       "login": "تسجيل الدخول",
@@ -51,6 +50,7 @@
   },
   "common": {
     "cached_at": "البيانات كما في {time}",
+    "cancel": "إلغاء",
     "close": "إغلاق",
     "copy_link": "نسخ الرابط",
     "load_error": "تعذّر تحميل هذه الصفحة",
@@ -71,6 +71,16 @@
       "rejected": "يحتاج ملفًا جديدًا"
     }
   },
+  "help": {
+    "language": "اللغة",
+    "logout": "تسجيل الخروج",
+    "logout_confirm": "هل تريد تسجيل الخروج من حسابك؟",
+    "logout_hint": "ستحتاج إلى رمز جديد لتسجيل الدخول مرة أخرى",
+    "support": "تواصل معنا",
+    "theme": "المظهر",
+    "title": "المساعدة والإعدادات",
+    "version": "الإصدار {version}"
+  },
   "lang": {
     "switch_to_ar": "العربية",
     "switch_to_en": "English"
@@ -80,6 +90,7 @@
     "documents": "المستندات",
     "help": "المساعدة",
     "home": "الرئيسية",
+    "main": "القائمة الرئيسية",
     "more": "المزيد",
     "offer": "الشروط",
     "referral": "الرابط"
@@ -107,6 +118,12 @@
     "minutes_ago_few": "منذ {count} دقائق",
     "minutes_ago_many": "منذ {count} دقيقة",
     "minutes_ago_other": "منذ {count} دقيقة"
+  },
+  "role": {
+    "client": "عميل",
+    "hint_dismiss": "فهمت",
+    "hint_supplier": "لديك أيضًا حساب مورّد — بدّل من هنا",
+    "supplier": "مورّد"
   },
   "status": {
     "supplier_view": {

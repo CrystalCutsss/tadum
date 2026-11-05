@@ -8,7 +8,7 @@ import { readProductDoc, section, tableWithHeader } from '@/test-utils/markdown'
 
 import { PERSONAS } from '../../fixtures/personas';
 import type { PersonaId } from '../../fixtures/types';
-import { withValidation } from '../../client';
+import { withValidation } from '../../validation';
 import { DomainError, Forbidden, NetworkError, ServerError, Unauthorized } from '../../ports/errors';
 import type { Api, UploadFile } from '../../ports/ports';
 import type { DocumentSet } from '../../ports/schemas';
@@ -161,6 +161,10 @@ describe('сессия и сеть', () => {
   it('порты чужой семьи ролей — Forbidden', async () => {
     await expect(as('supplier_new').application.getCurrent()).rejects.toBeInstanceOf(Forbidden);
     await expect(as('client_new').supplier.get()).rejects.toBeInstanceOf(Forbidden);
+  });
+  it('getCompany — компания текущей заявки; поставщику — Forbidden', async () => {
+    expect((await as('client_active').application.getCompany()).name).toBe('Ufuq Office Furniture');
+    await expect(as('supplier_new').application.getCompany()).rejects.toBeInstanceOf(Forbidden);
   });
   it('dual: комплекты клиента и поставщика раздельные (SP-03 §7)', async () => {
     const api = as('dual_active');

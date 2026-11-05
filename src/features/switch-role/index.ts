@@ -1,2 +1,2 @@
-// Публичный API фичи switch-role. Реализация — в блоках 6a–6b.
-export {};
+// Публичный API фичи switch-role.
+export { roleHint, useSwitchRole } from './model/role-switch';

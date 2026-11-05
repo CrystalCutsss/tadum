@@ -15,3 +15,4 @@ export {
   type SupplierTimelineStep,
   type SupplierTimelineStepState,
 } from './model/timeline';
+export { supplierQuery } from './api/queries';

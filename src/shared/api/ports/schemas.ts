@@ -4,6 +4,10 @@
 
 import { z } from 'zod';
 
+import { CHECKLIST_KEYS, MAX_FILE_SIZE_BYTES, ODOO_STAGES } from './constants';
+
+export { CHECKLIST_KEYS, KNOWN_PORTAL_KEYS, MAX_FILE_SIZE_BYTES, ODOO_STAGES } from './constants';
+
 // ---------- Общие ----------
 
 /** ISO 8601 в UTC (01-entities.md, принципы). */
@@ -19,22 +23,7 @@ const LocalizedText = z.object({ ar: z.string(), en: z.string() });
 
 // ---------- Перечисления (01-statuses.md; сводка — 01-entities.md §4) ----------
 
-export const ODOO_STAGES = [
-  'New lead',
-  'Processing lead',
-  'Document collection',
-  'Need more docs for UW',
-  'Ready for UW',
-  'Company risk assessment',
-  'Risk committee',
-  'Approved',
-  'Offer confirmation',
-  'Signing SPA & PN',
-  'Client Approved',
-  'Payment done',
-  'Rejected by UW',
-  'Lost',
-] as const;
+
 export const OdooStageSchema = z.enum(ODOO_STAGES);
 
 export const ClientStatusSchema = z.enum(['docs_required', 'under_review', 'approved', 'first_purchase', 'closed']);
@@ -46,20 +35,7 @@ export const DocumentStatusSchema = z.enum(['pending', 'received', 'rejected', '
 export const LimitStatusSchema = z.enum(['pending', 'ready', 'active', 'cancelled', 'rejected']);
 export const ChecklistItemStatusSchema = z.enum(['pending', 'in_progress', 'done', 'failed']);
 
-/** Открытый каталог (01-entities.md §3): новые ключи приходят без правок UI. */
-export const KNOWN_PORTAL_KEYS = [
-  'bs',
-  'national_id',
-  'vat',
-  'vat_sales',
-  'ch_owner',
-  'ch_company',
-  'aoa',
-  'sup_vat',
-  'sup_iban_letter',
-  'sup_national_address',
-  'sup_cr',
-] as const;
+/** Открытый каталог (01-entities.md §3): новые ключи приходят без правок UI — KNOWN_PORTAL_KEYS в constants.ts. */
 export const PortalKeySchema = z.string().min(1);
 
 // ---------- Роли и сессия (01-roles.md §1–2) ----------
@@ -129,7 +105,6 @@ export const ApplicationSchema = z.object({
 
 // ---------- 2.6 FileAsset ----------
 
-export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 export const AcceptedMimeSchema = z.enum(['application/pdf', 'image/jpeg', 'image/png']);
 
 export const PrevalidationResultSchema = z.object({
@@ -194,7 +169,6 @@ export const DocumentSetSchema = z.object({
 
 // ---------- 2.8 OnboardingChecklist ----------
 
-export const CHECKLIST_KEYS = ['spa_sadq', 'pn_company_nafith', 'pn_owner_nafith'] as const;
 
 export const ChecklistItemSchema = z.object({
   key: z.enum(CHECKLIST_KEYS),

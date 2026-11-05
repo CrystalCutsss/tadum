@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { NotImplementedError } from '../../ports/errors';
-import { RESPONSE_SCHEMAS, type Ports } from '../../ports/ports';
+import type { Ports } from '../../ports/ports';
+import { RESPONSE_SCHEMAS } from '../../validation';
 import { createHttpApi } from '.';
 
 const api = createHttpApi();

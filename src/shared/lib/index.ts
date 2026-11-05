@@ -4,3 +4,5 @@ export { onStorageUnavailable, sessionStore, storage, storageKeyPrefix, type Sco
 export { isInAppBrowser, isStandalone, platformOf, viewportOf } from './browser';
 export { formatNationalInput, nationalDigits, pathHash, toKsaMobile } from './phone';
 export { useNow } from './use-now';
+export { ThemeProvider, useTheme, type ResolvedTheme, type ThemeChoice } from './theme';
+export { network, useOnline } from './network';

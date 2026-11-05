@@ -1,2 +1,2 @@
-// Публичный API фичи switch-theme. Реализация — в блоках 6a–6b.
-export {};
+// Публичный API фичи switch-theme.
+export { useSwitchTheme } from './model/use-switch-theme';

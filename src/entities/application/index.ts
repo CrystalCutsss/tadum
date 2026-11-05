@@ -29,3 +29,4 @@ export {
   type ClientTimelineStep,
   type TimelineStepState,
 } from './model/timeline';
+export { applicationQuery, companyQuery } from './api/queries';

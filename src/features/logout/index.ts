@@ -1,2 +1,3 @@
-// Публичный API фичи logout. Реализация — в блоках 6a–6b.
-export {};
+// Публичный API фичи logout.
+export { LogoutButton, LogoutDialog } from './ui/logout-button';
+export { performLogout, useLogout } from './model/use-logout';

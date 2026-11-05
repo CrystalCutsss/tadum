@@ -1,2 +1,2 @@
-// Публичный API виджета language-switch. Реализация — в блоках 6b–6c.
-export {};
+// Публичный API виджета language-switch.
+export { LanguageSwitch } from './ui/language-switch';

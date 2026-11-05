@@ -1,6 +1,6 @@
-// /c/help — заглушка v1: экран появится в своём блоке (D-067; главная клиента — 6c, помощь — 6b).
+// /c/help — помощь и настройки (SC-10).
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ComingSoon } from '../-components/coming-soon';
+import { HelpScreen } from '../-components/help-screen';
 
-export const Route = createFileRoute('/c/help')({ component: ComingSoon });
+export const Route = createFileRoute('/c/help')({ component: HelpScreen });

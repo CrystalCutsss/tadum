@@ -1,2 +1,2 @@
-// Публичный API виджета role-switch. Реализация — в блоках 6b–6c.
-export {};
+// Публичный API виджета role-switch.
+export { RoleSwitch } from './ui/role-switch';

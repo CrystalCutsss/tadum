@@ -7,10 +7,14 @@ import ts from 'typescript';
 
 const OUT = 'docs/05-backend-contract.md';
 const PORTS = 'src/shared/api/ports/ports.ts';
+const RESPONSES = 'src/shared/api/ports/response-schemas.ts';
+const CONSTANTS = 'src/shared/api/ports/constants.ts';
 const ERRORS = 'src/shared/api/ports/errors.ts';
 
 const parse = (file) => ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true);
 const ports = parse(PORTS);
+const responses = parse(RESPONSES);
+const constants = parse(CONSTANTS);
 const errors = parse(ERRORS);
 const oneLine = (s) => s.replace(/\s+/g, ' ').replace(/\(\s/g, '(').replace(/\s\)/g, ')').trim();
 
@@ -45,6 +49,7 @@ const portTypes = new Map(portsIface.members.map((m) => [m.name.getText(ports), 
 const ENTITY_LINKS = {
   Session: '`01-roles.md` §1',
   Application: '`01-entities.md` §2.3',
+  Company: '`01-entities.md` §2.2',
   DocumentSet: '`01-entities.md` §2.4',
   Document: '`01-entities.md` §2.5',
   Limit: '`01-entities.md` §2.7',
@@ -81,10 +86,11 @@ function portSection(key) {
 
 function schemaText(name) {
   let text = null;
-  ports.forEachChild((n) => {
+  responses.forEachChild((n) => {
     if (!ts.isVariableStatement(n)) return;
-    for (const d of n.declarationList.declarations) if (d.name.getText(ports) === name) text = d.initializer.getText(ports);
+    for (const d of n.declarationList.declarations) if (d.name.getText(responses) === name) text = d.initializer.getText(responses);
   });
+  if (!text) throw new Error(`${RESPONSES}: нет схемы ${name}`);
   return text;
 }
 
@@ -93,13 +99,16 @@ const AUX = ['OtpChannelSchema', 'OtpChallengeSchema', 'UploadResultSchema', 'Do
 /** Входные типы методов — текстом объявлений из ports.ts. */
 const INPUT_TYPES = ['DocumentSetOwner', 'UploadFile', 'UploadOptions', 'ReferredClientsSort', 'ReferredClientsQuery', 'REFERRED_CLIENTS_PAGE_SIZE'];
 function declarationText(name) {
-  let text = null;
-  ports.forEachChild((n) => {
-    const id = n.name?.getText?.(ports) ?? (ts.isVariableStatement(n) ? n.declarationList.declarations[0].name.getText(ports) : null);
-    if (id === name) text = n.getText(ports).replace(/^export /, '');
-  });
-  if (!text) throw new Error(`${PORTS}: нет объявления ${name}`);
-  return text;
+  for (const sf of [ports, constants]) {
+    let text = null;
+    sf.forEachChild((n) => {
+      if (ts.isExportDeclaration(n)) return;
+      const id = n.name?.getText?.(sf) ?? (ts.isVariableStatement(n) ? n.declarationList.declarations[0].name.getText(sf) : null);
+      if (id === name) text = n.getText(sf).replace(/^export /, '');
+    });
+    if (text) return text;
+  }
+  throw new Error(`${PORTS}, ${CONSTANTS}: нет объявления ${name}`);
 }
 
 // ---------- Ошибки ----------
@@ -152,13 +161,13 @@ ${PORT_ORDER.map(portSection).join('\n\n')}
 
 ### Вспомогательные типы
 
-Определены в \`src/shared/api/ports/ports.ts\`:
+Определены в \`src/shared/api/ports/response-schemas.ts\`:
 
 \`\`\`ts
 ${AUX.map((n) => `const ${n} = ${schemaText(n)};`).join('\n\n')}
 \`\`\`
 
-Входные типы методов:
+Входные типы методов (\`ports.ts\`, \`constants.ts\`):
 
 \`\`\`ts
 ${INPUT_TYPES.map(declarationText).join('\n\n')}

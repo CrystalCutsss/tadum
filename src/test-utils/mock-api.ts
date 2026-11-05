@@ -1,7 +1,8 @@
 // Мок для тестов: те же бизнес-правила entities, что внедряет app/api.ts, без задержек.
 import { landingUrl, mockDomain } from '@/app/api';
 import { createMockApi } from '@/shared/api/adapters/mock';
-import { withValidation, type Api } from '@/shared/api';
+import type { Api } from '@/shared/api';
+import { withValidation } from '@/shared/api/validation';
 
 export { landingUrl, mockDomain };
 

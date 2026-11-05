@@ -1,11 +1,11 @@
 // Тема: system | light | dark (D-016, D-025). По умолчанию — системная; ручной выбор только в настройках.
 // Выбор хранится через storage('theme'); класс .dark на <html>; <meta name="theme-color"> для обеих тем.
 // Без вспышки при загрузке: index.html до бандла ставит .dark по тому же ключу хранилища.
+// Аналитику (контекст theme) синхронизирует app/providers.tsx: shared/lib не зависит от shared/analytics.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { setAnalyticsContext } from '@/shared/analytics';
-import { storage } from '@/shared/lib';
+import { storage } from './storage';
 
 export type ThemeChoice = 'system' | 'light' | 'dark';
 export type ResolvedTheme = 'light' | 'dark';
@@ -28,7 +28,6 @@ function systemTheme(): ResolvedTheme {
 function applyTheme(resolved: ResolvedTheme, choice: ThemeChoice): void {
   const root = document.documentElement;
   root.classList.toggle('dark', resolved === 'dark');
-  setAnalyticsContext({ theme: resolved });
   root.style.colorScheme = resolved;
   // При ручном выборе обе мета-строки показывают выбранную тему; при системной — каждая свою.
   for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
@@ -65,7 +64,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setChoice = useCallback((next: ThemeChoice) => {
     storage.set(STORAGE_KEY, next);
     setChoiceState(next);
-    // Событие theme_changed отправит фича switch-theme (блок 6b).
+    // Событие theme_changed отправляет фича switch-theme.
   }, []);
 
   const value = useMemo(() => ({ choice, resolved, setChoice }), [choice, resolved, setChoice]);

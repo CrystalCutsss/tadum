@@ -455,6 +455,12 @@ export function createMockApi(options: MockApiOptions): Api {
 
     application: {
       getCurrent: () => io('application.getCurrent', () => currentApp(fresh(asClient().state))),
+      getCompany: () =>
+        io('application.getCompany', () => {
+          const company = fresh(asClient().state).company;
+          if (!company) throw new NotFound('company');
+          return company;
+        }),
       createApplication: () =>
         io('application.createApplication', () => {
           const { state } = asClient();

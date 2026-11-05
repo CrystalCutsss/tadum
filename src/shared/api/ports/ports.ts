@@ -1,69 +1,26 @@
 // Порты данных. UI и features знают только эти интерфейсы; адаптер (mock | http) выбирает client.ts.
-// Ответы всех методов валидируются Zod-схемами из RESPONSE_SCHEMAS (обёртка в client.ts).
+// Ответы всех методов валидируются Zod-схемами из RESPONSE_SCHEMAS (validation.ts, грузится лениво вместе с адаптером).
 
-import { z } from 'zod';
-
-import {
-  ApplicationSchema,
-  DateTimeSchema,
-  DocumentSchema,
-  DocumentSetSchema,
-  LimitSchema,
-  OfferContentSchema,
-  OnboardingChecklistSchema,
-  PrevalidationResultSchema,
-  ReferredClientSchema,
-  SessionSchema,
-  SupplierSchema,
-  type Application,
-  type CHECKLIST_KEYS,
-  type Document,
-  type DocumentSet,
-  type Limit,
-  type Money,
-  type OfferContent,
-  type OnboardingChecklist,
-  type PortalKey,
-  type Session,
-  type Supplier,
-  type SupplierViewStatus,
-  type UploadProgress,
+import type { CHECKLIST_KEYS } from './constants';
+import type { DownloadLink, OtpChallenge, ReferredClientsPage, SupplierCounters, UploadResult } from './response-schemas';
+import type {
+  Application,
+  Company,
+  Document,
+  DocumentSet,
+  Limit,
+  Money,
+  OfferContent,
+  OnboardingChecklist,
+  PortalKey,
+  Session,
+  Supplier,
+  SupplierViewStatus,
+  UploadProgress,
 } from './schemas';
 
-// ---------- Ответы, которых нет среди сущностей ----------
-
-export const OtpChannelSchema = z.enum(['sms', 'whatsapp']);
-
-export const OtpChallengeSchema = z.object({
-  channel: OtpChannelSchema,
-  length: z.number().int(),
-  expires_at: DateTimeSchema,
-  resend_available_at: DateTimeSchema,
-  attempts_left: z.number().int().nonnegative(),
-});
-
-export const UploadResultSchema = z.object({
-  document: DocumentSchema,
-  /** `failed` — файл не принят, документ не изменился (SC-02 A3). */
-  prevalidation: PrevalidationResultSchema,
-});
-
-export const DownloadLinkSchema = z.object({ url: z.string() });
-
-export const SupplierCountersSchema = SupplierSchema.shape.counters;
-
-export const ReferredClientsPageSchema = z.object({
-  items: z.array(ReferredClientSchema),
-  next_cursor: z.string().nullable(),
-  total: z.number().int().nonnegative(),
-});
-
-export type OtpChannel = z.infer<typeof OtpChannelSchema>;
-export type OtpChallenge = z.infer<typeof OtpChallengeSchema>;
-export type UploadResult = z.infer<typeof UploadResultSchema>;
-export type DownloadLink = z.infer<typeof DownloadLinkSchema>;
-export type SupplierCounters = z.infer<typeof SupplierCountersSchema>;
-export type ReferredClientsPage = z.infer<typeof ReferredClientsPageSchema>;
+export type { DownloadLink, OtpChallenge, OtpChannel, ReferredClientsPage, SupplierCounters, UploadResult } from './response-schemas';
+export { REFERRED_CLIENTS_PAGE_SIZE } from './constants';
 
 // ---------- Входы ----------
 
@@ -90,8 +47,6 @@ export interface ReferredClientsQuery {
   cursor?: string | null;
 }
 
-/** Размер страницы списка приведённых клиентов (SP-04 A7). */
-export const REFERRED_CLIENTS_PAGE_SIZE = 20;
 
 // ---------- Порты ----------
 
@@ -105,6 +60,8 @@ export interface AuthPort {
 
 export interface ApplicationPort {
   getCurrent(): Promise<Application>;
+  /** Компания текущей заявки: название в шапке кабинета (01-cabinet-structure.md §4). */
+  getCompany(): Promise<Company>;
   /** Только из `closed` (D-038): новая заявка, старая остаётся закрытой. */
   createApplication(): Promise<Application>;
 }
@@ -181,25 +138,3 @@ export interface Api extends Ports {
   /** Только в mock-режиме. */
   demo: DemoActions | null;
 }
-
-// ---------- Схемы ответов для обёртки валидации ----------
-
-type Schemas<P> = { [K in keyof P]: z.ZodType };
-
-export const RESPONSE_SCHEMAS: { [K in keyof Ports]: Schemas<Ports[K]> } = {
-  auth: { requestOtp: OtpChallengeSchema, verifyOtp: SessionSchema, getSession: SessionSchema.nullable(), logout: z.void() },
-  application: { getCurrent: ApplicationSchema, createApplication: ApplicationSchema },
-  documents: {
-    getSet: DocumentSetSchema,
-    upload: UploadResultSchema,
-    replace: UploadResultSchema,
-    delete: DocumentSchema,
-    submit: DocumentSetSchema,
-    download: DownloadLinkSchema,
-  },
-  limit: { get: LimitSchema, getChecklist: OnboardingChecklistSchema },
-  supplier: { get: SupplierSchema, getCounters: SupplierCountersSchema },
-  referredClients: { list: ReferredClientsPageSchema },
-  offer: { get: OfferContentSchema },
-};
-

@@ -1,2 +1,2 @@
-// Публичный API фичи switch-language. Реализация — в блоках 6a–6b.
-export {};
+// Публичный API фичи switch-language.
+export { useSwitchLanguage } from './model/use-switch-language';

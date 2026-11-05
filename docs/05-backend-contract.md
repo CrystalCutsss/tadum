@@ -30,6 +30,7 @@
 | Метод | Сигнатура | Ответ описан в | Примечание |
 |---|---|---|---|
 | `getCurrent` | `getCurrent(): Promise<Application>` | `01-entities.md` §2.3 | — |
+| `getCompany` | `getCompany(): Promise<Company>` | `01-entities.md` §2.2 | Компания текущей заявки: название в шапке кабинета (01-cabinet-structure.md §4). |
 | `createApplication` | `createApplication(): Promise<Application>` | `01-entities.md` §2.3 | Только из `closed` (D-038): новая заявка, старая остаётся закрытой. |
 
 ### `documents` — `DocumentsPort`
@@ -71,7 +72,7 @@
 
 ### Вспомогательные типы
 
-Определены в `src/shared/api/ports/ports.ts`:
+Определены в `src/shared/api/ports/response-schemas.ts`:
 
 ```ts
 const OtpChannelSchema = z.enum(['sms', 'whatsapp']);
@@ -99,7 +100,7 @@ const ReferredClientsPageSchema = z.object({
 });
 ```
 
-Входные типы методов:
+Входные типы методов (`ports.ts`, `constants.ts`):
 
 ```ts
 type DocumentSetOwner = DocumentSet['owner'];
