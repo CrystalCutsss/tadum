@@ -240,3 +240,12 @@
   - **Плагины** объявлены в `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`) и не устанавливались в облачную сессию. Имена сверены с `marketplace.json` маркетплейсов `anthropics/claude-plugins-official` и `anthropics/knowledge-work-plugins`. `superpowers` не включён (D-066). `settings.json` проходит JSON-схему SchemaStore `claude-code-settings`.
 
   Проверить: финальная проверка 8b.5 п.4 — Кирилл в новой облачной сессии просит поправить `tokens.css` и получает отказ хука.
+- **A-052.** Публикация на витрину Proto (блок 9) — по фактическому механизму Proto. Мастер-промпт (9.2) описывал другую схему, а он же требует «не изобретать: повторить»:
+  - **Не копия `dist/` в `p/tadum/vN/` с правкой `registry.json`.** Версия — workspace-пакет `prototypes/tadum/versions/vN/`, а `registry.json` Proto строит сам из `prototype.json` и `version.json`. Готовая сборка из другого репозитория кладётся замороженной версией: `.frozen/site`, `.frozen/manifest.json`, скрипт `proto-frozen-build` — тот же формат, что у `pnpm proto:freeze`, ADR-0010 Proto. Опубликованная версия неизменна (`frozen-guard` в CI Proto).
+  - **Не push в `main` Proto и не `wrangler deploy`.** По правилам Proto `main` меняет только Кирилл merge-коммитом PR, а витрину деплоит Cloudflare Workers Builds после merge. Поэтому остановка «push и деплой после „да“» превращается в два шага: push ветки Proto и PR после «да», затем merge Кириллом. Откат — revert PR или Rollback в дашборде.
+  - **Теги оболочки Proto** (`proto:prototype`, `proto:version`, `robots`, `/_shell/loader.js`) скрипт вставляет в `index.html`: сборка Proto без них снимок не примет. `_headers` превью-воркера не копируется.
+  - **Меню просмотрщика:** оси «Персона» (14 персон и «Вход по номеру» — без персоны) и «Язык» (ar/en); `platform: mobile` — на компьютере рамка телефона. Основной сценарий — телефон и WhatsApp, на desktop-раскладку можно переключить, сменив `platform` в `prototype.json` Proto. `separatePassword: true` (ADR-003).
+  - **Превью `_previews/`** Proto снимает сам при сборке сайта, отдельный шаг не нужен.
+  - **Ветка Proto** — `--proto-branch`, по умолчанию `feat/tadum-vN`. В облачной сессии — назначенная сессии ветка.
+
+  Проверить: PR в Proto проходит CI Proto (`frozen-guard`, `registry:validate`, сборка сайта, smoke); после merge `/p/tadum/v1/` открывается в просмотрщике.
