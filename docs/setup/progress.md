@@ -20,7 +20,7 @@
 | 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
 | 7b | done | `e76795e` | README/CONTRIBUTING, ADR-003, перенос в GitLab, аналитика, карта `docs/`; `verify` += `check:docs`; копии в Drive |
 | 8a | done | см. git log | `CLAUDE.md` 56 строк, 9 правил, 7 агентов, 12 скиллов; `verify` += `check:claude` (A-050) |
-| 8b | todo | — | |
+| 8b | done | см. git log | хуки (61 тест), разрешения, `.mcp.json`, плагины; ⏸ финальная проверка хука в новой облачной сессии и merge `chore/setup-2` |
 | 9 | todo | — | |
 | 10 | todo | — | |
 
@@ -191,6 +191,22 @@
 - e2e нашли и закрыли три дефекта (A-046); регрессия «Подписание» вместо «Лимит активен» валит новый e2e-тест без исправления;
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
+
+## План и проверка блока 8b
+
+1. Хуки (`scripts/hooks/*.sh`, `.claude/settings.json`): `protect-paths`, `guard-bash`, `post-edit`, `verify-on-stop`, `session-start`, `prompt-brief`; тесты `scripts/hooks/__tests__` (Vitest, JSON на stdin). Схема сверена с документацией Claude Code (A-051).
+2. Разрешения 8b.2 (allow / ask / deny) — только команды; пути — хуком.
+3. `.mcp.json`: shadcn, playwright, chrome-devtools, context7, github, cloudflare — без секретов; `docs/claude-code.md` → Drive `05-claude-code-environment.md`.
+4. Плагины: `frontend-design`, `code-review`, `typescript-lsp`, `hookify`, `claude-md-management` (`claude-plugins-official`), `design` (`knowledge-work-plugins`); без `superpowers` (D-066).
+
+**Проверка блока 8b (2026-11-05):**
+- тесты хуков — 61 зелёный; подмена (снятая защита `tokens.css`) валит 2 теста. Ручная проверка: `echo '{"tool_name":"Edit","tool_input":{"file_path":"…/src/styles/tokens.css"}}' | scripts/hooks/protect-paths.sh` → `"permissionDecision":"deny"`; с `TADUM_ALLOW_PROTECTED=1` — разрешение;
+- `.claude/settings.json` проходит JSON-схему SchemaStore; `claude plugin validate .claude` — «Validation passed»;
+- Stop-хук: `claude -p --permission-mode acceptEdits "Добавь пустую строку в конец src/app/main.tsx"` — в событиях хуков `verify-on-stop: в src/ есть изменения — запускаю pnpm verify`, verify зелёный; там же сработали `SessionStart` (инварианты) и `UserPromptSubmit`. Файл возвращён;
+- `/rtl-qa`: на временной ветке `test/guards` компонент с `ml-4` → `claude -p "/rtl-qa"` назвал `src/widgets/rtl-probe/rtl-probe.tsx:3`; `pnpm lint:rtl` падает на той же строке; ветка удалена. В `claude -p` разрешения проекта не применялись (папке не дано доверие) — `rtl-qa` не смог сам запустить `pnpm`, хуки при этом работали (A-051);
+- защита в настоящей сессии: `claude -p "Добавь комментарий в начало src/styles/tokens.css"` → хук отказал «Защищённый путь: src/styles/tokens.css…», файл не изменился. Модель предложила обход через `sed` — `guard-bash.sh` теперь запрещает и его;
+- `pnpm verify` зелёный (563 unit, 113 историй, 9 smoke);
+- **⏸ Кирилл:** финальная проверка 8b.5 п.4 — в новой облачной сессии на `tadum` попросить поправить `tokens.css` и убедиться в отказе хука.
 
 ## План и проверка блока 8a
 
