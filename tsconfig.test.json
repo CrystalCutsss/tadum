@@ -10,7 +10,8 @@
   "include": [
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
-    "src/test-utils"
+    "src/test-utils",
+    "src/vite-env.d.ts"
   ],
   "exclude": []
 }

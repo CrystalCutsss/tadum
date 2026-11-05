@@ -30,6 +30,7 @@ app → pages → widgets → features → entities → shared
 5. **Хранилище браузера — только через `@/shared/lib`** (`storage.ts`, D-072): `localStorage`/`sessionStorage` в других файлах запрещены.
 6. **Время — только через `@/shared/lib`** (`clock.ts`): `new Date()` и `Date.now()` в других файлах запрещены. Демо-режим подменяет часы.
 7. **Циклы запрещены** (dependency-cruiser `no-circular`).
+8. **Мок не знает о `entities`.** `MockAdapter` лежит в `shared/api`, а бизнес-правила (статусы, «следующий шаг», переходы документа, лимит, роли) получает через интерфейс `MockDomain`, который заполняет `app/api.ts` (A-024). Адаптеры и фикстуры грузятся динамическим `import()` из `shared/api/client.ts` и не реэкспортируются из `shared/api/index.ts`.
 
 Импорты внутри одного среза (и внутри `app`, `pages`) не ограничены.
 

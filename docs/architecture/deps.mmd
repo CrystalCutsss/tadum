@@ -2,112 +2,546 @@ flowchart LR
 
 subgraph 0["src"]
 subgraph 1["app"]
-2["main.tsx"]
-5["providers.tsx"]
-6["router.tsx"]
+2["api.ts"]
+2C["i18n.ts"]
+2N["main.tsx"]
+2Q["providers.tsx"]
+2R["router.tsx"]
+2S["theme.tsx"]
 end
-subgraph 3["styles"]
-4["globals.css"]
-end
-subgraph 7["entities"]
-subgraph 8["application"]
-9["index.ts"]
-end
-subgraph A["document"]
-B["index.ts"]
-end
-subgraph C["limit"]
-D["index.ts"]
-end
-subgraph E["offer"]
-F["index.ts"]
-end
-subgraph G["referred-client"]
-H["index.ts"]
-end
-subgraph I["session"]
-J["index.ts"]
-end
-subgraph K["supplier"]
-L["index.ts"]
+subgraph 3["entities"]
+subgraph 4["application"]
+5["index.ts"]
+subgraph 6["model"]
+7["next-step.ts"]
+1J["odoo-stage-map.ts"]
+1K["permissions.ts"]
+1L["status.ts"]
+1M["timeline.ts"]
+1N["types.ts"]
+3K["next-step.test.ts"]
+3O["permissions.test.ts"]
+3P["status.test.ts"]
+3Q["timeline.test.ts"]
 end
 end
-subgraph M["features"]
-subgraph N["logout"]
-O["index.ts"]
+subgraph 1O["document"]
+1P["index.ts"]
+subgraph 1Q["model"]
+1R["catalog.ts"]
+1S["status.ts"]
+1T["types.ts"]
+3R["document.test.ts"]
 end
-subgraph P["request-otp"]
-Q["index.ts"]
 end
-subgraph R["switch-language"]
-S["index.ts"]
+subgraph 1U["limit"]
+1V["index.ts"]
+subgraph 1W["model"]
+1X["amounts.ts"]
+1Y["types.ts"]
+3S["amounts.test.ts"]
 end
-subgraph T["switch-role"]
-U["index.ts"]
 end
-subgraph V["switch-theme"]
+subgraph 1Z["session"]
+20["index.ts"]
+subgraph 21["model"]
+22["roles.ts"]
+23["types.ts"]
+41["roles.test.ts"]
+end
+end
+subgraph 24["supplier"]
+25["index.ts"]
+subgraph 26["model"]
+27["next-step.ts"]
+28["permissions.ts"]
+29["status.ts"]
+2A["timeline.ts"]
+2B["types.ts"]
+42["supplier.test.ts"]
+end
+end
+subgraph 3T["offer"]
+3U["index.ts"]
+subgraph 3V["model"]
+3W["types.ts"]
+end
+end
+subgraph 3X["referred-client"]
+3Y["index.ts"]
+subgraph 3Z["model"]
+40["types.ts"]
+end
+end
+end
+subgraph 8["shared"]
+subgraph 9["api"]
+A["index.ts"]
+subgraph B["adapters"]
+subgraph C["mock"]
+D["domain.ts"]
+N["index.ts"]
+O["mock-api.ts"]
+1D["derive.ts"]
+1E["hash.ts"]
+4J["mock-api.test.ts"]
+end
+subgraph H["http"]
+I["index.ts"]
+end
+subgraph L["static"]
+M["offer.ts"]
+end
+end
+subgraph E["ports"]
+F["schemas.ts"]
+J["errors.ts"]
+K["ports.ts"]
+4M["schemas.test.ts"]
+end
+G["client.ts"]
+subgraph P["fixtures"]
+Q["build.ts"]
+subgraph V["personas"]
 W["index.ts"]
+Y["client-active.ts"]
+Z["client-approved-unsigned.ts"]
+10["client-closed-lost.ts"]
+11["client-closed-rejected.ts"]
+12["client-first-purchase.ts"]
+13["client-more-docs.ts"]
+14["client-new.ts"]
+15["client-partial.ts"]
+16["client-rejected.ts"]
+17["client-submitted.ts"]
+18["dual-active.ts"]
+19["supplier-active.ts"]
+1A["supplier-new.ts"]
+1B["unknown-phone.ts"]
 end
-subgraph X["verify-otp"]
-Y["index.ts"]
+X["types.ts"]
+1C["schema.ts"]
+4L["personas.test.ts"]
 end
+1I["polling.ts"]
 end
-subgraph Z["pages"]
-10["__root.tsx"]
-11["index.tsx"]
+subgraph R["lib"]
+S["index.ts"]
+T["clock.ts"]
+U["storage.ts"]
+4Q["utils.ts"]
 end
-subgraph 12["shared"]
-subgraph 13["analytics"]
-14["index.ts"]
-end
-subgraph 15["api"]
-16["index.ts"]
-end
-subgraph 17["config"]
-18["index.ts"]
-end
-subgraph 19["i18n"]
-1A["index.ts"]
-end
-subgraph 1B["lib"]
-1C["clock.ts"]
-1D["index.ts"]
-1E["storage.ts"]
-end
-subgraph 1F["ui"]
+subgraph 1F["config"]
 1G["index.ts"]
+1H["timings.ts"]
+end
+subgraph 2D["i18n"]
+2E["index.ts"]
+2F["config.ts"]
+subgraph 2G["locales"]
+2H["ar.json"]
+2I["en.json"]
+end
+2M["format.ts"]
+4N["config.test.ts"]
+4O["format.test.ts"]
+4P["types.d.ts"]
+end
+subgraph 2J["analytics"]
+2K["index.ts"]
+2L["track.ts"]
+end
+subgraph 2T["ui"]
+2U["index.ts"]
+2V["accordion.tsx"]
+2W["alert.tsx"]
+2X["badge.tsx"]
+2Y["button.tsx"]
+2Z["card.tsx"]
+30["dialog.tsx"]
+31["dropdown-menu.tsx"]
+subgraph 32["icon"]
+33["icon.tsx"]
+4Z["icon.stories.tsx"]
+end
+34["input.tsx"]
+35["input-otp.tsx"]
+36["ltr.tsx"]
+37["popover.tsx"]
+38["progress.tsx"]
+39["separator.tsx"]
+3A["sheet.tsx"]
+3B["skeleton.tsx"]
+3C["sonner.tsx"]
+3D["status-badge.tsx"]
+3E["table.tsx"]
+3F["tabs.tsx"]
+3G["toggle.tsx"]
+3H["toggle-group.tsx"]
+3I["tooltip.tsx"]
+3J["wordmark.tsx"]
+4R["accordion.stories.tsx"]
+4S["alert.stories.tsx"]
+4T["badge.stories.tsx"]
+4U["button.stories.tsx"]
+4V["card.stories.tsx"]
+4W["dialog.stories.tsx"]
+4X["dropdown-menu.stories.tsx"]
+4Y["fonts.stories.tsx"]
+50["input-otp.stories.tsx"]
+51["input.stories.tsx"]
+52["ltr.stories.tsx"]
+53["popover.stories.tsx"]
+54["progress.stories.tsx"]
+55["separator.stories.tsx"]
+56["sheet.stories.tsx"]
+57["skeleton.stories.tsx"]
+58["sonner.stories.tsx"]
+59["status-badge.stories.tsx"]
+5A["table.stories.tsx"]
+5B["tabs.stories.tsx"]
+5C["toggle-group.stories.tsx"]
+5D["toggle.stories.tsx"]
+5E["tooltip.stories.tsx"]
+5F["wordmark.stories.tsx"]
 end
 end
-1H["vite-env.d.ts"]
-subgraph 1I["widgets"]
-subgraph 1J["cabinet-shell"]
-1K["index.ts"]
+subgraph 2O["styles"]
+2P["globals.css"]
 end
-subgraph 1L["demo-panel"]
-1M["index.ts"]
+subgraph 3L["test-utils"]
+3M["fixtures.ts"]
+3N["markdown.ts"]
+4K["mock-api.ts"]
 end
-subgraph 1N["language-switch"]
-1O["index.ts"]
+subgraph 43["features"]
+subgraph 44["logout"]
+45["index.ts"]
 end
-subgraph 1P["next-step-card"]
-1Q["index.ts"]
+subgraph 46["request-otp"]
+47["index.ts"]
 end
-subgraph 1R["role-switch"]
-1S["index.ts"]
+subgraph 48["switch-language"]
+49["index.ts"]
 end
-subgraph 1T["status-timeline"]
-1U["index.ts"]
+subgraph 4A["switch-role"]
+4B["index.ts"]
 end
-subgraph 1V["support-bar"]
-1W["index.ts"]
+subgraph 4C["switch-theme"]
+4D["index.ts"]
 end
-subgraph 1X["theme-switch"]
-1Y["index.ts"]
+subgraph 4E["verify-otp"]
+4F["index.ts"]
+end
+end
+subgraph 4G["pages"]
+4H["__root.tsx"]
+4I["index.tsx"]
+end
+5G["vite-env.d.ts"]
+subgraph 5H["widgets"]
+subgraph 5I["cabinet-shell"]
+5J["index.ts"]
+end
+subgraph 5K["demo-panel"]
+5L["index.ts"]
+end
+subgraph 5M["language-switch"]
+5N["index.ts"]
+end
+subgraph 5O["next-step-card"]
+5P["index.ts"]
+end
+subgraph 5Q["role-switch"]
+5R["index.ts"]
+end
+subgraph 5S["status-timeline"]
+5T["index.ts"]
+end
+subgraph 5U["support-bar"]
+5V["index.ts"]
+end
+subgraph 5W["theme-switch"]
+5X["index.ts"]
 end
 end
 end
 2-->5
-2-->4
-5-->6
-1D-->1C
-1D-->1E
+2-->1P
+2-->1V
+2-->20
+2-->25
+2-->A
+5-->7
+5-->1J
+5-->1K
+5-->1L
+5-->1M
+5-->1N
+7-->A
+A-->D
+A-->G
+A-->X
+A-->1I
+A-->J
+A-->K
+A-->F
+D-->F
+G-->I
+G-->N
+G-->D
+G-->J
+G-->K
+I-->J
+I-->K
+I-->M
+K-->F
+M-->F
+N-->O
+O-->Q
+O-->W
+O-->1C
+O-->X
+O-->J
+O-->K
+O-->F
+O-->M
+O-->1D
+O-->D
+O-->1E
+O-->1G
+O-->S
+Q-->F
+Q-->S
+S-->T
+S-->U
+W-->X
+W-->Y
+W-->Z
+W-->10
+W-->11
+W-->12
+W-->13
+W-->14
+W-->15
+W-->16
+W-->17
+W-->18
+W-->19
+W-->1A
+W-->1B
+X-->F
+Y-->Q
+Y-->X
+Z-->Q
+Z-->X
+10-->Q
+10-->X
+11-->Q
+11-->X
+12-->Q
+12-->X
+13-->Q
+13-->X
+14-->Q
+14-->X
+15-->Q
+15-->X
+16-->Q
+16-->X
+17-->Q
+17-->X
+18-->Q
+18-->X
+19-->F
+19-->Q
+19-->X
+1A-->Q
+1A-->X
+1B-->Q
+1B-->X
+1C-->F
+1C-->X
+1D-->X
+1D-->F
+1D-->D
+1G-->1H
+1I-->1G
+1J-->A
+1K-->A
+1L-->1J
+1L-->A
+1M-->A
+1N-->A
+1P-->1R
+1P-->1S
+1P-->1T
+1R-->A
+1S-->1R
+1S-->A
+1T-->A
+1V-->1X
+1V-->1Y
+1X-->A
+1Y-->A
+20-->22
+20-->23
+22-->A
+23-->A
+25-->27
+25-->28
+25-->29
+25-->2A
+25-->2B
+27-->A
+28-->A
+29-->A
+2A-->A
+2B-->A
+2C-->2E
+2E-->2F
+2E-->2M
+2F-->2H
+2F-->2I
+2F-->2K
+2F-->S
+2K-->2L
+2M-->2F
+2M-->S
+2N-->2
+2N-->2Q
+2N-->2P
+2Q-->2C
+2Q-->2R
+2Q-->2S
+2Q-->2E
+2Q-->2U
+2S-->S
+2U-->2V
+2U-->2W
+2U-->2X
+2U-->2Y
+2U-->2Z
+2U-->30
+2U-->31
+2U-->33
+2U-->34
+2U-->35
+2U-->36
+2U-->37
+2U-->38
+2U-->39
+2U-->3A
+2U-->3B
+2U-->3C
+2U-->3D
+2U-->3E
+2U-->3F
+2U-->3G
+2U-->3H
+2U-->3I
+2U-->3J
+30-->2Y
+3A-->2Y
+3D-->33
+3H-->3G
+3K-->7
+3K-->3M
+3K-->3N
+3M-->A
+3O-->1K
+3O-->A
+3O-->3M
+3O-->3N
+3P-->1J
+3P-->1L
+3P-->A
+3P-->3N
+3Q-->1M
+3Q-->A
+3Q-->3M
+3Q-->3N
+3R-->1R
+3R-->1S
+3R-->A
+3R-->3M
+3R-->3N
+3S-->1X
+3S-->A
+3S-->3N
+3U-->3W
+3W-->A
+3Y-->40
+40-->A
+41-->22
+41-->A
+41-->3N
+42-->27
+42-->28
+42-->29
+42-->2A
+42-->A
+42-->3M
+42-->3N
+4J-->G
+4J-->W
+4J-->X
+4J-->J
+4J-->K
+4J-->F
+4J-->O
+4J-->S
+4J-->3N
+4J-->4K
+4K-->2
+4K-->A
+4K-->N
+4L-->1D
+4L-->W
+4L-->1C
+4L-->X
+4L-->3N
+4L-->4K
+4M-->F
+4M-->3N
+4N-->2F
+4N-->2H
+4O-->2F
+4O-->2M
+4P-->2H
+4R-->2V
+4S-->2W
+4S-->33
+4T-->2X
+4U-->2Y
+4U-->33
+4V-->2Y
+4V-->2Z
+4W-->2Y
+4W-->30
+4X-->2Y
+4X-->31
+4Z-->33
+50-->35
+51-->34
+52-->36
+53-->2Y
+53-->37
+54-->38
+55-->39
+56-->2Y
+56-->3A
+57-->3B
+58-->2Y
+58-->3C
+59-->3D
+5A-->36
+5A-->3D
+5A-->3E
+5B-->3F
+5C-->3H
+5D-->33
+5D-->3G
+5E-->2Y
+5E-->3I
+5F-->3J

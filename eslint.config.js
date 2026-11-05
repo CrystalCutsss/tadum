@@ -195,4 +195,11 @@ export default tseslint.config(
       'rtl-friendly/no-physical-properties': 'error',
     },
   },
+  // Фикстуры персон — рукописные; faker допустим только в scripts/gen-fixtures.ts (D-073).
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [{ group: ['@faker-js/*'], message: 'faker — только в scripts/gen-fixtures.ts (D-073).' }] }],
+    },
+  },
 );

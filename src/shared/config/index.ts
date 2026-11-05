@@ -1,2 +1,2 @@
 // Публичный API сегмента shared/config.
-export {};
+export * from './timings';

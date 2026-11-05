@@ -25,3 +25,40 @@
 - **A-021.** Тесты блока 5a разбирают таблицы прямо из `docs/product/*.md` (`src/test-utils/markdown.ts`): строки маппинга стадий, переходов документа, таблицы истинности шкалы, «следующего шага», ролей, матриц прав и правил блокировок проверяются все; строка без сопоставленного входа валит тест. Изменение таблицы в Drive после `/sync-product-docs` сразу проверяется тестами. Тесты и утилиты — в `tsconfig.test.json` (типы Node), чтобы `node:fs` не попадал в код приложения. Проверить: мутация одной строки маппинга валит ровно один тест (проверено 2026-11-05).
 - **A-022.** «Следующий шаг»: таблица `01-cabinet-structure.md` §6 дополнена ключами из сценариев — `next_step.submit_ready` (SC-02), `next_step.under_review_eta` и `next_step.supplier.under_review_eta` при `review_eta_hours` (SC-05 A2, лексикон `next_step.*_eta`), `next_step.offer_confirmation` с owner `tadum` при лимите `pending` (SC-06), `next_step.supplier.reupload_rejected` (SP-01 A1). Подписи кнопок в документах не заданы — введены ключи `next_step.cta.documents`, `.sign`, `.how_to_buy`, `.apply`, `.share_link`; тексты для всех `next_step.*` добавляются в словари в блоке 6c вместе с `NextStepCard`. Приоритет для `docs_required`: есть `rejected` → дозапрос без загрузок (`round > 1`) → всё загружено (`submit_ready`) → `upload_documents` с числом оставшихся обязательных. Проверить: тексты карточки в 6c.
 - **A-023.** `deriveSupplierStatus(null)` → `active` («комплект не требуется», §3); `computeClientTimeline` для `closed` → `{ hidden: true }` (шкала заменяется карточкой, §8 и `01-cabinet-structure.md` §5); `computeTimeline` из мастер-промпта реализован как `computeClientTimeline` и `computeSupplierTimeline` в `entities` — виджет `status-timeline` (6c) только отображает. `resolveRoles(phone, lookups)` получает поиск заявки и поставщика параметром (порт/мок), чтобы остаться чистой функцией. Проверить: использование в 5b/6c.
+- **A-024.** Мок имитирует бэкенд теми же правилами, что и UI. Статусы, «следующий шаг», переходы документа, лимит и роли он берёт из `entities` через интерфейс `MockDomain` (`shared/api/adapters/mock/domain.ts`), который `app/api.ts` заполняет при старте. `shared` не импортирует `entities` (FSD), и правила не дублируются. Тесты мока берут ту же реализацию через `src/test-utils/mock-api.ts`: это код только для тестов, он вне слоёв. Проверить: `pnpm deps:check`, `pnpm lint`.
+- **A-025.** К ошибкам из блока 5b (`NetworkError`, `ServerError`, `NotFound`, `Forbidden`, `NotImplementedError`) добавлены две:
+  - `Unauthorized` — 401 от `expireSession()`, SC-01 A11;
+  - `DomainError` с кодом — бизнес-отказы. Коды берутся из ключей сценариев и `01-roles.md` §3: `otp_invalid`, `otp_expired`, `otp_too_many_attempts`, `otp_rate_limited`, `phone_unknown`, `document_set_locked`, `document.same_file_rejected`, `upload.error.too_large`, `upload.error.unsupported_type`, `documents.submit_incomplete`, `application_not_closed`, `limit_exceeded`, `not_allowed`.
+
+  Чего нет в списке портов §5b.1 и что выбрано в моке:
+  - `upload` и `replace` возвращают `{ document, prevalidation }`: при `failed` файл не принимается, и UI нужен результат проверки;
+  - `download` отдаёт `{ url }`;
+  - `list` поставщика возвращает `{ items, next_cursor, total }`, по 20 записей (SP-04 A7).
+
+  Проверить: `05-backend-contract.md` в блоке 5c.
+- **A-026.** Где документы допускают разное прочтение, персоны сделаны так:
+  - **`client_rejected`.** В таблице «2 документа rejected», но перечислены три варианта причины. Сделано три отклонённых документа: AR+EN, только AR, без причины.
+  - **`client_active`.** «Использовано 42 500» — это одобренная, ещё не оплаченная сделка с остатком. Стадия остаётся `Client Approved`, а `Payment done` — это уже `first_purchase`.
+  - **Сделки в демо.** Поэтому `createDeal` создаёт сделку `approved`, которая резервирует лимит, а `payDeal` переводит её в `payment_done` и заявку в `Payment done`.
+  - **Базовый пакет клиента.** Все 7 ключей §3 обязательны.
+  - **Второй номер заявки.** У `client_owner`-персон он входит как `client_contact` той же персоны (`+966 50 000 01XX`).
+
+  Проверить: `personas.test.ts`, сценарии v1–v2.
+- **A-027.** Имитация в моке:
+  - **Предвалидация.** Файл с `fail` или `warn` в имени получает `failed` или `warning` по первому правилу типа документа. У типов без правил — всегда `passed`.
+  - **«Тот же файл».** Сравнивается SHA-256 содержимого.
+  - **Ссылки на скачивание.** Ведут на `/mock-files/<id>`; настоящие демо-файлы и примеры из Assets появятся вместе с экраном документов.
+  - **Отложенные переходы.** Автополнота через 10 с, `submitted → in_review` через 2 с. Они считаются по `clock.now()` при каждом чтении, без таймеров.
+  - **Решения UW.** Демо-действия UW над только что отправленным комплектом сначала переводят его в `in_review`.
+
+  Проверить: `mock-api.test.ts`.
+- **A-028.** OTP в моке:
+  - **Неверный номер.** Номер не формата `+9665XXXXXXXX` — `not_allowed`.
+  - **Повтор раньше 40 с** — `otp_resend_too_early` с числом секунд.
+  - **Неизвестный номер.** Номер без заявки и номер персоны `unknown_phone` получают `phone_unknown` только после ввода кода (SC-01 A8), сессия не создаётся.
+  - **Сессия.** Хранится в `storage('mock:active')`; номера в ней только тестовые.
+
+  Проверить: `mock-api.test.ts`, экран входа в 6a.
+- **A-029.** `?persona=<id>` (`01-entities.md` §6) обрабатывается в `app/api.ts`. Персона сбрасывается к фикстуре, сразу выполняется вход, параметр убирается из адреса, чтобы перезагрузка не сбрасывала состояние. Обработка работает в mock-режиме, пока `VITE_DEMO_PANEL` не равен `0`: без `.env` сборка — витрина, прод явно ставит `0`. Проверить: демо-панель в 6x.
+- **A-030.** `content/offer.{ar,en}.json` остаются заготовками, но в форме `{ "terms": "", "materials": [] }` вместо `{}`: пустой объект не проходит схему `OfferContent`. Условия складываются из двух файлов, материалы объединяются по `id`. Один и тот же загрузчик (`adapters/static/offer.ts`) используют и mock, и http (D-041). Проверить: SP-05 в v3.
+- **A-031.** `faker` не установлен: персоны рукописные, `scripts/gen-fixtures.ts` пока не нужен. Импорт `@faker-js/*` в `src/` запрещён правилом ESLint. В `verify` добавлен `check:first-chunk`: в первом чанке нет кода мока и фикстур, а сам мок собран отдельным чанком, иначе проверка была бы пустой. Первый чанк — 172 КБ gzip при бюджете 200 КБ (D-054). Проверить: `pnpm check:first-chunk`.
