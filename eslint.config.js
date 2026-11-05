@@ -4,6 +4,7 @@ import boundaries from 'eslint-plugin-boundaries';
 import i18next from 'eslint-plugin-i18next';
 import reactHooks from 'eslint-plugin-react-hooks';
 import rtlFriendly from 'eslint-plugin-rtl-friendly';
+import storybook from 'eslint-plugin-storybook';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -26,6 +27,34 @@ const INTL = [
   { selector: "Identifier[name='Intl']", message: 'Форматирование — только через @/shared/i18n (format.ts, D-071).' },
   { selector: "CallExpression[callee.property.name=/^toLocale/]", message: 'Форматирование — только через @/shared/i18n (format.ts, D-071).' },
 ];
+// Сырые значения в классах и style (01-nfr-locale-brand.md §3.3): hex, rgb()/hsl()/oklch(), px, мс,
+// произвольные значения Tailwind [..]. Значения — только из токенов (tokens.css).
+const RAW_CLASS = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch)\(|\d+px\b|\d+ms\b|\[/;
+const RAW_STYLE = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch)\(|\d+(?:px|ms)\b/;
+const RAW = [
+  {
+    selector: `JSXAttribute[name.name='className'] Literal[value=${RAW_CLASS}]`,
+    message: 'Сырое значение в className: только токены (классы Tailwind на токенах), без hex/px/мс и [..].',
+  },
+  {
+    selector: `JSXAttribute[name.name='className'] TemplateElement[value.raw=${RAW_CLASS}]`,
+    message: 'Сырое значение в className: только токены (классы Tailwind на токенах), без hex/px/мс и [..].',
+  },
+  {
+    selector: `JSXAttribute[name.name='style'] Property > Literal[value=${RAW_STYLE}]`,
+    message: 'Сырое значение в style: цвета, px и мс — только через токены (var(--…)).',
+  },
+  {
+    selector: "JSXAttribute[name.name='style'] Property > Literal[value>0]",
+    message: 'Число в style трактуется как px: используйте токены (var(--…)).',
+  },
+];
+// Компоненты shadcn, которые записал CLI по пресету: их классы — часть пресета, запрет сырых значений к ним не применяется.
+const SHADCN_GENERATED = [
+  'accordion', 'alert', 'badge', 'button', 'card', 'dialog', 'dropdown-menu', 'input', 'input-otp', 'popover',
+  'progress', 'separator', 'sheet', 'skeleton', 'sonner', 'table', 'tabs', 'toggle', 'toggle-group', 'tooltip',
+].map((name) => `src/shared/ui/${name}.tsx`);
+
 const ODOO = [
   { selector: "Identifier[name='odoo_stage'], Literal[value='odoo_stage']", message: 'odoo_stage не используется в widgets/ и pages/ — только клиентский статус (01-roles.md §6).' },
 ];
@@ -38,6 +67,7 @@ export default tseslint.config(
       'dist',
       'dev-dist',
       'storybook-static',
+      '!.storybook',
       'coverage',
       'node_modules',
       'src/app/routeTree.gen.ts',
@@ -66,6 +96,7 @@ export default tseslint.config(
     languageOptions: { sourceType: 'commonjs', globals: globals.node },
   },
   reactHooks.configs.flat.recommended,
+  ...storybook.configs['flat/recommended'],
 
   // --- Границы слоёв и публичный API срезов ---
   {
@@ -134,13 +165,14 @@ export default tseslint.config(
   },
   // no-restricted-syntax: правило одно, поэтому наборы селекторов собираются по группам файлов
   // (в flat config последний подходящий блок перекрывает предыдущие).
-  { files: ['src/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL] } },
-  { files: ['src/shared/i18n/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE] } },
+  { files: ['src/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...RAW] } },
+  { files: SHADCN_GENERATED, rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL] } },
+  { files: ['src/shared/i18n/**/*.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...DATE, ...RAW] } },
   { files: ['src/shared/lib/clock.ts'], rules: { 'no-restricted-syntax': ['error', ...INTL] } },
   // odoo_stage не доходит до виджетов и страниц (01-roles.md §6).
   {
     files: ['src/widgets/**/*.{ts,tsx}', 'src/pages/**/*.{ts,tsx}'],
-    rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...ODOO] },
+    rules: { 'no-restricted-syntax': ['error', ...DATE, ...INTL, ...ODOO, ...RAW] },
   },
   // Тесты могут создавать даты напрямую.
   { files: ['src/**/*.test.{ts,tsx}'], rules: { 'no-restricted-syntax': ['error', ...INTL] } },

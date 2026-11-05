@@ -8,8 +8,8 @@
 | 1 | done | `37ad462` | `verify` = `typecheck && build`; `wrangler deploy --dry-run` проходит без токена; `account_id` — до 7a (A-005) |
 | 1b | done | `80e3461` | 31 файл (28 в `docs/product/` + шаблоны), побайтно с Drive (A-008) |
 | 2 | done | `06c166a` | `verify` += `lint && deps:check`; boundaries 7.x — правило `dependencies` (A-010) |
-| 3 | done | см. git log | `verify` += `lint:i18n && test`; `i18next-cli` (A-012) |
-| 4a | todo | — | Пресет получен (2026-11-05), см. ниже |
+| 3 | done | `3939ac8` | `verify` += `lint:i18n && test`; `i18next-cli` (A-012) |
+| 4a | done | см. git log | пресет применён CLI; иконки Remix (A-015); `verify` += `check:contrast && storybook:build && test:stories` |
 | 5a | todo | — | |
 | 5b | todo | — | |
 | 5c | todo | — | |
@@ -78,6 +78,21 @@
 6. `i18next-cli` + `scripts/lint-i18n-tov.mjs` → `pnpm lint:i18n`.
 7. Стартовые ключи `common/lang/theme/nav/support/relative/units`; дописанные формы — в `docs/i18n/needs-review.md`.
 
+## План блока 4a
+
+1. `shadcn init` с пресетом `b1ZQ7Gl9c` (Radix, RTL, pointer) без `--template`; алиасы `components.json` → `@/shared/ui`, `@/shared/lib`.
+2. 20 компонентов `shadcn add` в `src/shared/ui`; проверить логические классы.
+3. `tokens.css` = токены пресета без изменений + токены Tadum (статусы, лимит, тени, движение); скрипт контраста.
+4. Шрифты: Geist (пресет) + IBM Plex Sans Arabic; `app/theme.tsx`; `DirectionProvider`.
+5. Запрет сырых значений: ESLint (`className`, `style`) и Stylelint.
+6. Примитивы `Ltr`, `Icon`, `Wordmark`, `StatusBadge`.
+7. Storybook 10 (a11y, docs, Vitest-аддон, вьюпорты 360/768/1280, глобалы `locale`/`theme`), истории всех компонентов `shared/ui`.
+8. `docs/design/02-design-system.md` + копия в Drive.
+
+**Проверка блока 4a (2026-11-05):** токены `tokens.css` побайтно совпали с выводом CLI и с файлом Кирилла (64 строки). `pnpm check:contrast` — AA для всех токенов Tadum в обеих темах. `pnpm storybook:build` собирается, `storybook-static/index.json` — 64 записи `shared/ui`. `pnpm test:stories` — 40/40, в том числе: в `locale=ar` стрелка и шеврон зеркалятся (`scale: -1 1`), часы — нет; `document.fonts.check` для `"IBM Plex Sans Arabic"` и `"Geist Variable"` — `true`. На временной ветке `className="ml-4"` и `style={{color:'#333'}}` валят `pnpm lint` (см. ниже). `pnpm verify` зелёный.
+
+Блокер по ходу: `ui.shadcn.com` был закрыт сетевой политикой окружения; Кирилл добавил домен в Allowed domains, после этого CLI отработал.
+
 ## Проверка среды (§0.4), 2026-11-05
 
 | Что | Результат |
@@ -99,4 +114,5 @@
 
 ## ⏸ ожидают Кирилла
 
-1. **Токен Cloudflare для `wrangler`** (нужен к блокам 7a и 9; `--dry-run` блока 1 прошёл без него). Кирилл сам ставит его в переменные окружения облачной сессии; агент токен не видит. Блоки без Cloudflare продолжаются.
+1. **Контраст пресета** — 4 замечания в `docs/design/02-design-system.md` §4 (A-019); решение за Кириллом, блоки не ждут.
+2. **Токен Cloudflare для `wrangler`** (нужен к блокам 7a и 9; `--dry-run` блока 1 прошёл без него). Кирилл сам ставит его в переменные окружения облачной сессии; агент токен не видит. Блоки без Cloudflare продолжаются.

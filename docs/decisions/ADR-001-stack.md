@@ -48,3 +48,14 @@
 | `i18next-cli` | 1.83.0 | 3 | заменил устаревший `i18next-parser` (A-012) |
 | `eslint-plugin-i18next` | 6.1.5 | 3 | `no-literal-string`, режим `jsx-only` |
 | `eslint-plugin-rtl-friendly` | 0.5.1 | 3 | `no-physical-properties` |
+| `shadcn` (CLI и `shadcn/tailwind.css`) | 4.23.0 | 4a | пресет `b1ZQ7Gl9c`, стиль `radix-maia` |
+| `radix-ui` | 1.8.1 | 4a | примитивы (D-003), `Direction.Provider` |
+| `@remixicon/react` | 4.9.0 | 4a | иконки пресета; `lucide-react` удалён (A-015) |
+| `class-variance-authority`, `cn`, `tw-animate-css` | 0.7.1, 0.5.2, 1.4.0 | 4a | от CLI shadcn |
+| `@fontsource-variable/geist` | 5.3.0 | 4a | от CLI (шрифт пресета) |
+| `@fontsource/ibm-plex-sans-arabic` | 5.3.0 | 4a | D-004 |
+| `storybook`, `@storybook/react-vite`, `addon-docs`, `addon-a11y`, `addon-vitest`, `eslint-plugin-storybook` | 10.6.5 | 4a | |
+| `@vitest/browser`, `@vitest/browser-playwright`, `@vitest/ui` | 5.1.0 | 4a | `@vitest/ui` — чтобы pnpm не ставил две копии `vitest` (A-017) |
+| `playwright` | 1.63.0 | 4a | = предустановленный в облачной сессии Chromium |
+| `stylelint` | 18.0.0 | 4a | |
+| `culori` | 4.0.2 | 4a | скрипт контраста |

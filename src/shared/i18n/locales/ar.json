@@ -1,6 +1,7 @@
 {
   "common": {
     "cached_at": "البيانات كما في {time}",
+    "close": "إغلاق",
     "copy_link": "نسخ الرابط",
     "load_error": "تعذّر تحميل هذه الصفحة",
     "offline_action_hint": "متاح عند عودة الاتصال",
@@ -11,6 +12,14 @@
     "retry": "إعادة المحاولة",
     "server_error_retry": "حدث خطأ من جهتنا. يرجى المحاولة مرة أخرى",
     "storage_unavailable": "متصفحك لا يحتفظ بالبيانات بين الزيارات. قد تحتاج إلى تسجيل الدخول مجددًا في المرة القادمة"
+  },
+  "document": {
+    "status": {
+      "approved": "مقبول",
+      "pending": "مطلوب",
+      "received": "تم الرفع",
+      "rejected": "يحتاج ملفًا جديدًا"
+    }
   },
   "lang": {
     "switch_to_ar": "العربية",
@@ -44,6 +53,16 @@
     "minutes_ago_few": "منذ {count} دقائق",
     "minutes_ago_many": "منذ {count} دقيقة",
     "minutes_ago_other": "منذ {count} دقيقة"
+  },
+  "status": {
+    "supplier_view": {
+      "applied": "تم تقديم الطلب",
+      "approved": "معتمد",
+      "closed": "مغلق",
+      "collecting_docs": "يجمع المستندات",
+      "first_purchase": "أول عملية شراء",
+      "under_review": "قيد المراجعة"
+    }
   },
   "support": {
     "cta": {

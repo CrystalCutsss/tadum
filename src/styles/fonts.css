@@ -1,0 +1,24 @@
+/* Шрифты двух письменностей (D-004, 01-nfr-locale-brand.md §3.2): self-hosted через fontsource.
+   Латиница — Geist из пресета shadcn (имя семейства пакета — "Geist Variable"),
+   арабский — IBM Plex Sans Arabic 400/500/600/700. */
+@import '@fontsource-variable/geist';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+
+/* --font-family-base — промежуточная переменная: @theme inline в globals.css подставляет её в font-sans,
+   а :lang(ar) переопределяет без перезагрузки. */
+:root {
+  --font-family-base: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Словесный знак Tadum — всегда Geist, в любом языке (D-052). */
+  --font-family-wordmark: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --leading-body: 1.5;
+  --leading-heading: 1.2;
+}
+
+:lang(ar) {
+  --font-family-base: 'IBM Plex Sans Arabic', 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --leading-body: 1.625;
+  --leading-heading: 1.3;
+}

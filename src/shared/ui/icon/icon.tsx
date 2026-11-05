@@ -1,47 +1,60 @@
-import type { LucideIcon, LucideProps } from 'lucide-react';
+import {
+  RiArrowGoBackLine,
+  RiArrowGoForwardLine,
+  RiArrowLeftDoubleLine,
+  RiArrowLeftLine,
+  RiArrowLeftSLine,
+  RiArrowRightDoubleLine,
+  RiArrowRightLine,
+  RiArrowRightSLine,
+  RiLoginBoxLine,
+  RiLogoutBoxLine,
+  RiLogoutBoxRLine,
+  RiSendPlane2Line,
+  RiSendPlaneLine,
+  type RemixiconComponentType,
+} from '@remixicon/react';
+import { cn } from 'cn';
+import type { ComponentProps } from 'react';
 
-// Обёртка над lucide-react. В RTL зеркалится только иконка из списка mirroredIcons
-// (направленные: стрелки, шевроны, «назад», «далее», вход/выход). Нейтральные — часы, телефон,
-// документ, галочка, крестик, лупа, play, QR — не зеркалятся (01-nfr-locale-brand.md §1.2).
-export const mirroredIcons: ReadonlySet<string> = new Set([
-  'ArrowLeft',
-  'ArrowRight',
-  'ArrowLeftToLine',
-  'ArrowRightToLine',
-  'ChevronLeft',
-  'ChevronRight',
-  'ChevronsLeft',
-  'ChevronsRight',
-  'MoveLeft',
-  'MoveRight',
-  'Undo2',
-  'Redo2',
-  'LogIn',
-  'LogOut',
-  'Send',
+// Обёртка над Remix Icon (библиотека иконок пресета shadcn, D-077).
+// В RTL зеркалится только иконка из списка mirroredIcons: стрелки, шевроны, «назад», «далее», вход/выход, отправка.
+// Нейтральные — часы, телефон, документ, галочка, крестик, лупа, play, QR — не зеркалятся (01-nfr-locale-brand.md §1.2).
+export const mirroredIcons: ReadonlySet<RemixiconComponentType> = new Set([
+  RiArrowLeftLine,
+  RiArrowRightLine,
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiArrowLeftDoubleLine,
+  RiArrowRightDoubleLine,
+  RiArrowGoBackLine,
+  RiArrowGoForwardLine,
+  RiLoginBoxLine,
+  RiLogoutBoxLine,
+  RiLogoutBoxRLine,
+  RiSendPlaneLine,
+  RiSendPlane2Line,
 ]);
 
-export function isMirrored(icon: LucideIcon): boolean {
-  return mirroredIcons.has(icon.displayName ?? '');
+export function isMirrored(icon: RemixiconComponentType): boolean {
+  return mirroredIcons.has(icon);
 }
 
-export interface IconProps extends Omit<LucideProps, 'ref'> {
-  icon: LucideIcon;
+export interface IconProps extends Omit<ComponentProps<RemixiconComponentType>, 'ref'> {
+  icon: RemixiconComponentType;
   /** Подпись для скринридера; без неё иконка декоративная. */
   label?: string;
 }
 
 export function Icon({ icon: Glyph, label, className, ...rest }: IconProps) {
   const mirrored = isMirrored(Glyph);
-  const classes = [mirrored ? 'rtl:-scale-x-100' : '', className ?? ''].filter(Boolean).join(' ');
+  const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true };
   return (
     <Glyph
       {...rest}
-      className={classes || undefined}
-      data-mirrored={mirrored ? '' : undefined}
-      aria-hidden={label ? undefined : true}
-      aria-label={label}
-      role={label ? 'img' : undefined}
+      {...a11y}
+      className={cn('size-5 shrink-0', mirrored && 'rtl:-scale-x-100', className)}
+      data-mirrored={mirrored}
     />
   );
 }

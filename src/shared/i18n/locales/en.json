@@ -1,6 +1,7 @@
 {
   "common": {
     "cached_at": "Shown as of {time}",
+    "close": "Close",
     "copy_link": "Copy link",
     "load_error": "We couldn't load this page",
     "offline_action_hint": "Available when you're back online",
@@ -11,6 +12,14 @@
     "retry": "Try again",
     "server_error_retry": "Something went wrong on our side. Please try again",
     "storage_unavailable": "Your browser doesn't keep data between visits. You may need to sign in again next time"
+  },
+  "document": {
+    "status": {
+      "approved": "Accepted",
+      "pending": "Needed",
+      "received": "Uploaded",
+      "rejected": "Needs a new file"
+    }
   },
   "lang": {
     "switch_to_ar": "العربية",
@@ -32,6 +41,16 @@
     "hours_ago_other": "{count} hours ago",
     "minutes_ago_one": "{count} minute ago",
     "minutes_ago_other": "{count} minutes ago"
+  },
+  "status": {
+    "supplier_view": {
+      "applied": "Applied",
+      "approved": "Approved",
+      "closed": "Closed",
+      "collecting_docs": "Collecting documents",
+      "first_purchase": "First purchase",
+      "under_review": "Under review"
+    }
   },
   "support": {
     "cta": {
