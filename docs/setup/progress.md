@@ -18,7 +18,7 @@
 | 6c | done | `28f507f` | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
 | 6d | done | `7e5047c` | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
 | 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
-| 7b | in progress | см. git log | документация разработки на `chore/setup-2` |
+| 7b | done | `e76795e` | README/CONTRIBUTING, ADR-003, перенос в GitLab, аналитика, карта `docs/`; `verify` += `check:docs`; копии в Drive |
 | 8a | todo | — | |
 | 8b | todo | — | |
 | 9 | todo | — | |
@@ -202,6 +202,12 @@
 4. `docs/05-migration-to-gitlab.md` — чек-лист плана §3.5 по фактическому состоянию; `docs/analytics.md`; `docs/README.md` — таблица «что где лежит» (план §3.6).
 5. `scripts/check-doc-links.mjs` (`pnpm check:docs`) — относительные ссылки в `*.md` репозитория не битые; в `verify` и CI.
 6. Копии `docs/05-backend-contract.md` и `docs/05-migration-to-gitlab.md` — в Drive `05 Разработка` (`19icVaCN1pyAZs5MeDuNv9N8ahrzgOu6w`), через субагента со сверкой размера.
+
+**Проверка блока 7b (2026-11-05):**
+- все файлы на месте: `README.md`, `CONTRIBUTING.md`, `docs/architecture/layers.md`, `docs/architecture/deps.mmd` (перегенерирован), `docs/decisions/ADR-001…003`, `assumptions.md` (A-049), `docs/05-backend-contract.md`, `docs/05-migration-to-gitlab.md`, `docs/analytics.md`, `docs/README.md`;
+- `pnpm check:docs`: 49 файлов, 25 относительных ссылок — битых нет; ссылка на несуществующий файл валит проверку;
+- копии в Drive `05 Разработка`: `05-backend-contract.md` (`1v0ikNYOF2HfDRfp59boR8_ePjHpSGOFR`, 14632 байт) и `05-migration-to-gitlab.md` (`1EShUpnPkduJ_QmMCnoZmxazDkV_g-MSM`, 6084 байт) — размер совпадает с репозиторием;
+- `pnpm verify` зелёный (502 unit, 113 историй, 9 smoke).
 
 ## План и проверка блока 7a
 
