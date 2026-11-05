@@ -3,7 +3,7 @@
 import type { Api, DemoActions } from '@/shared/api';
 import type { Family } from '@/shared/config';
 
-export type DemoActionId = Exclude<keyof DemoActions, 'setNetwork' | 'setPersona'>;
+type DemoActionId = Exclude<keyof DemoActions, 'setNetwork' | 'setPersona'>;
 
 export interface DemoActionSpec {
   id: DemoActionId;

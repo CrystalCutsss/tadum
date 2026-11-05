@@ -9,3 +9,4 @@ tests/screenshots
 .env*.local
 *.log
 .DS_Store
+.lighthouseci

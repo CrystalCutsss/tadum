@@ -102,6 +102,8 @@ export default tseslint.config(
   {
     files: ['**/*.cjs'],
     languageOptions: { sourceType: 'commonjs', globals: globals.node },
+    // CommonJS-конфиги инструментов (size-limit, lighthouse) — require() здесь штатный.
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   reactHooks.configs.flat.recommended,
   ...storybook.configs['flat/recommended'],

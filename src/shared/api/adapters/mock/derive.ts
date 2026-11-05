@@ -22,7 +22,7 @@ export function referredClients(g: PersonaGraph, d: MockDomain): ReferredClient[
   }));
 }
 
-export function counters(clients: readonly ReferredClient[]): Supplier['counters'] {
+function counters(clients: readonly ReferredClient[]): Supplier['counters'] {
   return {
     referred_total: clients.length,
     under_review: clients.filter((c) => c.supplier_view_status === 'under_review').length,

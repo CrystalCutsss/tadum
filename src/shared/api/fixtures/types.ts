@@ -22,7 +22,7 @@ export const PERSONA_IDS = [
 export type PersonaId = (typeof PERSONA_IDS)[number];
 
 /** Номера crm.lead заявки: по ним resolveRoles находит client_contact / client_owner. */
-export interface Lead {
+interface Lead {
   application_id: string;
   phone: string;
   lead_main_owner_phone?: string;

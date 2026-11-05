@@ -5,6 +5,7 @@ import { track } from '@/shared/analytics';
 import { onStorageUnavailable } from '@/shared/lib';
 
 import { initApi } from './api';
+import { trackAppLoaded } from './app-loaded';
 import { Providers } from './providers';
 import '@/styles/globals.css';
 
@@ -13,10 +14,11 @@ if (!container) throw new Error('#root not found');
 
 onStorageUnavailable(() => track('storage_unavailable', {}));
 // Первая отрисовка — после применения ?persona= (без параметра — сразу).
-void initApi().finally(() =>
+void initApi().finally(() => {
   createRoot(container).render(
-  <StrictMode>
-    <Providers />
+    <StrictMode>
+      <Providers />
     </StrictMode>,
-  ),
-);
+  );
+  trackAppLoaded();
+});

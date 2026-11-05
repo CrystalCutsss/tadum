@@ -63,3 +63,11 @@
 | `happy-dom` | 21.0.4 | 6a | DOM для тестов маршрутизации в Node (`// @vitest-environment happy-dom`, A-037) |
 | `@playwright/test` | 1.63.0 | 6d | = `playwright` и предустановленный Chromium (облачная сессия) |
 | `@axe-core/playwright` | 4.14.0 | 6d | axe на экранах v1 (WCAG 2.2 AA) |
+| `knip` | 6.44.1 | 7a | неиспользуемые файлы, зависимости, экспорты; в `verify` |
+| `jscpd` | 5.4.2 | 7a | дубли кода, порог 3 %; в `verify` |
+| `husky`, `lint-staged` | 9.1.7, 17.6.0 | 7a | хуки `pre-commit` (ESLint/Stylelint на изменённых файлах) и `commit-msg` |
+| `@commitlint/cli`, `@commitlint/config-conventional` | 21.2.4 | 7a | Conventional Commits, scope — срез или `setup`/`docs`/`release`/`design` |
+| `@changesets/cli` | 3.0.3 | 7a | версия приложения в `package.json`, `CHANGELOG.md` |
+| `size-limit`, `@size-limit/file` | 14.3.0 | 7a | бюджеты §2.2 (D-054) |
+| `@lhci/cli` | 0.16.0 | 7a | Lighthouse CI; транзитивный `basic-ftp` поднят до ≥ 6.2.1 через `pnpm.overrides` (A-047) |
+| `ajv`, `yaml` | 8.20.0, 2.9.1 | 7a | `lint:gitlab-ci` — схема GitLab CI из SchemaStore |

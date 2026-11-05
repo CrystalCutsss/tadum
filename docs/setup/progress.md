@@ -16,8 +16,8 @@
 | 6a | done | `0af52fb` | вход SC-01 A1–A14; гарды — чистые функции + роутер в памяти; формы — истории с play-тестами |
 | 6b | done | `80ebd33` | оболочка-гипотеза, настройки, выход; истории в матрице AR/EN × light/dark (A-041) |
 | 6c | done | `28f507f` | главная клиента, баннер/тост смены статуса, демо-панель; `verify` += `check:demo-excluded` |
-| 6d | done | см. git log | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
-| 7a | todo | — | |
+| 6d | done | `7e5047c` | Playwright: v1-сценарии и axe зелёные в android-chrome и desktop-chrome; iphone-safari ждёт доменов WebKit (⏸) |
+| 7a | in progress | см. git log | скрипты, husky/commitlint/changesets, CI ×2, knip/jscpd/`lint:gitlab-ci` в `verify`; ⏸ PR → merge Кириллом, ⏸ первый деплой превью |
 | 7b | todo | — | |
 | 8a | todo | — | |
 | 8b | todo | — | |
@@ -191,6 +191,25 @@
 - e2e нашли и закрыли три дефекта (A-046); регрессия «Подписание» вместо «Лимит активен» валит новый e2e-тест без исправления;
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
+
+## План и проверка блока 7a
+
+1. Скрипты `package.json` по списку 7a п.1: добавлены `lint:rtl`, `lint:gitlab-ci`, `test:a11y`, `screenshots:update`, `knip`, `jscpd`, `size`, `lhci`, `release:proto` (заглушка до блока 9).
+2. Husky (`pre-commit` → lint-staged, `commit-msg` → commitlint), Changesets; версия приложения — в «Помощи» и в `app_loaded` (`app_version`). Событие `app_loaded` теперь отправляется.
+3. CI: `.github/workflows/ci.yml` и `.gitlab-ci.yml`. Jobs `install → typecheck → lint → test → build → e2e (+axe, скриншоты) → size`, плюс `commits` (commitlint, changeset), `audit`, `gitleaks` и итоговый `ci`. Lighthouse — на `main` и по расписанию. Превью — `deploy-preview.yml`, включается секретами.
+4. `lint:gitlab-ci`: схема GitLab CI из SchemaStore лежит в репозитории, проверка через `ajv`.
+5. `verify` += `lint:rtl && lint:gitlab-ci && knip && jscpd`.
+6. PR `chore/setup → main` по шаблону DoD; защита `main` (⏸ — см. ниже); merge делает Кирилл.
+7. Превью-воркер: `wrangler deploy --dry-run` → ⏸ «да» → `pnpm deploy:preview` с `main`.
+
+**Проверка блока 7a (2026-11-05):**
+- `pnpm verify` (полный, с `knip`, `jscpd`, `lint:rtl`, `lint:gitlab-ci`) зелёный: 502 unit-теста, 113 историй, 9 smoke;
+- коммит `fix stuff` на временной ветке отклонён хуком `commit-msg` (`type-empty`, `subject-empty`); scope вне списка тоже отклоняется;
+- `pnpm lint:gitlab-ci` зелёный; испорченный файл (`needs` не массив, неизвестный `when`) отклоняется;
+- `pnpm size`: первый JS-чанк 188 КБ из 200, весь JS 269 из 400, шрифты 43 (AR) и 29 (EN) из 120;
+- `pnpm lhci` (локально): `/s/home` performance 0,98–0,99, `/c/home` — 0,78–0,81 (LCP 4,2 с, A-047); accessibility и best practices = 1;
+- `pnpm audit --audit-level=high` — 0 high после override `basic-ftp`; `gitleaks git` — утечек нет;
+- зелёный `ci` в PR — после открытия PR.
 
 ## Решения Кирилла по ходу
 

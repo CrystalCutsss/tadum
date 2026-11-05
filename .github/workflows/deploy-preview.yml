@@ -1,0 +1,43 @@
+# Превью-воркер tadum (D-063): деплой dist/ с main.
+# Включается, когда Кирилл сам задаст секреты репозитория CLOUDFLARE_API_TOKEN и CLOUDFLARE_ACCOUNT_ID (D-068);
+# до этого job пропускает деплой с пояснением. Первый деплой — вручную после ⏸ (D-069).
+name: deploy-preview
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: false
+
+env:
+  HUSKY: '0'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment: preview
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: secrets present
+        id: gate
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID не заданы — деплой из CI выключен"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.gate.outputs.enabled == 'true'
+      - uses: ./.github/actions/setup
+        if: steps.gate.outputs.enabled == 'true'
+      - run: pnpm run deploy:preview
+        if: steps.gate.outputs.enabled == 'true'

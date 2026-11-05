@@ -188,3 +188,25 @@
   - **Шкала одобренной заявки** не показывается, пока грузится лимит. Раньше на долю секунды появлялось «Подписание — в процессе» при уже активном лимите; это ловит e2e-тест с задержками мока.
 
   Проверить: `tests/e2e/v1.spec.ts`.
+- **A-047.** Качество и CI (блок 7a):
+  - **knip.** Публичный API срезов (`src/{entities,features,widgets}/*/index.ts`, `src/shared/*/index.ts`) — точки входа: это контракт среза (FSD). Модели из 5a для следующих версий (права ролей, шкала поставщика, срезы `offer` и `referred-client`) описаны продуктовыми документами и покрыты тестами, поэтому не удаляются. `src/shared/lib/utils.ts` нужен shadcn CLI. Реально лишние экспорты (14: внутренние функции мока, фикстур, `test-utils`, типы) стали неэкспортируемыми. Удалённого кода нет.
+  - **jscpd.** Порог 3 %; исключён только сгенерированный `routeTree.gen.ts`. Сейчас 0,24 %.
+  - **commitlint.** Список scope строится из папок срезов `src/{widgets,features,entities,shared}/*`, слоёв и `setup`/`docs`/`release`/`design`. Добавлены `deps` (обновления зависимостей) и `ci`.
+  - **Changesets.** `changeset init` в v3.0.3 падает в неинтерактивном терминале (unsettled top-level await), поэтому `.changeset/config.json` записан вручную со значениями по умолчанию этой версии. Добавлено `privatePackages.version: true`: пакет `private`, иначе версия не поднимается. Первый changeset — `minor` (среда v1).
+  - **`app_loaded`.** Событие отправляется один раз за сессию вкладки после первой отрисовки. `cold_start` — у страницы нет service worker-контроллера (она пришла из сети). `sw_state`: `none`, `installed` или `updated`. `updated` — первая загрузка после смены воркера: отметку ставит событие `controllerchange`, её видит следующая сессия. Версия приходит в контекст события (`app_version` = версия `package.json` + коммит) и в «Помощь».
+  - **size-limit.** Бюджеты §2.2: первый JS-чанк ≤ 200 КБ, весь JS ≤ 400 КБ (gzip), шрифт первого экрана ≤ 120 КБ на язык. «Весь JS» считается вместе с демо-панелью и моком — строже бюджета, который их исключает. Сейчас: 188 / 269 / 43 (AR) / 29 (EN) КБ. В v1 job `size` не блокирует (`continue-on-error` / `allow_failure`, D-054).
+  - **Lighthouse CI.** Мобильный профиль по умолчанию (Slow 4G, CPU 4×), `/c/home` и `/s/home` через `?persona=client_active` и `?persona=supplier_active`, 3 прогона, уровень `warn` (D-054). Отчёты хранятся файлами (артефакт CI), во внешнее хранилище не уходят. INP в лабораторном прогоне не измеряется; вместо него Total Blocking Time ≤ 200 мс. Категории PWA в Lighthouse 12+ больше нет, поэтому «PWA installable» из DoD §11 Lighthouse не проверяет; манифест и service worker проверяет сборка `vite-plugin-pwa`. Локальный прогон 2026-11-05:
+    - `/s/home`: performance 0,98–0,99, LCP около 0,9 с;
+    - `/c/home`: performance 0,78–0,81, LCP 4,2–4,5 с, TBT 230–273 мс. Шкала ждёт два последовательных ответа мока (заявка, затем лимит; задержка мока 300–800 мс);
+    - accessibility = 1, best practices = 1 на обоих экранах, CLS ≈ 0.
+
+    Это материал калибровки D-054 к v2, сейчас не исправляется.
+  - **`pnpm audit --audit-level=high`.** Через `@lhci/cli` пришёл `basic-ftp` ≤ 6.2.0 (GHSA-c475-qrg2-pj4r, high). Он поднят через `pnpm.overrides` до ≥ 6.2.1. Остались 3 moderate и 1 low — ниже порога.
+  - **gitleaks.** В GitHub Actions ставится бинарник релиза v8.30.1 с проверкой sha256, в GitLab — образ `zricethezav/gitleaks:v8.30.1`. Команда одна: `gitleaks git . --redact`. `gitleaks-action` не используется: та же проверка без лицензионного ключа и стороннего action.
+  - **Actions** закреплены по SHA коммита, с тегом в комментарии.
+  - **Браузеры в CI — из образа** `mcr.microsoft.com/playwright:v1.63.0-noble` (jobs `test`, `e2e`, `lighthouse`). В образе Node 24, а проект закреплён на Node 22 с `engine-strict`. В GitHub Node 22 ставит `actions/setup-node`, в GitLab — `pnpm env use --global 22` (проверено локально). В образе есть WebKit: `iphone-safari` в CI запускается, хотя в облачной сессии его нет (A-045).
+  - **`screenshots:update`** снимает скриншоты внутри того же docker-образа (D-074). Эталонов `toHaveScreenshot` пока нет: скрипт готов к ним. В облачной сессии Docker-демона нет, поэтому скрипт запускается в CI или локально у команды.
+  - **`release:proto`** — заглушка с понятной ошибкой до блока 9.
+  - **Деплой превью из CI** (`deploy-preview.yml`, job `deploy-preview` в GitLab) выполняется, только если заданы секреты `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID`; без них job пропускает деплой с пояснением. Секреты ставит Кирилл (D-068).
+
+  Проверить: первый зелёный `ci` в PR; прогон `lighthouse` на `main`.

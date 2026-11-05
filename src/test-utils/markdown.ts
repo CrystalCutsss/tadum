@@ -27,7 +27,7 @@ export function section(md: string, headingStart: string): string {
 }
 
 /** Очистка ячейки: без `code`, **жирного** и пробелов по краям. */
-export const cleanCell = (cell: string): string => cell.replace(/`/g, '').replace(/\*\*/g, '').trim();
+const cleanCell = (cell: string): string => cell.replace(/`/g, '').replace(/\*\*/g, '').trim();
 
 export interface MdTable {
   header: string[];
@@ -35,7 +35,7 @@ export interface MdTable {
 }
 
 /** Все таблицы в тексте. Разделитель `|---|` пропускается; `\|` внутри ячейки не считается границей. */
-export function tables(text: string): MdTable[] {
+function tables(text: string): MdTable[] {
   const result: MdTable[] = [];
   let current: string[][] = [];
   const flush = () => {

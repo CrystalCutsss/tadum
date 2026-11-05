@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { DateTimeSchema, DocumentSchema, PrevalidationResultSchema, ReferredClientSchema, SupplierSchema } from './schemas';
 
-export const OtpChannelSchema = z.enum(['sms', 'whatsapp']);
+const OtpChannelSchema = z.enum(['sms', 'whatsapp']);
 
 export const OtpChallengeSchema = z.object({
   channel: OtpChannelSchema,

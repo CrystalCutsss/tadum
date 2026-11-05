@@ -32,7 +32,7 @@ export const phone = (n: number): string => `+9665000${String(n).padStart(5, '0'
 /** Базовый пакет клиента (01-entities.md §3). Обязательность задаёт Odoo; в фикстурах все обязательны. */
 export const CLIENT_BASE_KEYS: readonly PortalKey[] = ['bs', 'national_id', 'vat', 'vat_sales', 'ch_owner', 'ch_company', 'aoa'];
 
-export interface FileSpec {
+interface FileSpec {
   id: string;
   name: string;
   sha256: string;
@@ -42,7 +42,7 @@ export interface FileSpec {
   prevalidation?: PrevalidationResult;
 }
 
-export const file = (f: FileSpec): FileAsset => ({
+const file = (f: FileSpec): FileAsset => ({
   id: f.id,
   name: f.name,
   mime: f.mime ?? 'application/pdf',

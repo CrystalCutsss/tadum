@@ -42,7 +42,7 @@ import { hash, hashRange, sha256Hex } from './hash';
 export const MOCK_SCHEMA_VERSION = 1;
 
 /** Код OTP, который мок принимает (D-021). */
-export const MOCK_OTP_CODE = '0000';
+const MOCK_OTP_CODE = '0000';
 
 export interface MockApiOptions {
   domain: MockDomain;
@@ -87,13 +87,13 @@ const isPersonaId = (id: string): id is PersonaId => (PERSONA_IDS as readonly st
 const isDone = (d: Pick<Document, 'status'>) => d.status === 'received' || d.status === 'approved';
 
 /** Комплект полон: все обязательные received/approved и нет rejected (01-statuses.md §4). */
-export function isSetComplete(set: Pick<DocumentSet, 'documents'>): boolean {
+function isSetComplete(set: Pick<DocumentSet, 'documents'>): boolean {
   const required = set.documents.filter((d) => d.required);
   return required.length > 0 && required.every(isDone) && !set.documents.some((d) => d.status === 'rejected');
 }
 
 /** Имитация предвалидации: имя файла с `fail` / `warn` даёт failed / warning по первому правилу типа. */
-export function mockPrevalidation(fileName: string, rules: readonly string[]): PrevalidationResult {
+function mockPrevalidation(fileName: string, rules: readonly string[]): PrevalidationResult {
   const name = fileName.toLowerCase();
   const rule = rules[0];
   if (rule && name.includes('fail')) return { state: 'failed', rule_keys: [rule] };
