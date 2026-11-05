@@ -10,33 +10,195 @@
 
 import { Route as rootRouteImport } from './../pages/__root'
 import { Route as IndexRouteImport } from './../pages/index'
+import { Route as CRouteRouteImport } from './../pages/c/route'
+import { Route as NotFoundRouteImport } from './../pages/not-found'
+import { Route as SRouteRouteImport } from './../pages/s/route'
+import { Route as SessionExpiredRouteImport } from './../pages/session-expired'
+import { Route as CIndexRouteImport } from './../pages/c/index'
+import { Route as CDocumentsRouteImport } from './../pages/c/documents'
+import { Route as CHelpRouteImport } from './../pages/c/help'
+import { Route as CHomeRouteImport } from './../pages/c/home'
+import { Route as LoginIndexRouteImport } from './../pages/login/index'
+import { Route as LoginCodeRouteImport } from './../pages/login/code'
+import { Route as SIndexRouteImport } from './../pages/s/index'
+import { Route as SHelpRouteImport } from './../pages/s/help'
+import { Route as SHomeRouteImport } from './../pages/s/home'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CRouteRoute = CRouteRouteImport.update({
+  id: '/c',
+  path: '/c',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotFoundRoute = NotFoundRouteImport.update({
+  id: '/not-found',
+  path: '/not-found',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SRouteRoute = SRouteRouteImport.update({
+  id: '/s',
+  path: '/s',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionExpiredRoute = SessionExpiredRouteImport.update({
+  id: '/session-expired',
+  path: '/session-expired',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CIndexRoute = CIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CRouteRoute,
+} as any)
+const CDocumentsRoute = CDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => CRouteRoute,
+} as any)
+const CHelpRoute = CHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => CRouteRoute,
+} as any)
+const CHomeRoute = CHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => CRouteRoute,
+} as any)
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginCodeRoute = LoginCodeRouteImport.update({
+  id: '/login/code',
+  path: '/login/code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SIndexRoute = SIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SRouteRoute,
+} as any)
+const SHelpRoute = SHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => SRouteRoute,
+} as any)
+const SHomeRoute = SHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => SRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/c': typeof CRouteRouteWithChildren
+  '/s': typeof SRouteRouteWithChildren
+  '/not-found': typeof NotFoundRoute
+  '/session-expired': typeof SessionExpiredRoute
+  '/c/documents': typeof CDocumentsRoute
+  '/c/help': typeof CHelpRoute
+  '/c/home': typeof CHomeRoute
+  '/login/code': typeof LoginCodeRoute
+  '/s/help': typeof SHelpRoute
+  '/s/home': typeof SHomeRoute
+  '/c/': typeof CIndexRoute
+  '/login/': typeof LoginIndexRoute
+  '/s/': typeof SIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/not-found': typeof NotFoundRoute
+  '/session-expired': typeof SessionExpiredRoute
+  '/c/documents': typeof CDocumentsRoute
+  '/c/help': typeof CHelpRoute
+  '/c/home': typeof CHomeRoute
+  '/login/code': typeof LoginCodeRoute
+  '/s/help': typeof SHelpRoute
+  '/s/home': typeof SHomeRoute
+  '/c': typeof CIndexRoute
+  '/login': typeof LoginIndexRoute
+  '/s': typeof SIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/c': typeof CRouteRouteWithChildren
+  '/s': typeof SRouteRouteWithChildren
+  '/not-found': typeof NotFoundRoute
+  '/session-expired': typeof SessionExpiredRoute
+  '/c/documents': typeof CDocumentsRoute
+  '/c/help': typeof CHelpRoute
+  '/c/home': typeof CHomeRoute
+  '/login/code': typeof LoginCodeRoute
+  '/s/help': typeof SHelpRoute
+  '/s/home': typeof SHomeRoute
+  '/c/': typeof CIndexRoute
+  '/login/': typeof LoginIndexRoute
+  '/s/': typeof SIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/c'
+    | '/s'
+    | '/not-found'
+    | '/session-expired'
+    | '/c/documents'
+    | '/c/help'
+    | '/c/home'
+    | '/login/code'
+    | '/s/help'
+    | '/s/home'
+    | '/c/'
+    | '/login/'
+    | '/s/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/not-found'
+    | '/session-expired'
+    | '/c/documents'
+    | '/c/help'
+    | '/c/home'
+    | '/login/code'
+    | '/s/help'
+    | '/s/home'
+    | '/c'
+    | '/login'
+    | '/s'
+  id:
+    | '__root__'
+    | '/'
+    | '/c'
+    | '/s'
+    | '/not-found'
+    | '/session-expired'
+    | '/c/documents'
+    | '/c/help'
+    | '/c/home'
+    | '/login/code'
+    | '/s/help'
+    | '/s/home'
+    | '/c/'
+    | '/login/'
+    | '/s/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CRouteRoute: typeof CRouteRouteWithChildren
+  SRouteRoute: typeof SRouteRouteWithChildren
+  NotFoundRoute: typeof NotFoundRoute
+  SessionExpiredRoute: typeof SessionExpiredRoute
+  LoginCodeRoute: typeof LoginCodeRoute
+  LoginIndexRoute: typeof LoginIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +210,140 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c': {
+      id: '/c'
+      path: '/c'
+      fullPath: '/c'
+      preLoaderRoute: typeof CRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/not-found': {
+      id: '/not-found'
+      path: '/not-found'
+      fullPath: '/not-found'
+      preLoaderRoute: typeof NotFoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s': {
+      id: '/s'
+      path: '/s'
+      fullPath: '/s'
+      preLoaderRoute: typeof SRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/session-expired': {
+      id: '/session-expired'
+      path: '/session-expired'
+      fullPath: '/session-expired'
+      preLoaderRoute: typeof SessionExpiredRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/': {
+      id: '/c/'
+      path: '/'
+      fullPath: '/c/'
+      preLoaderRoute: typeof CIndexRouteImport
+      parentRoute: typeof CRouteRoute
+    }
+    '/c/documents': {
+      id: '/c/documents'
+      path: '/documents'
+      fullPath: '/c/documents'
+      preLoaderRoute: typeof CDocumentsRouteImport
+      parentRoute: typeof CRouteRoute
+    }
+    '/c/help': {
+      id: '/c/help'
+      path: '/help'
+      fullPath: '/c/help'
+      preLoaderRoute: typeof CHelpRouteImport
+      parentRoute: typeof CRouteRoute
+    }
+    '/c/home': {
+      id: '/c/home'
+      path: '/home'
+      fullPath: '/c/home'
+      preLoaderRoute: typeof CHomeRouteImport
+      parentRoute: typeof CRouteRoute
+    }
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login/'
+      preLoaderRoute: typeof LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/code': {
+      id: '/login/code'
+      path: '/login/code'
+      fullPath: '/login/code'
+      preLoaderRoute: typeof LoginCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/': {
+      id: '/s/'
+      path: '/'
+      fullPath: '/s/'
+      preLoaderRoute: typeof SIndexRouteImport
+      parentRoute: typeof SRouteRoute
+    }
+    '/s/help': {
+      id: '/s/help'
+      path: '/help'
+      fullPath: '/s/help'
+      preLoaderRoute: typeof SHelpRouteImport
+      parentRoute: typeof SRouteRoute
+    }
+    '/s/home': {
+      id: '/s/home'
+      path: '/home'
+      fullPath: '/s/home'
+      preLoaderRoute: typeof SHomeRouteImport
+      parentRoute: typeof SRouteRoute
+    }
   }
 }
 
+interface CRouteRouteChildren {
+  CDocumentsRoute: typeof CDocumentsRoute
+  CHelpRoute: typeof CHelpRoute
+  CHomeRoute: typeof CHomeRoute
+  CIndexRoute: typeof CIndexRoute
+}
+
+const CRouteRouteChildren: CRouteRouteChildren = {
+  CDocumentsRoute: CDocumentsRoute,
+  CHelpRoute: CHelpRoute,
+  CHomeRoute: CHomeRoute,
+  CIndexRoute: CIndexRoute,
+}
+
+const CRouteRouteWithChildren =
+  CRouteRoute._addFileChildren(CRouteRouteChildren)
+
+interface SRouteRouteChildren {
+  SHelpRoute: typeof SHelpRoute
+  SHomeRoute: typeof SHomeRoute
+  SIndexRoute: typeof SIndexRoute
+}
+
+const SRouteRouteChildren: SRouteRouteChildren = {
+  SHelpRoute: SHelpRoute,
+  SHomeRoute: SHomeRoute,
+  SIndexRoute: SIndexRoute,
+}
+
+const SRouteRouteWithChildren =
+  SRouteRoute._addFileChildren(SRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CRouteRoute: CRouteRouteWithChildren,
+  SRouteRoute: SRouteRouteWithChildren,
+  NotFoundRoute: NotFoundRoute,
+  SessionExpiredRoute: SessionExpiredRoute,
+  LoginCodeRoute: LoginCodeRoute,
+  LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

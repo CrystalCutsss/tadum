@@ -1,7 +1,12 @@
+// `/`: нет сессии → /login; есть → home активной роли; dual при первом входе → /c/home (D-020).
 import { createFileRoute } from '@tanstack/react-router';
 
-// Временная заглушка: редирект по роли и вход появляются в блоке 6a.
-// Пользовательских строк нет до подключения i18n (блок 3).
+import { decideRoot, familyMemory, loadSessionState } from '@/entities/session';
+
+import { enforce } from './-guard';
+
 export const Route = createFileRoute('/')({
-  component: () => <main className="min-h-dvh" />,
+  beforeLoad: async ({ context }) => {
+    enforce(decideRoot(await loadSessionState(context.queryClient), familyMemory.last()));
+  },
 });

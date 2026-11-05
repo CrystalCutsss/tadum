@@ -1,2 +1,3 @@
-// Публичный API фичи request-otp. Реализация — в блоках 6a–6b.
-export {};
+// Публичный API фичи request-otp: экран ввода номера (SC-01).
+export { PhoneForm, type PhoneFormProps } from './ui/phone-form';
+export { phoneErrorActive, phoneErrorFrom, phoneErrorMessage, phoneFailReason, type PhoneFormError } from './model/errors';

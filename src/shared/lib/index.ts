@@ -2,3 +2,5 @@
 export { now, nowDate, setClock, toDate } from './clock';
 export { onStorageUnavailable, sessionStore, storage, storageKeyPrefix, type ScopedStorage } from './storage';
 export { isInAppBrowser, isStandalone, platformOf, viewportOf } from './browser';
+export { formatNationalInput, nationalDigits, pathHash, toKsaMobile } from './phone';
+export { useNow } from './use-now';

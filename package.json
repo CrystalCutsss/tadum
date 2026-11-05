@@ -81,6 +81,7 @@
     "eslint-plugin-rtl-friendly": "0.5.1",
     "eslint-plugin-storybook": "10.6.5",
     "globals": "17.14.0",
+    "happy-dom": "21.0.4",
     "i18next-cli": "1.83.0",
     "playwright": "1.63.0",
     "storybook": "10.6.5",

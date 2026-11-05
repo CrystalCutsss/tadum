@@ -1,4 +1,46 @@
 {
+  "auth": {
+    "channel": {
+      "sms": "SMS",
+      "whatsapp": "WhatsApp"
+    },
+    "dual_hint": "You also have a supplier account. Switch here anytime",
+    "expired": {
+      "body": "For your security, please sign in again",
+      "login": "Sign in",
+      "title": "Your session has ended"
+    },
+    "not_found": {
+      "apply": "Apply now",
+      "body": "If you haven't applied yet, you can do it now. If you think this is a mistake, our team will help",
+      "support": "Contact support",
+      "title": "No application found for this number"
+    },
+    "otp": {
+      "change_phone": "Change number",
+      "confirm": "Confirm",
+      "expired": "This code has expired. Request a new one",
+      "invalid_one": "The code is not correct. {attempts_left} attempt left",
+      "invalid_other": "The code is not correct. {attempts_left} attempts left",
+      "invalid_retry": "The code is not correct. Try again",
+      "resend": "Send a new code",
+      "resend_in": "Send a new code in {seconds} s",
+      "resent": "New code sent",
+      "sent_to": "We sent a 4-digit code to {phone} via {channel}",
+      "title": "Enter the code",
+      "too_many_attempts": "Too many attempts. Request a new code"
+    },
+    "phone": {
+      "invalid_format": "Enter a Saudi mobile number starting with 5",
+      "label": "Mobile number",
+      "placeholder": "5X XXX XXXX",
+      "submit": "Get code",
+      "subtitle": "Enter the phone number you used in your application",
+      "title": "Sign in to your Tadum account",
+      "too_many_requests_one": "Too many attempts. Try again in {minutes} min",
+      "too_many_requests_other": "Too many attempts. Try again in {minutes} min"
+    }
+  },
   "common": {
     "cached_at": "Shown as of {time}",
     "close": "Close",
@@ -34,6 +76,10 @@
     "offer": "Terms",
     "referral": "Link"
   },
+  "notfound": {
+    "home": "Go to home",
+    "title": "This page doesn't exist"
+  },
   "relative": {
     "days_ago_one": "{count} day ago",
     "days_ago_other": "{count} days ago",
@@ -50,6 +96,12 @@
       "collecting_docs": "Collecting documents",
       "first_purchase": "First purchase",
       "under_review": "Under review"
+    }
+  },
+  "stub": {
+    "coming_soon": {
+      "body": "We're preparing this section. The rest of your account works as usual",
+      "title": "This section is being prepared"
     }
   },
   "support": {

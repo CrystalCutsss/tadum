@@ -7,17 +7,20 @@ import ts from 'typescript';
 
 const DOC = 'docs/product/04-metrics-and-events.md';
 const CODE = 'src/shared/analytics/events.ts';
+const ROUTES = 'src/shared/config/routes.ts';
 
 // ---------- Код ----------
 
 const source = ts.createSourceFile(CODE, readFileSync(CODE, 'utf8'), ts.ScriptTarget.Latest, true);
+// ScreenId — общий список маршрутов и аналитики, лежит в shared/config.
+const routesSource = ts.createSourceFile(ROUTES, readFileSync(ROUTES, 'utf8'), ts.ScriptTarget.Latest, true);
 
-function alias(name) {
+function alias(name, sf = source, file = CODE) {
   let found;
-  source.forEachChild((n) => {
+  sf.forEachChild((n) => {
     if (ts.isTypeAliasDeclaration(n) && n.name.text === name) found = n.type;
   });
-  if (!found) throw new Error(`${CODE}: нет типа ${name}`);
+  if (!found) throw new Error(`${file}: нет типа ${name}`);
   return found;
 }
 
@@ -51,7 +54,7 @@ const codeScreens = new Map();
 for (const m of unionMembers(alias('ScreenViewedProps'))) {
   codeScreens.set(literalText(member(m, 'screen_id')?.type), propsOf(m, ['screen_id']));
 }
-const screenIds = unionMembers(alias('ScreenId')).map(literalText);
+const screenIds = unionMembers(alias('ScreenId', routesSource, ROUTES)).map((t) => (ts.isLiteralTypeNode(t) ? t.literal.text : null));
 
 const codeVersions = new Map();
 source.forEachChild((n) => {

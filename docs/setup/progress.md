@@ -12,8 +12,8 @@
 | 4a | done | `44249f8` | пресет применён CLI; иконки Remix (A-015); `verify` += `check:contrast && storybook:build && test:stories` |
 | 5a | done | `9424c28` | 261 unit-тест; таблицы документов разбираются в тестах (A-021) |
 | 5b | done | `1ecb0e9` | 14 персон, мок по §10; бизнес-правила мока — из `entities` через `MockDomain` (A-024) |
-| 5c | done | см. git log | 73 события и 18 экранов сверены с §3; `verify` += `check:events`, `contract:md --check` |
-| 6a | todo | — | |
+| 5c | done | `6d3575a` | 73 события и 18 экранов сверены с §3; `verify` += `check:events`, `contract:md --check` |
+| 6a | done | см. git log | вход SC-01 A1–A14; гарды — чистые функции + роутер в памяти; формы — истории с play-тестами |
 | 6b | todo | — | |
 | 6c | todo | — | |
 | 6d | todo | — | |
@@ -132,6 +132,22 @@
 - корзины §2.4 покрыты тестами границ, PII-guard — на телефон, e-mail, ссылку, сумму, запрещённые поля;
 - `docs/05-backend-contract.md` сгенерирован, `pnpm contract:md --check` зелёный;
 - `pnpm verify` зелёный: 403 unit-теста, 40 тестов историй; первый чанк — 169 КБ gzip.
+
+## План блока 6a
+
+1. `shared/config/routes.ts`: пути v1, `screen_id`, семья маршрута, проверка внутреннего `returnTo`.
+2. `entities/session`: запрос сессии (TanStack Query), активная семья для `dual` (последний выбор), чистые решения гардов, состояние входа (номер и вызов OTP — только в памяти), `returnTo` и источник входа — в `sessionStore`.
+3. `features/request-otp`, `features/verify-otp`: формы `PhoneForm` (маска `+966 5X XXX XXXX`, LTR, `inputmode=tel`) и `OtpForm` (4 ячейки, автоотправка, вставка целиком, таймер 40 с, 5 попыток, `one-time-code`), разбор ошибок A1–A10, A13, события входа.
+4. Маршруты v1 (D-067) в `src/pages`: `/`, `/login`, `/login/code`, `/not-found`, `/session-expired`, `/c/home`, `/c/documents`, `/c/help`, `/s/home`, `/s/help`, `*`; гарды в `beforeLoad` макетов `/c` и `/s`; `screen_viewed` в `__root`, 404 с `path_hash`.
+5. Тексты SC-01 §4 и SC-10 (`notfound.*`) AR/EN, формы множественного числа — в `needs-review.md`.
+6. Тесты: unit — гарды, разбор номера, разбор ошибок (каждая альтернатива A1–A14 — отдельный кейс); маршрутизация — роутер в памяти против мока (A8, A11, A12, A14, `returnTo`, чужая семья, 404); истории с play-тестами для экранов входа.
+
+**Проверка блока 6a (2026-11-05):**
+- `src/app/sc-01.test.ts` — 25 кейсов: основной сценарий, A1–A14 по отдельности и критерии приёмки маршрутов;
+- `guards.test.ts` — 16 кейсов гардов, `routes.test.ts` сверяет `screen_id` каждого пути с `01-cabinet-structure.md` §1;
+- 20 историй `PhoneForm` и `OtpForm` с play-тестами против мока, axe — без нарушений; мутация «не очищать ячейки» валит ровно одну историю;
+- `pnpm lint:i18n` зелёный (0 ошибок, 4 предупреждения `please_filler` — тексты сценариев, A-014);
+- `pnpm verify` зелёный: 481 unit-тест, 60 историй; первый чанк — 186 КБ gzip из 200 (запас сокращается — смотреть в 7a, `size-limit`).
 
 ## Решения Кирилла по ходу
 

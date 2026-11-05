@@ -4,28 +4,12 @@
 
 import type { ClientStatus, DocumentStatus, LimitStatus, SupplierStatus, SupplierViewStatus } from '@/shared/api';
 
+import type { ScreenId } from '@/shared/config';
+
 import type { AmountBucket, CountBucket, UsedShareBucket } from './buckets';
 
-/** screen_id из 01-cabinet-structure.md §1. */
-export type ScreenId =
-  | 'auth.phone'
-  | 'auth.otp'
-  | 'auth.not_found'
-  | 'auth.expired'
-  | 'client.home'
-  | 'client.documents'
-  | 'client.document'
-  | 'client.closed'
-  | 'client.reapply'
-  | 'client.help'
-  | 'supplier.home'
-  | 'supplier.referral'
-  | 'supplier.clients'
-  | 'supplier.documents'
-  | 'supplier.document'
-  | 'supplier.offer'
-  | 'supplier.help'
-  | 'system.404';
+/** screen_id из 01-cabinet-structure.md §1 — источник в shared/config/routes.ts. */
+export type { ScreenId };
 
 export type RoleFamilyProp = 'client' | 'supplier';
 export type Owner = 'client' | 'supplier';
