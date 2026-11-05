@@ -5,8 +5,8 @@
 | Блок | Статус | Коммит | Заметки |
 | :--- | :--- | :--- | :--- |
 | 0 | done | `0e3fcfa` | Репозиторий создал Кирилл; `main` создан из коммита блока 0 без push (A-003) |
-| 1 | done | см. git log | `verify` = `typecheck && build`; `wrangler deploy --dry-run` проходит без токена; `account_id` — до 7a (A-005) |
-| 1b | todo | — | |
+| 1 | done | `37ad462` | `verify` = `typecheck && build`; `wrangler deploy --dry-run` проходит без токена; `account_id` — до 7a (A-005) |
+| 1b | done | см. git log | 31 файл (28 в `docs/product/` + шаблоны), побайтно с Drive (A-008) |
 | 2 | todo | — | |
 | 3 | todo | — | |
 | 4a | todo | — | Пресет получен (2026-11-05), см. ниже |
@@ -45,6 +45,16 @@
 7. `verify` = `typecheck && build`; проверки блока 1.
 
 **Проверка блока 1 (2026-11-05):** `pnpm install` — без вопросов и без предупреждений о сборке пакетов; `pnpm verify` зелёный; `dist/index.html` — `<html lang="ar" dir="rtl">`; при `VITE_BASE_PATH=/p/tadum/v1/` все `src`/`href` в `dist/index.html`, `start_url` и `scope` манифеста, `navigateFallback` начинаются с `/p/tadum/v1/`, манифест подключён с `crossorigin="use-credentials"`; `pnpm exec wrangler deploy --dry-run` — «Read 14 files from the assets directory», выход без ошибок; `origin` → `CrystalCutsss/tadum`.
+
+## План блока 1b
+
+1. Найти файлы по `parentId` в папках Drive (ID из §0.2 подтвердились; найденные ID — в `docs/product/README.md`).
+2. Скачать каждый файл коннектором (`download_file_content`, base64) и записать побайтно: раскодирование, сверка размера с `fileSize` Drive, проверка UTF-8 и шапка источника — скриптом, без пересказа. Файлы раздаются субагентам группами по 2–5 (A-008).
+3. `tov-lexicon.json` — в `docs/product/` и в корень; `JSON.parse` и совпадение `version`.
+4. Шаблоны: `docs/templates/feature-brief.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `docs/dod.md`.
+5. Таблица «файл · Drive ID · дата» в `docs/product/README.md`.
+
+**Проверка блока 1b (2026-11-05):** все 28 файлов `docs/product/` и 3 шаблона на месте; размер тела каждого совпадает с `fileSize` Drive. Дополнительно каждый файл сверен побайтно с исходным ответом коннектора: 31/31 MATCH. `JSON.parse` для `tov-lexicon.json` проходит, `version` = `1.0.0` в обеих копиях. Файлов без шапки в `docs/product/` нет, кроме JSON и `README.md`. `pnpm verify` зелёный.
 
 ## Проверка среды (§0.4), 2026-11-05
 
