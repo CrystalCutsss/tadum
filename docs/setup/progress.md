@@ -20,8 +20,8 @@
 | 7a | done | `be7f62a` (merge PR #1) | CI ×2, knip/jscpd/`lint:rtl`/`lint:gitlab-ci` в `verify`; превью https://tadum.kirillgloba.workers.dev (деплой из CI) |
 | 7b | done | `e76795e` | README/CONTRIBUTING, ADR-003, перенос в GitLab, аналитика, карта `docs/`; `verify` += `check:docs`; копии в Drive |
 | 8a | done | см. git log | `CLAUDE.md` 56 строк, 9 правил, 7 агентов, 12 скиллов; `verify` += `check:claude` (A-050) |
-| 8b | done | см. git log | хуки (61 тест), разрешения, `.mcp.json`, плагины; ⏸ финальная проверка хука в новой облачной сессии и merge `chore/setup-2` |
-| 9 | todo | — | |
+| 8b | done | `8cc75e3` (merge PR #2) | хуки (66 тестов), разрешения, `.mcp.json`, плагины; финальная проверка Кириллом — хук отказал |
+| 9 | in progress | см. git log | `release:proto` по механизму Proto (замороженная версия, PR в Proto), ветка `chore/release-v1` |
 | 10 | todo | — | |
 
 ## План блока 0
@@ -192,6 +192,22 @@
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
 
+## План и проверка блока 9
+
+Ветка `chore/release-v1`. Proto изучен (A-052): версии — пакеты `prototypes/<slug>/versions/<vN>/`, `registry.json` собирается из метаданных, деплой — Workers Builds после merge PR в `main`, пароли — `PROTOTYPE_PASSWORDS`.
+
+1. `scripts/release-proto.mjs`: подготовка (verify → ветка Proto → сборка `/p/tadum/vN/` → теги оболочки Proto → замороженная версия `prototypes/tadum/versions/vN` → `pnpm install`, `registry:validate`, `site:build` в Proto → коммит без push), `--publish` (push ветки Proto после «да»), `--tag` (тег после деплоя). Тесты чистых функций.
+2. `docs/release.md`, `docs/releases/v1.md` (release notes; копия — Drive `06 Версии прототипа/v1.md`), `docs/releases/how-to-view.md`.
+3. ⏸ Кирилл: diff Proto и локальный просмотр → «да» → push ветки Proto и PR → merge Кириллом → Workers Builds деплоит.
+4. ⏸ Кирилл: пароль Tadum в `PROTOTYPE_PASSWORDS`.
+5. Проверка на витрине, тег `v1`.
+
+**Проверка блока 9 — подготовка (2026-11-05):**
+- `pnpm run release:proto v1 --proto-dir /home/user/proto --proto-branch claude/epic-wozniak-hjs4n8`: `pnpm verify` зелёный; сборка `/p/tadum/v1/`; в Proto `registry:validate` — «Registry OK: 3 prototypes, 7 versions», `site:build` — 11 задач, 365 файлов, 24 МБ; локальный коммит Proto `fd8e046` (79 файлов, без push);
+- первый прогон остановила проверка реестра Proto: ось меню ≤ 6 пунктов, id через дефис — ось «Персона» сокращена до 6, Tadum принимает `?persona=client-active` (A-052, тест + e2e);
+- локальный просмотр (`pnpm site:preview` в Proto): `/p/tadum/v1/` уводит в просмотрщик; ось «Клиент: лимит активен» + English → `/c/home`, шкала «Limit active»; «Вход по номеру» + العربية → `/login`, `dir=rtl`; меню «Персона / Язык»; «Единая активация» открывается; Tadum на главной витрины; ошибок в консоли нет;
+- ⏸ Кирилл: «да» на push ветки Proto и PR; merge PR Tadum (`chore/release-v1`) и PR Proto; пароль Tadum в `PROTOTYPE_PASSWORDS`.
+
 ## План и проверка блока 8b
 
 1. Хуки (`scripts/hooks/*.sh`, `.claude/settings.json`): `protect-paths`, `guard-bash`, `post-edit`, `verify-on-stop`, `session-start`, `prompt-brief`; тесты `scripts/hooks/__tests__` (Vitest, JSON на stdin). Схема сверена с документацией Claude Code (A-051).
@@ -207,7 +223,7 @@
 - защита в настоящей сессии: `claude -p "Добавь комментарий в начало src/styles/tokens.css"` → хук отказал «Защищённый путь: src/styles/tokens.css…», файл не изменился. Модель предложила обход через `sed` — `guard-bash.sh` теперь запрещает и его;
 - копия `docs/claude-code.md` в Drive `05 Разработка/05-claude-code-environment.md` — `1hUFI5CJjZZDXNILOTcI68GIgY1tUHRio`, 11619 байт (совпадает; версия с требованием jq). Прежние копии (`1CdND3…`, `1bWsM95…` — неудачная загрузка) в корзине;
 - `pnpm verify` зелёный (563 unit, 113 историй, 9 smoke);
-- **⏸ Кирилл:** финальная проверка 8b.5 п.4 — в новой облачной сессии на `tadum` попросить поправить `tokens.css` и убедиться в отказе хука.
+- финальная проверка 8b.5 п.4 (Кирилл, 2026-11-05): новая облачная сессия (окружение Default, только `tadum`, после merge PR #2) — Edit `src/styles/tokens.css` отклонён: «PreToolUse:Edit hook error: Защищённый путь: src/styles/tokens.css. Токены и shared/ui меняет только субагент design-system-owner — делегируйте ему.»; файл не изменён. Первая попытка до merge прошла правку — в `main` ещё не было `.claude/`.
 
 ## План и проверка блока 8a
 

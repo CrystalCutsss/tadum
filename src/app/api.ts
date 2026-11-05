@@ -10,7 +10,7 @@ import { computeLimitAmounts, computeTurnover, isChecklistCompleted } from '@/en
 import { initialActiveRole, resolveRoles } from '@/entities/session';
 import { deriveSupplierStatus, supplierNextStep } from '@/entities/supplier';
 import { setAnalyticsContext } from '@/shared/analytics';
-import { PERSONA_IDS, configureApi, demoPersona, getApi, type MockDomain } from '@/shared/api';
+import { PERSONA_IDS, configureApi, demoPersona, getApi, personaFromParam, type MockDomain } from '@/shared/api';
 
 export const mockDomain: MockDomain = {
   deriveClientStatus,
@@ -40,7 +40,7 @@ const PERSONA_PARAM = 'persona';
  * VITE_DEMO_PANEL не равен 0 (прод).
  */
 async function applyPersonaFromUrl(): Promise<void> {
-  const persona = new URL(window.location.href).searchParams.get(PERSONA_PARAM);
+  const persona = personaFromParam(new URL(window.location.href).searchParams.get(PERSONA_PARAM));
   if (!persona || !(PERSONA_IDS as readonly string[]).includes(persona)) return;
   setAnalyticsContext({ persona });
   if (demoPersona.get() === persona) return;

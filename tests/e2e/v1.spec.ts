@@ -48,6 +48,12 @@ test('@smoke dual_active → /c/home → переключатель → /s/home 
   await expect(page).toHaveURL(/\/s\/home/);
 });
 
+test('?persona= через дефис (меню просмотрщика Proto) открывает ту же персону', async ({ page }) => {
+  await asPersona(page, 'client-submitted');
+  await expect(page).toHaveURL(/\/c\/home/);
+  await expect(page.getByRole('list', timeline('en')).locator('li[aria-current="step"]')).toContainText(tr('en', 'timeline.client.review'));
+});
+
 test('@smoke supplier_active → /s/home', async ({ page }) => {
   await asPersona(page, 'supplier_active');
   await expect(page).toHaveURL(/\/s\/home/);
