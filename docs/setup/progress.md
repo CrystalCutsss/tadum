@@ -210,7 +210,7 @@
 - `pnpm lhci` (локально): `/s/home` performance 0,98–0,99, `/c/home` — 0,78–0,81 (LCP 4,2 с, A-047); accessibility и best practices = 1;
 - `pnpm audit --audit-level=high` — 0 high после override `basic-ftp`; `gitleaks git` — утечек нет;
 - защита `main`: правило создано, но не действует на бесплатном тарифе для приватного репозитория (A-048) — продолжаем без неё;
-- зелёный `ci` в PR — после открытия PR.
+- `ci` в PR https://github.com/CrystalCutsss/tadum/pull/1 зелёный на `e094981` (run 42061603260): все 11 jobs, включая `e2e` в android-chrome, iphone-safari (WebKit из образа Playwright) и desktop-chrome. Первый прогон упал на axe в истории `shared/ui/Toggle` (`aria-label` скрывал видимый текст) — исправлено в `ad1bc29`.
 
 ## Решения Кирилла по ходу
 
