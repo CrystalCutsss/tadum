@@ -10,7 +10,7 @@ import { computeLimitAmounts, computeTurnover, isChecklistCompleted } from '@/en
 import { initialActiveRole, resolveRoles } from '@/entities/session';
 import { deriveSupplierStatus, supplierNextStep } from '@/entities/supplier';
 import { setAnalyticsContext } from '@/shared/analytics';
-import { PERSONA_IDS, configureApi, getApi, type MockDomain } from '@/shared/api';
+import { PERSONA_IDS, configureApi, demoPersona, getApi, type MockDomain } from '@/shared/api';
 
 export const mockDomain: MockDomain = {
   deriveClientStatus,
@@ -35,17 +35,18 @@ const PERSONA_PARAM = 'persona';
 
 /**
  * Демо-режим: `?persona=<id>` (01-entities.md §6) выбирает персону мока и сразу входит под ней.
- * Демо включено, пока VITE_DEMO_PANEL не равен 0 (прод). Параметр убирается из адреса, чтобы перезагрузка не сбрасывала состояние персоны.
+ * Параметр остаётся в адресе (ссылку можно отправить коллеге, 01-cabinet-structure.md §8); персона сбрасывается
+ * к фикстуре только при смене — перезагрузка той же ссылки состояние не теряет. Демо включено, пока
+ * VITE_DEMO_PANEL не равен 0 (прод).
  */
 async function applyPersonaFromUrl(): Promise<void> {
-  const url = new URL(window.location.href);
-  const persona = url.searchParams.get(PERSONA_PARAM);
+  const persona = new URL(window.location.href).searchParams.get(PERSONA_PARAM);
   if (!persona || !(PERSONA_IDS as readonly string[]).includes(persona)) return;
+  setAnalyticsContext({ persona });
+  if (demoPersona.get() === persona) return;
   const api = await getApi();
   api.demo?.setPersona(persona);
-  setAnalyticsContext({ persona });
-  url.searchParams.delete(PERSONA_PARAM);
-  window.history.replaceState(window.history.state, '', url);
+  demoPersona.set(persona);
 }
 
 export function initApi(): void {

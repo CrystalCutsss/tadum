@@ -1,2 +1,2 @@
-// Публичный API виджета next-step-card. Реализация — в блоках 6b–6c.
-export {};
+// Публичный API виджета next-step-card.
+export { NextStepCard, type NextStepCardProps } from './ui/next-step-card';

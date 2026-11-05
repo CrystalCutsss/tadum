@@ -10,14 +10,14 @@ import { RoleSwitch } from '@/widgets/role-switch';
 import { SupportBar } from '@/widgets/support-bar';
 
 export function CabinetLayout({ family, children, support = true }: { family: Family; children: ReactNode; support?: boolean }) {
-  // На экране помощи контакты — отдельный раздел; второй SupportBar внизу не нужен.
-  const onHelp = useRouterState({ select: (s) => s.location.pathname.endsWith('/help') });
+  // Помощь и главная клиента показывают свой SupportBar (раздел контактов, готовый текст по статусу).
+  const ownSupport = useRouterState({ select: (s) => s.location.pathname.endsWith('/help') || s.location.pathname === '/c/home' });
   return (
     <CabinetShell
       family={family}
       languageSwitch={<LanguageSwitch />}
       renderRoleSwitch={(current) => <RoleSwitch current={current} />}
-      support={support && !onHelp ? <SupportBar /> : null}
+      support={support && !ownSupport ? <SupportBar /> : null}
     >
       {children}
     </CabinetShell>

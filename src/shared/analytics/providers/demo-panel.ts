@@ -16,11 +16,11 @@ const notify = () => listeners.forEach((l) => l());
 /** Хранилище ленты; форма подходит для useSyncExternalStore. */
 export const demoFeed = {
   getSnapshot: (): readonly DemoFeedEntry[] => entries,
-  subscribe(listener: () => void): () => void {
+  subscribe: (listener: () => void): (() => void) => {
     listeners.add(listener);
     return () => listeners.delete(listener);
   },
-  clear(): void {
+  clear: (): void => {
     entries = [];
     notify();
   },

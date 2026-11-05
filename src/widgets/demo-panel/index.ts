@@ -1,2 +1,2 @@
-// Публичный API виджета demo-panel. Реализация — в блоках 6b–6c.
-export {};
+// Публичный API виджета demo-panel. Импортируется только динамически (pages/__root.tsx).
+export { DemoPanel } from './ui/demo-panel';

@@ -1,6 +1,6 @@
-// /c/home — заглушка v1: экран появится в своём блоке (D-067; главная клиента — 6c, помощь — 6b).
+// /c/home — главная клиента (SC-05 для home, 01-cabinet-structure.md §5–6).
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ComingSoon } from '../-components/coming-soon';
+import { ClientHome } from '../-components/client-home';
 
-export const Route = createFileRoute('/c/home')({ component: ComingSoon });
+export const Route = createFileRoute('/c/home')({ component: ClientHome });

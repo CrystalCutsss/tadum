@@ -9,3 +9,4 @@ export { configureApi, getApi, type ApiConfig } from './client';
 export { useStatusPolling, type StatusPollingOptions } from './polling';
 export type { MockDocumentEvent, MockDocumentTransition, MockDomain } from './adapters/mock/domain';
 export { PERSONA_IDS, type PersonaId } from './fixtures/types';
+export { demoPersona } from './demo-persona';

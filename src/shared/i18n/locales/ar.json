@@ -48,6 +48,10 @@
       "too_many_requests_other": "محاولات كثيرة. حاول مجددًا بعد {minutes} دقيقة"
     }
   },
+  "closed": {
+    "body": "لا يمكننا المتابعة في هذا الطلب حاليًا. يسعدنا استقبال طلب جديد منك، وفريقنا جاهز للإجابة عن أسئلتك",
+    "title": "تم إغلاق هذا الطلب"
+  },
   "common": {
     "cached_at": "البيانات كما في {time}",
     "cancel": "إلغاء",
@@ -62,6 +66,27 @@
     "retry": "إعادة المحاولة",
     "server_error_retry": "حدث خطأ من جهتنا. يرجى المحاولة مرة أخرى",
     "storage_unavailable": "متصفحك لا يحتفظ بالبيانات بين الزيارات. قد تحتاج إلى تسجيل الدخول مجددًا في المرة القادمة"
+  },
+  "demo": {
+    "action_failed": "غير متاح الآن: {code}",
+    "actions": "إجراءات الفريق",
+    "clear": "مسح",
+    "copied": "تم النسخ",
+    "copy_json": "نسخ JSON",
+    "copy_link": "نسخ الرابط",
+    "description": "أداة العرض: بدّل الشخصيات وحاكِ إجراءات فريق تدوم",
+    "events": "سجل الأحداث",
+    "filter": "تصفية حسب الاسم",
+    "network": "الشبكة",
+    "network_mode": {
+      "error": "خطأ في الخادم",
+      "offline": "غير متصل",
+      "ok": "عادية",
+      "slow": "بطيئة"
+    },
+    "open": "عرض تجريبي",
+    "persona": "الشخصية",
+    "title": "لوحة العرض التجريبي"
   },
   "document": {
     "status": {
@@ -81,6 +106,15 @@
     "title": "المساعدة والإعدادات",
     "version": "الإصدار {version}"
   },
+  "home": {
+    "documents_summary_zero": "تم إرسال {count} مستند",
+    "documents_summary_one": "تم إرسال مستند واحد",
+    "documents_summary_two": "تم إرسال مستندين",
+    "documents_summary_few": "تم إرسال {count} مستندات",
+    "documents_summary_many": "تم إرسال {count} مستندًا",
+    "documents_summary_other": "تم إرسال {count} مستند",
+    "documents_view": "عرض"
+  },
   "lang": {
     "switch_to_ar": "العربية",
     "switch_to_en": "English"
@@ -94,6 +128,68 @@
     "more": "المزيد",
     "offer": "الشروط",
     "referral": "الرابط"
+  },
+  "next_step": {
+    "closed": "تم إغلاق هذا الطلب",
+    "cta": {
+      "apply": "تقديم طلب جديد",
+      "documents": "الانتقال إلى المستندات",
+      "how_to_buy": "طريقة الشراء",
+      "share_link": "مشاركة رابطي",
+      "sign": "توقيع المستندات"
+    },
+    "first_purchase_done": "اكتملت عمليتك الأولى. يمكنك مواصلة الشراء بالطريقة نفسها",
+    "how_to_buy": "جاهز للشراء؟ إليك كيف يتم ذلك مع مورّدك",
+    "more_docs_requested_zero": "راجع فريقنا مستنداتك ويحتاج {count} مستند إضافي للمتابعة",
+    "more_docs_requested_one": "راجع فريقنا مستنداتك ويحتاج مستندًا إضافيًا واحدًا للمتابعة",
+    "more_docs_requested_two": "راجع فريقنا مستنداتك ويحتاج مستندين إضافيين للمتابعة",
+    "more_docs_requested_few": "راجع فريقنا مستنداتك ويحتاج {count} مستندات إضافية للمتابعة",
+    "more_docs_requested_many": "راجع فريقنا مستنداتك ويحتاج {count} مستندًا إضافيًا للمتابعة",
+    "more_docs_requested_other": "راجع فريقنا مستنداتك ويحتاج {count} مستند إضافي للمتابعة",
+    "offer_confirmation": "تمت الموافقة على طلبك. سيتواصل معك فريقنا هاتفيًا لتأكيد الشروط",
+    "owner": {
+      "tadum": "من جهتنا",
+      "user": "خطوتك التالية"
+    },
+    "reupload_rejected_zero": "{count} مستند تحتاج ملفًا جديدًا",
+    "reupload_rejected_one": "مستند واحد يحتاج ملفًا جديدًا",
+    "reupload_rejected_two": "مستندان يحتاجان ملفًا جديدًا",
+    "reupload_rejected_few": "{count} مستندات تحتاج ملفًا جديدًا",
+    "reupload_rejected_many": "{count} مستندًا تحتاج ملفًا جديدًا",
+    "reupload_rejected_other": "{count} مستند تحتاج ملفًا جديدًا",
+    "sign_documents": "اقتربت من النهاية — وقّع المستندات لتفعيل حدّك",
+    "submit_ready": "تم رفع كل المستندات. أرسلها للمراجعة",
+    "supplier": {
+      "reupload_rejected_zero": "{count} مستند تحتاج ملفًا جديدًا",
+      "reupload_rejected_one": "مستند واحد يحتاج ملفًا جديدًا",
+      "reupload_rejected_two": "مستندان يحتاجان ملفًا جديدًا",
+      "reupload_rejected_few": "{count} مستندات تحتاج ملفًا جديدًا",
+      "reupload_rejected_many": "{count} مستندًا تحتاج ملفًا جديدًا",
+      "reupload_rejected_other": "{count} مستند تحتاج ملفًا جديدًا",
+      "share_link": "حسابك نشط. شارك رابطك مع عملائك",
+      "under_review": "نراجع مستنداتك الآن. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_zero": "نراجع مستنداتك — عادةً خلال {hours} ساعة. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_one": "نراجع مستنداتك — عادةً خلال ساعة واحدة. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_two": "نراجع مستنداتك — عادةً خلال ساعتين. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_few": "نراجع مستنداتك — عادةً خلال {hours} ساعات. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_many": "نراجع مستنداتك — عادةً خلال {hours} ساعة. يمكنك مشاركة رابطك منذ الآن",
+      "under_review_eta_other": "نراجع مستنداتك — عادةً خلال {hours} ساعة. يمكنك مشاركة رابطك منذ الآن",
+      "upload_documents": "ارفع مستنداتك لنتمكن من تفعيل حسابك"
+    },
+    "under_review": "فريقنا يراجع مستنداتك الآن. لا حاجة لأي إجراء منك حاليًا",
+    "under_review_eta_zero": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعة",
+    "under_review_eta_one": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى ساعة واحدة",
+    "under_review_eta_two": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى ساعتين",
+    "under_review_eta_few": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعات",
+    "under_review_eta_many": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعة",
+    "under_review_eta_other": "فريقنا يراجع مستنداتك. يستغرق ذلك عادةً حتى {hours} ساعة",
+    "under_review_longer": "هل استغرق الأمر وقتًا أطول من المتوقع؟ راسلنا وسنتحقق",
+    "upload_documents_zero": "ارفع {count} مستند للمتابعة",
+    "upload_documents_one": "ارفع مستندًا واحدًا للمتابعة",
+    "upload_documents_two": "ارفع مستندين للمتابعة",
+    "upload_documents_few": "ارفع {count} مستندات للمتابعة",
+    "upload_documents_many": "ارفع {count} مستندًا للمتابعة",
+    "upload_documents_other": "ارفع {count} مستند للمتابعة"
   },
   "notfound": {
     "home": "الانتقال إلى الرئيسية",
@@ -126,6 +222,15 @@
     "supplier": "مورّد"
   },
   "status": {
+    "changed_banner": "منذ زيارتك الأخيرة: {status}",
+    "changed_banner_dismiss": "حسنًا",
+    "client": {
+      "approved": "تمت الموافقة",
+      "closed": "مغلق",
+      "docs_required": "مطلوب مستندات",
+      "first_purchase": "تمت أول عملية شراء",
+      "under_review": "قيد المراجعة"
+    },
     "supplier_view": {
       "applied": "تم تقديم الطلب",
       "approved": "معتمد",
@@ -133,7 +238,8 @@
       "collecting_docs": "يجمع المستندات",
       "first_purchase": "أول عملية شراء",
       "under_review": "قيد المراجعة"
-    }
+    },
+    "updated": "تم تحديث حالة طلبك"
   },
   "stub": {
     "coming_soon": {
@@ -157,6 +263,24 @@
     "dark": "داكن",
     "light": "فاتح",
     "system": "مثل الجهاز"
+  },
+  "timeline": {
+    "client": {
+      "decision": "القرار",
+      "documents": "المستندات",
+      "limit_active": "تفعيل الحد",
+      "review": "المراجعة",
+      "signing": "التوقيع"
+    },
+    "needs_more_docs": "نحتاج بضعة مستندات إضافية",
+    "state": {
+      "closed": "مغلقة",
+      "current": "جارية",
+      "done": "مكتملة",
+      "needs_attention": "تحتاج إلى انتباهك",
+      "upcoming": "التالية"
+    },
+    "title": "مراحل الطلب"
   },
   "units": {
     "kb": "كيلوبايت",

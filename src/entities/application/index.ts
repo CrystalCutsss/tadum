@@ -30,3 +30,4 @@ export {
   type TimelineStepState,
 } from './model/timeline';
 export { applicationQuery, companyQuery } from './api/queries';
+export { statusMemory, statusNoticeOnEnter, transitionKey, type StatusMemory, type StatusNotice } from './model/status-notice';
