@@ -5,7 +5,7 @@
 | Блок | Статус | Коммит | Заметки |
 | :--- | :--- | :--- | :--- |
 | 0 | done | `0e3fcfa` | Репозиторий создал Кирилл; `main` создан из коммита блока 0 без push (A-003) |
-| 1 | todo | — | |
+| 1 | done | см. git log | `verify` = `typecheck && build`; `wrangler deploy --dry-run` проходит без токена; `account_id` — до 7a (A-005) |
 | 1b | todo | — | |
 | 2 | todo | — | |
 | 3 | todo | — | |
@@ -34,6 +34,18 @@
 
 **Проверка блока 0:** `CrystalCutsss/tadum` — `private`, `main` = `0e3fcfa`; `cmp` мастер-промпта с переданным файлом — без различий; в таблице все блоки §0.5; доступ к Cloudflare проверен (см. ниже).
 
+## План блока 1
+
+1. Конфиги репозитория: `.nvmrc`, `.npmrc`, `.editorconfig`, `.gitignore`, `package.json`.
+2. Vite 7 + React 19 + TS 5.9 strict вручную; TanStack Router (`src/pages`, дерево в `src/app/routeTree.gen.ts`), TanStack Query, Tailwind 4, vite-plugin-pwa 1.
+3. Базовый путь из `VITE_BASE_PATH`, `basepath` роутера из `BASE_URL`; `.env.example`.
+4. `wrangler.jsonc` (только статика), `public/_headers` с `noindex`, `deploy:preview`.
+5. `src/shared/lib/storage.ts` с префиксом `tadum:<base>:` и запасным хранилищем в памяти.
+6. `README.md`, `docs/product/README.md`, `docs/decisions/ADR-001-stack.md` с таблицей версий.
+7. `verify` = `typecheck && build`; проверки блока 1.
+
+**Проверка блока 1 (2026-11-05):** `pnpm install` — без вопросов и без предупреждений о сборке пакетов; `pnpm verify` зелёный; `dist/index.html` — `<html lang="ar" dir="rtl">`; при `VITE_BASE_PATH=/p/tadum/v1/` все `src`/`href` в `dist/index.html`, `start_url` и `scope` манифеста, `navigateFallback` начинаются с `/p/tadum/v1/`, манифест подключён с `crossorigin="use-credentials"`; `pnpm exec wrangler deploy --dry-run` — «Read 14 files from the assets directory», выход без ошибок; `origin` → `CrystalCutsss/tadum`.
+
 ## Проверка среды (§0.4), 2026-11-05
 
 | Что | Результат |
@@ -55,5 +67,4 @@
 
 ## ⏸ ожидают Кирилла
 
-1. **Основная ветка → `main`.** Сейчас основная ветка репозитория — `chore/setup` (она запушена первой). Поменять: GitHub → `tadum` → Settings → General → Default branch → `main`. Нужно до PR в блоке 7a; блоки 1–6d не ждут.
-2. **Токен Cloudflare для `wrangler`** (нужен к блокам 1 `--dry-run`, 7a, 9). Кирилл сам ставит его в переменные окружения облачной сессии; агент токен не видит. Блоки без Cloudflare продолжаются.
+1. **Токен Cloudflare для `wrangler`** (нужен к блокам 7a и 9; `--dry-run` блока 1 прошёл без него). Кирилл сам ставит его в переменные окружения облачной сессии; агент токен не видит. Блоки без Cloudflare продолжаются.

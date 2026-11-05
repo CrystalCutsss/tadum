@@ -1,0 +1,7 @@
+{
+  "target": "react",
+  "autoCodeSplitting": true,
+  "routesDirectory": "./src/pages",
+  "generatedRouteTree": "./src/app/routeTree.gen.ts",
+  "routeFileIgnorePattern": "^index\\.ts$|\\.test\\.|\\.stories\\."
+}
