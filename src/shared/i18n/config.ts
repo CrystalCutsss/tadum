@@ -29,12 +29,15 @@ export function directionOf(lang: Language): 'rtl' | 'ltr' {
   return lang === 'ar' ? 'rtl' : 'ltr';
 }
 
-/** Чистая функция выбора языка: параметр URL сильнее сохранённого выбора; иначе арабский. */
-export function resolveLanguage(search: string, stored: string | null): { lang: Language; source: 'url' | 'stored' | 'default' } {
+/** Язык без ?lang= и сохранённого выбора: арабский; на витрине Proto сборка задаёт английский (A-056). */
+export const initialLanguage = (env: string | undefined = import.meta.env.VITE_DEFAULT_LANG): Language => (isLanguage(env) ? env : DEFAULT_LANGUAGE);
+
+/** Чистая функция выбора языка: параметр URL сильнее сохранённого выбора; иначе язык по умолчанию сборки. */
+export function resolveLanguage(search: string, stored: string | null, fallback: Language = initialLanguage()): { lang: Language; source: 'url' | 'stored' | 'default' } {
   const fromUrl = new URLSearchParams(search).get('lang');
   if (isLanguage(fromUrl)) return { lang: fromUrl, source: 'url' };
   if (isLanguage(stored)) return { lang: stored, source: 'stored' };
-  return { lang: DEFAULT_LANGUAGE, source: 'default' };
+  return { lang: fallback, source: 'default' };
 }
 
 /** Проставить lang/dir на <html> без перезагрузки. */
