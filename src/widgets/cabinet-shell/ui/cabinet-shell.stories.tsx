@@ -63,8 +63,9 @@ export const DualAccountMenu: Story = {
     await userEvent.click(dismiss);
     await userEvent.click(await account(canvasElement));
     await expect(await body.findByRole('menuitemradio', { name: tr('role.client') })).toHaveAttribute('aria-checked', 'true');
-    await expect(body.getByRole('menuitemradio', { name: tr('role.supplier') })).toBeVisible();
-    await expect(body.getByRole('menuitem', { name: tr('nav.settings') })).toBeVisible();
+    // Меню появляется с анимацией (в начале прозрачность 0) — видимость ждём, а не проверяем сразу.
+    await waitFor(() => expect(body.getByRole('menuitemradio', { name: tr('role.supplier') })).toBeVisible());
+    await waitFor(() => expect(body.getByRole('menuitem', { name: tr('nav.settings') })).toBeVisible());
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(body.queryByRole('menu')).toBeNull());
   },
