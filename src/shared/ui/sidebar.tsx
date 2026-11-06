@@ -48,7 +48,8 @@ type SidebarContextProps = {
   toggleSidebar: () => void
 }
 
-const SidebarContext = React.createContext<SidebarContextProps | null>(null)
+// Чистый вызов: даёт Rollup выбросить модуль из первого чанка (бюджет, D-054).
+const SidebarContext = /* @__PURE__ */ React.createContext<SidebarContextProps | null>(null)
 
 function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -168,7 +169,8 @@ function usePhysicalSide(
 }
 
 // Физическая сторона, на которой стоит сайдбар: подсказки SidebarMenuButton открываются с противоположной.
-const SidebarSideContext = React.createContext<PhysicalSide>("left")
+// Чистый вызов: даёт Rollup выбросить модуль из первого чанка (бюджет, D-054).
+const SidebarSideContext = /* @__PURE__ */ React.createContext<PhysicalSide>("left")
 
 function Sidebar({
   side: sideProp = "start",
@@ -521,7 +523,8 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
   )
 }
 
-const sidebarMenuButtonVariants = cva(
+// Чистый вызов: даёт Rollup выбросить модуль из первого чанка (бюджет, D-054).
+const sidebarMenuButtonVariants = /* @__PURE__ */ cva(
   "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg px-3 py-2 text-start text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
   {
     variants: {
