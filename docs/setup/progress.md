@@ -341,6 +341,8 @@
 
 ## Решения Кирилла по ходу
 
+- 2026-11-06: каркас кабинета — сайдбар shadcn `sidebar-08` (PR CrystalCutsss/tadum#7, A-055). Новый §2 «Оболочка» `01-cabinet-structure.md` внесён в Drive новым файлом `1UhD6kfQzeUAuAGI2-ggFeohAqS5nobn0` (23374 байт, сверено); прежний `1R3DUZww5_JF8pBDNpBlwGMLjZXWwkoYP` — в корзине. ⏸ Кирилл: `/sync-product-docs` — обновить снимок и ID в `docs/product/README.md`. Не согласованы с новым §2: шапка документа («раздел 2 — черновик»), §4 (переключатель ролей и название компании «в шапке»), §9 (нижняя навигация, контент до 960 px).
+
 - 2026-11-06: витрина Tadum по умолчанию на всё окно, с переключателем «Экран» на мокап телефона (Proto ADR-0025, CrystalCutsss/proto#55). Промежуточные правки смотреть без merge — превью каждой ветки `https://<ветка>-tadum.kirillgloba.workers.dev` из CI (A-053); витрина Proto — только для замороженных версий vN. Тег `v1` поставлен через GitHub Releases на `6b6cd4e`.
 
 - 2026-11-05: деплой превью — только через CI. Токен Cloudflare хранится лишь в GitHub Secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`), в облачную сессию не попадает. Секреты Кирилл задаёт после merge `chore/setup` (иначе сам merge задеплоил бы превью). Первый деплой — запуск `deploy-preview` вручную (workflow_dispatch) после показанного dry-run и «да». Защита `main` не действует на бесплатном тарифе (A-048).
