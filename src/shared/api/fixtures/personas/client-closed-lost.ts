@@ -9,6 +9,7 @@ export const clientClosedLost: PersonaFixture = (now) => {
   return {
     persona_id: 'client_closed_lost',
     phone: phone(10),
+    user: { name: 'Hessa Al-Subaie', name_ar: 'حصة السبيعي' },
     company: { id: 'cmp_ccl', name: 'Najm Auto Parts', name_ar: 'نجم لقطع غيار السيارات', cr_number: '1010000010' },
     applications: [
       {

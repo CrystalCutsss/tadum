@@ -12,7 +12,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const Large: Story = { args: { className: 'text-3xl' } };
 
-/** Логотип сайдбара (решение Кирилла 2026-11-06): «tadum.» строчными, Geist bold, точка primary. */
+/** Логотип сайдбара (решение Кирилла 2026-11-06): «tadum.» строчными, Geist bold, точка primary (в тёмной теме — muted-foreground). */
 export const Dot: Story = {
   ...matrix,
   args: { variant: 'dot' },

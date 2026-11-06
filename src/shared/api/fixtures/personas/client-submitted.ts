@@ -9,6 +9,7 @@ export const clientSubmitted: PersonaFixture = (now) => {
   return {
     persona_id: 'client_submitted',
     phone: phone(4),
+    user: { name: 'Reem Al-Dosari', name_ar: 'ريم الدوسري' },
     company: { id: 'cmp_cs', name: 'Danah Medical Supplies', name_ar: 'دانة للمستلزمات الطبية', cr_number: '1010000004' },
     applications: [
       {

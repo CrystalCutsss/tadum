@@ -12,6 +12,7 @@ export const dualActive: PersonaFixture = (now) => {
   return {
     persona_id: 'dual_active',
     phone: phone(13),
+    user: { name: 'Nasser Al-Rashid', name_ar: 'ناصر الراشد' },
     company: { id: 'cmp_da', name: 'Jood Home Appliances', name_ar: 'جود للأجهزة المنزلية', cr_number: '1010000013' },
     applications: [
       {

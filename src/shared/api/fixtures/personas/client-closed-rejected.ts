@@ -9,6 +9,7 @@ export const clientClosedRejected: PersonaFixture = (now) => {
   return {
     persona_id: 'client_closed_rejected',
     phone: phone(9),
+    user: { name: 'Majed Al-Anazi', name_ar: 'ماجد العنزي' },
     company: { id: 'cmp_ccr', name: 'Wadi Hanifa Contracting', name_ar: 'وادي حنيفة للمقاولات', cr_number: '1010000009' },
     applications: [
       {

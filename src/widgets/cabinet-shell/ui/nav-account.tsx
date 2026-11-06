@@ -36,7 +36,7 @@ import { settingsOf } from '../model/nav';
 
 export interface NavAccountProps {
   family: Family;
-  /** Имя и фамилия; null — в контракте имени ещё нет (A-055), показываем номер. */
+  /** Имя и фамилия (Session.display_name); null — имени нет, показываем номер. */
   name: string | null;
   phone: string | null;
   /** Компания клиента или поставщик — заголовок меню. */

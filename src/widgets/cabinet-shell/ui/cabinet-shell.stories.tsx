@@ -36,6 +36,8 @@ export const Client: Story = {
     await expect(within(nav).getByRole('link', { name: tr('nav.home') })).toHaveAttribute('data-active', 'true');
     await expect(within(nav).getByRole('link', { name: tr('nav.documents') })).toBeVisible();
     await expect(within(canvas.getByRole('navigation', { name: tr('nav.breadcrumb') })).getByText(tr('nav.home'))).toBeVisible();
+    // Аккаунт: имя и фамилия из сессии (по-арабски в ar, A-055) и роль подстрочником.
+    await waitFor(async () => expect(await account(canvasElement)).toHaveTextContent(/عمر الزهراني|Omar Al-Zahrani/));
     await expect(await account(canvasElement)).toHaveTextContent(tr('role.client'));
   },
 };

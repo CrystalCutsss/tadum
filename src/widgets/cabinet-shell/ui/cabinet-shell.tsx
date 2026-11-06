@@ -52,6 +52,8 @@ export function CabinetShell({ family, children, languageSwitch, support }: Cabi
       ? (i18n.language === 'ar' ? company.data?.name_ar : undefined) ?? company.data?.name ?? null
       : supplier.data?.name ?? null;
   const phone = session.data?.phone ? displayPhone(session.data.phone) : null;
+  // Имя и фамилия из сессии (A-055): по-арабски — если есть; нет имени — аккаунт показывает номер.
+  const name = (i18n.language === 'ar' ? session.data?.display_name_ar : undefined) ?? session.data?.display_name ?? null;
 
   return (
     <SidebarProvider
@@ -64,8 +66,7 @@ export function CabinetShell({ family, children, languageSwitch, support }: Cabi
       <AppSidebar
         family={family}
         support={support}
-        // Имени в контракте сессии пока нет (A-055) — показываем номер.
-        account={<NavAccount family={family} name={null} phone={phone} contextName={contextName} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
+        account={<NavAccount family={family} name={name} phone={phone} contextName={contextName} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
       />
       <SidebarInset className="min-w-0 text-foreground">
         <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} />

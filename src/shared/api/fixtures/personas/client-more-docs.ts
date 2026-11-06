@@ -12,6 +12,7 @@ export const clientMoreDocs: PersonaFixture = (now) => {
   return {
     persona_id: 'client_more_docs',
     phone: phone(5),
+    user: { name: 'Khalid Al-Mutairi', name_ar: 'خالد المطيري' },
     company: { id: 'cmp_cm', name: 'Sahab Electronics', name_ar: 'سحاب للإلكترونيات', cr_number: '1010000005' },
     applications: [
       {

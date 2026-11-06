@@ -11,6 +11,7 @@ export const clientPartial: PersonaFixture = (now) => {
   return {
     persona_id: 'client_partial',
     phone: phone(2),
+    user: { name: 'Noura Al-Qahtani', name_ar: 'نورة القحطاني' },
     company: { id: 'cmp_cp', name: 'Nakheel Valley Foods', name_ar: 'وادي النخيل للأغذية', cr_number: '1010000002' },
     applications: [
       {

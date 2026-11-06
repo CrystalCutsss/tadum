@@ -163,7 +163,7 @@
     "upload_documents_other": "Upload {count} documents to continue"
   },
   "notfound": {
-    "home": "Go to home",
+    "home": "Go to dashboard",
     "title": "This page doesn't exist"
   },
   "relative": {

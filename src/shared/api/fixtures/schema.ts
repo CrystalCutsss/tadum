@@ -16,6 +16,7 @@ import { PERSONA_IDS } from './types';
 export const PersonaGraphSchema = z.object({
   persona_id: z.enum(PERSONA_IDS),
   phone: z.string().regex(/^\+9665000\d{5}$/),
+  user: z.object({ name: z.string(), name_ar: z.string().optional() }).optional(),
   company: CompanySchema.nullable(),
   applications: z.array(ApplicationSchema),
   leads: z.array(
