@@ -12,7 +12,7 @@
     --font-heading: var(--font-family-base);
     --font-sans: var(--font-family-base);
     --font-wordmark: var(--font-family-wordmark);
-    /* Tadum: статусы, прогресс лимита, тени, движение. */
+    /* Tadum: статусы, прогресс лимита, WhatsApp, тени, движение. */
     --color-status-pending: var(--status-pending);
     --color-status-pending-foreground: var(--status-pending-foreground);
     --color-status-pending-muted: var(--status-pending-muted);
@@ -27,6 +27,8 @@
     --color-status-approved-muted: var(--status-approved-muted);
     --color-limit-track: var(--limit-track);
     --color-limit-fill: var(--limit-fill);
+    --color-whatsapp: var(--whatsapp);
+    --color-whatsapp-foreground: var(--whatsapp-foreground);
     --shadow-sm: var(--elevation-sm);
     --shadow-md: var(--elevation-md);
     --duration-fast: var(--motion-fast);

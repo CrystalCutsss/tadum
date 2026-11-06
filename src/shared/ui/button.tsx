@@ -18,6 +18,9 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+        // Tadum (2026-11-06): кнопка WhatsApp — токены --whatsapp / --whatsapp-foreground (контраст 9.94:1).
+        whatsapp:
+          "bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90",
       },
       size: {
         default:

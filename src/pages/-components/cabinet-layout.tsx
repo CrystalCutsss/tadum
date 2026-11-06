@@ -1,24 +1,16 @@
-// Сборка оболочки кабинета: виджеты не импортируют друг друга, поэтому переключатели и SupportBar
-// подставляются здесь, на уровне pages.
-import { useRouter, useRouterState } from '@tanstack/react-router';
+// Сборка оболочки кабинета: виджеты не импортируют друг друга, поэтому переключатель языка и блок помощи
+// подставляются здесь, на уровне pages. Блок помощи живёт в сайдбаре на всех экранах кабинета.
+import { useRouter } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 
 import type { Family } from '@/shared/config';
 import { CabinetShell, LoadError } from '@/widgets/cabinet-shell';
 import { LanguageSwitch } from '@/widgets/language-switch';
-import { RoleSwitch } from '@/widgets/role-switch';
-import { SupportBar } from '@/widgets/support-bar';
+import { SupportBar, SupportCard } from '@/widgets/support-bar';
 
-export function CabinetLayout({ family, children, support = true }: { family: Family; children: ReactNode; support?: boolean }) {
-  // Помощь и главная клиента показывают свой SupportBar (раздел контактов, готовый текст по статусу).
-  const ownSupport = useRouterState({ select: (s) => s.location.pathname.endsWith('/help') || s.location.pathname === '/c/home' });
+export function CabinetLayout({ family, children }: { family: Family; children: ReactNode }) {
   return (
-    <CabinetShell
-      family={family}
-      languageSwitch={<LanguageSwitch />}
-      renderRoleSwitch={(current) => <RoleSwitch current={current} />}
-      support={support && !ownSupport ? <SupportBar /> : null}
-    >
+    <CabinetShell family={family} languageSwitch={<LanguageSwitch />} support={<SupportCard />}>
       {children}
     </CabinetShell>
   );
@@ -27,7 +19,7 @@ export function CabinetLayout({ family, children, support = true }: { family: Fa
 export function CabinetRouteError({ family }: { family: Family }) {
   const router = useRouter();
   return (
-    <CabinetLayout family={family} support={false}>
+    <CabinetLayout family={family}>
       <LoadError onRetry={() => void router.invalidate()} support={<SupportBar context="error" />} />
     </CabinetLayout>
   );

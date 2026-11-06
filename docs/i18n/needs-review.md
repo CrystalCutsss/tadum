@@ -28,3 +28,11 @@
 | `next_step.reupload_rejected_*`, `.upload_documents_*`, `.more_docs_requested_*`, `.supplier.reupload_rejected_*`, `home.documents_summary_*`, `next_step.under_review_eta_*`, `.supplier.under_review_eta_*` | ar, en | все 6 арабских форм (`one` — «مستند واحد…», `two` — «مستندان/مستندين…», `few` — «{count} مستندات…», `many` — «{count} مستندًا…», `zero`/`other` — «{count} مستند…»; для часов — «ساعة واحدة / ساعتين / {hours} ساعات / {hours} ساعة»); en `one`/`other` | в сценариях одна форма |
 | `status.changed_banner_dismiss` | ar, en | Got it / حسنًا — ключ SC-05 `status.changed_banner.dismiss` переименован: строка `status.changed_banner` не может одновременно быть объектом | конфликт ключей i18next |
 | `demo.*` | ar, en | подписи демо-панели (персона, сеть, действия, лента событий) | служебный инструмент витрины; в продовую сборку не попадает |
+| `nav.home` | ar, en | Dashboard / لوحة التحكم (было Home / الرئيسية) | решение Кирилла 2026-11-06: новый каркас с сайдбаром; в `01-cabinet-structure.md` §2 пункт назван по-русски. Альтернатива для ar — «لوحة المعلومات» |
+| `nav.settings` | ar, en | Settings / الإعدادات | пункт меню аккаунта, ведёт на экран `help.title`; в документах не задан |
+| `nav.toggle_sidebar` | ar, en | Show or hide menu / إظهار القائمة أو إخفاؤها | aria-label кнопки сайдбара (desktop — скрыть/показать, телефон — открыть шторку) |
+| `nav.account` | ar, en | Account / الحساب | aria-label кнопки меню аккаунта |
+| `nav.switch_role` | ar, en | Switch role / تبديل الدور | подпись группы «Клиент / Поставщик» в меню аккаунта; «الدور» — проверить естественность для KSA B2B (альтернатива — «التبديل إلى حساب») |
+| `nav.breadcrumb` | ar, en | Breadcrumb / مسار التنقل | aria-label `<nav>` хлебных крошек; en по WAI-ARIA APG, ar — общепринятый термин |
+| `nav.mobile_title` | ar, en | Menu / القائمة | заголовок шторки меню на телефоне (только для скринридера) |
+| `nav.mobile_description` | ar, en | Main menu and account / القائمة الرئيسية والحساب | описание шторки для скринридера |

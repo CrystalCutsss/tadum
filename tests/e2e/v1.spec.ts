@@ -1,6 +1,6 @@
 // Сценарии v1 (мастер-промпт 6d п.2): вход, персоны, роли dual, поставщик, неизвестный номер, истечение сессии.
 // @smoke — входят в test:e2e:smoke (android-chrome, в verify).
-import { asPersona, enterCode, expect, signIn, test, tr } from './fixtures';
+import { asPersona, enterCode, expect, openAccountMenu, signIn, test, tr } from './fixtures';
 
 const timeline = (lang: 'ar' | 'en') => ({ name: tr(lang, 'timeline.title') });
 
@@ -38,9 +38,9 @@ test('@smoke dual_active → /c/home → переключатель → /s/home 
   await page.emulateMedia({ colorScheme: 'dark' });
   await asPersona(page, 'dual_active', 'en');
   await expect(page).toHaveURL(/\/c\/home/);
-  // Подсказка dual показывается один раз — закрываем.
-  await page.getByRole('button', { name: tr('en', 'role.hint_dismiss') }).click();
-  await page.getByRole('radio', { name: tr('en', 'role.supplier') }).click();
+  // Переключение ролей — в меню аккаунта внизу сайдбара; подсказка dual показывается один раз — закрываем.
+  await openAccountMenu(page, 'en', { dismissHint: true });
+  await page.getByRole('menuitemradio', { name: tr('en', 'role.supplier') }).click();
   await expect(page).toHaveURL(/\/s\/home/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('html')).toHaveClass(/dark/);
@@ -57,7 +57,9 @@ test('?persona= через дефис (меню просмотрщика Proto) 
 test('@smoke supplier_active → /s/home', async ({ page }) => {
   await asPersona(page, 'supplier_active');
   await expect(page).toHaveURL(/\/s\/home/);
-  await expect(page.getByText('Bayt Al Khayr Wholesale')).toBeVisible();
+  // Название поставщика — в заголовке меню аккаунта (сайдбар, решение Кирилла 2026-11-06).
+  await openAccountMenu(page, 'en');
+  await expect(page.getByRole('menu').getByText('Bayt Al Khayr Wholesale')).toBeVisible();
 });
 
 test('@smoke unknown_phone → /not-found без сессии', async ({ page }) => {
@@ -99,7 +101,8 @@ test('A14: диплинк /c/documents?lang=en без сессии → /login �
 test('SC-10: выход и «Назад» не показывают данные', async ({ page }) => {
   await asPersona(page, 'client_active', 'en');
   await expect(page).toHaveURL(/\/c\/home/);
-  await page.getByRole('navigation', { name: tr('en', 'nav.main') }).first().getByRole('link', { name: tr('en', 'nav.help') }).click();
+  await openAccountMenu(page, 'en');
+  await page.getByRole('menuitem', { name: tr('en', 'nav.settings') }).click();
   await expect(page).toHaveURL(/\/c\/help/);
   await page.getByRole('main').getByRole('button', { name: tr('en', 'help.logout') }).click();
   await page.getByRole('dialog').getByRole('button', { name: tr('en', 'help.logout') }).click();

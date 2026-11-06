@@ -21,6 +21,7 @@ import { Route as CHomeRouteImport } from './../pages/c/home'
 import { Route as LoginIndexRouteImport } from './../pages/login/index'
 import { Route as LoginCodeRouteImport } from './../pages/login/code'
 import { Route as SIndexRouteImport } from './../pages/s/index'
+import { Route as SDocumentsRouteImport } from './../pages/s/documents'
 import { Route as SHelpRouteImport } from './../pages/s/help'
 import { Route as SHomeRouteImport } from './../pages/s/home'
 
@@ -84,6 +85,11 @@ const SIndexRoute = SIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SRouteRoute,
 } as any)
+const SDocumentsRoute = SDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => SRouteRoute,
+} as any)
 const SHelpRoute = SHelpRouteImport.update({
   id: '/help',
   path: '/help',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
   '/login/code': typeof LoginCodeRoute
+  '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
   '/s/home': typeof SHomeRoute
   '/c/': typeof CIndexRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
   '/login/code': typeof LoginCodeRoute
+  '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
   '/s/home': typeof SHomeRoute
   '/c': typeof CIndexRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
   '/login/code': typeof LoginCodeRoute
+  '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
   '/s/home': typeof SHomeRoute
   '/c/': typeof CIndexRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/c/help'
     | '/c/home'
     | '/login/code'
+    | '/s/documents'
     | '/s/help'
     | '/s/home'
     | '/c/'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/c/help'
     | '/c/home'
     | '/login/code'
+    | '/s/documents'
     | '/s/help'
     | '/s/home'
     | '/c'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/c/help'
     | '/c/home'
     | '/login/code'
+    | '/s/documents'
     | '/s/help'
     | '/s/home'
     | '/c/'
@@ -287,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SIndexRouteImport
       parentRoute: typeof SRouteRoute
     }
+    '/s/documents': {
+      id: '/s/documents'
+      path: '/documents'
+      fullPath: '/s/documents'
+      preLoaderRoute: typeof SDocumentsRouteImport
+      parentRoute: typeof SRouteRoute
+    }
     '/s/help': {
       id: '/s/help'
       path: '/help'
@@ -322,12 +341,14 @@ const CRouteRouteWithChildren =
   CRouteRoute._addFileChildren(CRouteRouteChildren)
 
 interface SRouteRouteChildren {
+  SDocumentsRoute: typeof SDocumentsRoute
   SHelpRoute: typeof SHelpRoute
   SHomeRoute: typeof SHomeRoute
   SIndexRoute: typeof SIndexRoute
 }
 
 const SRouteRouteChildren: SRouteRouteChildren = {
+  SDocumentsRoute: SDocumentsRoute,
   SHelpRoute: SHelpRoute,
   SHomeRoute: SHomeRoute,
   SIndexRoute: SIndexRoute,

@@ -12,13 +12,14 @@ import {
   RiLogoutBoxRLine,
   RiSendPlane2Line,
   RiSendPlaneLine,
+  RiSideBarLine,
   type RemixiconComponentType,
 } from '@remixicon/react';
 import { cn } from 'cn';
 import type { ComponentProps } from 'react';
 
 // Обёртка над Remix Icon (библиотека иконок пресета shadcn, D-077).
-// В RTL зеркалится только иконка из списка mirroredIcons: стрелки, шевроны, «назад», «далее», вход/выход, отправка.
+// В RTL зеркалится только иконка из списка mirroredIcons: стрелки, шевроны, «назад», «далее», вход/выход, отправка, панель сбоку.
 // Нейтральные — часы, телефон, документ, галочка, крестик, лупа, play, QR — не зеркалятся (01-nfr-locale-brand.md §1.2).
 export const mirroredIcons: ReadonlySet<RemixiconComponentType> = new Set([
   RiArrowLeftLine,
@@ -34,6 +35,8 @@ export const mirroredIcons: ReadonlySet<RemixiconComponentType> = new Set([
   RiLogoutBoxRLine,
   RiSendPlaneLine,
   RiSendPlane2Line,
+  // Панель сбоку: сайдбар встаёт на сторону start, иконка показывает ту же сторону.
+  RiSideBarLine,
 ]);
 
 export function isMirrored(icon: RemixiconComponentType): boolean {

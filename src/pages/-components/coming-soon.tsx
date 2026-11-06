@@ -1,4 +1,4 @@
-// Заглушка раздела следующей версии (D-067): /c/documents — v2, /s/home и /s/help — v3.
+// Заглушка раздела следующей версии (D-067): /c/documents — v2, /s/home и /s/documents — v3.
 import { useTranslation } from 'react-i18next';
 
 export function ComingSoon() {

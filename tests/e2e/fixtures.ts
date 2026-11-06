@@ -55,6 +55,22 @@ export async function asPersona(page: Page, persona: string, lang: Lang = 'en', 
   await page.goto(`${path}?persona=${persona}&lang=${lang}`);
 }
 
+/** Сайдбар: на телефоне — шторка по кнопке в шапке, на десктопе виден сразу (решение Кирилла 2026-11-06). */
+export async function openSidebar(page: Page, lang: Lang) {
+  const account = page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
+  if (await account.isVisible()) return;
+  await page.getByRole('button', { name: tr(lang, 'nav.toggle_sidebar') }).click();
+  await account.waitFor();
+}
+
+/** Подсказку dual (один раз) закрыть, если она видна, и открыть меню аккаунта. */
+export async function openAccountMenu(page: Page, lang: Lang, { dismissHint = false } = {}) {
+  await openSidebar(page, lang);
+  if (dismissHint) await page.getByRole('button', { name: tr(lang, 'role.hint_dismiss') }).click();
+  await page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) }).click();
+  await page.getByRole('menu').waitFor();
+}
+
 /** axe без нарушений; правила WCAG 2.2 AA (01-nfr-locale-brand.md). */
 export async function expectNoA11yViolations(page: Page) {
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();

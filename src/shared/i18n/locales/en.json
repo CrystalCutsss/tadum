@@ -108,14 +108,21 @@
     "switch_to_en": "English"
   },
   "nav": {
+    "account": "Account",
+    "breadcrumb": "Breadcrumb",
     "clients": "Clients",
     "documents": "Documents",
     "help": "Help",
-    "home": "Home",
+    "home": "Dashboard",
     "main": "Main menu",
+    "mobile_description": "Main menu and account",
+    "mobile_title": "Menu",
     "more": "More",
     "offer": "Terms",
-    "referral": "Link"
+    "referral": "Link",
+    "settings": "Settings",
+    "switch_role": "Switch role",
+    "toggle_sidebar": "Show or hide menu"
   },
   "next_step": {
     "closed": "This application is closed",

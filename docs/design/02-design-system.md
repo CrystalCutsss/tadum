@@ -1,6 +1,6 @@
 # 02 · Дизайн-система Tadum
 
-**Статус:** блок 4a, 2026-11-05 · **Основа:** пресет shadcn Кирилла (D-077), ADR-002 · **Копия:** Google Drive `Tadum/02 Дизайн-система и бренд`.
+**Статус:** блок 4a, 2026-11-05; каркас кабинета — 2026-11-06 · **Основа:** пресет shadcn Кирилла (D-077), ADR-002 · **Копия:** Google Drive `Tadum/02 Дизайн-система и бренд`.
 
 ## 1. Пресет
 
@@ -36,6 +36,8 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 `components.json`: стиль `radix-maia`, `rtl: true`, алиасы `ui`/`components` → `@/shared/ui`, `utils` → `@/shared/lib/utils`, `lib` → `@/shared/lib`, `tailwind.css` → `src/styles/globals.css`. Компоненты (20 шт.) добавлены CLI в `src/shared/ui`.
 
+2026-11-06 (каркас кабинета на блоке `sidebar-08`, решение Кирилла): `pnpm dlx shadcn@4.23.0 add sidebar breadcrumb -y` — новые `sidebar.tsx`, `breadcrumb.tsx`, хук `src/shared/lib/hooks/use-mobile.ts` (алиас `hooks`; экспорт `useIsMobile` из `@/shared/lib`). Перезапись `sheet.tsx` CLI предложил и получил отказ — проектные правки Sheet (i18n кнопки закрытия, исключение RTL) сохранены; `button`, `separator`, `tooltip`, `input`, `skeleton` совпали побайтно. Итого компонентов CLI — 22.
+
 ## 2. Файлы стилей
 
 | Файл | Что в нём |
@@ -61,13 +63,15 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `--status-*-foreground` | светлые ступени пресета (`--primary-foreground`, `--sidebar`) | `--foreground` светлой темы (0.148) | текст на заливке статуса |
 | `--limit-track` | = `--border` (0.925 0.005 214.3) | = `--muted` тёмной темы | нейтральная ступень пресета |
 | `--limit-fill` | `var(--primary)` | `var(--sidebar-primary)` | синий пресета; в тёмной — более светлый синий пресета, иначе 2.0:1 к дорожке |
+| `--whatsapp` | oklch(0.761 0.201 149.7) | = светлой | фирменный зелёный WhatsApp `#25D366` в oklch; цвет бренда одинаков в обеих темах (решение Кирилла 2026-11-06) |
+| `--whatsapp-foreground` | = `--foreground` пресета (0.148 0.004 228.8) | = светлой | белый на `#25D366` — 1.98:1 (не AA), поэтому текст тёмный: 9.94:1 |
 | `--elevation-sm/md` | тени с цветом `--foreground` 6 % и 8 % | `none` (в тёмной теме — границы) | §3.3 |
 | `--motion-fast/base/slow` | 120 / 200 / 320 ms | — | §3.3; при `prefers-reduced-motion` — 0ms |
 | `--ease-standard` | cubic-bezier(0.2, 0, 0, 1) | — | §3.3 |
 
 Сопоставление со статусами: документы `needed`→`pending`, `uploaded`→`received`, `needs a new file`→`rejected`, `accepted`→`approved`; шкала и чек-лист: `needs_attention`/`failed` = `rejected`; `supplier_view`: `applied`/`collecting_docs`→`pending`, `under_review`→`received`, `approved`/`first_purchase`→`approved`, `closed` → нейтральный `muted` (не `rejected`). Компонент — `StatusBadge` (иконка + текст + цвет).
 
-Классы Tailwind: `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
+Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
 
 ## 4. Контраст (WCAG 2.2 AA)
 
@@ -79,6 +83,9 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `-foreground` на заливке статуса, мин. | 6.12 | 9.83 |
 | статус на `--background` / `--card`, мин. | 6.40 | 8.66 |
 | `--limit-fill` против `--limit-track` (нужно ≥ 3) | 5.48 | 3.98 |
+| `--whatsapp-foreground` на `--whatsapp` (с 2026-11-06) | 9.94 | 9.94 |
+
+Кнопка WhatsApp на hover (`bg-whatsapp/90`) — не ниже 8.4:1 на любом фоне пресета. Сама заливка против светлого фона — 1.9:1: граница кнопки не несёт смысла (у кнопки есть текст и иконка), 1.4.11 не требуется.
 
 Дополнительно истории Storybook проверяются axe (`@storybook/addon-a11y`, режим `error`) в тестах `pnpm test:stories`.
 
@@ -95,9 +102,32 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 Истории `Button/Destructive` и `Alert/Destructive` помечены `a11y: { test: 'todo' }`: замечание видно в Storybook, тесты не падают. Остальное в пресете проходит AA. Агенты не правят контраст без нового решения Кирилла.
 
+## 4a. Компоненты кабинета (2026-11-06)
+
+Каркас кабинета — блок shadcn `sidebar-08` (`variant="inset"`: фон `--sidebar`, контент в контейнере с обводкой; на мобильных — Sheet по кнопке). Блок и виджет собирает `src/widgets/cabinet-shell`; в `shared/ui` — только примитивы. Токены `--sidebar*` пресета уже были, не менялись (A-019).
+
+**Sidebar** (`sidebar.tsx`), адаптация Tadum:
+
+| Что | Как |
+| :--- | :--- |
+| Cookie `sidebar_state` | Запись убрана (D-072: хранилище только через `storage.ts`). Сохранение — у владельца: контролируемые `open` / `onOpenChange` у `SidebarProvider` (история `ControlledOpen`) |
+| Сторона | `Sidebar side` — `"start"` по умолчанию (`"end"`, `"left"`, `"right"` — тоже). Физическая сторона вычисляется из `Direction.useDirection()` Radix: в RTL справа, в LTR слева; мобильный Sheet — с той же стороны и с `dir` направления. Подсказки свёрнутого меню (`SidebarMenuButton tooltip`) — со стороны end. Внутри компонента классы `left-/right-` осознанно физические (сторона уже физическая) — с `eslint-disable` и причиной |
+| `SidebarRail` | Классы CLI смешивали физические и `rtl:`-инверсии — для правого сайдбара в RTL полоса вставала не туда; приведены к физическим по `data-side` |
+| Строки | Нет хардкода: `Sidebar mobileTitle` (обязателен) и `mobileDescription` (необязателен; без него у Sheet нет `aria-describedby`), `SidebarTrigger aria-label` (обязателен; `children` заменяют иконку), `SidebarRail aria-label` (обязателен, дублируется в `title`) |
+| Иконка | Триггер — `Icon` с `RiSideBarLine`; иконка добавлена в `mirroredIcons` (показывает сторону панели) |
+| Ограничение | Отступ `SidebarInset` для `inset` рассчитан на сайдбар со стороны start (`ms-0`), как в пресете |
+
+**Breadcrumb** (`breadcrumb.tsx`): `aria-label` у `Breadcrumb` обязателен (строка из i18n); разделитель-шеврон — через `Icon` (зеркалится в RTL); у `BreadcrumbEllipsis` убран `sr-only` «More» (элемент `aria-hidden`, доступное имя даёт кнопка-обёртка).
+
+**Button** — вариант `whatsapp` (`bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90`), фокус и размеры — общие пресета. Использование: `<Button variant="whatsapp" asChild><a …><Icon icon={RiWhatsappFill} />…</a></Button>`. Повторный `shadcn add button` покажет этот вариант как отличие — не перезаписывать.
+
+**Wordmark** — вариант `variant="dot"` (решение Кирилла 2026-11-06, логотип сайдбара): «tadum» строчными, Geist bold (700), в конце точка `text-primary`. Строчные — через CSS `lowercase`, поэтому доступный текст остаётся «Tadum»; точка `aria-hidden`. Вид по умолчанию (D-052, экраны входа) не изменён. Замечание: в тёмной теме `--primary` на `--sidebar` — 1.96:1, точка видна слабо; она декоративная (AA не требуется), смена цвета — по решению Кирилла.
+
+Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
+
 ## 5. Шрифты
 
-Латиница — Geist из пресета (совпадает с D-004), арабский — всегда IBM Plex Sans Arabic. Фактические имена семейств пакетов: `"Geist Variable"` и `"IBM Plex Sans Arabic"` (A-016). `:lang(ar)` — интерлиньяж тела 1.625, заголовков 1.3. Словесный знак `Wordmark` — всегда Geist 600 латиницей «Tadum» (D-052). Тест истории `shared/ui/Typography/Fonts` проверяет `document.fonts.check` для обоих семейств и что арабский текст не падает в системный шрифт.
+Латиница — Geist из пресета (совпадает с D-004), арабский — всегда IBM Plex Sans Arabic. Фактические имена семейств пакетов: `"Geist Variable"` и `"IBM Plex Sans Arabic"` (A-016). `:lang(ar)` — интерлиньяж тела 1.625, заголовков 1.3. Словесный знак `Wordmark` — всегда Geist латиницей: по умолчанию 600 «Tadum» (D-052), в сайдбаре — `variant="dot"`, 700 «tadum.» (§4a). Тест истории `shared/ui/Typography/Fonts` проверяет `document.fonts.check` для обоих семейств и что арабский текст не падает в системный шрифт.
 
 ## 6. Иконки
 
@@ -109,7 +139,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 ## 8. Запрет сырых значений
 
-- ESLint (`no-restricted-syntax`): в `className` — hex, `rgb()/hsl()/oklch()`, `px`, `ms`, произвольные значения `[..]`; в `style` — цвета, px, мс и числа. Не применяется к 20 файлам shadcn, которые записал CLI (классы — часть пресета).
+- ESLint (`no-restricted-syntax`): в `className` — hex, `rgb()/hsl()/oklch()`, `px`, `ms`, произвольные значения `[..]`; в `style` — цвета, px, мс и числа. Не применяется к 22 файлам shadcn, которые записал CLI (классы — часть пресета).
 - ESLint `rtl-friendly/no-physical-properties`: только логические классы.
 - Stylelint: hex и цветовые функции запрещены во всех CSS, кроме `tokens.css`.
 

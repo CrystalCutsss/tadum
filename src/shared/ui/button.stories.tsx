@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { RiArrowRightLine, RiRefreshLine } from '@remixicon/react';
+import { RiArrowRightLine, RiRefreshLine, RiWhatsappFill } from '@remixicon/react';
+import { expect } from 'storybook/test';
 
+import { matrix } from '../../../.storybook/decorators';
 import { T } from '../../../.storybook/t';
 
 import { Icon } from './icon/icon';
@@ -63,4 +65,20 @@ export const Disabled: Story = {
       <T k="common.retry" />
     </Button>
   ),
+};
+// Кнопка WhatsApp (токены --whatsapp / --whatsapp-foreground, 9.94:1) — ссылкой через asChild, в матрице AR/EN × light/dark.
+export const Whatsapp: Story = {
+  ...matrix,
+  render: () => (
+    <Button variant="whatsapp" asChild>
+      <a href="https://wa.me/" target="_blank" rel="noreferrer">
+        <Icon icon={RiWhatsappFill} />
+        <T k="support.whatsapp" />
+      </a>
+    </Button>
+  ),
+  play: async ({ canvasElement }) => {
+    const link = canvasElement.querySelector('a[data-variant="whatsapp"]');
+    await expect(link).not.toBeNull();
+  },
 };

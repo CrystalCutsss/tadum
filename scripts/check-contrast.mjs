@@ -71,6 +71,7 @@ export const REQUIRED = [
     { fg: `--status-${s}`, bg: '--card', min: 4.5, what: 'статус на карточке' },
   ]),
   { fg: '--limit-fill', bg: '--limit-track', min: 3, what: 'заполнение лимита против дорожки (1.4.11)' },
+  { fg: '--whatsapp-foreground', bg: '--whatsapp', min: 4.5, what: 'текст кнопки WhatsApp на её заливке' },
   { fg: '--limit-track', bg: '--card', min: 1, what: 'дорожка видна на карточке (информативно)' },
 ];
 
