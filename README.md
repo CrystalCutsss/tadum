@@ -90,6 +90,7 @@ pnpm dev
 | `pnpm screenshots:update` | то же внутри docker-образа Playwright (нужен Docker) |
 | `pnpm size` / `pnpm lhci` | бюджеты размера / Lighthouse CI (нужна сборка) |
 | `pnpm deploy:preview` | сборка и `wrangler deploy` превью-воркера (обычно делает CI) |
+| `pnpm deploy:branch <ветка> [--delete]` | сборка и `wrangler preview` — превью ветки (делает CI) |
 | `pnpm release:proto vN` | публикация версии на витрину Proto (блок 9) |
 
 `pnpm verify` = typecheck, lint, `lint:rtl`, `lint:gitlab-ci`, `deps:check`, knip, jscpd, `lint:i18n`, `check:events`, `contract:md --check`, `check:contrast`, `check:docs`, unit-тесты, сборка Storybook и истории, сборка, проверка первого чанка, e2e smoke, проверка, что демо-код не попадает в прод-сборку. Занимает несколько минут.
@@ -118,7 +119,7 @@ VITE_BASE_PATH=/p/tadum/v1/ pnpm build
 
 - `.github/workflows/ci.yml` и зеркальный `.gitlab-ci.yml`: install → typecheck → lint → test → build → e2e (+ axe, скриншоты-артефакты) → size, плюс commitlint и changeset в PR, `pnpm audit`, gitleaks. Итоговый job `ci` — обязательная проверка.
 - `lighthouse.yml` — Lighthouse CI на `main` и по ночам (в v1 только отчёт).
-- `deploy-preview.yml` — каждый push в `main` выкладывает превью-воркер `tadum`. Нужны секреты репозитория `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID`; без них деплой пропускается.
+- `deploy-preview.yml` — каждый push в `main` выкладывает превью-воркер `tadum`. Push в любую другую ветку и открытие PR выкладывают **превью ветки** на свой адрес `https://<ветка>-tadum.kirillgloba.workers.dev` (`/` и `_` в имени ветки становятся `-`): ссылка — комментарием в PR и в сводке запуска Actions, прод не меняется; удаление ветки удаляет превью. Нужны секреты репозитория `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID`; без них деплой пропускается.
 
 ## Частые проблемы
 

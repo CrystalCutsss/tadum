@@ -4,6 +4,6 @@
 
 - **Секреты ставит только Кирилл** (D-068). Агент никогда не выполняет `wrangler secret …`, `gh secret …`, не читает и не записывает значения паролей и токенов, не кладёт их в файлы, `.env*`, переменные `VITE_*`, логи и сообщения. Нужен секрет — сказать, где и как его поставить (секреты репозитория GitHub, дашборд Cloudflare), и ждать подтверждения.
 - **Общие ресурсы — только после явного «да»** (D-069), с показанным diff или dry-run: push в `main` Proto, деплой Proto, деплой превью-воркера вне CI, merge в `main` Tadum. Merge делает Кирилл.
-- Превью `tadum` деплоит CI из `main` (секреты `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` в репозитории); вручную `wrangler deploy` не запускать.
+- Превью `tadum` деплоит CI из `main` (секреты `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` в репозитории); вручную `wrangler deploy` не запускать. Превью веток (`https://<ветка>-tadum.kirillgloba.workers.dev`) выкладывает тот же CI при push в ветку — `wrangler preview` вручную тоже не запускать.
 - Публикация версии на витрину — только `pnpm run release:proto vN` (скилл `/release-proto`), со всеми остановками скрипта.
 - Proto — чужой репозиторий с другими прототипами: его `main`, `registry.json` и секрет `PROTOTYPE_PASSWORDS` трогать только в рамках `/release-proto`.

@@ -11,4 +11,5 @@
 ## Уточнения (блок 7a, 2026-11-05)
 
 - **Превью-воркер `tadum`** (D-063) — https://tadum.kirillgloba.workers.dev, без пароля, `X-Robots-Tag: noindex`. Деплоится только из CI (`.github/workflows/deploy-preview.yml`, job `deploy-preview` в GitLab) при push в `main`; токен Cloudflare хранится только в секретах репозитория `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID`, в облачную сессию Claude он не попадает (решение Кирилла, `docs/setup/progress.md`). Первый деплой выполнен вручную (workflow_dispatch) после показанного dry-run.
+- **Превью веток** (A-053, решение Кирилла 2026-11-06) — тот же воркер `tadum`, Cloudflare Worker Previews (`wrangler preview`): push в любую ветку, кроме `main`, и открытие PR выкладывают ветку на `https://<ветка>-tadum.kirillgloba.workers.dev`, ссылка — комментарием в PR; прод не меняется, удаление ветки удаляет превью. Тоже только из CI, с теми же секретами, без пароля, `noindex`, данные — мок. Промежуточные правки смотрят здесь; витрина Proto — только для замороженных версий vN.
 - `scripts/release-proto.mjs` до блока 9 — заглушка с понятной ошибкой.

@@ -33,6 +33,7 @@
     "ask": [
       "Bash(pnpm run release:proto*)",
       "Bash(pnpm run deploy:preview*)",
+      "Bash(pnpm run deploy:branch*)",
       "Bash(gh pr merge*)",
       "Bash(gh api *)",
       "Bash(git -C * push*)",

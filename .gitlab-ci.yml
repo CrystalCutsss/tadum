@@ -209,3 +209,33 @@ deploy-preview:
   interruptible: false
   script:
     - pnpm run deploy:preview
+
+# Превью ветки (A-053) — зеркало job branch-preview в deploy-preview.yml: на каждый пайплайн MR,
+# адрес https://<ветка>-tadum.<subdomain>.workers.dev; прод не меняется. Переменные Cloudflare для MR-пайплайнов
+# не должны быть Protected (или ветки MR — защищёнными), иначе job пропускается (docs/05-migration-to-gitlab.md).
+deploy-branch:
+  stage: ci
+  extends: .node
+  needs: [install]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CLOUDFLARE_API_TOKEN && $CLOUDFLARE_ACCOUNT_ID
+  resource_group: deploy-branch-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+  environment:
+    name: preview/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    on_stop: deploy-branch-stop
+  script:
+    - pnpm run deploy:branch "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+
+deploy-branch-stop:
+  stage: ci
+  extends: .node
+  needs: [deploy-branch]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CLOUDFLARE_API_TOKEN && $CLOUDFLARE_ACCOUNT_ID
+      when: manual
+      allow_failure: true
+  environment:
+    name: preview/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    action: stop
+  script:
+    - pnpm run deploy:branch "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" --delete
