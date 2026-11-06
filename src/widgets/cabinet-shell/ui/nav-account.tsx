@@ -134,7 +134,7 @@ export function NavAccount({ family, name, phone, dual, hint }: NavAccountProps)
                     {t('nav.settings')}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setLogoutOpen(true)}>
+                <DropdownMenuItem variant="destructive" onSelect={() => setLogoutOpen(true)}>
                   <Icon icon={RiLogoutBoxRLine} />
                   {t('help.logout')}
                 </DropdownMenuItem>
