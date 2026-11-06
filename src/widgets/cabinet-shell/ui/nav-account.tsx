@@ -124,11 +124,11 @@ export function NavAccount({ family, name, nameLoading, phone, dual, hint }: Nav
                       }}
                     >
                       <DropdownMenuRadioItem value="client">
-                        <Icon icon={RiUser3Line} />
+                        <Icon icon={RiUser3Line} className="size-4" />
                         {t('role.client')}
                       </DropdownMenuRadioItem>
                       <DropdownMenuRadioItem value="supplier">
-                        <Icon icon={RiStore2Line} />
+                        <Icon icon={RiStore2Line} className="size-4" />
                         {t('role.supplier')}
                       </DropdownMenuRadioItem>
                     </DropdownMenuRadioGroup>
@@ -139,12 +139,12 @@ export function NavAccount({ family, name, nameLoading, phone, dual, hint }: Nav
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
                   <Link to={settingsOf(family)}>
-                    <Icon icon={RiSettings3Line} />
+                    <Icon icon={RiSettings3Line} className="size-4" />
                     {t('nav.settings')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem variant="destructive" onSelect={() => setLogoutOpen(true)}>
-                  <Icon icon={RiLogoutBoxRLine} />
+                  <Icon icon={RiLogoutBoxRLine} className="size-4" />
                   {t('help.logout')}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
