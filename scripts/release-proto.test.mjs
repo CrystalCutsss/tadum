@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { personaFromParam } from '../src/shared/api/demo-persona';
 import { PERSONA_IDS } from '../src/shared/api/fixtures/types';
 
-import { PERSONA_ITEMS, PROTOTYPE_META, frozenManifest, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
+import { PERSONA_ITEMS, PROTOTYPE_META, frozenManifest, pendingVersion, releaseVersions, touchedOutsideTadum, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
 
 describe('injectProtoTags', () => {
   const html = '<!doctype html><html lang="ar" dir="rtl"><head><title>Tadum</title></head><body></body></html>';
@@ -79,5 +79,23 @@ describe('метаданные Proto', () => {
     expect(m).toMatchObject({ schemaVersion: 1, prototype: 'tadum', version: 'v1', fileCount: 2, bytes: 3, sourceCommit: 'abc' });
     expect(Object.keys(m.files)).toEqual(['assets/x.js', 'index.html']);
     expect(m.files['index.html']).toBe('ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb');
+  });
+});
+
+describe('публикация из CI (ADR-004)', () => {
+  it('версии из имён release notes — по номеру, не по алфавиту', () => {
+    expect(releaseVersions(['v2.md', 'how-to-view.md', 'v10.md', 'v9.md', 'v1.md'])).toEqual(['v1', 'v2', 'v9', 'v10']);
+  });
+  it('публикуется только самая новая версия, которой ещё нет в Proto', () => {
+    expect(pendingVersion(['v4', 'v5'], ['v1', 'v2', 'v3', 'v4'])).toBe('v5');
+    expect(pendingVersion(['v4', 'v5'], ['v4', 'v5'])).toBeNull();
+    expect(pendingVersion([], ['v1'])).toBeNull();
+  });
+  it('публикация не трогает чужие файлы Proto', () => {
+    expect(touchedOutsideTadum(['prototypes/tadum/versions/v6/version.json', 'pnpm-lock.yaml', ''])).toEqual([]);
+    expect(touchedOutsideTadum(['prototypes/credit-activation/prototype.json', 'packages/proto-shell/src/menu.ts'])).toEqual([
+      'prototypes/credit-activation/prototype.json',
+      'packages/proto-shell/src/menu.ts',
+    ]);
   });
 });
