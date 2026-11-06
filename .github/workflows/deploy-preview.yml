@@ -1,7 +1,9 @@
 # Превью-воркер tadum (D-063, ADR-003).
 # - push в main → `pnpm run deploy:preview` (wrangler deploy): https://tadum.kirillgloba.workers.dev.
-# - push в любую другую ветку и открытие PR → превью ветки (A-053): `wrangler preview`, свой адрес
+# - push в любую другую ветку → превью ветки (A-053): `wrangler preview`, свой адрес
 #   https://<ветка>-tadum.kirillgloba.workers.dev; прод не меняется. Адрес — в сводке запуска и комментарием в PR.
+# - открытие PR → только комментарий с адресом: превью уже выложил push ветки. Раньше PR выкладывал его второй раз
+#   в той же очереди и отменял запуск push — в PR висела отменённая проверка (A-053).
 # - удаление ветки → превью удаляется.
 # Токен Cloudflare живёт только в секретах репозитория CLOUDFLARE_API_TOKEN и CLOUDFLARE_ACCOUNT_ID — их задаёт Кирилл (D-068);
 # без них job пропускает деплой с пояснением.
@@ -19,8 +21,9 @@ on:
 permissions:
   contents: read
 
+# Комментарий при открытии PR — в своей очереди, чтобы не отменять выкладку push той же ветки.
 concurrency:
-  group: deploy-preview-${{ github.event_name == 'delete' && github.event.ref || github.head_ref || github.ref_name }}
+  group: deploy-preview-${{ github.event_name == 'pull_request' && 'pr-' || '' }}${{ github.event_name == 'delete' && github.event.ref || github.head_ref || github.ref_name }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 env:
@@ -52,9 +55,7 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
 
   branch-preview:
-    if: >-
-      (github.event_name == 'push' && github.ref != 'refs/heads/main' && startsWith(github.ref, 'refs/heads/')) ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main' && startsWith(github.ref, 'refs/heads/')
     runs-on: ubuntu-24.04
     environment: preview
     permissions:
@@ -63,7 +64,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      BRANCH: ${{ github.head_ref || github.ref_name }}
+      BRANCH: ${{ github.ref_name }}
     steps:
       - name: secrets present
         id: gate
@@ -87,7 +88,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           URL: ${{ steps.preview.outputs.url }}
-          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          SHA: ${{ github.sha }}
         run: |
           pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number --jq '.[0].number')"
           if [ -z "$pr" ]; then
@@ -96,6 +97,31 @@ jobs:
           fi
           body="$(printf 'Превью ветки: %s\n\nКоммит %s. Данные — мок, вход по коду 0000; `?persona=<id>&lang=en` открывает персону без входа.' "$URL" "${SHA:0:7}")"
           gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none --body "$body"
+
+  # Открытие PR: превью ветки уже выложил её push — только комментарий с адресом (имя превью — как в deploy-branch.mjs).
+  branch-preview-comment:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      BRANCH: ${{ github.head_ref }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: scripts/deploy-branch.mjs
+          sparse-checkout-cone-mode: false
+      - name: comment in PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          name="$(node --input-type=module -e "import { previewName } from './scripts/deploy-branch.mjs'; console.log(previewName(process.env.BRANCH))")"
+          url="https://${name}-tadum.kirillgloba.workers.dev"
+          body="$(printf 'Превью ветки: %s\n\nКоммит %s. Данные — мок, вход по коду 0000; `?persona=<id>&lang=en` открывает персону без входа.' "$url" "${SHA:0:7}")"
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none --body "$body"
 
   branch-preview-cleanup:
     if: github.event_name == 'delete' && github.event.ref_type == 'branch'
