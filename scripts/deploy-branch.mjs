@@ -40,7 +40,11 @@ export function previewUrl(json) {
 
 function run(cmd, args, opts = {}) {
   const res = spawnSync(cmd, args, { stdio: 'inherit', ...opts });
-  if (res.status !== 0) process.exit(res.status ?? 1);
+  if (res.status !== 0) {
+    // Перехваченный stdout (JSON wrangler с текстом ошибки) — в лог, иначе причина теряется.
+    if (res.stdout) process.stderr.write(res.stdout);
+    process.exit(res.status ?? 1);
+  }
   return res;
 }
 
