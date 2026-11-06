@@ -1,7 +1,7 @@
 // Боковое меню кабинета (решение Кирилла 2026-11-06, основа — shadcn sidebar-08, variant="inset").
 // Сверху вниз: словесный знак → основное меню (Home, Documents, без вложенных) → внизу: блок помощи и аккаунт.
 // На телефоне — шторка по кнопке в шапке, как в shadcn; переход на другой экран закрывает шторку.
-// Активный пункт выделяется только фоном, начертание всегда regular (решение Кирилла 2026-11-06).
+// Активный пункт выделяется только фоном; начертание пунктов — medium, как у названия компании и «Have a question?» (Кирилл 2026-11-06).
 import { Link, useRouterState } from '@tanstack/react-router';
 import { useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +52,7 @@ export function AppSidebar({ family, support, account }: AppSidebarProps) {
               <SidebarMenu>
                 {NAV[family].map((n) => (
                   <SidebarMenuItem key={n.to}>
-                    <SidebarMenuButton asChild isActive={pathname === n.to || pathname.startsWith(`${n.to}/`)} className="min-h-11 data-active:font-normal">
+                    <SidebarMenuButton asChild isActive={pathname === n.to || pathname.startsWith(`${n.to}/`)} className="min-h-11 font-medium">
                       <Link to={n.to}>
                         <Icon icon={n.icon} />
                         <span>{t(n.labelKey)}</span>

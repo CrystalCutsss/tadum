@@ -104,7 +104,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 ## 4a. Компоненты кабинета (2026-11-06)
 
-Каркас кабинета — блок shadcn `sidebar-08` (`variant="inset"`: фон `--sidebar`, контент в контейнере с обводкой; на мобильных — Sheet по кнопке). Блок и виджет собирает `src/widgets/cabinet-shell`; в `shared/ui` — только примитивы. Токены `--sidebar*` пресета уже были, не менялись (A-019).
+Каркас кабинета — блок shadcn `sidebar-08` (`variant="inset"`: фон `--sidebar`, контент в контейнере с обводкой; на мобильных — Sheet по кнопке). Блок и виджет собирает `src/widgets/cabinet-shell`; в `shared/ui` — только примитивы. Токены `--sidebar*` пресета уже были, не менялись (A-019). Иконки пунктов — 20 px, как в выпадающих меню (Кирилл 2026-11-06).
 
 **Sidebar** (`sidebar.tsx`), адаптация Tadum:
 
