@@ -25,7 +25,7 @@ Tadum — B2B-портал для рынка KSA: кабинет клиента 
 | Журнал решений.md | ищется по имени в папке `00` | D-001…D-075 — при любом сомнении искать здесь |
 | 00-roadmap.md | ищется по имени в папке `00` | состав v1 и критерии готовности |
 | 01-roles.md | `1JrpXr6UVuqPt7t85lXSeiOnID03GA_4T` | `resolveRoles`, матрицы прав, «что не показываем» |
-| 01-cabinet-structure.md | `1R3DUZww5_JF8pBDNpBlwGMLjZXWwkoYP` | маршруты и `screen_id`, оболочка (§2 — черновик), шкала, карточка шага |
+| 01-cabinet-structure.md | `1uEjQ7I_gJt30biisfqqDE5ucT-KeMvUN` | маршруты и `screen_id`, оболочка (§2 — черновик), шкала, карточка шага |
 | 01-entities.md | `1xZavpWQsvcmYFBK1utr423NIxh_64W1d` | YAML сущностей → типы и Zod; персоны |
 | 01-statuses.md | `1s3nhsFgvXYpRRtNmtG18AwowmsdUk7LG` | маппинг стадий, машины состояний, мок-действия §10 |
 | 01-nfr-locale-brand.md | ищется по имени в папке `01` | локаль, форматтеры, NFR, токены, TOV |
