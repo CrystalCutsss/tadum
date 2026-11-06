@@ -117,7 +117,7 @@ VITE_BASE_PATH=/p/tadum/v1/ pnpm build
 
 ## CI и деплой
 
-- `.github/workflows/ci.yml` и зеркальный `.gitlab-ci.yml`: install → typecheck → lint → test → build → e2e (+ axe, скриншоты-артефакты) → size, плюс commitlint и changeset в PR, `pnpm audit`, gitleaks. Итоговый job `ci` — обязательная проверка.
+- `.github/workflows/ci.yml` и зеркальный `.gitlab-ci.yml`: install → typecheck → lint → test → build → e2e (+ axe, скриншоты-артефакты) → size, плюс commitlint и changeset в PR, `pnpm audit`, gitleaks. Итоговый job `ci` — обязательная проверка. Ночью и при ручном запуске (Actions → ci → Run workflow) e2e идёт ещё и в desktop-safari и desktop-edge (Edge ставится в job).
 - `lighthouse.yml` — Lighthouse CI на `main` и по ночам (в v1 только отчёт).
 - `deploy-preview.yml` — каждый push в `main` выкладывает превью-воркер `tadum`. Push в любую другую ветку и открытие PR выкладывают **превью ветки** на свой адрес `https://<ветка>-tadum.kirillgloba.workers.dev` (`/` и `_` в имени ветки становятся `-`): ссылка — комментарием в PR и в сводке запуска Actions, прод не меняется; удаление ветки удаляет превью. Нужны секреты репозитория `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID`; без них деплой пропускается.
 
