@@ -341,7 +341,7 @@
 
 ## Решения Кирилла по ходу
 
-- 2026-11-06: каркас кабинета — сайдбар shadcn `sidebar-08` (PR CrystalCutsss/tadum#7, A-055). `01-cabinet-structure.md` 1.5 в Drive: новый §2 «Оболочка», §4 (переключение ролей и индикатор — в меню аккаунта), §9 (сайдбар/шторка, сетка 3 колонки), шапка документа, 404 «Перейти в Dashboard». Файл `1q0WG_WF0dUm1cZtjyZxrY8B7OETN8rJW` (23665 байт, сверено); прежние `1R3DUZww5_JF8pBDNpBlwGMLjZXWwkoYP` и промежуточный `1UhD6kfQzeUAuAGI2-ggFeohAqS5nobn0` — в корзине. ⏸ Кирилл: `/sync-product-docs` (сессия с `TADUM_DOCS_SYNC=1`) — снимок и ID в `docs/product/README.md`.
+- 2026-11-06: каркас кабинета — сайдбар shadcn `sidebar-08` (PR CrystalCutsss/tadum#8, A-055; первый PR #7 закрыт после ревью Кирилла). `01-cabinet-structure.md` 1.6 в Drive: §2 «Оболочка», §4 (смена роли в меню аккаунта, в аккаунте — название компании), §9 (сайдбар/шторка, сетка 3 колонки), 404 «На главную». Файл `1uEjQ7I_gJt30biisfqqDE5ucT-KeMvUN` (23974 байт, сверено); прежние версии (`1R3DUZww5_…`, `1UhD6kfQ…`, `1q0WG_WF…`) — в корзине. ⏸ Кирилл: после merge #8 — `/sync-product-docs` в новой сессии (переменная `TADUM_DOCS_SYNC=1` уже в окружении «Proto»), затем убрать переменную.
 
 - 2026-11-06: витрина Tadum по умолчанию на всё окно, с переключателем «Экран» на мокап телефона (Proto ADR-0025, CrystalCutsss/proto#55). Промежуточные правки смотреть без merge — превью каждой ветки `https://<ветка>-tadum.kirillgloba.workers.dev` из CI (A-053); витрина Proto — только для замороженных версий vN. Тег `v1` поставлен через GitHub Releases на `6b6cd4e`.
 
