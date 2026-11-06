@@ -1,6 +1,7 @@
 // Аккаунт внизу сайдбара (решения Кирилла 2026-11-06): без аватара — название компании клиента или поставщика,
 // под ним текущая роль. Меню по примеру shadcn Dropdown Menu «Complex» (без шорткатов, радиусы пресета): группа «Account»
 // со сменой роли Client / Supplier сверху вниз (только dual), разделитель, группа «Настройки» и выход с подтверждением.
+// Пункты меню — курсор pointer при наведении (Кирилл 2026-11-06).
 // Подсказка dual «у вас есть и кабинет поставщика» — один раз: на десктопе поповером у кнопки аккаунта, на телефоне — блоком в шторке.
 import { RiExpandUpDownLine, RiLogoutBoxRLine, RiSettings3Line, RiStore2Line, RiUser3Line } from '@remixicon/react';
 import { Link } from '@tanstack/react-router';
@@ -123,11 +124,11 @@ export function NavAccount({ family, name, nameLoading, phone, dual, hint }: Nav
                         if (v === 'client' || v === 'supplier') switchRole(v);
                       }}
                     >
-                      <DropdownMenuRadioItem value="client">
+                      <DropdownMenuRadioItem value="client" className="cursor-pointer">
                         <Icon icon={RiUser3Line} />
                         {t('role.client')}
                       </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="supplier">
+                      <DropdownMenuRadioItem value="supplier" className="cursor-pointer">
                         <Icon icon={RiStore2Line} />
                         {t('role.supplier')}
                       </DropdownMenuRadioItem>
@@ -137,13 +138,13 @@ export function NavAccount({ family, name, nameLoading, phone, dual, hint }: Nav
                 </>
               ) : null}
               <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link to={settingsOf(family)}>
                     <Icon icon={RiSettings3Line} />
                     {t('nav.settings')}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onSelect={() => setLogoutOpen(true)}>
+                <DropdownMenuItem variant="destructive" className="cursor-pointer" onSelect={() => setLogoutOpen(true)}>
                   <Icon icon={RiLogoutBoxRLine} />
                   {t('help.logout')}
                 </DropdownMenuItem>
