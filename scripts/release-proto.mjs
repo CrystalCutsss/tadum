@@ -198,7 +198,7 @@ export function pendingVersion(versions, published) {
   return latest && !published.includes(latest) ? latest : null;
 }
 
-function prepare(version, proto, branch, ci = false) {
+function prepare(version, proto, branch, ci = false, allowProtoFiles = false) {
   const notesFile = join(ROOT, 'docs/releases', `${version}.md`);
   if (!existsSync(notesFile)) stop(`нет release notes ${relative(ROOT, notesFile)}`);
   const { title, changelog } = parseReleaseNotes(readFileSync(notesFile, 'utf8'));
@@ -252,8 +252,10 @@ function prepare(version, proto, branch, ci = false) {
 
   run('git', ['-C', proto, 'add', `prototypes/${SLUG}`, 'pnpm-lock.yaml']);
   // Proto общий с другими прототипами: публикация трогает только Tadum и запись нового пакета в lock-файле.
+  // Другие файлы — только с «да» Кирилла в сессии (--allow-proto-files); в CI спросить некого — публикации нет.
   const outside = touchedOutsideTadum(sh('git', ['-C', proto, 'diff', '--cached', '--name-only']).split('\n'));
-  if (outside.length) stop(`публикация затронула бы чужие файлы Proto: ${outside.join(', ')}`);
+  if (outside.length && (ci || !allowProtoFiles))
+    stop(`публикация затрагивает файлы Proto вне prototypes/${SLUG}: ${outside.join(', ')}. ${ci ? 'Из CI не публикуется — выпуск вручную из сессии.' : 'Покажите их Кириллу; после «да» — тот же запуск с --allow-proto-files.'}`);
   run('git', ['-C', proto, 'commit', '-m', `${SLUG} ${version}: publish from the tadum repo as a frozen snapshot`, '-m', `Source: tadum@${commit}`]);
 
   if (ci) {
@@ -313,6 +315,7 @@ function main() {
       publish: { type: 'boolean', default: false },
       tag: { type: 'boolean', default: false },
       ci: { type: 'boolean', default: false },
+      'allow-proto-files': { type: 'boolean', default: false },
     },
   });
   if (values.ci) return ci(values['proto-dir'] ?? process.env.PROTO_DIR);
@@ -322,7 +325,9 @@ function main() {
   const proto = values['proto-dir'] ?? process.env.PROTO_DIR;
   if (!proto) stop('укажите --proto-dir <путь к клону Proto> или PROTO_DIR');
   const branch = values['proto-branch'] ?? `feat/${SLUG}-${version}`;
-  return values.publish ? publish(version, resolve(proto), branch) : prepare(version, resolve(proto), branch);
+  return values.publish
+    ? publish(version, resolve(proto), branch)
+    : prepare(version, resolve(proto), branch, false, values['allow-proto-files']);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
