@@ -96,8 +96,9 @@ export function versionMeta({ version, title, changelog, date }) {
         id: 'lang',
         title: 'Язык',
         items: [
-          { id: 'ar', title: 'العربية' },
+          // Первый пункт — выбор по умолчанию в просмотрщике: на витрине английский (Кирилл 2026-11-06, A-056).
           { id: 'en', title: 'English' },
+          { id: 'ar', title: 'العربية' },
         ],
       },
     ],
@@ -201,7 +202,9 @@ function prepare(version, proto, branch) {
   console.log(`\n→ сборка Tadum под /p/${SLUG}/${version}/`);
   run('pnpm', ['build'], {
     cwd: ROOT,
-    env: { ...process.env, VITE_BASE_PATH: `/p/${SLUG}/${version}/`, VITE_DEMO_PANEL: '1', VITE_ANALYTICS: 'demo', VITE_PROTO_VERSION: version },
+    env: { ...process.env, VITE_BASE_PATH: `/p/${SLUG}/${version}/`, VITE_DEMO_PANEL: '1', VITE_ANALYTICS: 'demo', VITE_PROTO_VERSION: version,
+      // Витрина: английский и светлая тема по умолчанию (A-056); в продукте — арабский и системная.
+      VITE_DEFAULT_LANG: 'en', VITE_DEFAULT_THEME: 'light' },
   });
   const dist = join(ROOT, 'dist');
   // У превью-воркера свои заголовки (noindex); витрина задаёт их сама.

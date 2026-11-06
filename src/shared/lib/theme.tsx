@@ -16,9 +16,14 @@ const DARK_QUERY = '(prefers-color-scheme: dark)';
 // Цвет строки состояния браузера = --background пресета (tokens.css) в hex: oklch(1 0 0) и oklch(0.148 0.004 228.8).
 const THEME_COLOR: Record<ResolvedTheme, string> = { light: '#ffffff', dark: '#090b0c' };
 
+const isChoice = (v: string | null | undefined): v is ThemeChoice => v === 'light' || v === 'dark' || v === 'system';
+
+/** Тема без сохранённого выбора: системная; на витрине Proto сборка задаёт светлую (A-056). index.html делает то же до бандла. */
+export const initialTheme = (env: string | undefined = import.meta.env.VITE_DEFAULT_THEME): ThemeChoice => (isChoice(env) ? env : 'system');
+
 function readChoice(): ThemeChoice {
   const v = storage.get(STORAGE_KEY);
-  return v === 'light' || v === 'dark' || v === 'system' ? v : 'system';
+  return isChoice(v) ? v : initialTheme();
 }
 
 function systemTheme(): ResolvedTheme {

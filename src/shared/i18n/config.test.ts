@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createI18n, directionOf, resolveLanguage } from './config';
+import { createI18n, directionOf, initialLanguage, resolveLanguage } from './config';
 import ar from './locales/ar.json';
 
 describe('resolveLanguage', () => {
@@ -44,5 +44,18 @@ describe('множественное число', () => {
     expect(i18n.t('relative.days_ago', { count: 3 })).toBe('منذ 3 أيام');
     expect(i18n.t('relative.days_ago', { count: 11 })).toBe('منذ 11 يومًا');
     expect(i18n.t('relative.days_ago', { count: 100 })).toBe('منذ 100 يوم');
+  });
+});
+
+describe('язык по умолчанию сборки (A-056)', () => {
+  it('без переменной — арабский; витрина задаёт английский; мусор игнорируется', () => {
+    expect(initialLanguage(undefined)).toBe('ar');
+    expect(initialLanguage('en')).toBe('en');
+    expect(initialLanguage('fr')).toBe('ar');
+  });
+  it('fallback сборки срабатывает только без ?lang= и сохранённого выбора', () => {
+    expect(resolveLanguage('', null, 'en')).toEqual({ lang: 'en', source: 'default' });
+    expect(resolveLanguage('', 'ar', 'en')).toEqual({ lang: 'ar', source: 'stored' });
+    expect(resolveLanguage('?lang=ar', null, 'en')).toEqual({ lang: 'ar', source: 'url' });
   });
 });

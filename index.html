@@ -13,6 +13,10 @@
       (function () {
         try {
           var v = localStorage.getItem('tadum:%BASE_URL%:theme');
+          // Витрина Proto задаёт тему по умолчанию (VITE_DEFAULT_THEME, A-056); иначе — системная.
+          // Без переменной Vite оставляет плейсхолдер как есть — тогда тема системная.
+          var d = '%VITE_DEFAULT_THEME%';
+          if (v === null && (d === 'light' || d === 'dark')) v = d;
           var dark = v === 'dark' || ((v === null || v === 'system') && matchMedia('(prefers-color-scheme: dark)').matches);
           if (dark) document.documentElement.classList.add('dark');
         } catch (e) {}
