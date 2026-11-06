@@ -11,7 +11,7 @@ import { OfflineBanner, StorageBanner } from './banners';
 import { CabinetShell } from './cabinet-shell';
 import { LoadError } from './load-error';
 
-const slots = { languageSwitch: <Button variant="ghost">EN</Button>, support: <Button variant="outline">support</Button> };
+const slots = { languageSwitch: <Button variant="ghost">EN</Button>, themeToggle: <Button variant="ghost">theme</Button>, support: <Button variant="outline">support</Button> };
 
 const meta = {
   title: 'widgets/CabinetShell',
@@ -120,8 +120,8 @@ export const HeaderMatrix: StoryObj<typeof AppHeader> = {
   render: () => (
     <SidebarProvider className="min-h-0">
       <div className="flex w-full flex-col gap-2">
-        <AppHeader crumbs={[{ labelKey: 'nav.home' }]} languageSwitch={slots.languageSwitch} />
-        <AppHeader crumbs={[{ labelKey: 'nav.documents', to: '/c/documents' }, { labelKey: 'help.title' }]} languageSwitch={slots.languageSwitch} />
+        <AppHeader crumbs={[{ labelKey: 'nav.home' }]} languageSwitch={slots.languageSwitch} themeToggle={slots.themeToggle} />
+        <AppHeader crumbs={[{ labelKey: 'nav.documents', to: '/c/documents' }, { labelKey: 'help.title' }]} languageSwitch={slots.languageSwitch} themeToggle={slots.themeToggle} />
       </div>
     </SidebarProvider>
   ),

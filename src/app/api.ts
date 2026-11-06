@@ -31,16 +31,14 @@ export const mockDomain: MockDomain = {
 
 export const landingUrl: string = import.meta.env.VITE_LANDING_URL ?? 'https://tadum.sa';
 
-const PERSONA_PARAM = 'persona';
-
 /**
  * Демо-режим: `?persona=<id>` (01-entities.md §6) выбирает персону мока и сразу входит под ней.
  * Параметр остаётся в адресе (ссылку можно отправить коллеге, 01-cabinet-structure.md §8); персона сбрасывается
  * к фикстуре только при смене — перезагрузка той же ссылки состояние не теряет. Демо включено, пока
- * VITE_DEMO_PANEL не равен 0 (прод).
+ * VITE_DEMO_PANEL не равен 0 (прод); литерал `get('persona')` — маркер `check:demo-excluded`.
  */
 async function applyPersonaFromUrl(): Promise<void> {
-  const persona = personaFromParam(new URL(window.location.href).searchParams.get(PERSONA_PARAM));
+  const persona = personaFromParam(new URL(window.location.href).searchParams.get('persona'));
   if (!persona || !(PERSONA_IDS as readonly string[]).includes(persona)) return;
   setAnalyticsContext({ persona });
   if (demoPersona.get() === persona) return;

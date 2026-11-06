@@ -23,15 +23,14 @@ const VERSION_RE = /^v[1-9][0-9]{0,3}$/;
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 /**
- * Ось меню просмотрщика «Персона». Ограничения Proto: не больше 6 пунктов, id через дефис (Tadum принимает
- * ?persona=client-active так же, как client_active). Первый пункт — без персоны: обычный вход. Остальные
- * персоны — в демо-панели внутри прототипа.
+ * Ось меню просмотрщика «Сценарии и роли» — единственный способ сменить персону на витрине: демо-панели нет
+ * (Кирилл 2026-11-06). Ограничения Proto: не больше 6 пунктов, id через дефис (Tadum принимает
+ * ?persona=client-active так же, как client_active). Первый пункт — без персоны: обычный вход.
+ * Пункты «Клиент: новая заявка» (client-new), «Клиент: на проверке» (client-submitted) и «Клиент: лимит
+ * активен» (client-active) убраны до готовности соответствующего функционала — вернуть, когда он будет готов.
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру' },
-  { id: 'client-new', title: 'Клиент: новая заявка' },
-  { id: 'client-submitted', title: 'Клиент: на проверке' },
-  { id: 'client-active', title: 'Клиент: лимит активен' },
   { id: 'supplier-active', title: 'Поставщик' },
   { id: 'dual-active', title: 'Клиент и поставщик' },
 ];
@@ -44,9 +43,11 @@ export const PROTOTYPE_META = {
   owner: 'Кирилл',
   tags: ['tadum', 'b2b', 'rtl', 'pwa'],
   status: 'active',
-  // На компьютере — всё окно, в меню просмотрщика «Экран» переключает на мокап телефона (ADR-0025 Proto).
+  // Только компьютер, на всё окно: «Экран» (ПК / Телефон) убран из меню (Кирилл 2026-11-06).
   platform: 'desktop',
-  platforms: ['desktop', 'mobile'],
+  platforms: ['desktop'],
+  // Меню оболочки для Tadum (Кирилл 2026-11-06, ADR-0027 Proto): без переключения версий, в стиле shadcn.
+  menu: { versions: false, style: 'shadcn' },
   defaultVersion: 'latest',
   separatePassword: true,
 };
@@ -90,18 +91,9 @@ export function versionMeta({ version, title, changelog, date }) {
     changelog,
     routing: 'history',
     routes: ['/login', '/c/home', '/c/documents', '/c/help', '/s/home', '/s/documents', '/s/help'],
-    axes: [
-      { id: 'persona', title: 'Персона', items: PERSONA_ITEMS },
-      {
-        id: 'lang',
-        title: 'Язык',
-        items: [
-          // Первый пункт — выбор по умолчанию в просмотрщике: на витрине английский (Кирилл 2026-11-06, A-056).
-          { id: 'en', title: 'English' },
-          { id: 'ar', title: 'العربية' },
-        ],
-      },
-    ],
+    // Только «Сценарии и роли». Оси «Язык» нет (Кирилл 2026-11-06): на витрине по умолчанию английский
+    // (VITE_DEFAULT_LANG=en, A-056), язык меняет кнопка в шапке кабинета.
+    axes: [{ id: 'persona', title: 'Сценарии и роли', items: PERSONA_ITEMS }],
   };
 }
 
@@ -202,7 +194,7 @@ function prepare(version, proto, branch) {
   console.log(`\n→ сборка Tadum под /p/${SLUG}/${version}/`);
   run('pnpm', ['build'], {
     cwd: ROOT,
-    env: { ...process.env, VITE_BASE_PATH: `/p/${SLUG}/${version}/`, VITE_DEMO_PANEL: '1', VITE_ANALYTICS: 'demo', VITE_PROTO_VERSION: version,
+    env: { ...process.env, VITE_BASE_PATH: `/p/${SLUG}/${version}/`, VITE_DEMO_PANEL: '1', VITE_ANALYTICS: 'console', VITE_PROTO_VERSION: version,
       // Витрина: английский и светлая тема по умолчанию (A-056); в продукте — арабский и системная.
       VITE_DEFAULT_LANG: 'en', VITE_DEFAULT_THEME: 'light' },
   });

@@ -10,7 +10,7 @@
 - Меню просмотрщика передаёт в прототип оси: **Персона** (`?persona=`, первый пункт «Вход по номеру» — без персоны) и **Язык** (`?lang=ar|en`). Ограничения Proto: у оси не больше 6 пунктов, id через дефис — поэтому в меню вход и пять ключевых персон, а Tadum принимает `?persona=client-active` так же, как `client_active`. «Сценарии» меню не используются: у версии с осями меню их не показывает.
 - В `main` Proto изменения попадают только через PR, который мержит Кирилл. Деплой витрины — Cloudflare Workers Builds после merge, отдельной команды деплоя нет.
 - Пароль Tadum (`separatePassword: true`) — ключ `"tadum"` в секрете `PROTOTYPE_PASSWORDS` воркера `proto`.
-- Вид в просмотрщике: `platform: desktop` (на компьютере — всё окно), `platforms: [desktop, mobile]` — контрол «Экран» в меню переключает на мокап телефона и обратно (ADR-0025 Proto, выбор хранится в `?screen=`). На телефоне прототип всегда на весь экран.
+- Вид в просмотрщике (Кирилл 2026-11-06): `platform: desktop`, `platforms: [desktop]` — всё окно, без контрола «Экран»; `menu: { versions: false, style: shadcn }` — меню оболочки в стиле shadcn DropdownMenu, без переключения версий (ADR-0027 Proto). В меню одна ось — «Сценарии и роли» (`PERSONA_ITEMS`); языка в меню нет, его меняет кнопка в шапке. Демо-панели нет: персона, язык и тема — только через меню оболочки и интерфейс кабинета.
 
 ## Шаги
 
@@ -21,7 +21,7 @@
    pnpm run release:proto vN --proto-dir ../proto
    ```
 
-   Скрипт: `pnpm verify` → ветка Proto `feat/tadum-vN` от свежего `origin/main` → сборка Tadum с `VITE_BASE_PATH=/p/tadum/vN/ VITE_DEMO_PANEL=1 VITE_ANALYTICS=demo VITE_PROTO_VERSION=vN` → теги Proto в `index.html`, без `_headers` → `prototypes/tadum/…` → в Proto `pnpm install`, Prettier по метаданным, `pnpm registry:validate`, `pnpm lint`, `pnpm site:build --no-previews` → коммит в ветке Proto (без push).
+   Скрипт: `pnpm verify` → ветка Proto `feat/tadum-vN` от свежего `origin/main` → сборка Tadum с `VITE_BASE_PATH=/p/tadum/vN/ VITE_DEMO_PANEL=1 VITE_ANALYTICS=console VITE_PROTO_VERSION=vN` → теги Proto в `index.html`, без `_headers` → `prototypes/tadum/…` → в Proto `pnpm install`, Prettier по метаданным, `pnpm registry:validate`, `pnpm lint`, `pnpm site:build --no-previews` → коммит в ветке Proto (без push).
 3. **⏸ Решение Кирилла:** diff Proto (`git -C ../proto show --stat`), локальный просмотр (`cd ../proto && pnpm site:preview` → `/p/tadum/vN/`).
 4. **Push ветки и PR** (после «да»):
 

@@ -71,8 +71,15 @@ export const REQUIRED = [
     { fg: `--status-${s}`, bg: '--card', min: 4.5, what: 'статус на карточке' },
   ]),
   { fg: '--limit-fill', bg: '--limit-track', min: 3, what: 'заполнение лимита против дорожки (1.4.11)' },
-  { fg: '--whatsapp-foreground', bg: '--whatsapp', min: 4.5, what: 'текст кнопки WhatsApp на её заливке' },
   { fg: '--limit-track', bg: '--card', min: 1, what: 'дорожка видна на карточке (информативно)' },
+];
+
+/**
+ * Известные исключения: пара ниже AA, принятая решением Кирилла. Печатается, но не блокирует.
+ * WhatsApp: белые иконка и текст на фирменном зелёном (2026-11-06) — 1.98:1 вместо 4.5.
+ */
+export const ACCEPTED = [
+  { fg: '--whatsapp-foreground', bg: '--whatsapp', min: 4.5, what: 'текст кнопки WhatsApp — белый, принято Кириллом 2026-11-06' },
 ];
 
 export const PRESET = [
@@ -108,6 +115,8 @@ function main() {
   console.log('Токены Tadum (обязательно):');
   const required = check(themes, REQUIRED);
   required.forEach((r) => console.log(`  ${fmt(r)}`));
+  console.log('Принятые исключения (информативно, не блокирует):');
+  check(themes, ACCEPTED).forEach((r) => console.log(`  ${fmt(r)}`));
   console.log('Пресет shadcn (информативно, не блокирует):');
   check(themes, PRESET).forEach((r) => console.log(`  ${fmt(r)}`));
   const failed = required.filter((r) => !r.ok).length;

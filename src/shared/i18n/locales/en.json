@@ -59,27 +59,6 @@
     "server_error_retry": "Something went wrong on our side. Please try again",
     "storage_unavailable": "Your browser doesn't keep data between visits. You may need to sign in again next time"
   },
-  "demo": {
-    "action_failed": "Not available now: {code}",
-    "actions": "Team actions",
-    "clear": "Clear",
-    "copied": "Copied",
-    "copy_json": "Copy JSON",
-    "copy_link": "Copy link",
-    "description": "Showcase tool: switch personas and simulate Tadum team actions",
-    "events": "Event feed",
-    "filter": "Filter by name",
-    "network": "Network",
-    "network_mode": {
-      "error": "Server error",
-      "offline": "Offline",
-      "ok": "Normal",
-      "slow": "Slow"
-    },
-    "open": "Demo",
-    "persona": "Persona",
-    "title": "Demo panel"
-  },
   "document": {
     "status": {
       "approved": "Accepted",
@@ -223,7 +202,8 @@
   "theme": {
     "dark": "Dark",
     "light": "Light",
-    "system": "Same as device"
+    "system": "Same as device",
+    "toggle": "Toggle theme"
   },
   "timeline": {
     "client": {

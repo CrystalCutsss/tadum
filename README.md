@@ -103,8 +103,8 @@ pnpm dev
 | :--- | :--- | :--- |
 | `VITE_BASE_PATH` | `/` | базовый путь сборки; на витрине `/p/tadum/vN/` |
 | `VITE_API_MODE` | `mock` | `mock` — фикстуры; `http` — каркас будущего API |
-| `VITE_DEMO_PANEL` | `1` | `0` — сборка без демо-панели и `?persona=` |
-| `VITE_ANALYTICS` | `console` | `console` / `demo` / `posthog` |
+| `VITE_DEMO_PANEL` | `1` | `0` — сборка без выбора персоны по `?persona=` (демо-панели нет с 2026-11-06) |
+| `VITE_ANALYTICS` | `console` | `console` / `posthog` |
 | `VITE_PROTO_VERSION` | — | подпись версии на витрине (`v1`) |
 | `VITE_SUPPORT_WHATSAPP`, `VITE_SUPPORT_EMAIL` | см. `.env.example` | контакты поддержки |
 | `VITE_LANDING_URL` | `https://tadum.sa` | куда ведёт «Подать заявку» |
@@ -125,5 +125,5 @@ VITE_BASE_PATH=/p/tadum/v1/ pnpm build
 
 - **`ERR_PNPM_UNSUPPORTED_ENGINE`** — не та версия Node. `nvm use` (или установите Node 22).
 - **e2e падают с «Executable doesn't exist»** — не установлены браузеры: `pnpm exec playwright install chromium webkit`.
-- **Мок в неожиданном состоянии** — выберите персону заново в демо-панели (она начнётся с исходных данных) или очистите `localStorage` сайта.
+- **Мок в неожиданном состоянии** — откройте персону заново ссылкой `?persona=<id>` (она начнётся с исходных данных) или очистите `localStorage` сайта.
 - **Коммит отклонён `commitlint`** — формат `type(scope): описание`, см. `CONTRIBUTING.md`.

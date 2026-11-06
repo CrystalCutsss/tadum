@@ -2,7 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RiArrowRightLine, RiArrowLeftSLine, RiTimeLine, RiPhoneLine, RiCheckLine } from '@remixicon/react';
 import { expect } from 'storybook/test';
 
+import { matrix } from '../../../../.storybook/decorators';
 import { Icon } from './icon';
+import { ThemeToggleIcon } from './theme-toggle-icon';
 
 const meta = { title: 'shared/ui/Icon', component: Icon } satisfies Meta<typeof Icon>;
 export default meta;
@@ -40,5 +42,20 @@ export const NotMirroredInEnglish: Story = {
     const scaleOf = (id: string) => getComputedStyle(canvasElement.querySelector(`[data-testid="${id}"]`)!).scale;
     await expect(scaleOf('arrow')).toBe('none');
     await expect(scaleOf('clock')).toBe('none');
+  },
+};
+
+// Иконка кнопки темы (Tabler «brightness», MIT): в матрице AR/EN × light/dark, нейтральная — в RTL не зеркалится.
+export const ThemeToggle: Story = {
+  ...matrix,
+  args: { icon: ThemeToggleIcon },
+  render: () => <Icon icon={ThemeToggleIcon} data-testid="theme" />,
+  play: async ({ canvasElement }) => {
+    const icons = canvasElement.querySelectorAll('[data-testid="theme"]');
+    await expect(icons).toHaveLength(4);
+    for (const icon of icons) {
+      await expect(icon.getAttribute('data-mirrored')).toBe('false');
+      await expect(getComputedStyle(icon).scale).toBe('none');
+    }
   },
 };

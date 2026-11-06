@@ -64,18 +64,19 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `--limit-track` | = `--border` (0.925 0.005 214.3) | = `--muted` тёмной темы | нейтральная ступень пресета |
 | `--limit-fill` | `var(--primary)` | `var(--sidebar-primary)` | синий пресета; в тёмной — более светлый синий пресета, иначе 2.0:1 к дорожке |
 | `--whatsapp` | oklch(0.761 0.201 149.7) | = светлой | фирменный зелёный WhatsApp `#25D366` в oklch; цвет бренда одинаков в обеих темах (решение Кирилла 2026-11-06) |
-| `--whatsapp-foreground` | = `--foreground` пресета (0.148 0.004 228.8) | = светлой | белый на `#25D366` — 1.98:1 (не AA), поэтому текст тёмный: 9.94:1 |
+| `--whatsapp-foreground` | oklch(1 0 0) — белый | = светлой | белый текст бренда на `#25D366` — 1.98:1 (не AA); Кирилл осознанно принимает исключение (решение 2026-11-06), до этого был тёмный `--foreground` (9.94:1) |
 | `--elevation-sm/md` | тени с цветом `--foreground` 6 % и 8 % | `none` (в тёмной теме — границы) | §3.3 |
+| `--elevation-inset` | `0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)` | = светлой | значение `shadow-sm` Tailwind/shadcn; тень контейнера контента `SidebarInset`, как в `sidebar-08` (решение Кирилла 2026-11-06). `--elevation-sm` слабее и в тёмной теме `none`, поэтому тени не было видно. Класс — `shadow-inset` |
 | `--motion-fast/base/slow` | 120 / 200 / 320 ms | — | §3.3; при `prefers-reduced-motion` — 0ms |
 | `--ease-standard` | cubic-bezier(0.2, 0, 0, 1) | — | §3.3 |
 
 Сопоставление со статусами: документы `needed`→`pending`, `uploaded`→`received`, `needs a new file`→`rejected`, `accepted`→`approved`; шкала и чек-лист: `needs_attention`/`failed` = `rejected`; `supplier_view`: `applied`/`collecting_docs`→`pending`, `under_review`→`received`, `approved`/`first_purchase`→`approved`, `closed` → нейтральный `muted` (не `rejected`). Компонент — `StatusBadge` (иконка + текст + цвет).
 
-Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
+Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `shadow-inset`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
 
 ## 4. Контраст (WCAG 2.2 AA)
 
-`pnpm check:contrast` (`scripts/check-contrast.mjs`) считает контраст по токенам `tokens.css` в обеих темах. Результат на 2026-11-05 — **все пары Tadum проходят**:
+`pnpm check:contrast` (`scripts/check-contrast.mjs`) считает контраст по токенам `tokens.css` в обеих темах. Результат на 2026-11-05 — **все пары Tadum проходят**, кроме принятого исключения WhatsApp (с 2026-11-06):
 
 | Пара | Светлая | Тёмная |
 | :--- | ---: | ---: |
@@ -83,9 +84,9 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `-foreground` на заливке статуса, мин. | 6.12 | 9.83 |
 | статус на `--background` / `--card`, мин. | 6.40 | 8.66 |
 | `--limit-fill` против `--limit-track` (нужно ≥ 3) | 5.48 | 3.98 |
-| `--whatsapp-foreground` на `--whatsapp` (с 2026-11-06) | 9.94 | 9.94 |
+| `--whatsapp-foreground` на `--whatsapp` (с 2026-11-06; белый) | 1.98 | 1.98 |
 
-Кнопка WhatsApp на hover (`bg-whatsapp/90`) — не ниже 8.4:1 на любом фоне пресета. Сама заливка против светлого фона — 1.9:1: граница кнопки не несёт смысла (у кнопки есть текст и иконка), 1.4.11 не требуется.
+Пара WhatsApp не проходит AA (нужно 4.5) и **принята как исключение** решением Кирилла 2026-11-06: белый текст — фирменный вид кнопки WhatsApp. Это осознанное отступление от A-019 только для этой пары; другие пары правило по-прежнему не ослабляют. Сама заливка против светлого фона — 1.9:1: граница кнопки не несёт смысла (у кнопки есть текст и иконка), 1.4.11 не требуется.
 
 Дополнительно истории Storybook проверяются axe (`@storybook/addon-a11y`, режим `error`) в тестах `pnpm test:stories`.
 
@@ -115,17 +116,20 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `SidebarRail` | Классы CLI смешивали физические и `rtl:`-инверсии — для правого сайдбара в RTL полоса вставала не туда; приведены к физическим по `data-side` |
 | Строки | Нет хардкода: `Sidebar mobileTitle` (обязателен) и `mobileDescription` (необязателен; без него у Sheet нет `aria-describedby`), `SidebarTrigger aria-label` (обязателен; `children` заменяют иконку), `SidebarRail aria-label` (обязателен, дублируется в `title`) |
 | Иконка | Триггер — `Icon` с `RiSideBarLine`; иконка добавлена в `mirroredIcons` (показывает сторону панели) |
+| Тень `SidebarInset` | Для `inset` — `md:peer-data-[variant=inset]:shadow-inset` (токен `--elevation-inset`, как `shadow-sm` в shadcn `sidebar-08`), одинаковая в обеих темах; остальные `shadow-sm` в `sidebar.tsx` не менялись (решение Кирилла 2026-11-06) |
 | Ограничение | Отступ `SidebarInset` для `inset` рассчитан на сайдбар со стороны start (`ms-0`), как в пресете |
 
 **Breadcrumb** (`breadcrumb.tsx`): `aria-label` у `Breadcrumb` обязателен (строка из i18n); разделитель-шеврон — через `Icon` (зеркалится в RTL); у `BreadcrumbEllipsis` убран `sr-only` «More» (элемент `aria-hidden`, доступное имя даёт кнопка-обёртка).
 
-**Button** — вариант `whatsapp` (`bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90`), фокус и размеры — общие пресета. Использование: `<Button variant="whatsapp" asChild><a …><Icon icon={RiWhatsappFill} />…</a></Button>`. Повторный `shadcn add button` покажет этот вариант как отличие — не перезаписывать.
+**Button** — вариант `whatsapp` (`bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90`), фокус и размеры — общие пресета. Текст белый, контраст 1.98:1 — исключение из AA по решению Кирилла 2026-11-06 (§4). Использование: `<Button variant="whatsapp" asChild><a …><Icon icon={RiWhatsappFill} />…</a></Button>`. Повторный `shadcn add button` покажет этот вариант как отличие — не перезаписывать.
 
 **Wordmark** — вариант `variant="dot"` (решение Кирилла 2026-11-06, логотип сайдбара): «tadum» строчными, Geist bold (700), в конце точка `text-primary dark:text-muted-foreground`. Строчные — через CSS `lowercase`, поэтому доступный текст остаётся «Tadum»; точка `aria-hidden`. Вид по умолчанию (D-052, экраны входа) не изменён. Цвет точки в тёмной теме (решение Кирилла 2026-11-06): `--primary` на `--sidebar` давал 1.96:1 — точка почти не видна, поэтому в `.dark` она светло-серая, существующий токен пресета `--muted-foreground` (новый токен не вводился): ≈7.1:1 к `--sidebar` и 8.07:1 к `--background` (`pnpm run check:contrast`). `--sidebar-foreground` не выбран — он почти белый, как само слово, и точка не читалась бы отдельным акцентом. Точка декоративная, AA для неё не требуется, но запас есть.
 
+**ThemeToggleIcon** (`icon/theme-toggle-icon.tsx`, решение Кирилла 2026-11-06) — иконка кнопки темы, как `ModeSwitcher` на ui.shadcn.com: Tabler Icons `brightness` (MIT) — круг и половина со штриховкой. В Remix Icon такой нет; компонент имеет тип `RemixiconComponentType`, поэтому рисуется через `<Icon icon={ThemeToggleIcon} />`. Нейтральная, в `mirroredIcons` не входит.
+
 **Скругления** — значения пресета (решение Кирилла 2026-11-06, правки радиусов откатаны).
 
-Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
+Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot`, `Icon/ThemeToggle` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
 
 ## 5. Шрифты
 
@@ -133,11 +137,13 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 ## 6. Иконки
 
-Пресет задаёт Remix Icon вместо `lucide-react` из `01-nfr-locale-brand.md` §3.1 и ADR-002 — по D-077 действует пресет (A-015). Обёртка `Icon` (`src/shared/ui/icon/`): в RTL зеркалятся только иконки из списка `mirroredIcons` (стрелки, шевроны, назад/вперёд, вход/выход, отправка); тест истории `shared/ui/Icon` проверяет, что в `ar` стрелка и шеврон зеркалятся, а часы — нет.
+Пресет задаёт Remix Icon вместо `lucide-react` из `01-nfr-locale-brand.md` §3.1 и ADR-002 — по D-077 действует пресет (A-015). Обёртка `Icon` (`src/shared/ui/icon/`): в RTL зеркалятся только иконки из списка `mirroredIcons` (стрелки, шевроны, назад/вперёд, вход/выход, отправка); тест истории `shared/ui/Icon` проверяет, что в `ar` стрелка и шеврон зеркалятся, а часы — нет. Исключение из Remix — `ThemeToggleIcon` (Tabler `brightness`, MIT, §4a) с той же сигнатурой props.
 
 ## 7. Тема
 
 `src/app/theme.tsx`: `system | light | dark`, по умолчанию `system` (D-025), хранение — `storage('theme')`, класс `.dark` на `<html>`, `<meta name="theme-color">` для обеих тем (`#ffffff` / `#090b0c` = `--background` пресета). Вспышки нет: `index.html` ставит `.dark` до загрузки бандла.
+
+Кнопка темы в шапке кабинета (Кирилл 2026-11-06): `ThemeToggle` (`widgets/theme-switch`) — ghost-кнопка с `ThemeToggleIcon`, как ModeSwitcher на ui.shadcn.com: светлая ↔ тёмная от видимой темы; стоит в конце шапки после переключателя языка, через вертикальный `Separator`. Выбор «Как в системе» — в настройках (`ThemeSwitch`). Кнопки блока помощи «Have a question?» (`SupportCard`) — `rounded-lg` вместо пилюли пресета.
 
 ## 8. Запрет сырых значений
 

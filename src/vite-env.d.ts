@@ -4,7 +4,7 @@ interface ImportMetaEnv {
   readonly VITE_BASE_PATH?: string;
   readonly VITE_API_MODE?: 'mock' | 'http';
   readonly VITE_DEMO_PANEL?: '1' | '0';
-  readonly VITE_ANALYTICS?: 'console' | 'demo' | 'posthog';
+  readonly VITE_ANALYTICS?: 'console' | 'posthog';
   readonly VITE_PROTO_VERSION?: string;
   /** Витрина Proto: язык по умолчанию вместо арабского (решение Кирилла 2026-11-06, A-056). */
   readonly VITE_DEFAULT_LANG?: 'ar' | 'en';
