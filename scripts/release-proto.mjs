@@ -38,7 +38,7 @@ export const PERSONA_ITEMS = [
 
 export const PROTOTYPE_META = {
   $schema: '../../packages/registry/schemas/prototype.schema.json',
-  title: 'Tadum — кабинеты клиента и поставщика',
+  title: 'Tadum',
   description:
     'B2B-портал для KSA: заявка на торговый лимит, документы и статус клиента, кабинет поставщика. Арабский (RTL) и английский, мок-данные с персонами. Собирается в репозитории tadum и публикуется сюда замороженной версией.',
   owner: 'Кирилл',
