@@ -39,6 +39,15 @@
 
    В облачной сессии Claude push тегов закрыт (git-прокси отвечает 403) — тег ставит человек: GitHub → Releases → **Draft a new release** → тег `vN` на `main`, заголовок `Tadum vN`, текст из `docs/releases/vN.md` → **Publish release**.
 
+## Права для самостоятельной работы (Кирилл 2026-11-06)
+
+Чтобы агент обновлял статусы и записывал релизы без отказов и вопросов:
+
+- **Proto:** в `.claude/settings.json` разрешены `mcp__Google_Docs__update_doc`, `mcp__Google_Drive__create_file`, `mcp__Google_Drive__update_file` и чтение Drive. Хук `drive-guard` по-прежнему пускает запись только в Proto/Docs. Так облачный STATUS и ADR в Proto/Docs обновляются сами.
+- **Tadum:** те же правила в `.claude/settings.json` (копия release notes в Drive «06 Версии прототипа»). Файл защищён хуком `protect-paths`: правку вносит Кирилл или сессия с `TADUM_ALLOW_PROTECTED=1`.
+- **Ограничение облака:** правила из `.claude/settings.json` читаются только в сессии с одним репозиторием. Сессия выпуска подключает и Tadum, и Proto, поэтому в ней запись в Drive может быть отклонена режимом auto. Тогда агент отдаёт Кириллу готовый текст и место вставки; другой вариант — режим, в котором запрос приходит Кириллу на подтверждение.
+- **Тег `vN`** из облачной сессии не пушится (git-прокси отвечает 403): тег ставит Кирилл через GitHub Releases, текст — из `docs/releases/vN.md`.
+
 ## Откат
 
 Revert PR публикации в Proto (merge — Кирилл); Workers Builds задеплоит предыдущее состояние. Кнопка «Rollback» в дашборде Cloudflare (Deployments) — быстрый вариант до revert.
