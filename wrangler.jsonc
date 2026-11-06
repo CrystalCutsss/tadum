@@ -4,6 +4,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tadum",
   "compatibility_date": "2026-11-05",
+  // Превью веток (A-053): адреса <ветка>-tadum.<subdomain>.workers.dev; явно, чтобы деплой main их не выключал.
+  "preview_urls": true,
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"

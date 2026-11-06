@@ -49,7 +49,7 @@
 | Событие | Скрипт | Что делает |
 | :--- | :--- | :--- |
 | `PreToolUse` Edit/Write/MultiEdit/NotebookEdit | `protect-paths.sh` | запрет правки защищённых путей (ниже); `ux-writer` — только тексты |
-| `PreToolUse` Bash | `guard-bash.sh` | запрет force-push, push в `main`, коммита в `main`, `rm -rf` вне артефактов сборки, `wrangler secret`/`gh secret`, прямого `wrangler deploy`, `pnpm release:proto` без `run`, `shadcn add` вне `design-system-owner`, записи в защищённые пути через `sed -i`/`>`/`tee`/`cp`/`mv` |
+| `PreToolUse` Bash | `guard-bash.sh` | запрет force-push, push в `main`, коммита в `main`, `rm -rf` вне артефактов сборки, `wrangler secret`/`gh secret`, прямого `wrangler deploy`, `wrangler preview` и `wrangler versions upload/deploy`, `pnpm release:proto` без `run`, `shadcn add` вне `design-system-owner`, записи в защищённые пути через `sed -i`/`>`/`tee`/`cp`/`mv` |
 | `PostToolUse` Edit/Write/MultiEdit | `post-edit.sh` | `eslint --fix` файла; для `*.tsx` — физические классы; для `locales/*.json` — паритет ключей ar/en; замечания сразу уходят Claude |
 | `Stop` | `verify-on-stop.sh` | если менялся `src/` — `pnpm verify`; красный — Claude не может остановиться |
 | `SessionStart` | `session-start.sh` | инварианты из `CLAUDE.md` в контекст |
@@ -68,7 +68,7 @@
 ## Разрешения (`permissions`)
 
 - **allow** — без вопроса: `pnpm install/run/exec/verify/test/lint/typecheck/build`, `pnpm dlx shadcn@*`, чтение и коммиты git, push в `chore/*`, `feat/*`, `fix/*`, `docs/*`, `gh pr view/create/checks`, `gh run`, `gh issue`, `wrangler deploy --dry-run`, `wrangler whoami`.
-- **ask** — всегда спросить: `pnpm run release:proto`, `pnpm run deploy:preview`, `gh pr merge`, `gh api`, `git -C … push`, push тегов `v*`.
+- **ask** — всегда спросить: `pnpm run release:proto`, `pnpm run deploy:preview`, `pnpm run deploy:branch`, `gh pr merge`, `gh api`, `git -C … push`, push тегов `v*`.
 - **deny** — никогда: force-push, push в `main`, `gh repo delete`, `gh secret`, `wrangler secret`, `wrangler delete`.
 
 Разрешения из `.claude/settings.json` действуют только в доверенной папке: при первом запуске `claude` в репозитории примите диалог доверия. До этого (и в `claude -p` без доверия) Claude Code их игнорирует и спрашивает каждую команду; хуки работают в любом случае.

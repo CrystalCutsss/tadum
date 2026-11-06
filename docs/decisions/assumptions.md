@@ -249,3 +249,13 @@
   - **Ветка Proto** — `--proto-branch`, по умолчанию `feat/tadum-vN`. В облачной сессии — назначенная сессии ветка.
 
   Проверить: PR в Proto проходит CI Proto (`frozen-guard`, `registry:validate`, сборка сайта, smoke); после merge `/p/tadum/v1/` открывается в просмотрщике.
+- **A-053.** Превью веток Tadum (решение Кирилла 2026-11-06: смотреть правки без merge):
+  - **Worker Previews, а не `wrangler versions upload --preview-alias`.** Документация Cloudflare (developers.cloudflare.com/workers/previews, обновлена 2026-10) советует для веток и PR `wrangler preview --name <имя>`; aliased Version URLs — для проверки одной версии перед деплоем. В wrangler 4.157.0 команда есть (open beta), флаги сверены с `--help`: `--name`, `--message`, `--json`; удаление — `wrangler preview delete --name … --skip-confirmation`.
+  - **Имя превью** — имя ветки: строчные буквы, цифры, дефисы (`feat/TD-12_login` → `feat-td-12-login`); метка DNS `<имя>-tadum` не длиннее 63 символов, длинное имя обрезается с хешем (`scripts/deploy-branch.mjs`, тесты рядом).
+  - **`preview_urls: true`** в `wrangler.jsonc` явно: в новых wrangler значение по умолчанию зависит от версии и `workers_dev`, а деплой `main` не должен выключать превью.
+  - **Без ожидания CI.** Превью ветки выкладывается сразу после push, параллельно с `ci`: это просмотр, а не релиз; красный `ci` виден в PR рядом.
+  - **Комментарий в PR** — один на PR, обновляется при каждом push (`gh pr comment --edit-last --create-if-none`, токен `GITHUB_TOKEN` с `pull-requests: write`). PR открыт после push — превью выкладывается ещё раз по событию `opened`.
+  - **GitHub environment `preview`** используется и для веток. Если у него ограничены ветки деплоя, job веток упадёт — тогда в Settings → Environments → preview разрешить все ветки (решает Кирилл).
+  - **Хук** `guard-bash` запрещает `wrangler preview` и `wrangler versions upload/deploy` в сессиях Claude; `pnpm run deploy:branch` — в списке «ask».
+
+  Проверить: push в эту ветку создаёт превью `feat-branch-previews-tadum.kirillgloba.workers.dev`, в PR появляется комментарий со ссылкой, адрес открывается без пароля с `X-Robots-Tag: noindex`; прод `tadum.kirillgloba.workers.dev` не меняется.

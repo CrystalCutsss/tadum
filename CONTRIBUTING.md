@@ -72,6 +72,7 @@ pnpm verify
 - Описание — по шаблону `.github/PULL_REQUEST_TEMPLATE.md` (Definition of Done, [`docs/dod.md`](docs/dod.md)). Неприменимый пункт — «н/п» с причиной.
 - Зелёный job `ci` обязателен (размер и Lighthouse в v1 только отчёт).
 - Merge — **merge-коммитом** (не squash, не rebase): история веток сохраняется.
+- Каждая ветка выкладывается на своё превью `https://<ветка>-tadum.kirillgloba.workers.dev` через пару минут после push — ссылка в комментарии к PR; смотреть правки можно до merge.
 - После merge `main` автоматически выкладывается превью https://tadum.kirillgloba.workers.dev. Публикация версии на витрину Proto — отдельное действие (`pnpm release:proto vN`), только с подтверждения владельца.
 
 ## Секреты и данные

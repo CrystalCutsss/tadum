@@ -62,6 +62,10 @@ for raw in "${parts[@]}"; do
     deny "wrangler deploy напрямую запрещён: превью деплоит CI из main, витрину — pnpm run release:proto после «да» Кирилла."
   fi
 
+  if [[ "$part" =~ ^(pnpm[[:space:]]+(exec[[:space:]]+)?|npx[[:space:]]+)?wrangler[[:space:]]+(preview|versions[[:space:]]+(upload|deploy)) ]]; then
+    deny "Превью веток и версии воркера выкладывает CI (deploy-preview.yml); вручную — pnpm run deploy:branch после «да» Кирилла."
+  fi
+
   [[ "$part" =~ ^pnpm[[:space:]]+release:proto ]] && deny "Публикация — только pnpm run release:proto vN (скилл /release-proto) со всеми остановками."
 
   if [[ "$part" =~ ^pnpm[[:space:]]+dlx[[:space:]]+shadcn[^[:space:]]*[[:space:]]+add ]] && [[ "$agent" != design-system-owner ]]; then
