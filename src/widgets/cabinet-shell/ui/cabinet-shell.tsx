@@ -3,7 +3,7 @@
 // которая на узких экранах складывается в одну; текущий контент экранов занимает 2 колонки из 3 (третья — под будущие блоки).
 // Сайдбар скрывается кнопкой в шапке, контент растягивается; состояние хранится через shared/lib/storage (D-072).
 // Одна оболочка для обеих ролей: меняются пункты меню и данные. Виджеты не импортируют друг друга (FSD):
-// переключатель языка и блок помощи приходят слотами, собирает их pages/-components/cabinet-layout.
+// переключатели языка и темы и блок помощи приходят слотами, собирает их pages/-components/cabinet-layout.
 import { useQuery } from '@tanstack/react-query';
 import { useRouterState } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
@@ -29,6 +29,8 @@ export interface CabinetShellProps {
   family: Family;
   children: ReactNode;
   languageSwitch: ReactNode;
+  /** Кнопка темы в шапке, после разделителя. */
+  themeToggle: ReactNode;
   /** Блок помощи внизу сайдбара. */
   support?: ReactNode;
 }
@@ -36,7 +38,7 @@ export interface CabinetShellProps {
 /** Номер для показа: +966 5X XXX XXXX. */
 const displayPhone = (phone: string) => `+966 ${formatNationalInput(nationalDigits(phone))}`;
 
-export function CabinetShell({ family, children, languageSwitch, support }: CabinetShellProps) {
+export function CabinetShell({ family, children, languageSwitch, themeToggle, support }: CabinetShellProps) {
   const { i18n } = useTranslation();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const session = useQuery(sessionQuery);
@@ -71,7 +73,7 @@ export function CabinetShell({ family, children, languageSwitch, support }: Cabi
         account={<NavAccount family={family} name={contextName} nameLoading={nameLoading} phone={phone} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
       />
       <SidebarInset className="min-w-0 text-foreground">
-        <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} />
+        <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} themeToggle={themeToggle} />
         <div className="grid flex-1 grid-cols-1 content-start gap-4 p-4 pb-safe-bottom lg:grid-cols-3">
           <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
             <OfflineBanner />

@@ -1,9 +1,8 @@
-// track(): контекст §2.2, провайдеры по VITE_ANALYTICS (D-059), PII-guard §2.3, лента демо-панели.
+// track(): контекст §2.2, провайдеры по VITE_ANALYTICS (D-059), PII-guard §2.3.
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { setAnalyticsContext } from './context';
 import { PiiViolation, assertNoPii } from './pii-guard';
-import { demoFeed } from './providers/demo-panel';
 import { consoleProvider } from './providers/console';
 import { posthogProvider } from './providers/posthog';
 import type { CapturedEvent } from './providers/types';
@@ -63,25 +62,10 @@ describe('track()', () => {
 });
 
 describe('провайдеры (D-059)', () => {
-  it('витрина — лента демо-панели и консоль; прод — только боевой', () => {
-    expect(providersFor('demo')).toEqual([expect.objectContaining({}), consoleProvider]);
-    expect(providersFor('demo')).not.toContain(posthogProvider);
+  it('витрина — только консоль; прод — только боевой', () => {
     expect(providersFor('posthog')).toEqual([posthogProvider]);
     expect(providersFor('console')).toEqual([consoleProvider]);
     expect(providersFor(undefined)).toEqual([consoleProvider]);
-  });
-  it('лента демо-панели: новые сверху, очистка', () => {
-    restore = setAnalyticsProviders(providersFor('demo').filter((p) => p !== consoleProvider));
-    demoFeed.clear();
-    let notified = 0;
-    const unsubscribe = demoFeed.subscribe(() => notified++);
-    track('referral_printed', {});
-    track('clients_page_loaded', { page: 2 });
-    expect(demoFeed.getSnapshot().map((e) => e.name)).toEqual(['clients_page_loaded', 'referral_printed']);
-    expect(notified).toBe(2);
-    demoFeed.clear();
-    expect(demoFeed.getSnapshot()).toEqual([]);
-    unsubscribe();
   });
 });
 

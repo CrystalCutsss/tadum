@@ -5,5 +5,4 @@ export * from './buckets';
 export type * from './events';
 export { EVENT_VERSIONS } from './events';
 export { assertNoPii, PiiViolation } from './pii-guard';
-export { demoFeed, type DemoFeedEntry } from './providers/demo-panel';
 export type { AnalyticsProvider, CapturedEvent } from './providers/types';

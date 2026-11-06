@@ -31,6 +31,7 @@
     --color-whatsapp-foreground: var(--whatsapp-foreground);
     --shadow-sm: var(--elevation-sm);
     --shadow-md: var(--elevation-md);
+    --shadow-inset: var(--elevation-inset);
     --duration-fast: var(--motion-fast);
     --duration-base: var(--motion-base);
     --duration-slow: var(--motion-slow);

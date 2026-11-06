@@ -1,6 +1,6 @@
 // Шапка контентной области (решение Кирилла 2026-11-06): кнопка скрытия/раскрытия сайдбара, заголовок страницы
-// в виде хлебных крошек (пока один уровень), переключатель языка (ghost) — прижат к концу строки (end) в RTL и LTR.
-// Переключателя темы в шапке нет (D-025).
+// в виде хлебных крошек (пока один уровень), в конце строки (end) в RTL и LTR — переключатель языка (ghost)
+// и через разделитель — кнопка темы светлая ↔ тёмная, как на ui.shadcn.com (Кирилл 2026-11-06, уточняет D-025).
 import { Link } from '@tanstack/react-router';
 import { Fragment, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,9 +12,10 @@ import type { Crumb } from '../model/nav';
 export interface AppHeaderProps {
   crumbs: readonly Crumb[];
   languageSwitch: ReactNode;
+  themeToggle: ReactNode;
 }
 
-export function AppHeader({ crumbs, languageSwitch }: AppHeaderProps) {
+export function AppHeader({ crumbs, languageSwitch, themeToggle }: AppHeaderProps) {
   const { t } = useTranslation();
   return (
     <header className="flex min-h-14 shrink-0 items-center gap-2 border-b px-2 md:px-4">
@@ -39,7 +40,12 @@ export function AppHeader({ crumbs, languageSwitch }: AppHeaderProps) {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="ms-auto shrink-0">{languageSwitch}</div>
+      {/* Разделитель — как между кнопкой сайдбара и заголовком. */}
+      <div className="ms-auto flex shrink-0 items-center gap-2">
+        {languageSwitch}
+        <Separator orientation="vertical" className="data-vertical:h-4 data-vertical:self-auto" />
+        {themeToggle}
+      </div>
     </header>
   );
 }

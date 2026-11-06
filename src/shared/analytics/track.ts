@@ -4,19 +4,16 @@ import { currentContext } from './context';
 import type { EventName, EventProps } from './events';
 import { assertNoPii } from './pii-guard';
 import { consoleProvider } from './providers/console';
-import { demoPanelProvider } from './providers/demo-panel';
 import { posthogProvider } from './providers/posthog';
 import type { AnalyticsProvider } from './providers/types';
 
-type ProviderMode = 'console' | 'demo' | 'posthog';
+type ProviderMode = 'console' | 'posthog';
 
-/** На витрине — только лента демо-панели и консоль; боевой провайдер — только в проде (D-059). */
+/** На витрине и локально — консоль; боевой провайдер — только в проде (D-059). Демо-панели с лентой событий нет (Кирилл 2026-11-06). */
 export function providersFor(mode: ProviderMode | undefined): AnalyticsProvider[] {
   switch (mode) {
     case 'posthog':
       return [posthogProvider];
-    case 'demo':
-      return [demoPanelProvider, consoleProvider];
     case 'console':
     default:
       return [consoleProvider];

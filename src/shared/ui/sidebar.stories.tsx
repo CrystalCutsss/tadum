@@ -27,7 +27,18 @@ import {
 } from './sidebar';
 import { Wordmark } from './wordmark';
 
-const meta = { title: 'shared/ui/Sidebar', ...matrix } satisfies Meta;
+// Принятое исключение, Кирилл 2026-11-06: белый текст кнопки WhatsApp на #25D366 — 1.98:1.
+// Отключено только правило axe color-contrast; правила матрицы (landmark) сохранены — массив rules при слиянии parameters заменяется целиком.
+const whatsappA11y = {
+  ...matrix.parameters,
+  a11y: {
+    ...matrix.parameters.a11y,
+    config: { rules: [...matrix.parameters.a11y.config.rules, { id: 'color-contrast', enabled: false }] },
+  },
+};
+
+// Во всех историях в футере есть кнопка WhatsApp, поэтому исключение — на уровне meta.
+const meta = { title: 'shared/ui/Sidebar', ...matrix, parameters: whatsappA11y } satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

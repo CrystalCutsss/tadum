@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { personaFromParam } from '../src/shared/api/demo-persona';
 import { PERSONA_IDS } from '../src/shared/api/fixtures/types';
 
-import { PERSONA_ITEMS, frozenManifest, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
+import { PERSONA_ITEMS, PROTOTYPE_META, frozenManifest, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
 
 describe('injectProtoTags', () => {
   const html = '<!doctype html><html lang="ar" dir="rtl"><head><title>Tadum</title></head><body></body></html>';
@@ -50,17 +50,23 @@ describe('parseReleaseNotes', () => {
 });
 
 describe('метаданные Proto', () => {
-  it('ось «Персона» в рамках Proto: ≤ 6 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
+  it('ось «Сценарии и роли» в рамках Proto: ≤ 6 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
     expect(PERSONA_ITEMS.length).toBeLessThanOrEqual(6);
     expect(PERSONA_ITEMS[0].id).toBe('login');
     for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     for (const { id } of PERSONA_ITEMS.slice(1)) expect(PERSONA_IDS).toContain(personaFromParam(id));
+    // Клиентские сценарии убраны до готовности функционала (Кирилл 2026-11-06).
+    expect(PERSONA_ITEMS.map((i) => i.id)).toEqual(['login', 'supplier-active', 'dual-active']);
+  });
+
+  it('прототип: только компьютер, меню оболочки без версий и в стиле shadcn', () => {
+    expect(PROTOTYPE_META).toMatchObject({ platform: 'desktop', platforms: ['desktop'], menu: { versions: false, style: 'shadcn' } });
   });
 
   it('версия заморожена, history-маршрутизация, имя пакета по правилу Proto', () => {
     const v = versionMeta({ version: 'v1', title: 't', changelog: ['c'], date: '2026-11-05' });
     expect(v).toMatchObject({ version: 'v1', status: 'frozen', routing: 'history' });
-    expect(v.axes.map((a) => a.id)).toEqual(['persona', 'lang']);
+    expect(v.axes.map((a) => [a.id, a.title])).toEqual([['persona', 'Сценарии и роли']]);
     expect(versionPackage('v1')).toMatchObject({ name: '@proto/tadum--v1', scripts: { build: 'proto-frozen-build' } });
   });
 
