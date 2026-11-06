@@ -30,6 +30,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  Skeleton,
   useSidebar,
 } from '@/shared/ui';
 
@@ -37,15 +38,17 @@ import { settingsOf } from '../model/nav';
 
 export interface NavAccountProps {
   family: Family;
-  /** Название компании клиента или поставщика; null — ещё не загрузилось, показываем номер. */
+  /** Название компании клиента или поставщика; null после загрузки — показываем номер. */
   name: string | null;
+  /** Название ещё грузится — вместо номера плейсхолдер, чтобы номер не мелькал перед названием. */
+  nameLoading: boolean;
   phone: string | null;
   dual: boolean;
   /** Подсказка dual: состояние живёт в оболочке, потому что шторка на телефоне перемонтирует меню. */
   hint: { pending: boolean; dismiss: () => void };
 }
 
-export function NavAccount({ family, name, phone, dual, hint }: NavAccountProps) {
+export function NavAccount({ family, name, nameLoading, phone, dual, hint }: NavAccountProps) {
   const { t, i18n } = useTranslation();
   const { isMobile, openMobile } = useSidebar();
   const switchRole = useSwitchRole(family);
@@ -96,7 +99,13 @@ export function NavAccount({ family, name, phone, dual, hint }: NavAccountProps)
                   {/* Доступное имя: «Аккаунт» + видимые название и роль (видимый текст должен входить в имя). */}
                   <span className="sr-only">{t('nav.account')}</span>
                   <div className="grid min-w-0 flex-1 text-start leading-tight">
-                    <span className="truncate text-sm font-medium">{name ?? (phone ? <Ltr>{phone}</Ltr> : null)}</span>
+                    {name ? (
+                      <span className="truncate text-sm font-medium">{name}</span>
+                    ) : nameLoading ? (
+                      <Skeleton className="h-4 w-28" />
+                    ) : (
+                      <span className="truncate text-sm font-medium">{phone ? <Ltr>{phone}</Ltr> : null}</span>
+                    )}
                     <span className="truncate text-xs">{role}</span>
                   </div>
                   <Icon icon={RiExpandUpDownLine} className="ms-auto size-4" />

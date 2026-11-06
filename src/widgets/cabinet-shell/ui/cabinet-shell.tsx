@@ -40,18 +40,21 @@ export function CabinetShell({ family, children, languageSwitch, support }: Cabi
   const { i18n } = useTranslation();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const session = useQuery(sessionQuery);
-  const company = useQuery({ ...companyQuery, enabled: family === 'client' });
-  const supplier = useQuery({ ...supplierQuery, enabled: family === 'supplier' });
+  const families = familiesOf(session.data?.roles ?? []);
+  // dual: названия обеих ролей грузятся сразу, чтобы после переключения роли аккаунт не мигал.
+  const company = useQuery({ ...companyQuery, enabled: family === 'client' || families.includes('client') });
+  const supplier = useQuery({ ...supplierQuery, enabled: family === 'supplier' || families.includes('supplier') });
   const [open, setOpen] = useState(() => storage.get(SIDEBAR_KEY) !== '0');
   // «Уже видел подсказку dual» читается один раз за монтирование оболочки.
   const [hintPending, setHintPending] = useState(() => !roleHint.seen());
 
-  const dual = familiesOf(session.data?.roles ?? []).length > 1;
+  const dual = families.length > 1;
   const contextName =
     family === 'client'
       ? (i18n.language === 'ar' ? company.data?.name_ar : undefined) ?? company.data?.name ?? null
       : supplier.data?.name ?? null;
-  // Пока название компании или поставщика не загрузилось — номер (A-055).
+  // Пока название грузится — плейсхолдер; номер — только если название получить не удалось (A-055).
+  const nameLoading = (family === 'client' ? company : supplier).isPending;
   const phone = session.data?.phone ? displayPhone(session.data.phone) : null;
 
   return (
@@ -65,7 +68,7 @@ export function CabinetShell({ family, children, languageSwitch, support }: Cabi
       <AppSidebar
         family={family}
         support={support}
-        account={<NavAccount family={family} name={contextName} phone={phone} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
+        account={<NavAccount family={family} name={contextName} nameLoading={nameLoading} phone={phone} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
       />
       <SidebarInset className="min-w-0 text-foreground">
         <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} />

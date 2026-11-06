@@ -42,6 +42,9 @@ test('@smoke dual_active → /c/home → переключатель → /s/home 
   await openAccountMenu(page, 'en', { dismissHint: true });
   await page.getByRole('menuitemradio', { name: tr('en', 'role.supplier') }).click();
   await expect(page).toHaveURL(/\/s\/home/);
+  // Регрессия: после смены роли аккаунт не показывает номер, пока грузится название (название второй роли уже загружено).
+  const acc = account(page, 'en');
+  if (await acc.isVisible()) expect(await acc.textContent()).not.toContain('+966');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('html')).toHaveClass(/dark/);
   await page.reload();
