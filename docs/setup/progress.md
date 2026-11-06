@@ -21,7 +21,7 @@
 | 7b | done | `e76795e` | README/CONTRIBUTING, ADR-003, перенос в GitLab, аналитика, карта `docs/`; `verify` += `check:docs`; копии в Drive |
 | 8a | done | см. git log | `CLAUDE.md` 56 строк, 9 правил, 7 агентов, 12 скиллов; `verify` += `check:claude` (A-050) |
 | 8b | done | `8cc75e3` (merge PR #2) | хуки (66 тестов), разрешения, `.mcp.json`, плагины; финальная проверка Кириллом — хук отказал |
-| 9 | in progress | см. git log | `release:proto` по механизму Proto (замороженная версия, PR в Proto), ветка `chore/release-v1` |
+| 9 | done | `6b6cd4e` (merge PR #3), Proto `d119d29` (PR #54) | Tadum v1 на витрине https://proto.kirillgloba.workers.dev/p/tadum/v1/; «Экран» Компьютер / Телефон — Proto PR #55 (ADR-0025) |
 | 10 | todo | — | |
 
 ## План блока 0
@@ -201,6 +201,14 @@
 3. ⏸ Кирилл: diff Proto и локальный просмотр → «да» → push ветки Proto и PR → merge Кириллом → Workers Builds деплоит.
 4. ⏸ Кирилл: пароль Tadum в `PROTOTYPE_PASSWORDS`.
 5. Проверка на витрине, тег `v1`.
+
+**Проверка блока 9 — публикация (2026-11-05):**
+- PR Tadum #3 и Proto #54 смержены (Proto — squash, как принято там); первая сборка Workers Builds простояла в очереди ~20 минут, затем витрина обновилась;
+- пароль Tadum задал Кирилл — секрет `PROTOTYPE_PASSWORDS` создан впервые (раньше отдельных паролей не было);
+- Кирилл: `/p/tadum/v1/` открывается после двух паролей;
+- по просьбе Кирилла: на компьютере — всё окно, с переключением на мокап телефона: поле `platforms` и контрол «Экран» в просмотрщике Proto (ADR-0025, PR CrystalCutsss/proto#55), проверено на локальной витрине;
+- release notes v1 — Drive `06 Версии прототипа/v1.md` (`1C88fpbHVwoageYpZ2_R2Z-jNVV6CAMR7`, 4197 байт, совпадает);
+- тег `v1`: push тегов из облачной сессии закрыт (403) — тег ставит Кирилл через GitHub Releases (`docs/release.md`).
 
 **Проверка блока 9 — подготовка (2026-11-05):**
 - `pnpm run release:proto v1 --proto-dir /home/user/proto --proto-branch claude/epic-wozniak-hjs4n8`: `pnpm verify` зелёный; сборка `/p/tadum/v1/`; в Proto `registry:validate` — «Registry OK: 3 prototypes, 7 versions», `site:build` — 11 задач, 365 файлов, 24 МБ; локальный коммит Proto `fd8e046` (79 файлов, без push);
