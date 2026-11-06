@@ -89,7 +89,7 @@ export function versionMeta({ version, title, changelog, date }) {
     status: 'frozen',
     changelog,
     routing: 'history',
-    routes: ['/login', '/c/home', '/c/documents', '/c/help', '/s/home', '/s/help'],
+    routes: ['/login', '/c/home', '/c/documents', '/c/help', '/s/home', '/s/documents', '/s/help'],
     axes: [
       { id: 'persona', title: 'Персона', items: PERSONA_ITEMS },
       {
