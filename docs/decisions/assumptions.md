@@ -254,7 +254,7 @@
   - **Имя превью** — имя ветки: строчные буквы, цифры, дефисы (`feat/TD-12_login` → `feat-td-12-login`); метка DNS `<имя>-tadum` не длиннее 63 символов, длинное имя обрезается с хешем (`scripts/deploy-branch.mjs`, тесты рядом).
   - **`preview_urls: true` и пустой блок `previews: {}`** в `wrangler.jsonc`: без блока `wrangler preview` отказывает («configuration is missing a previews block»); `preview_urls` — явно: в новых wrangler значение по умолчанию зависит от версии и `workers_dev`, а деплой `main` не должен выключать превью.
   - **Без ожидания CI.** Превью ветки выкладывается сразу после push, параллельно с `ci`: это просмотр, а не релиз; красный `ci` виден в PR рядом.
-  - **Комментарий в PR** — один на PR, обновляется при каждом push (`gh pr comment --edit-last --create-if-none`, токен `GITHUB_TOKEN` с `pull-requests: write`). PR открыт после push — превью выкладывается ещё раз по событию `opened`.
+  - **Комментарий в PR** — один на PR, обновляется при каждом push (`gh pr comment --edit-last --create-if-none`, токен `GITHUB_TOKEN` с `pull-requests: write`). PR открыт после push — по событию `opened` превью не выкладывается заново: отдельный job `branch-preview-comment` в своей очереди пишет тот же адрес (имя — `previewName` из `deploy-branch.mjs`). Раньше повторная выкладка в той же очереди отменяла запуск push, и в PR висела отменённая проверка (2026-11-06, CrystalCutsss/tadum#12).
   - **GitHub environment `preview`** используется и для веток. Если у него ограничены ветки деплоя, job веток упадёт — тогда в Settings → Environments → preview разрешить все ветки (решает Кирилл).
   - **Хук** `guard-bash` запрещает `wrangler preview` и `wrangler versions upload/deploy` в сессиях Claude; `pnpm run deploy:branch` — в списке «ask».
 
