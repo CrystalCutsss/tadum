@@ -31,13 +31,13 @@ const account = (canvasElement: HTMLElement) => within(canvasElement).findByRole
 export const Client: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Основное меню: Dashboard и Documents, текущая страница — в крошках шапки.
+    // Основное меню: Home и Documents, текущая страница — в крошках шапки.
     const nav = await canvas.findByRole('navigation', { name: tr('nav.main') });
     await expect(within(nav).getByRole('link', { name: tr('nav.home') })).toHaveAttribute('data-active', 'true');
     await expect(within(nav).getByRole('link', { name: tr('nav.documents') })).toBeVisible();
     await expect(within(canvas.getByRole('navigation', { name: tr('nav.breadcrumb') })).getByText(tr('nav.home'))).toBeVisible();
-    // Аккаунт: имя и фамилия из сессии (по-арабски в ar, A-055) и роль подстрочником.
-    await waitFor(async () => expect(await account(canvasElement)).toHaveTextContent(/عمر الزهراني|Omar Al-Zahrani/));
+    // Аккаунт: название компании (по-арабски в ar, A-055) и роль подстрочником.
+    await waitFor(async () => expect(await account(canvasElement)).toHaveTextContent(/أفق للأثاث المكتبي|Ufuq Office Furniture/));
     await expect(await account(canvasElement)).toHaveTextContent(tr('role.client'));
   },
 };

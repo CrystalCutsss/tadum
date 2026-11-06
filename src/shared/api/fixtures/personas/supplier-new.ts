@@ -10,7 +10,6 @@ export const supplierNew: PersonaFixture = (now) => {
   return {
     persona_id: 'supplier_new',
     phone: phone(11),
-    user: { name: 'Turki Al-Shammari', name_ar: 'تركي الشمري' },
     company: null,
     applications: [],
     leads: [],

@@ -113,7 +113,7 @@
     "clients": "Clients",
     "documents": "Documents",
     "help": "Help",
-    "home": "Dashboard",
+    "home": "Home",
     "main": "Main menu",
     "mobile_description": "Main menu and account",
     "mobile_title": "Menu",
@@ -163,7 +163,7 @@
     "upload_documents_other": "Upload {count} documents to continue"
   },
   "notfound": {
-    "home": "Go to dashboard",
+    "home": "Go to home",
     "title": "This page doesn't exist"
   },
   "relative": {
@@ -208,7 +208,9 @@
   },
   "support": {
     "cta": {
-      "question": "Have a question? Message us"
+      "question": "Have a question? Message us",
+      "subtitle": "Message us",
+      "title": "Have a question?"
     },
     "email": "Email",
     "prefill": {

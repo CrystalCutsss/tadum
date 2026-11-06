@@ -9,7 +9,6 @@ export const clientFirstPurchase: PersonaFixture = (now) => {
   return {
     persona_id: 'client_first_purchase',
     phone: phone(8),
-    user: { name: 'Lama Al-Otaibi', name_ar: 'لمى العتيبي' },
     company: { id: 'cmp_cfp', name: 'Marjan Cosmetics', name_ar: 'مرجان لمستحضرات التجميل', cr_number: '1010000008' },
     applications: [
       {

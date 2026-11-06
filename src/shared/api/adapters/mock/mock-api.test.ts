@@ -104,18 +104,6 @@ describe('OTP (D-021, D-027, SC-01)', () => {
     await api.auth.requestOtp(phone);
     expect((await api.auth.verifyOtp(phone, '0000')).roles).toEqual(['client_contact']);
   });
-  it('сессия несёт имя владельца основного номера персоны; у номера из leads имени нет (A-055)', async () => {
-    const graph = PERSONAS.dual_active(t0());
-    const api = testApi();
-    await api.auth.requestOtp(graph.phone);
-    expect(await api.auth.verifyOtp(graph.phone, '0000')).toMatchObject({ display_name: 'Nasser Al-Rashid', display_name_ar: 'ناصر الراشد' });
-    const lead = graph.leads[0]!.phone;
-    const other = testApi();
-    await other.auth.requestOtp(lead);
-    const session = await other.auth.verifyOtp(lead, '0000');
-    expect(session.display_name).toBeUndefined();
-    expect(session.display_name_ar).toBeUndefined();
-  });
   it('код живёт 5 минут', async () => {
     const api = testApi();
     await api.auth.requestOtp(phone);

@@ -31,7 +31,6 @@ export const supplierActive: PersonaFixture = (now) => {
   return {
     persona_id: 'supplier_active',
     phone: phone(12),
-    user: { name: 'Yousef Al-Malki', name_ar: 'يوسف المالكي' },
     company: null,
     applications: [],
     leads: [],

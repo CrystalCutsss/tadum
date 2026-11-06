@@ -11,7 +11,6 @@ export const clientRejected: PersonaFixture = (now) => {
   return {
     persona_id: 'client_rejected',
     phone: phone(3),
-    user: { name: 'Abdullah Al-Shehri', name_ar: 'عبدالله الشهري' },
     company: { id: 'cmp_cr', name: 'Qimam Building Materials', name_ar: 'قمم لمواد البناء', cr_number: '1010000003' },
     applications: [
       {

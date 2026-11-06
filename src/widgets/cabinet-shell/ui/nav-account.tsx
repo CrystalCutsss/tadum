@@ -1,5 +1,6 @@
-// Аккаунт внизу сайдбара (решение Кирилла 2026-11-06): без аватара — имя и фамилия, под ними текущая роль.
-// Меню: переключение ролей (только dual), «Настройки» (экран «Помощь и настройки»), выход с подтверждением.
+// Аккаунт внизу сайдбара (решения Кирилла 2026-11-06): без аватара — название компании клиента или поставщика,
+// под ним текущая роль. Меню без заголовка и разделителей: быстрая смена роли кнопками «Client | Supplier»
+// (только dual), «Настройки» (экран «Помощь и настройки»), выход с подтверждением.
 // Подсказка dual «у вас есть и кабинет поставщика» — один раз: на десктопе поповером у кнопки аккаунта, на телефоне — блоком в шторке.
 import { RiExpandUpDownLine, RiLogoutBoxRLine, RiSettings3Line } from '@remixicon/react';
 import { Link } from '@tanstack/react-router';
@@ -14,12 +15,9 @@ import {
   Button,
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Icon,
   Ltr,
@@ -36,17 +34,15 @@ import { settingsOf } from '../model/nav';
 
 export interface NavAccountProps {
   family: Family;
-  /** Имя и фамилия (Session.display_name); null — имени нет, показываем номер. */
+  /** Название компании клиента или поставщика; null — ещё не загрузилось, показываем номер. */
   name: string | null;
   phone: string | null;
-  /** Компания клиента или поставщик — заголовок меню. */
-  contextName: string | null;
   dual: boolean;
   /** Подсказка dual: состояние живёт в оболочке, потому что шторка на телефоне перемонтирует меню. */
   hint: { pending: boolean; dismiss: () => void };
 }
 
-export function NavAccount({ family, name, phone, contextName, dual, hint }: NavAccountProps) {
+export function NavAccount({ family, name, phone, dual, hint }: NavAccountProps) {
   const { t, i18n } = useTranslation();
   const { isMobile, openMobile } = useSidebar();
   const switchRole = useSwitchRole(family);
@@ -94,7 +90,7 @@ export function NavAccount({ family, name, phone, contextName, dual, hint }: Nav
             <PopoverAnchor asChild>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg" className="aria-expanded:bg-sidebar-accent aria-expanded:text-sidebar-accent-foreground">
-                  {/* Доступное имя: «Аккаунт» + видимые имя и роль (видимый текст должен входить в имя). */}
+                  {/* Доступное имя: «Аккаунт» + видимые название и роль (видимый текст должен входить в имя). */}
                   <span className="sr-only">{t('nav.account')}</span>
                   <div className="grid min-w-0 flex-1 text-start leading-tight">
                     <span className="truncate text-sm font-medium">{name ?? (phone ? <Ltr>{phone}</Ltr> : null)}</span>
@@ -105,25 +101,23 @@ export function NavAccount({ family, name, phone, contextName, dual, hint }: Nav
               </DropdownMenuTrigger>
             </PopoverAnchor>
             <DropdownMenuContent className="min-w-56" side={side} align="end" sideOffset={4}>
-              {contextName ? <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{contextName}</DropdownMenuLabel> : null}
               {dual ? (
-                <>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>{t('nav.switch_role')}</DropdownMenuLabel>
-                    <DropdownMenuRadioGroup
-                      value={family}
-                      onValueChange={(v) => {
-                        if (v === 'client' || v === 'supplier') switchRole(v);
-                      }}
-                    >
-                      <DropdownMenuRadioItem value="client">{t('role.client')}</DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="supplier">{t('role.supplier')}</DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                </>
-              ) : contextName ? (
-                <DropdownMenuSeparator />
+                // Сегментный переключатель: два пункта в ряд, выбранный — фоном; стрелки и Enter работают как в меню.
+                <DropdownMenuRadioGroup
+                  aria-label={t('nav.switch_role')}
+                  className="grid grid-cols-2 gap-1"
+                  value={family}
+                  onValueChange={(v) => {
+                    if (v === 'client' || v === 'supplier') switchRole(v);
+                  }}
+                >
+                  <DropdownMenuRadioItem value="client" indicator={false}>
+                    {t('role.client')}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="supplier" indicator={false}>
+                    {t('role.supplier')}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
               ) : null}
               <DropdownMenuItem asChild>
                 <Link to={settingsOf(family)}>
@@ -131,7 +125,6 @@ export function NavAccount({ family, name, phone, contextName, dual, hint }: Nav
                   {t('nav.settings')}
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setLogoutOpen(true)}>
                 <Icon icon={RiLogoutBoxRLine} />
                 {t('help.logout')}

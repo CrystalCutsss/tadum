@@ -20,7 +20,8 @@ export function AppHeader({ crumbs, languageSwitch }: AppHeaderProps) {
     <header className="flex min-h-14 shrink-0 items-center gap-2 border-b px-2 md:px-4">
       <SidebarTrigger aria-label={t('nav.toggle_sidebar')} className="min-h-11 min-w-11" />
       <Separator orientation="vertical" className="data-vertical:h-4 data-vertical:self-auto" />
-      <Breadcrumb aria-label={t('nav.breadcrumb')} className="min-w-0 flex-1">
+      {/* Кнопка 44 px с иконкой 16 px: от иконки до разделителя 14 + 8 px — тот же отступ (ms-3.5 + gap-2) от разделителя до заголовка. */}
+      <Breadcrumb aria-label={t('nav.breadcrumb')} className="ms-3.5 min-w-0 flex-1">
         <BreadcrumbList>
           {crumbs.map((c, i) => (
             <Fragment key={c.labelKey}>

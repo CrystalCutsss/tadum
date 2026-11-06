@@ -58,8 +58,10 @@ export async function asPersona(page: Page, persona: string, lang: Lang = 'en', 
 /** Сайдбар: на телефоне — шторка по кнопке в шапке, на десктопе виден сразу (решение Кирилла 2026-11-06). */
 export async function openSidebar(page: Page, lang: Lang) {
   const account = page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
-  if (await account.isVisible()) return;
-  await page.getByRole('button', { name: tr(lang, 'nav.toggle_sidebar') }).click();
+  // Телефон — по ширине окна (брейкпоинт useIsMobile — 768 px), а не по видимости аккаунта: пока данные грузятся,
+  // аккаунта ещё нет и на десктопе, а нажатие кнопки там свернуло бы сайдбар.
+  const mobile = (page.viewportSize()?.width ?? 0) < 768;
+  if (mobile && !(await account.isVisible())) await page.getByRole('button', { name: tr(lang, 'nav.toggle_sidebar') }).click();
   await account.waitFor();
 }
 

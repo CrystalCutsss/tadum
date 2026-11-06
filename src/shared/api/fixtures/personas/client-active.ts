@@ -10,7 +10,6 @@ export const clientActive: PersonaFixture = (now) => {
   return {
     persona_id: 'client_active',
     phone: phone(7),
-    user: { name: 'Omar Al-Zahrani', name_ar: 'عمر الزهراني' },
     company: { id: 'cmp_ca', name: 'Ufuq Office Furniture', name_ar: 'أفق للأثاث المكتبي', cr_number: '1010000007' },
     applications: [
       {

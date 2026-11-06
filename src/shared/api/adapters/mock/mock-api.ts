@@ -248,8 +248,6 @@ export function createMockApi(options: MockApiOptions): Api {
       theme: 'system',
       issued_at: s.issued_at,
       expires_at: s.expires_at,
-      // Имя знает только владелец основного номера персоны; номера из leads — без имени.
-      ...(g.user && s.phone === g.phone ? { display_name: g.user.name, ...(g.user.name_ar ? { display_name_ar: g.user.name_ar } : {}) } : {}),
       ...(app && roles.some((r) => r !== 'supplier') ? { client_context: { application_id: app.id, company_id: app.company_id } } : {}),
       ...(g.supplier && roles.includes('supplier') ? { supplier_context: { supplier_id: g.supplier.id } } : {}),
     };

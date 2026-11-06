@@ -52,10 +52,6 @@ export const SessionSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']),
   issued_at: DateTimeSchema,
   expires_at: DateTimeSchema,
-  /** Имя и фамилия владельца номера — аккаунт в сайдбаре (A-055). Нет — интерфейс показывает номер. */
-  display_name: z.string().optional(),
-  /** Имя и фамилия по-арабски; нет — `display_name`. */
-  display_name_ar: z.string().optional(),
   client_context: z.object({ application_id: z.string(), company_id: z.string() }).optional(),
   supplier_context: z.object({ supplier_id: z.string() }).optional(),
 });

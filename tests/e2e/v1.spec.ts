@@ -1,38 +1,38 @@
 // Сценарии v1 (мастер-промпт 6d п.2): вход, персоны, роли dual, поставщик, неизвестный номер, истечение сессии.
 // @smoke — входят в test:e2e:smoke (android-chrome, в verify).
-import { asPersona, enterCode, expect, openAccountMenu, signIn, test, tr } from './fixtures';
+import type { Page } from '@playwright/test';
 
-const timeline = (lang: 'ar' | 'en') => ({ name: tr(lang, 'timeline.title') });
+import { asPersona, enterCode, expect, openAccountMenu, openSidebar, signIn, test, tr } from './fixtures';
 
-test('@smoke client_new → вход (0000) → /c/home со шкалой на шаге 1', async ({ page }) => {
+// /c/home до проработки разделов показывает заглушку (Кирилл 2026-11-06, A-055): персона проверяется по названию
+// компании в аккаунте сайдбара, шкала и «следующий шаг» — в историях ClientHome и unit-тестах.
+const stub = (lang: 'ar' | 'en') => ({ name: tr(lang, 'stub.coming_soon.title') });
+const account = (page: Page, lang: 'ar' | 'en') => page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
+
+test('@smoke client_new → вход (0000) → /c/home: заглушка и компания в аккаунте', async ({ page }) => {
   await signIn(page, 'ar', '500000001');
   await expect(page).toHaveURL(/\/c\/home$/);
-  const current = page.getByRole('list', timeline('ar')).locator('li[aria-current="step"]');
-  await expect(current).toHaveCount(1);
-  await expect(current).toContainText(tr('ar', 'timeline.client.documents'));
-  await expect(page.getByText(tr('ar', 'next_step.upload_documents', { count: 7 }))).toBeVisible();
+  await expect(page.getByRole('heading', stub('ar'))).toBeVisible();
+  await openSidebar(page, 'ar');
+  await expect(account(page, 'ar')).toContainText('رمال الشرق للتجارة');
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
 });
 
 const personas = [
-  { id: 'client_submitted', step: 'timeline.client.review', text: () => tr('en', 'next_step.under_review_eta', { count: 24, hours: 24 }) },
-  { id: 'client_approved_unsigned', step: 'timeline.client.signing', text: () => tr('en', 'next_step.sign_documents') },
+  { id: 'client_submitted', company: 'Danah Medical Supplies' },
+  { id: 'client_approved_unsigned', company: 'Barq Logistics' },
+  { id: 'client_closed_rejected', company: 'Wadi Hanifa Contracting' },
 ] as const;
 
 for (const p of personas) {
-  test(`@smoke ?persona=${p.id} меняет шкалу и карточку`, async ({ page }) => {
+  test(`@smoke ?persona=${p.id} открывает кабинет этой компании`, async ({ page }) => {
     await asPersona(page, p.id);
     await expect(page).toHaveURL(/\/c\/home/);
-    await expect(page.getByRole('list', timeline('en')).locator('li[aria-current="step"]')).toContainText(tr('en', p.step));
-    await expect(page.getByText(p.text())).toBeVisible();
+    await expect(page.getByRole('heading', stub('en'))).toBeVisible();
+    await openSidebar(page, 'en');
+    await expect(account(page, 'en')).toContainText(p.company);
   });
 }
-
-test('@smoke ?persona=client_closed_rejected — нейтральная карточка вместо шкалы', async ({ page }) => {
-  await asPersona(page, 'client_closed_rejected');
-  await expect(page.getByText(tr('en', 'closed.title'))).toBeVisible();
-  await expect(page.getByRole('list', timeline('en'))).toHaveCount(0);
-});
 
 test('@smoke dual_active → /c/home → переключатель → /s/home без потери языка и темы', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
@@ -51,15 +51,16 @@ test('@smoke dual_active → /c/home → переключатель → /s/home 
 test('?persona= через дефис (меню просмотрщика Proto) открывает ту же персону', async ({ page }) => {
   await asPersona(page, 'client-submitted');
   await expect(page).toHaveURL(/\/c\/home/);
-  await expect(page.getByRole('list', timeline('en')).locator('li[aria-current="step"]')).toContainText(tr('en', 'timeline.client.review'));
+  await openSidebar(page, 'en');
+  await expect(account(page, 'en')).toContainText('Danah Medical Supplies');
 });
 
 test('@smoke supplier_active → /s/home', async ({ page }) => {
   await asPersona(page, 'supplier_active');
   await expect(page).toHaveURL(/\/s\/home/);
-  // Название поставщика — в заголовке меню аккаунта (сайдбар, решение Кирилла 2026-11-06).
-  await openAccountMenu(page, 'en');
-  await expect(page.getByRole('menu').getByText('Bayt Al Khayr Wholesale')).toBeVisible();
+  // Название поставщика — в аккаунте внизу сайдбара (решение Кирилла 2026-11-06).
+  await openSidebar(page, 'en');
+  await expect(account(page, 'en')).toContainText('Bayt Al Khayr Wholesale');
 });
 
 test('@smoke unknown_phone → /not-found без сессии', async ({ page }) => {
@@ -111,11 +112,9 @@ test('SC-10: выход и «Назад» не показывают данные
   await expect(page).toHaveURL(/\/login/);
 });
 
-test('@smoke client_active: шкала сразу на «Лимит активен», без промежуточного «Подписания»', async ({ page }) => {
+test('@smoke client_active: компания в аккаунте, без dual — без переключателя ролей', async ({ page }) => {
   await asPersona(page, 'client_active');
-  const list = page.getByRole('list', timeline('en'));
-  await list.waitFor();
-  // Первое же появление шкалы — уже с данными лимита (мок отвечает с задержкой 300–800 мс).
-  const first = await list.locator('li[aria-current="step"]').textContent();
-  expect(first).toContain(tr('en', 'timeline.client.limit_active'));
+  await openAccountMenu(page, 'en');
+  await expect(account(page, 'en')).toContainText('Ufuq Office Furniture');
+  await expect(page.getByRole('menuitemradio')).toHaveCount(0);
 });

@@ -60,24 +60,14 @@ export const SCREENS: readonly Screen[] = [
       await heading('notfound.title')(page, lang);
     },
   },
-  persona('client.home-docs_required', 'client_new', '/', async (page, lang) => {
-    await expect(page.getByText(tr(lang, 'next_step.upload_documents', { count: 7 }))).toBeVisible();
-  }),
-  persona('client.home-under_review', 'client_submitted', '/', async (page, lang) => {
-    await expect(page.getByText(tr(lang, 'next_step.under_review_eta', { count: 24, hours: 24 }))).toBeVisible();
-  }),
-  persona('client.home-approved', 'client_approved_unsigned', '/', async (page, lang) => {
-    await expect(page.getByText(tr(lang, 'next_step.sign_documents'))).toBeVisible();
-  }),
-  persona('client.home-closed', 'client_closed_rejected', '/', async (page, lang) => {
-    await expect(page.getByText(tr(lang, 'closed.title'))).toBeVisible();
-  }),
+  // /c/home до проработки разделов — заглушка (Кирилл 2026-11-06, A-055); состояния главной — в историях ClientHome.
+  persona('client.home', 'client_new', '/', heading('stub.coming_soon.title')),
   persona('client.documents', 'client_new', '/c/documents', heading('stub.coming_soon.title')),
   persona('client.help', 'client_active', '/c/help', heading('help.title')),
   persona('supplier.home', 'supplier_active', '/s/home', heading('stub.coming_soon.title')),
   persona('supplier.help', 'supplier_active', '/s/help', heading('help.title')),
   persona('dual.home', 'dual_active', '/', async (page, lang) => {
-    await expect(page.getByText(tr(lang, 'next_step.how_to_buy'))).toBeVisible();
+    await heading('stub.coming_soon.title')(page, lang);
     await openAccountMenu(page, lang, { dismissHint: true });
     await expect(page.getByRole('menuitemradio', { name: tr(lang, 'role.supplier') })).toBeVisible();
     // Закрыть меню и (на телефоне) шторку — на скриншоте экран без оверлеев.

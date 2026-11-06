@@ -42,8 +42,6 @@ export interface PersonaGraph {
   persona_id: PersonaId;
   /** Номер для входа. */
   phone: string;
-  /** Имя и фамилия владельца номера `phone` (Session.display_name, A-055); у номеров из leads имени нет. */
-  user?: { name: string; name_ar?: string };
   company: Company | null;
   /** Все заявки компании по порядку создания; текущая — последняя. */
   applications: Application[];

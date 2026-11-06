@@ -123,7 +123,23 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 **Wordmark** — вариант `variant="dot"` (решение Кирилла 2026-11-06, логотип сайдбара): «tadum» строчными, Geist bold (700), в конце точка `text-primary dark:text-muted-foreground`. Строчные — через CSS `lowercase`, поэтому доступный текст остаётся «Tadum»; точка `aria-hidden`. Вид по умолчанию (D-052, экраны входа) не изменён. Цвет точки в тёмной теме (решение Кирилла 2026-11-06): `--primary` на `--sidebar` давал 1.96:1 — точка почти не видна, поэтому в `.dark` она светло-серая, существующий токен пресета `--muted-foreground` (новый токен не вводился): ≈7.1:1 к `--sidebar` и 8.07:1 к `--background` (`pnpm run check:contrast`). `--sidebar-foreground` не выбран — он почти белый, как само слово, и точка не читалась бы отдельным акцентом. Точка декоративная, AA для неё не требуется, но запас есть.
 
-Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
+**Скругления кнопок и подсветки пунктов — на шаг меньше пресета** (решение Кирилла 2026-11-06). Шкала `@theme` (`globals.css`): `sm` 0.6 · `md` 0.8 · `lg` 1.0 · `xl` 1.4 · `2xl` 1.8 · `3xl` 2.2 · `4xl` 2.6 × `--radius` (0.875rem). Токены не менялись — в компонентах взят соседний класс шкалы. Контейнеры (Card, DropdownMenuContent/SubContent, Dialog, Sheet, Popover, TabsList, SidebarInset) — без изменений.
+
+| Компонент | Было → стало |
+| :--- | :--- |
+| `Button` (все варианты и размеры, база `cva`) | `rounded-4xl` → `rounded-3xl` |
+| `Toggle` | `rounded-4xl` → `rounded-3xl` |
+| `ToggleGroup` (`spacing=0`, outline) / крайние `ToggleGroupItem` | `rounded-4xl` → `rounded-3xl` / `rounded-{s,e,t,b}-3xl` → `-2xl` |
+| `TabsTrigger` (фон активной вкладки) | `rounded-xl` → `rounded-lg` |
+| `DropdownMenuItem`, `CheckboxItem`, `RadioItem`, `SubTrigger` | `rounded-xl` → `rounded-lg` |
+| `SidebarMenuButton` | `rounded-lg` → `rounded-md` |
+| `SidebarMenuSubButton`, `SidebarMenuAction`, `SidebarGroupAction` | `rounded-md` → `rounded-sm` |
+
+Повторный `shadcn add` этих компонентов покажет отличие — не перезаписывать.
+
+**DropdownMenuRadioItem `indicator`** (2026-11-06, `boolean`, по умолчанию `true`). `indicator={false}` убирает галочку и отступ под неё (`pe-8` → `pe-3`), центрирует текст; выбранный пункт — `bg-accent` + `font-medium`, у невыбранного наведение/фокус — `bg-accent/50` (в пресете `--accent` = `--muted`, иначе наведение не отличить от выбора), клавиатурный фокус — `ring-2 ring-ring/50`. Назначение — сегментный переключатель в меню: `<DropdownMenuRadioGroup className="grid grid-cols-2 gap-1">` с двумя пунктами (роли «Клиент | Поставщик» в меню аккаунта). Пункты остаются `menuitemradio` с `aria-checked`, навигация меню (стрелки вверх/вниз) сохраняется. История `DropdownMenu/RadioSegment`.
+
+Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Button/Matrix`, `DropdownMenu/RadioSegment`, `Wordmark/Dot` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
 
 ## 5. Шрифты
 

@@ -9,7 +9,6 @@ export const clientApprovedUnsigned: PersonaFixture = (now) => {
   return {
     persona_id: 'client_approved_unsigned',
     phone: phone(6),
-    user: { name: 'Sara Al-Ghamdi', name_ar: 'سارة الغامدي' },
     company: { id: 'cmp_cau', name: 'Barq Logistics', name_ar: 'برق للخدمات اللوجستية', cr_number: '1010000006' },
     applications: [
       {
