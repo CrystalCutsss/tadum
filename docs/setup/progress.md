@@ -22,7 +22,7 @@
 | 8a | done | см. git log | `CLAUDE.md` 56 строк, 9 правил, 7 агентов, 12 скиллов; `verify` += `check:claude` (A-050) |
 | 8b | done | `8cc75e3` (merge PR #2) | хуки (66 тестов), разрешения, `.mcp.json`, плагины; финальная проверка Кириллом — хук отказал |
 | 9 | done | `6b6cd4e` (merge PR #3), Proto `d119d29` (PR #54) | Tadum v1 на витрине https://proto.kirillgloba.workers.dev/p/tadum/v1/; «Экран» Компьютер / Телефон — Proto PR #55 (ADR-0025) |
-| 10 | todo | — | |
+| 10 | done | см. PR блока 10 | приёмка по 7 пунктам; ночной `desktop-edge` исправлен (A-054); итоговый отчёт ниже |
 
 ## План блока 0
 
@@ -192,6 +192,57 @@
 - нестабильный тест (`expireSession`: шторка демо-панели ещё открыта) исправлен — 20 повторов подряд зелёные;
 - `pnpm verify` (с `test:e2e:smoke`) зелёный: 500 unit-тестов, 113 историй, 9 smoke-сценариев.
 
+## План и проверка блока 10
+
+План (2026-11-06, ветка `chore/setup-10`):
+
+1. `pnpm verify` на свежем `main`; последний `ci` на `main` в GitHub; `pnpm lint:gitlab-ci`.
+2. `storybook:build` и `test:stories`; глобалы `locale`/`theme` в `.storybook/preview`; истории `shared/ui` и виджетов v1 — по состояниям.
+3. Витрина: реестр Proto (`registry:validate`, другие прототипы на месте), страница пароля на живом сайте, персоны по `?persona=` и из демо-панели — локально на сборке Proto с тестовыми паролями.
+4. Хуки: тесты, отказ `protect-paths.sh` на `tokens.css`, Stop-хук → `pnpm verify`, `ml-4` ловится `lint:rtl` (им пользуется `rtl-qa`).
+5. `docs/product/` побайтно с Drive (выборочно); наличие обязательных документов `docs/`.
+6. Пресет shadcn и `docs/design/02-design-system.md` с копией в Drive.
+7. Итоговый отчёт: блоки, допущения, ⏸, предложения D-### для журнала, ссылки.
+
+Проверка (2026-11-06):
+
+| Критерий | Результат |
+| :--- | :--- |
+| `pnpm verify` на `main`; `ci` в GitHub; `lint:gitlab-ci` | ✅ `verify` — exit 0 (587 unit, 113 историй, smoke e2e, все проверки); `ci` на `main` после PR #5 — зелёный; `lint:gitlab-ci` — по схеме. Ночной `ci` 2026-11-06 был красным: `desktop-edge` без браузера Edge в образе — исправлено в этом блоке (A-054) |
+| `storybook:build`, глобалы `locale`/`theme`, истории | ✅ сборка и `test:stories` в `verify`; глобалы в `.storybook/preview.tsx`; истории у всех компонентов `shared/ui` и 8 виджетов v1 (33 файла). Демо-панель — без историй, проверена вживую (A-054) |
+| Витрина: v1 по двум паролям, персоны, другие прототипы | ✅ живой сайт — форма пароля (401) на `/`, `/p/tadum/`, `/p/tadum/v1/`; v1 открыл Кирилл 2026-11-05; локально с паролями — вход, `?persona=`, «Экран»; демо-панель меняет персону; реестр: 3 прототипа, 7 версий, остальные не тронуты |
+| Хуки | ✅ 69 тестов хуков в `pnpm test`; `protect-paths.sh` — `deny` на `tokens.css`; Stop-хук → `pnpm verify` (`verify-on-stop.sh`, `settings.json`); внесённый `ml-4` — `lint:rtl` exit 1 (`rtl-qa` запускает `lint:rtl`); интерактивно — Кирилл, блок 8b: хук отказал |
+| `docs/product/` и документы `docs/` | ✅ 31 файл снимка — размеры совпадают, в Drive после снимка не менялись; README, CONTRIBUTING, ADR-001…003, контракт бэкенда, чек-лист GitLab, `releases/v1.md`, `assumptions.md`, `i18n/needs-review.md` — на месте |
+| Пресет shadcn и токены | ✅ `--preset b1ZQ7Gl9c` (`radix-maia`, Remix Icon); `docs/design/02-design-system.md`, копия в Drive `1AGowEl76u6Tn-mnHFcSv-_Y8SSpHO48V` |
+| Итоговый отчёт | ✅ ниже |
+
+## Итоговый отчёт (блок 10)
+
+**Что сделано.** Репозиторий `CrystalCutsss/tadum`: Vite 7 + React 19 + TanStack Router/Query + Tailwind 4 на пресете shadcn Кирилла, FSD-lite с проверкой границ, i18n ar/en с паритетом и лексиконом TOV, порты данных и `MockAdapter` с 14 персонами, словарь из 73 событий аналитики, вход SC-01, оболочка кабинетов, главная клиента и демо-панель (блоки 0–6). Качество: Vitest, Storybook-тесты, Playwright с axe, knip, jscpd, `lint:rtl`, size-limit, Lighthouse, commitlint и changesets; два CI — GitHub Actions и зеркальный GitLab (7a). Документация разработки и чек-лист переезда в GitLab (7b). Слой Claude Code: `CLAUDE.md`, 9 правил, 7 агентов, 12 скиллов, хуки с технической защитой путей и команд, MCP, плагины (8a–8b). v1 на витрине Proto за двумя паролями, release notes в Drive, тег `v1` (9). По ходу: Tadum на витрине открывается на всё окно с переключателем «Экран» (Proto ADR-0025) и превью каждой ветки Tadum (A-053).
+
+**Ссылки.**
+
+- Превью `main`: https://tadum.kirillgloba.workers.dev; превью ветки: `https://<ветка>-tadum.kirillgloba.workers.dev` (ссылка — комментарием в PR).
+- Витрина: https://proto.kirillgloba.workers.dev/p/tadum/v1/ (пароль сайта и пароль Tadum).
+- PR Tadum: CrystalCutsss/tadum#1 (блоки 1–7a), #2 (7b–8b), #3 (9), #4 (итоги 9), #5 (превью веток), PR блока 10. PR Proto: CrystalCutsss/proto#54 (v1), #55 (переключатель «Экран»).
+- Release notes v1 — Drive `06 Версии прототипа/v1.md` (`1C88fpbHVwoageYpZ2_R2Z-jNVV6CAMR7`).
+
+**Допущения.** A-001…A-054 в [`assumptions.md`](../decisions/assumptions.md). Главные, которые стоит подтвердить или проверить в работе: A-019 — контраст пресета не меняется; A-040 — оболочка кабинета по черновику §2 (гипотеза); A-042 — первый чанк 206 КБ при бюджете 200 КБ; A-045 — `iphone-safari` в сессии не запускается (только CI); A-048 — защита `main` на бесплатном плане не действует, дисциплина merge — на владельце; A-052 — публикация через PR Proto и Workers Builds вместо push в `main`; A-053 — превью веток.
+
+**Оставшиеся ⏸.** Обязательных нет. Необязательно: доступ облачной сессии к доменам WebKit (локальный `iphone-safari`); переезд в GitLab — по чек-листу `docs/05-migration-to-gitlab.md`, когда решите.
+
+**Предложения в журнал решений** (вносит Кирилл в Drive `00-decision-log.md`, потом `/sync-product-docs`):
+
+- **D-078.** Превью Tadum выкладывает только CI; токен Cloudflare — только в GitHub Secrets, в облачную сессию не попадает (2026-11-05).
+- **D-079.** Промежуточные правки смотрят на превью ветки `https://<ветка>-tadum.kirillgloba.workers.dev`; витрина Proto — только для замороженных версий vN (2026-11-06, A-053).
+- **D-080.** Tadum на витрине по умолчанию открывается на всё окно; мобильный вид — переключателем «Экран» (2026-11-06, Proto ADR-0025).
+- **D-081.** Версия Tadum попадает на витрину через PR в Proto; деплой витрины — Cloudflare Workers Builds после merge, без push в `main` Proto (2026-11-05, A-052).
+- **D-082.** Тег `vN` ставит Кирилл через GitHub Releases: push тегов из облачной сессии закрыт (2026-11-06).
+- **D-083.** Визуальная проработка — после мастер-промпта; блоки 6b–6c — рабочий каркас на пресете (2026-11-05).
+- **D-084.** Защиты веток на бесплатном плане нет: `main` меняет только Кирилл merge-коммитом PR; в GitLab — защищённая ветка (2026-11-05, A-048).
+
+**Дальше** (по мастер-промпту, сессия 12): первая фича по полному циклу — `TD-001 SC-01 Первый вход`: `/feature-brief TD-001` → `/plan` → ветка → `/verify` → `/rtl-qa` → `/pr` → ревью → merge.
+
 ## План и проверка блока 9
 
 Ветка `chore/release-v1`. Proto изучен (A-052): версии — пакеты `prototypes/<slug>/versions/<vN>/`, `registry.json` собирается из метаданных, деплой — Workers Builds после merge PR в `main`, пароли — `PROTOTYPE_PASSWORDS`.
@@ -320,6 +371,7 @@
 
 ## ⏸ ожидают Кирилла
 
+- Обязательных ⏸ нет (блок 10).
 - (необязательно) Network access окружения: `cdn.playwright.dev` и `playwright.download.prss.microsoft.com` — WebKit в облачной сессии. `iphone-safari` уже прогоняется в CI из образа Playwright, так что это только для локальных прогонов в сессии.
 
-1. Деплой Proto в блоке 9 (доступ к Cloudflare для витрины) — решается там.
+- ~~Деплой Proto в блоке 9~~ — решено: Workers Builds после merge PR Proto (A-052).

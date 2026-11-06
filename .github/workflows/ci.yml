@@ -104,7 +104,8 @@ jobs:
     runs-on: ubuntu-24.04
     container: mcr.microsoft.com/playwright:v1.63.0-noble
     env:
-      PW_SCHEDULED: ${{ github.event_name == 'schedule' && '1' || '' }}
+      # Полный набор браузеров — ночью и при ручном запуске (Actions → ci → Run workflow).
+      PW_SCHEDULED: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
@@ -112,6 +113,9 @@ jobs:
         with:
           name: dist
           path: dist
+      # desktop-edge (только по расписанию) — браузер Microsoft Edge, в образе Playwright его нет.
+      - run: pnpm exec playwright install --with-deps msedge
+        if: env.PW_SCHEDULED == '1'
       # Сценарии v1 + axe (a11y.spec.ts) во всех проектах.
       - run: pnpm test:e2e
       # Скриншоты 360/768/1280 × ar/en × light/dark — артефакты, не эталоны (D-074).

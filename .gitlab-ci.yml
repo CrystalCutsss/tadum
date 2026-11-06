@@ -145,6 +145,8 @@ e2e:
         PW_SCHEDULED: '1'
     - when: on_success
   script:
+    # desktop-edge (только по расписанию) — браузер Microsoft Edge, в образе Playwright его нет.
+    - if [ "$PW_SCHEDULED" = "1" ]; then pnpm exec playwright install --with-deps msedge; fi
     # Сценарии v1 + axe (a11y.spec.ts) во всех проектах.
     - pnpm test:e2e
   after_script:
