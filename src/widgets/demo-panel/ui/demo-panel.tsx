@@ -85,8 +85,9 @@ export function DemoPanel() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        {/* Над кнопкой меню оболочки Proto и над её открытой строкой (до 92 px от низа; Кирилл 2026-11-06, A-056). */}
-        <Button data-demo-panel variant="secondary" className="fixed end-4 bottom-24 z-50 min-h-11 shadow-md">
+        {/* Над кнопкой меню оболочки Proto и над её открытой строкой (до 92 px от низа; Кирилл 2026-11-06, A-056).
+            На телефоне (до 500 px) у Proto своя кнопка вариантов на 96–144 px от низа — Demo выше неё, на 152 px. */}
+        <Button data-demo-panel variant="secondary" className="fixed end-4 bottom-24 max-sm:bottom-38 z-50 min-h-11 shadow-md">
           {t('demo.open')}
         </Button>
       </SheetTrigger>
