@@ -63,10 +63,17 @@ export async function openSidebar(page: Page, lang: Lang) {
   await account.waitFor();
 }
 
-/** Подсказку dual (один раз) закрыть, если она видна, и открыть меню аккаунта. */
+/**
+ * Открыть меню аккаунта. dismissHint: закрыть подсказку dual, если она есть. Подсказка показывается один раз за всё
+ * время, поэтому при повторном открытии экрана в той же вкладке (скриншоты: три ширины подряд) её уже нет.
+ */
 export async function openAccountMenu(page: Page, lang: Lang, { dismissHint = false } = {}) {
   await openSidebar(page, lang);
-  if (dismissHint) await page.getByRole('button', { name: tr(lang, 'role.hint_dismiss') }).click();
+  if (dismissHint) {
+    const hint = page.getByRole('button', { name: tr(lang, 'role.hint_dismiss') });
+    // Подсказка появляется вместе с данными сессии — даём ей короткое время, отсутствие не ошибка.
+    if (await hint.waitFor({ timeout: 2_000 }).then(() => true, () => false)) await hint.click();
+  }
   await page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) }).click();
   await page.getByRole('menu').waitFor();
 }
