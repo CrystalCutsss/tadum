@@ -30,6 +30,7 @@ export const ROUTES = {
   clientDocuments: '/c/documents',
   clientHelp: '/c/help',
   supplierHome: '/s/home',
+  supplierDocuments: '/s/documents',
   supplierHelp: '/s/help',
 } as const;
 
@@ -46,6 +47,7 @@ export const SCREEN_IDS: Readonly<Partial<Record<RoutePath, ScreenId>>> = {
   [ROUTES.clientDocuments]: 'client.documents',
   [ROUTES.clientHelp]: 'client.help',
   [ROUTES.supplierHome]: 'supplier.home',
+  [ROUTES.supplierDocuments]: 'supplier.documents',
   [ROUTES.supplierHelp]: 'supplier.help',
 };
 

@@ -53,6 +53,8 @@ const RAW = [
 const SHADCN_GENERATED = [
   'accordion', 'alert', 'badge', 'button', 'card', 'dialog', 'dropdown-menu', 'input', 'input-otp', 'popover',
   'progress', 'separator', 'sheet', 'skeleton', 'sonner', 'table', 'tabs', 'toggle', 'toggle-group', 'tooltip',
+  // Блок кабинета (2026-11-06): sidebar, breadcrumb.
+  'breadcrumb', 'sidebar',
 ].map((name) => `src/shared/ui/${name}.tsx`);
 
 // Аналитика: имя события — только литерал из EventName (04-metrics-and-events.md §4).

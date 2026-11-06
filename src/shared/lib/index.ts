@@ -6,3 +6,4 @@ export { formatNationalInput, nationalDigits, pathHash, toKsaMobile } from './ph
 export { useNow } from './use-now';
 export { ThemeProvider, useTheme, type ResolvedTheme, type ThemeChoice } from './theme';
 export { network, useOnline } from './network';
+export { useIsMobile } from './hooks/use-mobile';

@@ -120,14 +120,21 @@
     "switch_to_en": "English"
   },
   "nav": {
+    "account": "الحساب",
+    "breadcrumb": "مسار التنقل",
     "clients": "العملاء",
     "documents": "المستندات",
     "help": "المساعدة",
     "home": "الرئيسية",
     "main": "القائمة الرئيسية",
+    "mobile_description": "القائمة الرئيسية والحساب",
+    "mobile_title": "القائمة",
     "more": "المزيد",
     "offer": "الشروط",
-    "referral": "الرابط"
+    "referral": "الرابط",
+    "settings": "الإعدادات",
+    "switch_role": "تبديل الدور",
+    "toggle_sidebar": "إظهار القائمة أو إخفاؤها"
   },
   "next_step": {
     "closed": "تم إغلاق هذا الطلب",
@@ -249,7 +256,9 @@
   },
   "support": {
     "cta": {
-      "question": "لديك سؤال؟ راسلنا"
+      "question": "لديك سؤال؟ راسلنا",
+      "subtitle": "راسلنا",
+      "title": "لديك سؤال؟"
     },
     "email": "البريد الإلكتروني",
     "prefill": {

@@ -55,6 +55,31 @@ export async function asPersona(page: Page, persona: string, lang: Lang = 'en', 
   await page.goto(`${path}?persona=${persona}&lang=${lang}`);
 }
 
+/** Сайдбар: на телефоне — шторка по кнопке в шапке, на десктопе виден сразу (решение Кирилла 2026-11-06). */
+export async function openSidebar(page: Page, lang: Lang) {
+  const account = page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
+  // Телефон — по ширине окна (брейкпоинт useIsMobile — 768 px), а не по видимости аккаунта: пока данные грузятся,
+  // аккаунта ещё нет и на десктопе, а нажатие кнопки там свернуло бы сайдбар.
+  const mobile = (page.viewportSize()?.width ?? 0) < 768;
+  if (mobile && !(await account.isVisible())) await page.getByRole('button', { name: tr(lang, 'nav.toggle_sidebar') }).click();
+  await account.waitFor();
+}
+
+/**
+ * Открыть меню аккаунта. dismissHint: закрыть подсказку dual, если она есть. Подсказка показывается один раз за всё
+ * время, поэтому при повторном открытии экрана в той же вкладке (скриншоты: три ширины подряд) её уже нет.
+ */
+export async function openAccountMenu(page: Page, lang: Lang, { dismissHint = false } = {}) {
+  await openSidebar(page, lang);
+  if (dismissHint) {
+    const hint = page.getByRole('button', { name: tr(lang, 'role.hint_dismiss') });
+    // Подсказка появляется вместе с данными сессии — даём ей короткое время, отсутствие не ошибка.
+    if (await hint.waitFor({ timeout: 2_000 }).then(() => true, () => false)) await hint.click();
+  }
+  await page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) }).click();
+  await page.getByRole('menu').waitFor();
+}
+
 /** axe без нарушений; правила WCAG 2.2 AA (01-nfr-locale-brand.md). */
 export async function expectNoA11yViolations(page: Page) {
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
