@@ -1,8 +1,8 @@
 // Аккаунт внизу сайдбара (решения Кирилла 2026-11-06): без аватара — название компании клиента или поставщика,
-// под ним текущая роль. Меню без заголовка и разделителей: быстрая смена роли кнопками «Client | Supplier»
-// (только dual), «Настройки» (экран «Помощь и настройки»), выход с подтверждением.
+// под ним текущая роль. Меню по примеру shadcn Dropdown Menu «Complex» (без шорткатов, радиусы пресета): группа «Account»
+// со сменой роли Client / Supplier сверху вниз (только dual), разделитель, группа «Настройки» и выход с подтверждением.
 // Подсказка dual «у вас есть и кабинет поставщика» — один раз: на десктопе поповером у кнопки аккаунта, на телефоне — блоком в шторке.
-import { RiExpandUpDownLine, RiLogoutBoxRLine, RiSettings3Line } from '@remixicon/react';
+import { RiExpandUpDownLine, RiLogoutBoxRLine, RiSettings3Line, RiStore2Line, RiUser3Line } from '@remixicon/react';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,9 +15,12 @@ import {
   Button,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Icon,
   Ltr,
@@ -100,35 +103,42 @@ export function NavAccount({ family, name, phone, dual, hint }: NavAccountProps)
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
             </PopoverAnchor>
-            <DropdownMenuContent className="min-w-56" side={side} align="end" sideOffset={4}>
+            <DropdownMenuContent className="min-w-44" side={side} align="end" sideOffset={4}>
               {dual ? (
-                // Сегментный переключатель: два пункта в ряд, выбранный — фоном; стрелки и Enter работают как в меню.
-                <DropdownMenuRadioGroup
-                  aria-label={t('nav.switch_role')}
-                  className="grid grid-cols-2 gap-1"
-                  value={family}
-                  onValueChange={(v) => {
-                    if (v === 'client' || v === 'supplier') switchRole(v);
-                  }}
-                >
-                  <DropdownMenuRadioItem value="client" indicator={false}>
-                    {t('role.client')}
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="supplier" indicator={false}>
-                    {t('role.supplier')}
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
+                <>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>{t('nav.account')}</DropdownMenuLabel>
+                    <DropdownMenuRadioGroup
+                      value={family}
+                      onValueChange={(v) => {
+                        if (v === 'client' || v === 'supplier') switchRole(v);
+                      }}
+                    >
+                      <DropdownMenuRadioItem value="client">
+                        <Icon icon={RiUser3Line} />
+                        {t('role.client')}
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="supplier">
+                        <Icon icon={RiStore2Line} />
+                        {t('role.supplier')}
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                </>
               ) : null}
-              <DropdownMenuItem asChild>
-                <Link to={settingsOf(family)}>
-                  <Icon icon={RiSettings3Line} />
-                  {t('nav.settings')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setLogoutOpen(true)}>
-                <Icon icon={RiLogoutBoxRLine} />
-                {t('help.logout')}
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to={settingsOf(family)}>
+                    <Icon icon={RiSettings3Line} />
+                    {t('nav.settings')}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setLogoutOpen(true)}>
+                  <Icon icon={RiLogoutBoxRLine} />
+                  {t('help.logout')}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
           <PopoverContent side={side} aria-label={t('role.hint_supplier')} className="flex flex-col gap-3">

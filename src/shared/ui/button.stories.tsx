@@ -66,31 +66,6 @@ export const Disabled: Story = {
     </Button>
   ),
 };
-// Все варианты и размеры в матрице AR/EN × light/dark: скругление rounded-3xl (2026-11-06, на шаг меньше пресета).
-// link в тёмной теме (2.23:1) и destructive (4.0:1) — замечания пресета к контрасту, в матрицу не входят (A-019).
-const matrixVariants = ['default', 'outline', 'secondary', 'ghost', 'whatsapp'] as const;
-export const Matrix: Story = {
-  ...matrix,
-  render: () => (
-    <div className="flex flex-col gap-2">
-      {matrixVariants.map((v) => (
-        <div key={v} className="flex flex-wrap items-center gap-2">
-          {sizes.map((s) => (
-            <Button key={s} variant={v} size={s}>
-              <T k="common.retry" />
-            </Button>
-          ))}
-          <Button variant={v} size="icon" aria-label="retry">
-            <Icon icon={RiRefreshLine} />
-          </Button>
-        </div>
-      ))}
-    </div>
-  ),
-  play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelectorAll('[data-slot="button"]').length).toBe(matrixVariants.length * (sizes.length + 1) * 4);
-  },
-};
 // Кнопка WhatsApp (токены --whatsapp / --whatsapp-foreground, 9.94:1) — ссылкой через asChild, в матрице AR/EN × light/dark.
 export const Whatsapp: Story = {
   ...matrix,
