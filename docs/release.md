@@ -19,7 +19,7 @@
 3. Merge PR Кириллом = публикация. Workflow `release` сам кладёт vN в `main` Proto, ставит тег `vN` и релиз GitHub; Workers Builds выкладывает витрину.
 4. Проверка `/p/tadum/vN/` после деплоя.
 
-Пока workflow не включён (нужны секрет `PROTO_PUSH_TOKEN` и перенос `docs/setup/pending/release.yml`), действует ручной порядок ниже.
+Workflow `.github/workflows/release.yml` включён 2026-11-08: секрет `PROTO_PUSH_TOKEN` стоит, пробный запуск зелёный. Ручной порядок ниже — запасной, если workflow недоступен.
 
 ## Шаги (ручной порядок, до ADR-004)
 
