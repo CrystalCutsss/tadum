@@ -12,7 +12,16 @@
 - Пароль Tadum (`separatePassword: true`) — ключ `"tadum"` в секрете `PROTOTYPE_PASSWORDS` воркера `proto`.
 - Вид в просмотрщике (Кирилл 2026-11-06): `platform: desktop`, `platforms: [desktop]` — всё окно, без контрола «Экран»; `menu: { versions: false, style: shadcn }` — меню оболочки в стиле shadcn DropdownMenu, без переключения версий (ADR-0027 Proto). В меню одна ось — «Сценарии и роли» (`PERSONA_ITEMS`); языка в меню нет, его меняет кнопка в шапке. Демо-панели нет: персона, язык и тема — только через меню оболочки и интерфейс кабинета.
 
-## Шаги
+## Как выпускать с ADR-004 (2026-11-06): один PR — одна публикация
+
+1. Работа в одной ветке. Просмотр — на превью ветки `https://<ветка>-tadum.kirillgloba.workers.dev`, без PR и без публикации.
+2. Когда Кирилл решил выпускать, в ту же ветку добавляются release notes `docs/releases/vN.md` и changeset, затем открывается **один** PR в `main` Tadum.
+3. Merge PR Кириллом = публикация. Workflow `release` сам кладёт vN в `main` Proto, ставит тег `vN` и релиз GitHub; Workers Builds выкладывает витрину.
+4. Проверка `/p/tadum/vN/` после деплоя.
+
+Пока workflow не включён (нужны секрет `PROTO_PUSH_TOKEN` и перенос `docs/setup/pending/release.yml`), действует ручной порядок ниже.
+
+## Шаги (ручной порядок, до ADR-004)
 
 1. **Release notes** `docs/releases/vN.md`: заголовок `# Tadum vN — <название>`, раздел `## Что вошло` (из него — changelog версии в меню), «Что отложено», «Известные ограничения», «Как смотреть», «Что проверить команде». Копия — Drive `06 Версии прототипа/vN.md`.
 2. **Подготовка** (с `main` или `chore/release-*`, чистое дерево):
@@ -38,6 +47,15 @@
    ```
 
    В облачной сессии Claude push тегов закрыт (git-прокси отвечает 403) — тег ставит человек: GitHub → Releases → **Draft a new release** → тег `vN` на `main`, заголовок `Tadum vN`, текст из `docs/releases/vN.md` → **Publish release**.
+
+## Права для самостоятельной работы (Кирилл 2026-11-06)
+
+Чтобы агент обновлял статусы и записывал релизы без отказов и вопросов:
+
+- **Proto:** в `.claude/settings.json` разрешены `mcp__Google_Docs__update_doc`, `mcp__Google_Drive__create_file`, `mcp__Google_Drive__update_file` и чтение Drive. Хук `drive-guard` по-прежнему пускает запись только в Proto/Docs. Так облачный STATUS и ADR в Proto/Docs обновляются сами.
+- **Tadum:** те же правила в `.claude/settings.json` (копия release notes в Drive «06 Версии прототипа»). Файл защищён хуком `protect-paths`: правку вносит Кирилл или сессия с `TADUM_ALLOW_PROTECTED=1`.
+- **Ограничение облака:** правила из `.claude/settings.json` читаются только в сессии с одним репозиторием. Сессия выпуска подключает и Tadum, и Proto, поэтому в ней запись в Drive может быть отклонена режимом auto. Тогда агент отдаёт Кириллу готовый текст и место вставки; другой вариант — режим, в котором запрос приходит Кириллу на подтверждение.
+- **Тег `vN`** из облачной сессии не пушится (git-прокси отвечает 403): тег ставит Кирилл через GitHub Releases, текст — из `docs/releases/vN.md`.
 
 ## Откат
 

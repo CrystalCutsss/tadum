@@ -183,7 +183,7 @@ describe('session-start.sh и prompt-brief.sh', () => {
   it('SessionStart выводит инварианты из CLAUDE.md', () => {
     const { stdout } = run('session-start.sh', { source: 'startup' });
     expect(stdout).toContain('Секреты ставит только Кирилл');
-    expect(stdout.match(/^\d+\. /gm)).toHaveLength(12);
+    expect(stdout.match(/^\d+\. /gm)).toHaveLength(13);
   });
 
   it('TD-### в промпте — напоминание о брифе', () => {
