@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { personaFromParam } from '../src/shared/api/demo-persona';
 import { PERSONA_IDS } from '../src/shared/api/fixtures/types';
 
-import { PERSONA_ITEMS, frozenManifest, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
+import { PERSONA_ITEMS, PROTOTYPE_META, frozenManifest, pendingVersion, releaseVersions, touchedOutsideTadum, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
 
 describe('injectProtoTags', () => {
   const html = '<!doctype html><html lang="ar" dir="rtl"><head><title>Tadum</title></head><body></body></html>';
@@ -50,17 +50,23 @@ describe('parseReleaseNotes', () => {
 });
 
 describe('метаданные Proto', () => {
-  it('ось «Персона» в рамках Proto: ≤ 6 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
+  it('ось «Сценарии и роли» в рамках Proto: ≤ 6 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
     expect(PERSONA_ITEMS.length).toBeLessThanOrEqual(6);
     expect(PERSONA_ITEMS[0].id).toBe('login');
     for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     for (const { id } of PERSONA_ITEMS.slice(1)) expect(PERSONA_IDS).toContain(personaFromParam(id));
+    // Клиентские сценарии убраны до готовности функционала (Кирилл 2026-11-06).
+    expect(PERSONA_ITEMS.map((i) => i.id)).toEqual(['login', 'supplier-active', 'dual-active']);
+  });
+
+  it('прототип: только компьютер, меню оболочки без версий и в стиле shadcn', () => {
+    expect(PROTOTYPE_META).toMatchObject({ platform: 'desktop', platforms: ['desktop'], menu: { versions: false, style: 'shadcn' } });
   });
 
   it('версия заморожена, history-маршрутизация, имя пакета по правилу Proto', () => {
     const v = versionMeta({ version: 'v1', title: 't', changelog: ['c'], date: '2026-11-05' });
     expect(v).toMatchObject({ version: 'v1', status: 'frozen', routing: 'history' });
-    expect(v.axes.map((a) => a.id)).toEqual(['persona', 'lang']);
+    expect(v.axes.map((a) => [a.id, a.title])).toEqual([['persona', 'Сценарии и роли']]);
     expect(versionPackage('v1')).toMatchObject({ name: '@proto/tadum--v1', scripts: { build: 'proto-frozen-build' } });
   });
 
@@ -73,5 +79,23 @@ describe('метаданные Proto', () => {
     expect(m).toMatchObject({ schemaVersion: 1, prototype: 'tadum', version: 'v1', fileCount: 2, bytes: 3, sourceCommit: 'abc' });
     expect(Object.keys(m.files)).toEqual(['assets/x.js', 'index.html']);
     expect(m.files['index.html']).toBe('ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb');
+  });
+});
+
+describe('публикация из CI (ADR-004)', () => {
+  it('версии из имён release notes — по номеру, не по алфавиту', () => {
+    expect(releaseVersions(['v2.md', 'how-to-view.md', 'v10.md', 'v9.md', 'v1.md'])).toEqual(['v1', 'v2', 'v9', 'v10']);
+  });
+  it('публикуется только самая новая версия, которой ещё нет в Proto', () => {
+    expect(pendingVersion(['v4', 'v5'], ['v1', 'v2', 'v3', 'v4'])).toBe('v5');
+    expect(pendingVersion(['v4', 'v5'], ['v4', 'v5'])).toBeNull();
+    expect(pendingVersion([], ['v1'])).toBeNull();
+  });
+  it('публикация не трогает чужие файлы Proto', () => {
+    expect(touchedOutsideTadum(['prototypes/tadum/versions/v6/version.json', 'pnpm-lock.yaml', ''])).toEqual([]);
+    expect(touchedOutsideTadum(['prototypes/credit-activation/prototype.json', 'packages/proto-shell/src/menu.ts'])).toEqual([
+      'prototypes/credit-activation/prototype.json',
+      'packages/proto-shell/src/menu.ts',
+    ]);
   });
 });

@@ -23,6 +23,7 @@ export * from './toggle-group';
 export * from './tooltip';
 
 export { Icon, isMirrored, mirroredIcons, type IconProps } from './icon/icon';
+export { ThemeToggleIcon } from './icon/theme-toggle-icon';
 export { Ltr } from './ltr';
 export { StatusBadge, type DocumentStatus, type StatusBadgeProps, type SupplierViewStatus } from './status-badge';
 export { Wordmark, type WordmarkProps } from './wordmark';

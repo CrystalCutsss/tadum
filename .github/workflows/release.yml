@@ -1,0 +1,51 @@
+# Публикация версии на витрину Proto после merge в main (ADR-004): один PR в Tadum — одна публикация.
+# Срабатывает, когда в main появилась docs/releases/vN.md, которой ещё нет в Proto: собирает vN, кладёт
+# замороженную версию в main Proto (только prototypes/tadum/**, ADR-0028 Proto) и ставит тег vN с релизом GitHub.
+# Workers Builds Proto выкладывает витрину сам. Секрет PROTO_PUSH_TOKEN ставит Кирилл (fine-grained PAT:
+# репозиторий CrystalCutsss/proto, Contents: Read and write).
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/releases/v*.md']
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write # тег vN и релиз GitHub в Tadum
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: CrystalCutsss/proto
+          path: proto
+          token: ${{ secrets.PROTO_PUSH_TOKEN }}
+          fetch-depth: 0
+      - name: Proto toolchain
+        working-directory: proto
+        run: corepack enable
+      - name: Publish to Proto
+        id: release
+        env:
+          GIT_AUTHOR_NAME: tadum-release
+          GIT_AUTHOR_EMAIL: tadum-release@users.noreply.github.com
+          GIT_COMMITTER_NAME: tadum-release
+          GIT_COMMITTER_EMAIL: tadum-release@users.noreply.github.com
+        run: pnpm run release:proto --ci --proto-dir "$GITHUB_WORKSPACE/proto"
+      - name: Tag and GitHub release
+        if: steps.release.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: gh release create "$VERSION" --target "$GITHUB_SHA" --title "Tadum $VERSION" --notes-file "docs/releases/$VERSION.md"

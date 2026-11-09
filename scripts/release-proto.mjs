@@ -9,6 +9,8 @@
 //   pnpm run release:proto vN --proto-dir <путь> --publish                push ветки Proto (после «да»)
 //   --proto-branch <имя>   ветка в Proto (по умолчанию feat/tadum-vN); существующая — только без своих коммитов
 //   pnpm run release:proto vN --tag                                       тег vN в Tadum (после деплоя)
+//   pnpm run release:proto --ci --proto-dir <путь>                         GitHub Actions после merge в main Tadum:
+//                         последняя docs/releases/vN.md, которой ещё нет в Proto, сразу в main Proto (ADR-004)
 //
 // Каждый шаг останавливается и печатает, что проверить и что делать дальше. В main ничего не пушится.
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -23,15 +25,14 @@ const VERSION_RE = /^v[1-9][0-9]{0,3}$/;
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 /**
- * Ось меню просмотрщика «Персона». Ограничения Proto: не больше 6 пунктов, id через дефис (Tadum принимает
- * ?persona=client-active так же, как client_active). Первый пункт — без персоны: обычный вход. Остальные
- * персоны — в демо-панели внутри прототипа.
+ * Ось меню просмотрщика «Сценарии и роли» — единственный способ сменить персону на витрине: демо-панели нет
+ * (Кирилл 2026-11-06). Ограничения Proto: не больше 6 пунктов, id через дефис (Tadum принимает
+ * ?persona=client-active так же, как client_active). Первый пункт — без персоны: обычный вход.
+ * Пункты «Клиент: новая заявка» (client-new), «Клиент: на проверке» (client-submitted) и «Клиент: лимит
+ * активен» (client-active) убраны до готовности соответствующего функционала — вернуть, когда он будет готов.
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру' },
-  { id: 'client-new', title: 'Клиент: новая заявка' },
-  { id: 'client-submitted', title: 'Клиент: на проверке' },
-  { id: 'client-active', title: 'Клиент: лимит активен' },
   { id: 'supplier-active', title: 'Поставщик' },
   { id: 'dual-active', title: 'Клиент и поставщик' },
 ];
@@ -44,9 +45,11 @@ export const PROTOTYPE_META = {
   owner: 'Кирилл',
   tags: ['tadum', 'b2b', 'rtl', 'pwa'],
   status: 'active',
-  // На компьютере — всё окно, в меню просмотрщика «Экран» переключает на мокап телефона (ADR-0025 Proto).
+  // Только компьютер, на всё окно: «Экран» (ПК / Телефон) убран из меню (Кирилл 2026-11-06).
   platform: 'desktop',
-  platforms: ['desktop', 'mobile'],
+  platforms: ['desktop'],
+  // Меню оболочки для Tadum (Кирилл 2026-11-06, ADR-0027 Proto): без переключения версий, в стиле shadcn.
+  menu: { versions: false, style: 'shadcn' },
   defaultVersion: 'latest',
   separatePassword: true,
 };
@@ -90,18 +93,9 @@ export function versionMeta({ version, title, changelog, date }) {
     changelog,
     routing: 'history',
     routes: ['/login', '/c/home', '/c/documents', '/c/help', '/s/home', '/s/documents', '/s/help'],
-    axes: [
-      { id: 'persona', title: 'Персона', items: PERSONA_ITEMS },
-      {
-        id: 'lang',
-        title: 'Язык',
-        items: [
-          // Первый пункт — выбор по умолчанию в просмотрщике: на витрине английский (Кирилл 2026-11-06, A-056).
-          { id: 'en', title: 'English' },
-          { id: 'ar', title: 'العربية' },
-        ],
-      },
-    ],
+    // Только «Сценарии и роли». Оси «Язык» нет (Кирилл 2026-11-06): на витрине по умолчанию английский
+    // (VITE_DEFAULT_LANG=en, A-056), язык меняет кнопка в шапке кабинета.
+    axes: [{ id: 'persona', title: 'Сценарии и роли', items: PERSONA_ITEMS }],
   };
 }
 
@@ -161,8 +155,10 @@ function stop(message) {
 }
 const today = () => sh('date', ['-u', '+%Y-%m-%d']);
 
-function checkTadum() {
+function checkTadum(ci = false) {
   if (sh('git', ['-C', ROOT, 'status', '--porcelain'])) stop('в Tadum есть незакоммиченные изменения');
+  // В Actions код уже прошёл ci в PR и смержен Кириллом; HEAD там может быть отсоединён.
+  if (ci) return console.log(`✓ Tadum (ci) @ ${sh('git', ['-C', ROOT, 'rev-parse', '--short', 'HEAD'])}, дерево чистое`);
   const branch = sh('git', ['-C', ROOT, 'symbolic-ref', '--short', 'HEAD']);
   if (branch !== 'main' && !branch.startsWith('chore/release-')) stop(`публикация — с main или chore/release-*, а не с ${branch}`);
   console.log(`✓ Tadum: ${branch} @ ${sh('git', ['-C', ROOT, 'rev-parse', '--short', 'HEAD'])}, дерево чистое`);
@@ -183,26 +179,49 @@ function switchProtoBranch(proto, branch) {
   run('git', ['-C', proto, 'merge', '--ff-only', 'origin/main']);
 }
 
-function prepare(version, proto, branch) {
+/** Файлы коммита публикации вне prototypes/tadum/** и pnpm-lock.yaml — их быть не должно (ADR-004). */
+export function touchedOutsideTadum(files) {
+  return files.filter((f) => f && !f.startsWith(`prototypes/${SLUG}/`) && f !== 'pnpm-lock.yaml');
+}
+
+/** Номера версий vN из имён файлов docs/releases/vN.md, по возрастанию. */
+export function releaseVersions(names) {
+  return names
+    .map((n) => /^(v[1-9][0-9]{0,3})\.md$/.exec(n)?.[1])
+    .filter(Boolean)
+    .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+}
+
+/** Версия к публикации: самая новая из release notes, если её ещё нет в Proto; иначе null. */
+export function pendingVersion(versions, published) {
+  const latest = versions.at(-1);
+  return latest && !published.includes(latest) ? latest : null;
+}
+
+function prepare(version, proto, branch, ci = false, allowProtoFiles = false) {
   const notesFile = join(ROOT, 'docs/releases', `${version}.md`);
   if (!existsSync(notesFile)) stop(`нет release notes ${relative(ROOT, notesFile)}`);
   const { title, changelog } = parseReleaseNotes(readFileSync(notesFile, 'utf8'));
 
-  checkTadum();
+  checkTadum(ci);
   checkProto(proto);
   const versionDir = join(proto, 'prototypes', SLUG, 'versions', version);
   if (sh('git', ['-C', proto, 'ls-tree', '--name-only', 'origin/main', `prototypes/${SLUG}/versions/${version}`]))
     stop(`${version} уже опубликована в Proto. Замороженные версии не меняются — выпустите следующую.`);
 
-  console.log('\n→ pnpm verify (Tadum)');
-  run('pnpm', ['verify'], { cwd: ROOT });
+  // В ci verify уже прошёл в PR (job ci); здесь только сборка и проверки Proto.
+  if (!ci) {
+    console.log('\n→ pnpm verify (Tadum)');
+    run('pnpm', ['verify'], { cwd: ROOT });
+  }
 
-  switchProtoBranch(proto, branch);
+  if (ci) run('git', ['-C', proto, 'switch', '-C', 'main', 'origin/main']);
+  else switchProtoBranch(proto, branch);
 
   console.log(`\n→ сборка Tadum под /p/${SLUG}/${version}/`);
   run('pnpm', ['build'], {
     cwd: ROOT,
-    env: { ...process.env, VITE_BASE_PATH: `/p/${SLUG}/${version}/`, VITE_DEMO_PANEL: '1', VITE_ANALYTICS: 'demo', VITE_PROTO_VERSION: version,
+    env: { ...process.env, VITE_BASE_PATH: `/p/${SLUG}/${version}/`, VITE_DEMO_PANEL: '1', VITE_ANALYTICS: 'console', VITE_PROTO_VERSION: version,
       // Витрина: английский и светлая тема по умолчанию (A-056); в продукте — арабский и системная.
       VITE_DEFAULT_LANG: 'en', VITE_DEFAULT_THEME: 'light' },
   });
@@ -232,8 +251,19 @@ function prepare(version, proto, branch) {
   run('pnpm', ['site:build', '--no-previews'], { cwd: proto });
 
   run('git', ['-C', proto, 'add', `prototypes/${SLUG}`, 'pnpm-lock.yaml']);
+  // Proto общий с другими прототипами: публикация трогает только Tadum и запись нового пакета в lock-файле.
+  // Другие файлы — только с «да» Кирилла в сессии (--allow-proto-files); в CI спросить некого — публикации нет.
+  const outside = touchedOutsideTadum(sh('git', ['-C', proto, 'diff', '--cached', '--name-only']).split('\n'));
+  if (outside.length && (ci || !allowProtoFiles))
+    stop(`публикация затрагивает файлы Proto вне prototypes/${SLUG}: ${outside.join(', ')}. ${ci ? 'Из CI не публикуется — выпуск вручную из сессии.' : 'Покажите их Кириллу; после «да» — тот же запуск с --allow-proto-files.'}`);
   run('git', ['-C', proto, 'commit', '-m', `${SLUG} ${version}: publish from the tadum repo as a frozen snapshot`, '-m', `Source: tadum@${commit}`]);
 
+  if (ci) {
+    // ADR-004 (Tadum) / ADR-0028 (Proto): бот Tadum пишет в main Proto только prototypes/tadum/**.
+    run('git', ['-C', proto, 'push', 'origin', 'HEAD:main']);
+    console.log(`\n✓ ${version} в main Proto. Workers Builds выложит витрину: https://proto.kirillgloba.workers.dev/p/${SLUG}/${version}/`);
+    return;
+  }
   console.log(`\n⏸ Готово к решению Кирилла. Ветка Proto ${branch}, коммит не запушен.`);
   console.log(sh('git', ['-C', proto, 'show', '--stat', '--format=%h %s', 'HEAD']).split('\n').slice(0, 12).join('\n'));
   console.log(`\nПроверить локально: cd ${proto} && PROTO_PREVIEW_PASSWORD=<любой> pnpm site:preview → /p/${SLUG}/${version}/`);
@@ -262,6 +292,20 @@ function tag(version) {
   console.log('Откат витрины: revert PR публикации в Proto (после merge Workers Builds задеплоит предыдущее состояние).');
 }
 
+/** Режим GitHub Actions: публикует новую версию, если в docs/releases появилась vN, которой нет в Proto. */
+function ci(proto) {
+  if (!proto) stop('укажите --proto-dir <путь к клону Proto> или PROTO_DIR');
+  const dir = resolve(proto);
+  run('git', ['-C', dir, 'fetch', 'origin', 'main']);
+  const published = sh('git', ['-C', dir, 'ls-tree', '--name-only', `origin/main:prototypes/${SLUG}/versions`]).split('\n');
+  const version = pendingVersion(releaseVersions(readdirSync(join(ROOT, 'docs/releases'))), published);
+  // Для GitHub Actions: следующий шаг (тег и релиз) знает, что публиковать.
+  if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `version=${version ?? ''}\n`, { flag: 'a' });
+  if (!version) return console.log('Новой версии нет: последняя из docs/releases уже в Proto.');
+  console.log(`→ публикую ${version}`);
+  return prepare(version, dir, 'main', true);
+}
+
 function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
@@ -270,15 +314,20 @@ function main() {
       'proto-branch': { type: 'string' },
       publish: { type: 'boolean', default: false },
       tag: { type: 'boolean', default: false },
+      ci: { type: 'boolean', default: false },
+      'allow-proto-files': { type: 'boolean', default: false },
     },
   });
+  if (values.ci) return ci(values['proto-dir'] ?? process.env.PROTO_DIR);
   const version = positionals[0] ?? '';
   if (!VERSION_RE.test(version)) stop('укажите версию: pnpm run release:proto v1 --proto-dir <путь к Proto>');
   if (values.tag) return tag(version);
   const proto = values['proto-dir'] ?? process.env.PROTO_DIR;
   if (!proto) stop('укажите --proto-dir <путь к клону Proto> или PROTO_DIR');
   const branch = values['proto-branch'] ?? `feat/${SLUG}-${version}`;
-  return values.publish ? publish(version, resolve(proto), branch) : prepare(version, resolve(proto), branch);
+  return values.publish
+    ? publish(version, resolve(proto), branch)
+    : prepare(version, resolve(proto), branch, false, values['allow-proto-files']);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

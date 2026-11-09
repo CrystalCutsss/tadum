@@ -74,15 +74,19 @@ test('@smoke unknown_phone → /not-found без сессии', async ({ page })
   await expect(page).toHaveURL(/\/login/);
 });
 
-test('@smoke expireSession() → /session-expired → вход → возврат на /c/home', async ({ page }) => {
+test('@smoke истёкшая сессия → /session-expired → вход → возврат на /c/home', async ({ page }) => {
   await asPersona(page, 'client_active');
   await expect(page).toHaveURL(/\/c\/home/);
-  await page.getByRole('button', { name: tr('en', 'demo.open') }).click();
-  await page.getByRole('button', { name: 'expireSession' }).click();
+  // Демо-панели нет (Кирилл 2026-11-06): истекаем сессию прямо в состоянии мока и перезагружаем страницу.
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) => k.endsWith(':mock:active'));
+    if (!key) throw new Error('no mock state');
+    const state = JSON.parse(localStorage.getItem(key)!) as { session: { expired: boolean } };
+    state.session.expired = true;
+    localStorage.setItem(key, JSON.stringify(state));
+  });
+  await page.reload();
   await expect(page).toHaveURL(/\/session-expired$/);
-  // Шторка демо-панели живёт в корне и переживает переход — закрываем и ждём, пока она исчезнет.
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog')).toBeHidden();
   await page.getByRole('link', { name: tr('en', 'auth.expired.login') }).click();
   await expect(page).toHaveURL(/\/login$/);
   // returnTo хранится в sessionStorage (SC-01 §7) — после входа открывается исходный маршрут.
