@@ -55,6 +55,8 @@ const SHADCN_GENERATED = [
   'progress', 'separator', 'sheet', 'skeleton', 'sonner', 'table', 'tabs', 'toggle', 'toggle-group', 'tooltip',
   // Блок кабинета (2026-11-06): sidebar, breadcrumb.
   'breadcrumb', 'sidebar',
+  // Экран «Ваши документы» (2026-11-09).
+  'alert-dialog', 'collapsible', 'drawer', 'empty', 'field', 'item', 'label', 'spinner',
 ].map((name) => `src/shared/ui/${name}.tsx`);
 
 // Аналитика: имя события — только литерал из EventName (04-metrics-and-events.md §4).

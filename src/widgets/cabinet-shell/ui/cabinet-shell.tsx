@@ -6,7 +6,7 @@
 // переключатели языка и темы и блок помощи приходят слотами, собирает их pages/-components/cabinet-layout.
 import { useQuery } from '@tanstack/react-query';
 import { useRouterState } from '@tanstack/react-router';
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { companyQuery } from '@/entities/application';
@@ -18,6 +18,7 @@ import { formatNationalInput, nationalDigits, storage } from '@/shared/lib';
 import { SidebarInset, SidebarProvider } from '@/shared/ui';
 
 import { crumbsFor } from '../model/nav';
+import { AsideSlotContext } from './cabinet-aside';
 import { AppHeader } from './app-header';
 import { AppSidebar } from './app-sidebar';
 import { OfflineBanner, StorageBanner } from './banners';
@@ -47,6 +48,9 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
   const company = useQuery({ ...companyQuery, enabled: family === 'client' || families.includes('client') });
   const supplier = useQuery({ ...supplierQuery, enabled: family === 'supplier' || families.includes('supplier') });
   const [open, setOpen] = useState(() => storage.get(SIDEBAR_KEY) !== '0');
+  const [aside, setAside] = useState<HTMLElement | null>(null);
+  const [header, setHeader] = useState<HTMLElement | null>(null);
+  const slots = useMemo(() => ({ aside, header }), [aside, header]);
   // «Уже видел подсказку dual» читается один раз за монтирование оболочки.
   const [hintPending, setHintPending] = useState(() => !roleHint.seen());
 
@@ -74,11 +78,22 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
       />
       <SidebarInset className="min-w-0 text-foreground">
         <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} themeToggle={themeToggle} />
-        <div className="grid flex-1 grid-cols-1 content-start gap-4 p-4 pb-safe-bottom lg:grid-cols-3">
-          <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
-            <OfflineBanner />
-            <StorageBanner />
-            {children}
+        {/* Отступ контента 16 px со всех сторон; safe-area iOS — отдельно снизу (раньше pb-safe-bottom обнулял нижний
+            отступ). Колонки растянуты на высоту окна: плавающая панель экрана (sticky + mt-auto) стоит внизу окна
+            даже при коротком контенте (решение Кирилла 2026-11-09). */}
+        <div className="flex flex-1 flex-col pb-safe-bottom">
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            {/* Заголовок экрана (CabinetPageHeader) — над колонками; пустой не занимает места. */}
+            <div ref={setHeader} className="min-w-0 empty:hidden" />
+            <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
+                <OfflineBanner />
+                <StorageBanner />
+                <AsideSlotContext.Provider value={slots}>{children}</AsideSlotContext.Provider>
+              </div>
+              {/* Третья колонка (≥1024 px): блоки экрана через CabinetAside. */}
+              <div ref={setAside} className="hidden min-w-0 flex-col gap-4 lg:flex" />
+            </div>
           </div>
         </div>
       </SidebarInset>

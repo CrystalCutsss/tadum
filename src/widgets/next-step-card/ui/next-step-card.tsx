@@ -1,13 +1,12 @@
 // Карточка «следующий шаг» (01-cabinet-structure.md §6): на чьей стороне шаг и что делать.
 // Текст — только из ключей; срок — только если meta.hours пришёл из данных (D-033). Шаг вычисляет entities.
-import { RiTimeLine } from '@remixicon/react';
 import { Link } from '@tanstack/react-router';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 import { track, type NextStepKey } from '@/shared/analytics';
 import type { NextStep } from '@/shared/api';
-import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, Icon } from '@/shared/ui';
+import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, Icon, RiTimeLine } from '@/shared/ui';
 
 export interface NextStepCardProps {
   step: NextStep;

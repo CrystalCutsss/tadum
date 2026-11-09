@@ -67,14 +67,13 @@ export function SupportCard(props: SupportBarProps) {
           <span className="text-xs text-muted-foreground">{t('support.cta.subtitle')}</span>
         </p>
         <div className="flex flex-col gap-2">
-          {/* Скругление меньше пилюли пресета (Кирилл 2026-11-06): rounded-lg = --radius. */}
-          <Button asChild variant="whatsapp" className="min-h-11 rounded-lg">
+          <Button asChild variant="whatsapp" className="min-h-11">
             <a href={links.whatsapp.href} target="_blank" rel="noopener noreferrer" onClick={links.whatsapp.onClick}>
               <Icon icon={RiWhatsappFill} />
               {t('support.whatsapp')}
             </a>
           </Button>
-          <Button asChild variant="secondary" className="min-h-11 rounded-lg">
+          <Button asChild variant="secondary" className="min-h-11">
             <a href={links.email.href} onClick={links.email.onClick}>
               {t('support.email')}
             </a>

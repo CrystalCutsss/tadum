@@ -1,6 +1,6 @@
 // Шкала прогресса клиента (01-cabinet-structure.md §5, таблица истинности 01-statuses.md §8).
-// Шкала никогда не откатывается назад (D-008): при дозапросе «Проверка» остаётся текущей,
-// на «Документах» — метка needs_attention.
+// Шкала никогда не откатывается назад (D-008). Дозапрос (решения Кирилла 2026-11-09): «Документы» — пройдены,
+// «Проверка» — текущий шаг, без предупреждающей метки (раньше метка needs_attention стояла на «Документах»).
 
 import type { ClientStatus, Limit } from '@/shared/api';
 
@@ -29,7 +29,7 @@ export function computeClientTimeline({ client_status: status, round, limit }: C
   switch (status) {
     case 'docs_required':
       return round > 1
-        ? row('needs_attention', 'current', 'upcoming', 'upcoming', 'upcoming')
+        ? row('done', 'current', 'upcoming', 'upcoming', 'upcoming')
         : row('current', 'upcoming', 'upcoming', 'upcoming', 'upcoming');
     case 'under_review':
       return row('done', 'current', 'upcoming', 'upcoming', 'upcoming');

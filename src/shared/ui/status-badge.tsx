@@ -2,18 +2,20 @@ import {
   RiCheckboxCircleLine,
   RiCloseCircleLine,
   RiErrorWarningLine,
-  RiFileUploadLine,
-  RiFolderOpenLine,
-  RiHourglassLine,
   RiSendPlane2Line,
-  RiShoppingBag3Line,
-  RiUploadCloud2Line,
   type RemixiconComponentType,
 } from '@remixicon/react';
 import { cn } from 'cn';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
+import {
+  RiFileUploadLine,
+  RiFolderOpenLine,
+  RiHourglassLine,
+  RiShoppingBag3Line,
+  RiUploadCloud2Line,
+} from './icon/document-icons';
 import { Icon } from './icon/icon';
 
 // Бейдж статуса. Статусы различимы иконкой и текстом, не только цветом (WCAG 1.4.1).

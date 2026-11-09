@@ -127,9 +127,42 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 **ThemeToggleIcon** (`icon/theme-toggle-icon.tsx`, решение Кирилла 2026-11-06) — иконка кнопки темы, как `ModeSwitcher` на ui.shadcn.com: Tabler Icons `brightness` (MIT) — круг и половина со штриховкой. В Remix Icon такой нет; компонент имеет тип `RemixiconComponentType`, поэтому рисуется через `<Icon icon={ThemeToggleIcon} />`. Нейтральная, в `mirroredIcons` не входит.
 
-**Скругления** — значения пресета (решение Кирилла 2026-11-06, правки радиусов откатаны).
+**Скругления** — значения пресета (решение Кирилла 2026-11-06, правки радиусов откатаны), кроме двух решений Кирилла 2026-11-09:
+
+| Что | Радиус | Где |
+| :--- | :--- | :--- |
+| Все кнопки портала | `rounded-lg` (= `--radius`), как кнопка «Email» блока помощи; вместо пилюли пресета `rounded-4xl` | база `buttonVariants` в `button.tsx` — единый для всех `size` (включая `xs`, `icon-*`) и вариантов; `AlertDialogAction`/`AlertDialogCancel` и крестики окон берут его через `Button`/`buttonVariants` |
+| Модальные окна | `rounded-xl`, как строки-карточки документов | `DialogContent`, `AlertDialogContent`, `DrawerContent` (`before:rounded-xl`); `ResponsiveDialog` своего радиуса не задаёт и наследует их. `Sheet`, `Popover`, `DropdownMenu` — по пресету |
+
+Повторный `shadcn add button|dialog|alert-dialog|drawer` покажет эти радиусы как отличие — не перезаписывать.
+
+**Тени и курсор выпадающих списков** (решения Кирилла 2026-11-09, действуют всегда):
+
+- Тосты (`sonner.tsx`, `toastOptions.classNames.toast`) используют тень выпадающих списков — `shadow-2xl ring-1 ring-foreground/5 dark:ring-foreground/10`, как `DropdownMenuContent`. Собственные тень и граница 1px sonner сняты (`shadow-2xl!`, `border-0!` перебивают селектор `[data-sonner-toast][data-styled]`); фокус клавиатуры — `focus-visible:ring-[3px] ring-ring/50`. Новых токенов нет.
+- У всех пунктов выпадающих списков кабинета курсор `cursor-pointer` (`DropdownMenuItem`, `CheckboxItem`, `RadioItem`, `SubTrigger`; у неактивных остаётся `pointer-events-none`). Новые меню с пунктами (`select`, `command`, `context-menu`) при установке получают то же.
+
+Повторный `shadcn add dropdown-menu|sonner` покажет это как отличие — не перезаписывать.
 
 Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot`, `Icon/ThemeToggle` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
+
+### Экран «Ваши документы» (2026-11-09)
+
+`pnpm dlx shadcn@4.23.0 add item collapsible empty field drawer spinner alert-dialog label` — новые `item`, `collapsible`, `empty`, `field`, `label` (нужен `field`), `drawer` (зависимость `vaul` 1.1.2), `spinner`, `alert-dialog`. Перезапись `button.tsx` и `separator.tsx` CLI предложил и получил отказ. Классы пресета новых файлов внесены в список `SHADCN_GENERATED` в `eslint.config.js` (как у остальных файлов CLI). Новых токенов нет. Адаптация:
+
+| Компонент | Что |
+| :--- | :--- |
+| `cva` в `item`, `empty`, `field` | `/* @__PURE__ */` |
+| `Drawer` | `vaul-drawer-direction` — физическая сторона: CLI превратил `left-0`/`right-0` в `start-0`/`end-0` (в RTL левый Drawer встал бы справа) — возвращены физические с `eslint-disable` и причиной. `DrawerContent dir` — из `Direction.useDirection()` (портал вне дерева). Ручка `w-[100px]` → `w-25` (шкала), `aria-hidden` |
+| `Spinner` | `aria-label` обязателен (без хардкода «Loading»); `role="status"` — на обёртке `span`, иконка — через `Icon` (декоративная) |
+| `Item`, `Empty`, `Field`, `Label`, `Collapsible`, `AlertDialog` | Без изменений: строк и физических классов нет |
+
+**ResponsiveDialog** (`responsive-dialog.tsx`, проектный, по образцу shadcn `drawer-dialog`): меньше `md` (`useIsMobile`) — `Drawer` снизу, иначе `Dialog`. Части: `ResponsiveDialog` (`open`, `defaultOpen`, `onOpenChange`), `ResponsiveDialogTrigger`, `ResponsiveDialogContent` (`closeLabel` обязателен, `showCloseButton`, `dir`), `ResponsiveDialogHeader`, `ResponsiveDialogTitle`, `ResponsiveDialogDescription`, `ResponsiveDialogFooter`, `ResponsiveDialogClose`. Режим передаётся частям через контекст; `dir` контента — из Radix Direction; у контента `data-mode="drawer" | "dialog"`. Кнопка-крестик (`closeLabel`) — в обоих режимах, и в Drawer на телефоне (Кирилл 2026-11-09); история `ResponsiveDialog/Mobile` (viewport `mobile360`) проверяет режим `drawer` и видимость крестика. `Drawer` (vaul) подключается лениво — динамическим `import()` при первом монтировании корня на телефоне, ради бюджета первого чанка (D-054): у vaul побочный эффект при импорте (вставка CSS), и статический импорт или реэкспорт из `@/shared/ui` затягивал его в первый чанк (+15 kB gzip). Пока чанк грузится, корень — закрытый `Dialog` (триггер виден, окно не мигает), затем открывается `Drawer` с теми же `open`/`defaultOpen`; не загрузился — откат на `Dialog`. Поэтому `Drawer*` не экспортируются из `src/shared/ui/index.ts` — только `ResponsiveDialog*`; `DrawerPortal`/`DrawerOverlay` из `drawer.tsx` наружу не экспортируются.
+
+`ResponsiveDialogContent size="tall"` (Кирилл 2026-11-09, просмотр примера документа): Drawer — от верхнего края (`max(1rem, safe-area-inset-top)`) до низа вместо `mt-24`/`max-h-[80vh]` пресета (классы под `data-size=tall` в `drawer.tsx`), Dialog — `flex flex-col max-h-9/10`; шапка фиксирована, `ResponsiveDialogBody` (`flex-1 min-h-0 overflow-y-auto`, в Drawer `px-4 pb-4`) растягивается и прокручивается. По умолчанию `size="default"` — прежнее поведение; история `ResponsiveDialog/Tall` (`mobile360`) проверяет высоту > 80% окна и прокрутку тела. Новых токенов нет.
+
+**Progress** — исправлен RTL: заливка шла слева и в RTL. Сдвиг индикатора теперь по `Direction.useDirection()` (`translateX(+N%)` в RTL), заливка растёт от начала строки; `value` передаётся в Root (`aria-valuenow`). Play-тест `shared/ui/Progress/Partial`: при 30 % в AR заливка у правого края, в EN — у левого.
+
+Истории: `Item`, `Collapsible`, `Empty`, `Field`, `Label`, `Spinner`, `Progress` — в матрице AR/EN × light/dark; `Drawer`, `AlertDialog`, `ResponsiveDialog` — порталы, как `Dialog`/`Sheet`, одна копия по глобалам тулбара, play проверяет `dir` контента.
 
 ## 5. Шрифты
 
@@ -143,7 +176,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 `src/app/theme.tsx`: `system | light | dark`, по умолчанию `system` (D-025), хранение — `storage('theme')`, класс `.dark` на `<html>`, `<meta name="theme-color">` для обеих тем (`#ffffff` / `#090b0c` = `--background` пресета). Вспышки нет: `index.html` ставит `.dark` до загрузки бандла.
 
-Кнопка темы в шапке кабинета (Кирилл 2026-11-06): `ThemeToggle` (`widgets/theme-switch`) — ghost-кнопка с `ThemeToggleIcon`, как ModeSwitcher на ui.shadcn.com: светлая ↔ тёмная от видимой темы; стоит в конце шапки после переключателя языка, через вертикальный `Separator`. Выбор «Как в системе» — в настройках (`ThemeSwitch`). Кнопки блока помощи «Have a question?» (`SupportCard`) — `rounded-lg` вместо пилюли пресета.
+Кнопка темы в шапке кабинета (Кирилл 2026-11-06): `ThemeToggle` (`widgets/theme-switch`) — ghost-кнопка с `ThemeToggleIcon`, как ModeSwitcher на ui.shadcn.com: светлая ↔ тёмная от видимой темы; стоит в конце шапки после переключателя языка, через вертикальный `Separator`. Выбор «Как в системе» — в настройках (`ThemeSwitch`). Кнопки блока помощи «Have a question?» (`SupportCard`) — `rounded-lg`; с 2026-11-09 это радиус всех кнопок (§4a, «Скругления»).
 
 ## 8. Запрет сырых значений
 
