@@ -1,6 +1,5 @@
 // Действия с загруженным файлом: скачать (прямая ссылка, без blob: — встроенный браузер WhatsApp),
 // заменить (через выбор источника), удалить с подтверждением. Меню «⋯» — одна цель нажатия 44 px вместо трёх мелких.
-import { RiDeleteBinLine, RiDownloadLine, RiMore2Line, RiRefreshLine } from '@remixicon/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +22,10 @@ import {
   DropdownMenuTrigger,
   Icon,
   toast,
+  RiDeleteBinLine,
+  RiDownloadLine,
+  RiMore2Line,
+  RiRefreshLine,
 } from '@/shared/ui';
 
 export interface FileActionsProps {

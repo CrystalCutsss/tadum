@@ -1,7 +1,6 @@
 // Помощь по документу в раскрытой строке (решения Кирилла 2026-11-09): видео (только на арабском, D-026),
 // ссылки на сервисы, где получить документ, и пример — картинкой в модальном окне с крестиком (без просмотрщика PDF).
 // Нет ассетов — блок не показывается (A10).
-import { RiExternalLinkLine, RiFileSearchLine, RiPlayCircleLine } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +16,9 @@ import {
   ResponsiveDialogDescription,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
+  RiExternalLinkLine,
+  RiFileSearchLine,
+  RiPlayCircleLine,
 } from '@/shared/ui';
 
 /**

@@ -23,18 +23,54 @@ import { Icon } from "@/shared/ui/icon/icon"
 // затянул бы его в первый чанк (бюджет 200 kB, D-054). Модуль запрашивается при первом монтировании
 // корня на телефоне; пока он грузится, корень — закрытый Dialog: триггер виден, окно не мигает и
 // открывается уже как Drawer (defaultOpen/open применяются к Drawer после загрузки).
-type DrawerModule = typeof import("@/shared/ui/drawer")
+// Чанк не загрузился (офлайн без кэша) — откат на Dialog, окно остаётся рабочим.
+type DrawerModule = Pick<
+  typeof import("@/shared/ui/drawer"),
+  | "Drawer"
+  | "DrawerClose"
+  | "DrawerContent"
+  | "DrawerDescription"
+  | "DrawerFooter"
+  | "DrawerHeader"
+  | "DrawerTitle"
+  | "DrawerTrigger"
+>
 
 let drawerModule: DrawerModule | null = null
-let drawerRequest: Promise<DrawerModule> | null = null
+let drawerRequest: Promise<DrawerModule | "failed"> | null = null
 
 function loadDrawer() {
-  drawerRequest ??= import("@/shared/ui/drawer").then((m) => (drawerModule = m))
+  drawerRequest ??= import("@/shared/ui/drawer").then(
+    ({
+      Drawer,
+      DrawerClose,
+      DrawerContent,
+      DrawerDescription,
+      DrawerFooter,
+      DrawerHeader,
+      DrawerTitle,
+      DrawerTrigger,
+    }) =>
+      (drawerModule = {
+        Drawer,
+        DrawerClose,
+        DrawerContent,
+        DrawerDescription,
+        DrawerFooter,
+        DrawerHeader,
+        DrawerTitle,
+        DrawerTrigger,
+      }),
+    () => {
+      drawerRequest = null // следующая попытка — при следующем монтировании
+      return "failed" as const
+    }
+  )
   return drawerRequest
 }
 
-function useDrawerModule(enabled: boolean) {
-  const [mod, setMod] = React.useState(drawerModule)
+function useDrawerModule(enabled: boolean): DrawerModule | "pending" | "failed" {
+  const [mod, setMod] = React.useState<DrawerModule | "failed" | null>(drawerModule)
   React.useEffect(() => {
     if (!enabled || mod) return
     let active = true
@@ -45,7 +81,7 @@ function useDrawerModule(enabled: boolean) {
       active = false
     }
   }, [enabled, mod])
-  return enabled ? mod : null
+  return mod ?? "pending"
 }
 
 // Режим частей: null — Dialog; модуль Drawer — Drawer; "pending" — телефон, Drawer ещё грузится.
@@ -69,7 +105,7 @@ type ResponsiveDialogProps = {
 function ResponsiveDialog({ children, ...props }: ResponsiveDialogProps) {
   const isMobile = useIsMobile()
   const drawer = useDrawerModule(isMobile)
-  const mode: Mode = isMobile ? (drawer ?? "pending") : null
+  const mode: Mode = isMobile && drawer !== "failed" ? drawer : null
   let root: React.ReactNode
   if (mode === "pending") root = <Dialog open={false}>{children}</Dialog>
   else if (mode) root = <mode.Drawer {...props}>{children}</mode.Drawer>

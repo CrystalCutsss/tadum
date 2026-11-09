@@ -1,5 +1,12 @@
 import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { RiCheckboxCircleLine, RiInformationLine, RiErrorWarningLine, RiCloseCircleLine, RiLoaderLine } from "@remixicon/react"
+
+import {
+  RiCheckboxCircleLine,
+  RiCloseCircleLine,
+  RiErrorWarningLine,
+  RiInformationLine,
+  RiLoaderLine,
+} from "./icon/toast-icons"
 
 // Тема приходит пропом из app/theme.tsx (в Tadum нет next-themes).
 const Toaster = ({ theme = "system", ...props }: ToasterProps) => {

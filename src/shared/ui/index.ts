@@ -31,6 +31,28 @@ export * from './toggle-group';
 export * from './tooltip';
 
 export { Icon, isMirrored, mirroredIcons, type IconProps } from './icon/icon';
+export {
+  RiArrowDownSLine,
+  RiCameraLine,
+  RiDeleteBinLine,
+  RiDownloadLine,
+  RiExternalLinkLine,
+  RiFileSearchLine,
+  RiFileTextLine,
+  RiFolderOpenLine,
+  RiImageLine,
+  RiMore2Line,
+  RiPlayCircleLine,
+  RiRefreshLine,
+  RiUploadCloud2Line,
+} from './icon/document-icons';
+export {
+  RiCheckboxBlankCircleFill,
+  RiCheckboxCircleFill,
+  RiErrorWarningFill,
+  RiProgress4Line,
+  RiTimeLine,
+} from './icon/status-icons';
 export { ThemeToggleIcon } from './icon/theme-toggle-icon';
 export { Ltr } from './ltr';
 export { StatusBadge, type DocumentStatus, type StatusBadgeProps, type SupplierViewStatus } from './status-badge';

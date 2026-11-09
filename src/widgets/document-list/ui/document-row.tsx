@@ -2,7 +2,7 @@
 // Свёрнуто: название, короткое описание, справа либо статус, либо действие (бенчмарк № 03), «Загрузить» — прямо
 // из строки (№ 02). Для «Нужен новый файл» — причина в 1–3 строки под описанием (SC-03).
 // Раскрыто: причина полностью, видео, ссылки «где получить», пример, зона загрузки, файлы.
-import { RiArrowDownSLine, RiErrorWarningLine, RiFileTextLine } from '@remixicon/react';
+import { RiErrorWarningLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
@@ -38,6 +38,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   toast,
+  RiArrowDownSLine,
+  RiFileTextLine,
 } from '@/shared/ui';
 
 import { DocumentResources } from './document-resources';

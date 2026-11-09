@@ -1,7 +1,7 @@
 // Выбор источника файла (решение Кирилла 2026-11-09, бенчмарк № 14): три равные крупные плитки —
 // камера, галерея, файлы. На телефоне — шторка снизу, на десктопе — модальное окно (ResponsiveDialog).
 // Над плитками — короткое описание документа: что нужно и где взять.
-import { RiCameraLine, RiFolderOpenLine, RiImageLine, type RemixiconComponentType } from '@remixicon/react';
+import type { RemixiconComponentType } from '@remixicon/react';
 import { useRef, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +13,9 @@ import {
   ResponsiveDialogDescription,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
+  RiCameraLine,
+  RiFolderOpenLine,
+  RiImageLine,
 } from '@/shared/ui';
 
 import type { UploadSource } from '../model/use-document-upload';

@@ -1,6 +1,6 @@
 // Файлы документа: загруженные (с предупреждением предвалидации) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
-import { RiCheckLine, RiCloseLine, RiErrorWarningLine, RiFileTextLine } from '@remixicon/react';
+import { RiCheckLine, RiCloseLine, RiErrorWarningLine } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +8,7 @@ import { FileActions } from '@/features/manage-document-file';
 import type { FileTask } from '@/features/upload-document';
 import type { Document, FileAsset } from '@/shared/api';
 import { formatFileSize, formatNumber } from '@/shared/i18n';
-import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, Progress, Spinner } from '@/shared/ui';
+import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, Progress, RiFileTextLine, Spinner } from '@/shared/ui';
 
 export function UploadedFileRow({
   doc,

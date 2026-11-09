@@ -129,9 +129,9 @@ function DrawerDescription({
 }
 
 export {
+  // DrawerPortal и DrawerOverlay — только внутри DrawerContent: Drawer подключается лениво из
+  // responsive-dialog, наружу через баррель не экспортируется (knip, бюджет первого чанка).
   Drawer,
-  DrawerPortal,
-  DrawerOverlay,
   DrawerTrigger,
   DrawerClose,
   DrawerContent,

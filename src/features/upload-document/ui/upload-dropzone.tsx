@@ -1,12 +1,11 @@
 // Зона загрузки в раскрытой строке документа: перетащить файлы (десктоп) или нажать — откроется выбор источника.
 // Своей кнопки в зоне нет (решение Кирилла 2026-11-09: «Загрузить» уже есть в строке) — нажимается вся зона.
 // Своего dropzone в shadcn нет — собрана из Empty с пунктирной рамкой (бенчмарк № 09).
-import { RiUploadCloud2Line } from '@remixicon/react';
 import { cn } from 'cn';
 import { useState, type DragEvent, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle, Icon } from '@/shared/ui';
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle, Icon, RiUploadCloud2Line } from '@/shared/ui';
 
 export interface UploadDropzoneProps {
   disabled?: boolean;
