@@ -10,9 +10,9 @@
 | Журнал решений.md | ищется по имени в папке `00` | D-001…D-075 — при любом сомнении искать здесь |
 | 00-roadmap.md | ищется по имени в папке `00` | состав v1 и критерии готовности |
 | 01-roles.md | `1JrpXr6UVuqPt7t85lXSeiOnID03GA_4T` | `resolveRoles`, матрицы прав, «что не показываем» |
-| 01-cabinet-structure.md | `1uEjQ7I_gJt30biisfqqDE5ucT-KeMvUN` | маршруты и `screen_id`, оболочка (§2 — сайдбар `sidebar-08`, решение Кирилла 2026-11-06), шкала, карточка шага |
+| 01-cabinet-structure.md | `16zYyjbRXNDCoLNomjdoSfwO_UuWMtY3F` | маршруты и `screen_id`, оболочка (§2 — сайдбар `sidebar-08`, решение Кирилла 2026-11-06), шкала, карточка шага |
 | 01-entities.md | `1xZavpWQsvcmYFBK1utr423NIxh_64W1d` | YAML сущностей → типы и Zod; персоны |
-| 01-statuses.md | `1s3nhsFgvXYpRRtNmtG18AwowmsdUk7LG` | маппинг стадий, машины состояний, мок-действия §10 |
+| 01-statuses.md | `1fRQxjxJrPk30qtIFS3woQPwm4sybCGRt` | маппинг стадий, машины состояний, мок-действия §10 |
 | 01-nfr-locale-brand.md | ищется по имени в папке `01` | локаль, форматтеры, NFR, токены, TOV |
 | tov-lexicon.json | `1W2G4zoLEu8kqJkmeGs3gZoK98GNXo1r7` | копируется в репозиторий побайтно |
 | 04-metrics-and-events.md | `1GbdRrWcAa_vqZi20FHLMACGHKIDtATKF` | словарь событий → `events.ts` |
@@ -41,14 +41,14 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `17k-GEcgmaIGvBRa5mGgPeqVvlQ_vR_KD` | 43540 | 2026-11-05 |
+| `00-decision-log.md` | `1USpt_lGAy4lKprF61KfI4D_1Zd73s4bT` | 44902 | 2026-11-09 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1_jmG1pJcMmq3mzFqDvlRPkvqUaVBw_IH` | 15714 | 2026-11-05 |
-| `01-cabinet-structure.md` | `1uEjQ7I_gJt30biisfqqDE5ucT-KeMvUN` | 23974 | 2026-11-06 |
+| `01-cabinet-structure.md` | `16zYyjbRXNDCoLNomjdoSfwO_UuWMtY3F` | 24016 | 2026-11-09 |
 | `01-entities.md` | `1xZavpWQsvcmYFBK1utr423NIxh_64W1d` | 22601 | 2026-11-05 |
 | `01-nfr-locale-brand.md` | `1cO-QYx8-xWFkBQtw5gnzC4_L8cl1qrMk` | 49888 | 2026-11-05 |
 | `01-roles.md` | `1JrpXr6UVuqPt7t85lXSeiOnID03GA_4T` | 18427 | 2026-11-05 |
-| `01-statuses.md` | `1s3nhsFgvXYpRRtNmtG18AwowmsdUk7LG` | 21077 | 2026-11-05 |
+| `01-statuses.md` | `1fRQxjxJrPk30qtIFS3woQPwm4sybCGRt` | 21067 | 2026-11-09 |
 | `04-metrics-and-events.md` | `1GbdRrWcAa_vqZi20FHLMACGHKIDtATKF` | 28661 | 2026-11-05 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
 | `requirements-supplier.md` | `1m7p6aNOBqaZYZ7DDkHhjc6hMRziYxJAi` | 9923 | 2026-11-05 |

@@ -1,4 +1,4 @@
-<!-- source: Drive 1uEjQ7I_gJt30biisfqqDE5ucT-KeMvUN, synced: 2026-11-06. Не редактировать — источник в Drive. -->
+<!-- source: Drive 16zYyjbRXNDCoLNomjdoSfwO_UuWMtY3F, synced: 2026-11-09. Не редактировать — источник в Drive. -->
 # 01 · Структура кабинета
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.6 · **Дата:** 2026-11-06 · **Статус:** согласовано как базовый каркас (C-1…C-3 закрыты); раздел 2 «Оболочка» — по решению Кирилла 2026-11-06 (сайдбар `sidebar-08`)
@@ -148,7 +148,7 @@ SupplierTimeline:
 | `client_status` | documents | review | decision | signing | limit_active | Примечание |
 |---|---|---|---|---|---|---|
 | `docs_required` (первый комплект) | current | upcoming | upcoming | upcoming | upcoming | |
-| `docs_required` (дозапрос, `round > 1`) | **needs_attention** | current | upcoming | upcoming | upcoming | Шаг «Проверка» остаётся текущим, на «Документы» — метка «нужны ещё документы» (D-008) |
+| `docs_required` (дозапрос, `round > 1`) | done | current | upcoming | upcoming | upcoming | Шаг «Проверка» остаётся текущим, «Документы» — пройдены. О дозапросе говорит баннер на экране документов (D-008, D-078) |
 | `under_review` | done | current | upcoming | upcoming | upcoming | |
 | `approved` (до подписания) | done | done | done | current | upcoming | |
 | `approved` (всё подписано, лимит `active`) | done | done | done | done | current | |
