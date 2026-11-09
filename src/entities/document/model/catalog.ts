@@ -78,7 +78,9 @@ export function findDocumentType(key: PortalKey): DocumentType | undefined {
 
 /** Неизвестный ключ всё равно отображается: подсказка по шаблону ключей i18n. */
 export function hintFor(key: PortalKey): DocumentHint {
-  const t = findDocumentType(key) ?? entry(key, 'client');
+  // Неизвестный ключ — только шаблон ключей i18n, без примеров и видео (ассеты есть лишь у известных документов).
+  const t = findDocumentType(key);
+  if (!t) return { title_key: `document.${key}.title`, hint_key: `document.${key}.hint` };
   return {
     title_key: t.title_key,
     hint_key: t.hint_key,

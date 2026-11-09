@@ -1,7 +1,8 @@
 // Пункты бокового меню и заголовки страниц кабинета.
 // Решение Кирилла 2026-11-06: в основном меню только «Home» и «Documents», без вложенных страниц, у обеих ролей;
 // «Помощь и настройки» открываются из меню аккаунта. У поставщика /s/documents — заглушка до v3.
-import { RiFileTextLine, RiHomeLine, type RemixiconComponentType } from '@remixicon/react';
+// Иконка «Документы» в меню — простая, без строк текста (решение Кирилла 2026-11-09); в карточках документов — подробная.
+import { RiFileLine, RiHomeLine, type RemixiconComponentType } from '@remixicon/react';
 
 import { ROUTES, type Family } from '@/shared/config';
 
@@ -16,11 +17,11 @@ export interface NavItem {
 export const NAV: Readonly<Record<Family, readonly NavItem[]>> = {
   client: [
     { to: ROUTES.clientHome, labelKey: 'nav.home', icon: RiHomeLine },
-    { to: ROUTES.clientDocuments, labelKey: 'nav.documents', icon: RiFileTextLine },
+    { to: ROUTES.clientDocuments, labelKey: 'nav.documents', icon: RiFileLine },
   ],
   supplier: [
     { to: ROUTES.supplierHome, labelKey: 'nav.home', icon: RiHomeLine },
-    { to: ROUTES.supplierDocuments, labelKey: 'nav.documents', icon: RiFileTextLine },
+    { to: ROUTES.supplierDocuments, labelKey: 'nav.documents', icon: RiFileLine },
   ],
 };
 

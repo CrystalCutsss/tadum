@@ -19,6 +19,23 @@ import {
   ResponsiveDialogTitle,
 } from '@/shared/ui';
 
+/**
+ * Плеер Google Drive в iframe: курсор внутри чужого iframe задать нельзя, поэтому до первого нажатия поверх плеера —
+ * прозрачная кнопка на всю площадь с курсором pointer (решение Кирилла 2026-11-09). После нажатия кнопка убирается,
+ * управление переходит плееру Drive.
+ */
+function DrivePlayer({ src, title, playLabel }: { src: string; title: string; playLabel: string }) {
+  const [active, setActive] = useState(false);
+  return (
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+      <iframe src={src} title={title} allow="autoplay; fullscreen" allowFullScreen className="size-full border-0" />
+      {active ? null : (
+        <button type="button" aria-label={playLabel} onClick={() => setActive(true)} className="absolute inset-0 cursor-pointer bg-transparent" />
+      )}
+    </div>
+  );
+}
+
 /** Видео из Google Drive открывается их встроенным плеером, свои файлы — тегом video. */
 const isDrivePreview = (url: string) => url.startsWith('https://drive.google.com/');
 
@@ -88,15 +105,9 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
           <div className="px-4 pb-4 md:p-0">
             {view === 'video' && video ? (
               isDrivePreview(video) ? (
-                <iframe
-                  src={video}
-                  title={t('documents.resources.video_title')}
-                  allow="autoplay; fullscreen"
-                  allowFullScreen
-                  className="aspect-video w-full rounded-lg border-0 bg-muted"
-                />
+                <DrivePlayer src={video} title={t('documents.resources.video_title')} playLabel={t('documents.resources.play')} />
               ) : (
-                <video src={video} controls playsInline className="aspect-video w-full rounded-lg bg-muted" />
+                <video src={video} controls playsInline className="aspect-video w-full cursor-pointer rounded-lg bg-muted" />
               )
             ) : null}
             {view === 'example' && image ? (

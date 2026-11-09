@@ -139,7 +139,7 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
               </span>
             )}
             <CollapsibleTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11" aria-label={open ? t('documents.row.collapse', { title }) : t('documents.row.expand', { title })}>
+              <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11 aria-expanded:bg-transparent hover:aria-expanded:bg-muted dark:hover:aria-expanded:bg-muted/50" aria-label={open ? t('documents.row.collapse', { title }) : t('documents.row.expand', { title })}>
                 <Icon icon={RiArrowDownSLine} className={cn('transition-transform duration-base ease-standard', open && 'rotate-180')} />
               </Button>
             </CollapsibleTrigger>

@@ -15,25 +15,48 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/ui/dialog"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/shared/ui/drawer"
 import { Icon } from "@/shared/ui/icon/icon"
 
 // Проектный примитив по образцу shadcn drawer-dialog: на мобильных (useIsMobile, < md) — Drawer снизу,
 // иначе — Dialog. Режим выбирает корень и передаёт частям через контекст.
-// Чистый вызов: даёт Rollup выбросить модуль из первого чанка (бюджет, D-054).
-const ResponsiveDialogContext = /* @__PURE__ */ React.createContext(false)
+// Drawer (vaul) грузится лениво: у vaul побочный эффект при импорте (вставка CSS), статический импорт
+// затянул бы его в первый чанк (бюджет 200 kB, D-054). Модуль запрашивается при первом монтировании
+// корня на телефоне; пока он грузится, корень — закрытый Dialog: триггер виден, окно не мигает и
+// открывается уже как Drawer (defaultOpen/open применяются к Drawer после загрузки).
+type DrawerModule = typeof import("@/shared/ui/drawer")
 
-function useMobileMode() {
-  return React.useContext(ResponsiveDialogContext)
+let drawerModule: DrawerModule | null = null
+let drawerRequest: Promise<DrawerModule> | null = null
+
+function loadDrawer() {
+  drawerRequest ??= import("@/shared/ui/drawer").then((m) => (drawerModule = m))
+  return drawerRequest
+}
+
+function useDrawerModule(enabled: boolean) {
+  const [mod, setMod] = React.useState(drawerModule)
+  React.useEffect(() => {
+    if (!enabled || mod) return
+    let active = true
+    void loadDrawer().then((m) => {
+      if (active) setMod(m)
+    })
+    return () => {
+      active = false
+    }
+  }, [enabled, mod])
+  return enabled ? mod : null
+}
+
+// Режим частей: null — Dialog; модуль Drawer — Drawer; "pending" — телефон, Drawer ещё грузится.
+type Mode = DrawerModule | "pending" | null
+
+// Чистый вызов: даёт Rollup выбросить модуль из первого чанка (бюджет, D-054).
+const ResponsiveDialogContext = /* @__PURE__ */ React.createContext<Mode>(null)
+
+function useDrawer() {
+  const mode = React.useContext(ResponsiveDialogContext)
+  return mode === "pending" ? null : mode
 }
 
 type ResponsiveDialogProps = {
@@ -45,13 +68,15 @@ type ResponsiveDialogProps = {
 
 function ResponsiveDialog({ children, ...props }: ResponsiveDialogProps) {
   const isMobile = useIsMobile()
+  const drawer = useDrawerModule(isMobile)
+  const mode: Mode = isMobile ? (drawer ?? "pending") : null
+  let root: React.ReactNode
+  if (mode === "pending") root = <Dialog open={false}>{children}</Dialog>
+  else if (mode) root = <mode.Drawer {...props}>{children}</mode.Drawer>
+  else root = <Dialog {...props}>{children}</Dialog>
   return (
-    <ResponsiveDialogContext.Provider value={isMobile}>
-      {isMobile ? (
-        <Drawer {...props}>{children}</Drawer>
-      ) : (
-        <Dialog {...props}>{children}</Dialog>
-      )}
+    <ResponsiveDialogContext.Provider value={mode}>
+      {root}
     </ResponsiveDialogContext.Provider>
   )
 }
@@ -59,12 +84,12 @@ function ResponsiveDialog({ children, ...props }: ResponsiveDialogProps) {
 function ResponsiveDialogTrigger(
   props: React.ComponentProps<typeof DialogTrigger>
 ) {
-  const Comp = useMobileMode() ? DrawerTrigger : DialogTrigger
+  const Comp = useDrawer()?.DrawerTrigger ?? DialogTrigger
   return <Comp data-slot="responsive-dialog-trigger" {...props} />
 }
 
 function ResponsiveDialogClose(props: React.ComponentProps<typeof DialogClose>) {
-  const Comp = useMobileMode() ? DrawerClose : DialogClose
+  const Comp = useDrawer()?.DrawerClose ?? DialogClose
   return <Comp data-slot="responsive-dialog-close" {...props} />
 }
 
@@ -82,7 +107,8 @@ function ResponsiveDialogContent({
   /** Направление, если отличается от Direction.Provider (портал вне дерева с dir). */
   dir?: "ltr" | "rtl"
 }) {
-  const isMobile = useMobileMode()
+  const drawer = useDrawer()
+  const isMobile = drawer !== null
   const direction = Direction.useDirection(dir)
   const close = showCloseButton && (
     <ResponsiveDialogClose asChild>
@@ -96,7 +122,8 @@ function ResponsiveDialogContent({
       </Button>
     </ResponsiveDialogClose>
   )
-  if (isMobile) {
+  if (drawer) {
+    const { DrawerContent } = drawer
     return (
       <DrawerContent
         data-slot="responsive-dialog-content"
@@ -126,24 +153,24 @@ function ResponsiveDialogContent({
 }
 
 function ResponsiveDialogHeader(props: React.ComponentProps<"div">) {
-  const Comp = useMobileMode() ? DrawerHeader : DialogHeader
+  const Comp = useDrawer()?.DrawerHeader ?? DialogHeader
   return <Comp data-slot="responsive-dialog-header" {...props} />
 }
 
 function ResponsiveDialogFooter(props: React.ComponentProps<"div">) {
-  const Comp = useMobileMode() ? DrawerFooter : DialogFooter
+  const Comp = useDrawer()?.DrawerFooter ?? DialogFooter
   return <Comp data-slot="responsive-dialog-footer" {...props} />
 }
 
 function ResponsiveDialogTitle(props: React.ComponentProps<typeof DialogTitle>) {
-  const Comp = useMobileMode() ? DrawerTitle : DialogTitle
+  const Comp = useDrawer()?.DrawerTitle ?? DialogTitle
   return <Comp data-slot="responsive-dialog-title" {...props} />
 }
 
 function ResponsiveDialogDescription(
   props: React.ComponentProps<typeof DialogDescription>
 ) {
-  const Comp = useMobileMode() ? DrawerDescription : DialogDescription
+  const Comp = useDrawer()?.DrawerDescription ?? DialogDescription
   return <Comp data-slot="responsive-dialog-description" {...props} />
 }
 

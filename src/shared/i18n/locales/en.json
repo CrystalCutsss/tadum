@@ -60,49 +60,118 @@
     "storage_unavailable": "Your browser doesn't keep data between visits. You may need to sign in again next time"
   },
   "document": {
+    "aoa": {
+      "hint": "Your company's current articles of association",
+      "title": "Articles of association"
+    },
+    "bs": {
+      "hint": "Last 6 months, from your company's main account, as a PDF from the bank app",
+      "title": "Bank statement"
+    },
+    "ch_company": {
+      "hint": "Your company's report from SIMAH, as a PDF",
+      "title": "Company report (SIMAH)"
+    },
+    "ch_owner": {
+      "hint": "The owner's report from the Molim app, as a PDF",
+      "title": "Owner's report (Molim)"
+    },
+    "national_id": {
+      "hint": "A clear photo or scan of both sides, valid today",
+      "title": "Owner's national ID"
+    },
+    "optional": "Optional",
+    "rejected": {
+      "generic": "This file couldn't be accepted. Upload a new one following the hint below"
+    },
+    "source": {
+      "molim": "Molim app",
+      "simah": "SIMAH reports",
+      "zatca": "ZATCA portal"
+    },
     "status": {
       "approved": "Accepted",
       "pending": "Needed",
       "received": "Uploaded",
       "rejected": "Needs a new file"
     },
-    "optional": "Optional",
-    "source": {
-      "zatca": "ZATCA portal",
-      "molim": "Molim app",
-      "simah": "SIMAH reports"
-    },
-    "rejected": {
-      "generic": "This file couldn't be accepted. Please upload a new one following the hint below"
-    },
-    "bs": {
-      "title": "Bank statement",
-      "hint": "Last 6 months, from your company's main account, as a PDF from the bank app"
-    },
-    "national_id": {
-      "title": "Owner's national ID",
-      "hint": "A clear photo or scan of both sides, valid today"
-    },
     "vat": {
-      "title": "VAT certificate",
-      "hint": "The registration certificate from the ZATCA portal, as a PDF"
+      "hint": "The registration certificate from the ZATCA portal, as a PDF",
+      "title": "VAT certificate"
     },
     "vat_sales": {
-      "title": "VAT returns",
-      "hint": "Your latest filed returns from the ZATCA portal"
-    },
-    "ch_owner": {
-      "title": "Owner's credit report (Molim)",
-      "hint": "The owner's report from the Molim app, as a PDF"
-    },
-    "ch_company": {
-      "title": "Company credit report (SIMAH)",
-      "hint": "Your company's report from SIMAH, as a PDF"
-    },
-    "aoa": {
-      "title": "Articles of association",
-      "hint": "Your company's current articles of association"
+      "hint": "Your latest filed returns from the ZATCA portal",
+      "title": "VAT returns"
     }
+  },
+  "documents": {
+    "file": {
+      "actions": "Actions for {name}",
+      "delete": "Delete",
+      "delete_failed": "We couldn't delete the file. Try again",
+      "delete_title": "Delete this file?",
+      "deleted": "File deleted",
+      "download": "Download",
+      "download_failed": "We couldn't open the file. Try again",
+      "previous": "Previous file, not accepted · {size}",
+      "replace": "Replace",
+      "replace_body": "{name} will be replaced with the new file",
+      "replace_confirm": "Replace",
+      "replace_title": "Replace the file?",
+      "uploaded": "Uploaded · {size}"
+    },
+    "list_label": "Documents",
+    "locked": {
+      "body": "You can download your files. Questions? Message us",
+      "title": "Files can't be changed right now"
+    },
+    "more": {
+      "body": "Everything you sent earlier is safe with us. Add the documents below and send them for review",
+      "title_one": "Almost there — {count} more document",
+      "title_other": "Almost there — {count} more documents"
+    },
+    "progress": "{uploaded} of {total} uploaded",
+    "resources": {
+      "example": "See an example",
+      "example_alt": "An example of {title}",
+      "example_title": "An example of this document",
+      "play": "Play the video",
+      "video": "How to get it (video)",
+      "video_ar": "How to get it (video in Arabic)",
+      "video_title": "How to get this document"
+    },
+    "review": {
+      "eta_one": "Usually takes up to {count} hour",
+      "eta_other": "Usually takes up to {count} hours",
+      "may_ask_more": "We may ask for a few more documents. If so, we will let you know here",
+      "nothing_needed": "Our team is reviewing your documents. Nothing is needed from you right now",
+      "title": "Your application"
+    },
+    "row": {
+      "collapse": "Hide details for {title}",
+      "expand": "Show details for {title}",
+      "files": "Files for {title}",
+      "reason_title": "Why this file didn't work",
+      "reupload": "Upload a new file",
+      "upload": "Upload"
+    },
+    "sent_one": "{count} document sent",
+    "sent_other": "{count} documents sent",
+    "submit": {
+      "blocked_one": "Upload the highlighted document to send for review",
+      "blocked_other": "Upload the {count} highlighted documents to send for review",
+      "cta": "Send for review",
+      "done": "Thank you. Your documents are with our team",
+      "error_generic": "We couldn't send your documents. Try again",
+      "error_incomplete": "Some documents are still missing. Upload them and try again",
+      "error_locked": "Your documents have already been sent",
+      "hint_locks": "After sending, files can't be changed until the review is done",
+      "sending": "Sending…",
+      "wait_uploads": "Wait until the files finish uploading, then send"
+    },
+    "subtitle": "Upload each document. When everything is uploaded, send them for review",
+    "subtitle_locked": "Your documents are with our team",
+    "title": "Your documents"
   },
   "help": {
     "language": "Language",
@@ -182,6 +251,26 @@
     "home": "Go to home",
     "title": "This page doesn't exist"
   },
+  "prevalidation": {
+    "bs": {
+      "owner_mismatch": "The account holder's name doesn't match your company",
+      "period_too_short": "The statement should cover the last 6 months"
+    },
+    "failed": {
+      "title": "This file isn't what we need"
+    },
+    "warning": {
+      "generic": "Double-check this file"
+    }
+  },
+  "reject": {
+    "bs": {
+      "period": "The statement should cover the last 6 months. Upload a statement for the full period"
+    },
+    "iban": {
+      "unreadable": "We couldn't read this file. Upload a clearer copy"
+    }
+  },
   "relative": {
     "days_ago_one": "{count} day ago",
     "days_ago_other": "{count} days ago",
@@ -195,6 +284,12 @@
     "hint_dismiss": "Got it",
     "hint_supplier": "You also have a supplier account — switch here",
     "supplier": "Supplier"
+  },
+  "source_picker": {
+    "camera": "Camera",
+    "files": "Files",
+    "formats": "PDF, JPG or PNG, up to {max_mb} MB",
+    "gallery": "Photos"
   },
   "status": {
     "changed_banner": "Since your last visit: {status}",
@@ -258,131 +353,37 @@
       "needs_attention": "Needs your attention",
       "upcoming": "Next"
     },
-    "title": "Application progress",
-    "step_of": "Step {n} of {total}"
+    "step_of": "Step {n} of {total}",
+    "title": "Application progress"
   },
   "units": {
     "kb": "KB",
     "mb": "MB"
   },
-  "reject": {
-    "bs": {
-      "period": "The statement should cover the last 6 months. Please upload a statement for the full period"
-    },
-    "iban": {
-      "unreadable": "We couldn't read this file. Please upload a clearer copy"
-    }
-  },
-  "prevalidation": {
-    "failed": {
-      "title": "This file doesn't match what we need"
-    },
-    "warning": {
-      "generic": "Please double-check this file"
-    },
-    "bs": {
-      "period_too_short": "The statement should cover the last 6 months",
-      "owner_mismatch": "The account holder's name doesn't match your company"
-    }
-  },
   "upload": {
-    "error": {
-      "too_large": "The file is larger than {max_mb} MB. Choose a smaller file",
-      "unsupported_type": "Use a PDF, JPG or PNG file",
-      "same_file": "This is the same file as before. Please upload a new one",
-      "locked": "Your documents are under review and can't be changed right now",
-      "offline": "You're offline. Try again when you're back online",
-      "network": "Upload interrupted. Check your connection and try again",
-      "server": "We couldn't save the file. Please try again",
-      "one_file": "Upload one file for this document"
-    },
-    "state": {
-      "queued": "Waiting…",
-      "uploading": "Uploading… {percent}%",
-      "validating": "Checking the file…",
-      "cancelled": "Upload cancelled",
-      "progress_label": "Uploading {name}"
-    },
     "cancel": "Cancel uploading {name}",
     "dismiss": "Hide {name}",
     "dropzone": {
-      "title": "Drop files here or choose how to add them",
+      "choose": "Add a file",
       "formats": "PDF, JPG or PNG, up to {max_mb} MB",
-      "choose": "Add a file"
-    }
-  },
-  "source_picker": {
-    "camera": "Camera",
-    "gallery": "Photos",
-    "files": "Files",
-    "formats": "PDF, JPG or PNG, up to {max_mb} MB"
-  },
-  "documents": {
-    "title": "Your documents",
-    "subtitle": "Upload each document. When everything is uploaded, send them for review",
-    "subtitle_locked": "Your documents are with our team",
-    "progress": "{uploaded} of {total} uploaded",
-    "sent_one": "{count} document sent",
-    "sent_other": "{count} documents sent",
-    "list_label": "Documents",
-    "more": {
-      "title_one": "Almost there — {count} more document",
-      "title_other": "Almost there — {count} more documents",
-      "body": "Everything you sent earlier is safe with us. Add the documents below and send them for review"
+      "title": "Drop a file or tap here"
     },
-    "submit": {
-      "cta": "Send for review",
-      "done": "Thank you. Your documents are with our team",
-      "hint_locks": "After sending, files can't be changed until the review is done",
-      "error_incomplete": "Some documents are still missing. Upload them and try again",
-      "error_locked": "Your documents have already been sent",
-      "error_generic": "We couldn't send your documents. Please try again",
-      "sending": "Sending…",
-      "wait_uploads": "Wait until the files finish uploading, then send",
-      "blocked_one": "Upload the highlighted document to send for review",
-      "blocked_other": "Upload the {count} highlighted documents to send for review"
+    "error": {
+      "locked": "Your documents are under review and can't be changed right now",
+      "network": "Upload interrupted. Check your connection and try again",
+      "offline": "You're offline. Try again when you're back online",
+      "one_file": "Upload one file for this document",
+      "same_file": "This is the same file as before. Upload a new one",
+      "server": "We couldn't save the file. Try again",
+      "too_large": "The file is larger than {max_mb} MB. Choose a smaller file",
+      "unsupported_type": "Use a PDF, JPG or PNG file"
     },
-    "file": {
-      "actions": "Actions for {name}",
-      "deleted": "File deleted",
-      "delete_failed": "We couldn't delete the file. Please try again",
-      "download_failed": "We couldn't open the file. Please try again",
-      "download": "Download",
-      "replace": "Replace",
-      "delete": "Delete",
-      "delete_title": "Delete this file?",
-      "uploaded": "Uploaded · {size}",
-      "previous": "Previous file, not accepted · {size}",
-      "replace_title": "Replace the file?",
-      "replace_body": "{name} will be replaced with the new file",
-      "replace_confirm": "Replace"
-    },
-    "row": {
-      "upload": "Upload",
-      "reupload": "Upload a new file",
-      "collapse": "Hide details for {title}",
-      "expand": "Show details for {title}",
-      "reason_title": "Why this file didn't work",
-      "files": "Files for {title}"
-    },
-    "resources": {
-      "video": "How to get it (video)",
-      "video_ar": "How to get it (video in Arabic)",
-      "example": "See an example",
-      "video_title": "How to get this document",
-      "example_title": "An example of this document",
-      "example_alt": "An example of {title}"
-    },
-    "review": {
-      "title": "Your application",
-      "nothing_needed": "Our team is reviewing your documents. Nothing is needed from you right now",
-      "eta_one": "Usually takes up to {count} hour",
-      "eta_other": "Usually takes up to {count} hours",
-      "may_ask_more": "We may ask for a few more documents. If so, we will let you know here"
-    },
-    "locked": {
-      "title": "Files can't be changed right now",
-      "body": "You can download your files. Questions? Message us"
+    "state": {
+      "cancelled": "Upload cancelled",
+      "progress_label": "Uploading {name}",
+      "queued": "Waiting…",
+      "uploading": "Uploading… {percent}%",
+      "validating": "Checking the file…"
     }
   }
 }

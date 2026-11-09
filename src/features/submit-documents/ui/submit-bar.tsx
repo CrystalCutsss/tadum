@@ -1,3 +1,5 @@
+// Отступ снизу = нижний отступ контента: 16 px на телефоне, 24 px (16 + поле контейнера inset) с md — панель
+// не сдвигается, когда длина списка меняется (решение 2026-11-09).
 // Плавающая панель отправки (решения Кирилла 2026-11-09): карточка шириной со строки документов, закреплена
 // внизу колонки контента. Слева — «Загружено X из N» и прогресс, справа — «Отправить на проверку», по центру блока.
 // Кнопка всегда активна: если что-то не загружено или не прошло проверку, нажатие показывает тост сверху,
@@ -56,7 +58,7 @@ export function SubmitBar({ set, uploading, onBlocked }: SubmitBarProps) {
   };
 
   return (
-    <div className="sticky bottom-4 z-10 mt-auto flex items-center gap-4 rounded-xl border bg-card p-3 text-card-foreground shadow-md md:p-4">
+    <div className="sticky bottom-4 z-10 mt-auto md:bottom-6 flex items-center gap-4 rounded-xl border bg-card p-3 text-card-foreground shadow-md md:p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <p id="submit-progress" className="text-sm font-medium" aria-live="polite">
           {label}

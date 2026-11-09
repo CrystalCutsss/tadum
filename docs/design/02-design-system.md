@@ -136,6 +136,13 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 Повторный `shadcn add button|dialog|alert-dialog|drawer` покажет эти радиусы как отличие — не перезаписывать.
 
+**Тени и курсор выпадающих списков** (решения Кирилла 2026-11-09, действуют всегда):
+
+- Тосты (`sonner.tsx`, `toastOptions.classNames.toast`) используют тень выпадающих списков — `shadow-2xl ring-1 ring-foreground/5 dark:ring-foreground/10`, как `DropdownMenuContent`. Собственные тень и граница 1px sonner сняты (`shadow-2xl!`, `border-0!` перебивают селектор `[data-sonner-toast][data-styled]`); фокус клавиатуры — `focus-visible:ring-[3px] ring-ring/50`. Новых токенов нет.
+- У всех пунктов выпадающих списков кабинета курсор `cursor-pointer` (`DropdownMenuItem`, `CheckboxItem`, `RadioItem`, `SubTrigger`; у неактивных остаётся `pointer-events-none`). Новые меню с пунктами (`select`, `command`, `context-menu`) при установке получают то же.
+
+Повторный `shadcn add dropdown-menu|sonner` покажет это как отличие — не перезаписывать.
+
 Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot`, `Icon/ThemeToggle` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
 
 ### Экран «Ваши документы» (2026-11-09)

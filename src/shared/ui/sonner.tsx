@@ -33,8 +33,12 @@ const Toaster = ({ theme = "system", ...props }: ToasterProps) => {
         } as React.CSSProperties
       }
       toastOptions={{
+        // Тень и кольцо — как у DropdownMenuContent (решение Кирилла 2026-11-09).
+        // `!` перебивает селекторы sonner `[data-sonner-toast][data-styled]`
+        // (своя тень и граница 1px); фокус-кольцо клавиатуры сохраняется.
         classNames: {
-          toast: "cn-toast",
+          toast:
+            "cn-toast border-0! shadow-2xl! ring-1 ring-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:ring-foreground/10",
         },
       }}
       {...props}
