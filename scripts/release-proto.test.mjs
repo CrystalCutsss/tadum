@@ -102,6 +102,8 @@ describe('публикация из CI (ADR-004)', () => {
   it('клон Proto в рабочей копии (release.yml, path: proto) не делает дерево Tadum грязным', () => {
     // Регрессия v6 (2026-11-09): без /proto/ в .gitignore release:proto в CI падал на «незакоммиченных изменениях».
     const root = join(import.meta.dirname, '..');
-    expect(execFileSync('git', ['-C', root, 'check-ignore', 'proto/packages/registry'], { encoding: 'utf8' }).trim()).toBe('proto/packages/registry');
+    // В контейнере CI рабочая копия принадлежит другому пользователю: safe.directory — только для этого вызова.
+    const ignored = execFileSync('git', ['-c', 'safe.directory=*', '-C', root, 'check-ignore', 'proto/packages/registry'], { encoding: 'utf8' });
+    expect(ignored.trim()).toBe('proto/packages/registry');
   });
 });
