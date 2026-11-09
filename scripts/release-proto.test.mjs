@@ -55,8 +55,8 @@ describe('метаданные Proto', () => {
     expect(PERSONA_ITEMS[0].id).toBe('login');
     for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     for (const { id } of PERSONA_ITEMS.slice(1)) expect(PERSONA_IDS).toContain(personaFromParam(id));
-    // Клиентские сценарии убраны до готовности функционала (Кирилл 2026-11-06).
-    expect(PERSONA_ITEMS.map((i) => i.id)).toEqual(['login', 'supplier-active', 'dual-active']);
+    // v6: клиентские сценарии экрана документов вернулись в меню (SC-02…SC-04).
+    expect(PERSONA_ITEMS.map((i) => i.id)).toEqual(['login', 'client-new', 'client-rejected', 'client-more-docs', 'supplier-active', 'dual-active']);
   });
 
   it('прототип: только компьютер, меню оболочки без версий и в стиле shadcn', () => {
