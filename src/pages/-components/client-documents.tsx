@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { applicationQuery, canEditFiles, computeClientTimeline, type ClientTimeline } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
 import { track } from '@/shared/analytics';
-import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
+import { useStatusPolling, type Application } from '@/shared/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@/shared/ui';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
@@ -16,8 +16,8 @@ import { SupportBar } from '@/widgets/support-bar';
 
 type Steps = Extract<ClientTimeline, { hidden: false }>['steps'];
 
-/** Подпись под шкалой: срок — только из данных (D-033), предупреждение о дозапросе — со второго раунда (2026-11-09). */
-function ReviewNotes({ app, set }: { app: Application; set: DocumentSet }) {
+/** Подпись под шкалой: срок — только из данных (D-033), без предупреждения о возможном дозапросе (решение 2026-11-09). */
+function ReviewNotes({ app }: { app: Application }) {
   const { t } = useTranslation();
   const reviewing = app.client_status === 'under_review';
   return (
@@ -26,13 +26,12 @@ function ReviewNotes({ app, set }: { app: Application; set: DocumentSet }) {
       {reviewing && app.review_eta_hours !== undefined ? (
         <p className="text-sm text-muted-foreground">{t('documents.review.eta', { count: app.review_eta_hours })}</p>
       ) : null}
-      {set.round > 1 ? <p className="text-sm text-muted-foreground">{t('documents.review.may_ask_more')}</p> : null}
     </>
   );
 }
 
 /** Десктоп: все шаги столбиком в третьей колонке. */
-function StepsPanel({ steps, app, set }: { steps: Steps; app: Application; set: DocumentSet }) {
+function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   const { t } = useTranslation();
   return (
     <Card className="sticky top-4 gap-4 rounded-xl">
@@ -41,18 +40,18 @@ function StepsPanel({ steps, app, set }: { steps: Steps; app: Application; set: 
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <StatusTimeline steps={steps} orientation="vertical" />
-        <ReviewNotes app={app} set={set} />
+        <ReviewNotes app={app} />
       </CardContent>
     </Card>
   );
 }
 
 /** Телефон и планшет: степ-бар сверху — подпись только у текущего шага (решение 2026-11-09). */
-function StepsTopPanel({ steps, app, set }: { steps: Steps; app: Application; set: DocumentSet }) {
+function StepsTopPanel({ steps, app }: { steps: Steps; app: Application }) {
   return (
     <div className="flex flex-col gap-2 rounded-xl border bg-card p-3 text-card-foreground lg:hidden">
       <StatusStepBar steps={steps} />
-      <ReviewNotes app={app} set={set} />
+      <ReviewNotes app={app} />
     </div>
   );
 }
@@ -101,9 +100,9 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
 
       {timeline.hidden ? null : (
         <>
-          <StepsTopPanel steps={timeline.steps} app={data} set={set.data} />
+          <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
-            <StepsPanel steps={timeline.steps} app={data} set={set.data} />
+            <StepsPanel steps={timeline.steps} app={data} />
           </CabinetAside>
         </>
       )}

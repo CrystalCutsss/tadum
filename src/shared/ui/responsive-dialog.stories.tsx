@@ -64,6 +64,50 @@ export const Open: Story = {
   },
 };
 
+/**
+ * size="tall" на телефоне (Кирилл 2026-11-09): Drawer почти на всю высоту окна, шапка фиксирована,
+ * ResponsiveDialogBody растягивается и прокручивается (просмотр примера документа).
+ */
+export const Tall: Story = {
+  globals: { viewport: { value: 'mobile360', isRotated: false } },
+  render: function TallDemo() {
+    const { t } = useTranslation();
+    return (
+      <ResponsiveDialog defaultOpen>
+        <ResponsiveDialogContent closeLabel={t('common.close')} size="tall">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>
+              <T k="nav.more" />
+            </ResponsiveDialogTitle>
+            <ResponsiveDialogDescription>
+              <T k="support.cta.question" />
+            </ResponsiveDialogDescription>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            {/* Содержимое выше окна — тело должно прокручиваться, а не растягивать Drawer. */}
+            <div className="h-svh rounded-lg border bg-muted" />
+          </ResponsiveDialogBody>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
+    );
+  },
+  play: async ({ globals }) => {
+    const en = globals.locale === 'en';
+    const dialog = await within(document.body).findByRole('dialog');
+    await expect(dialog.getAttribute('data-mode')).toBe('drawer');
+    await expect(dialog).toHaveAttribute('data-size', 'tall');
+    await expect(dialog).toHaveAttribute('dir', en ? 'ltr' : 'rtl');
+    // Окно выше 80% вьюпорта (прежний предел пресета) и не выходит за него.
+    const height = dialog.getBoundingClientRect().height;
+    await expect(height).toBeGreaterThan(window.innerHeight * 0.8);
+    await expect(height).toBeLessThanOrEqual(window.innerHeight);
+    // Тело прокручивается внутри окна.
+    const body = dialog.querySelector<HTMLElement>('[data-slot="responsive-dialog-body"]');
+    await expect(body).not.toBeNull();
+    await expect(body!.scrollHeight).toBeGreaterThan(body!.clientHeight);
+  },
+};
+
 /** Телефон (< md): режим Drawer, кнопка-крестик видна и закрывает окно (Кирилл 2026-11-09). */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile360', isRotated: false } },

@@ -47,7 +47,7 @@ export function StatusTimeline({ steps, orientation = 'auto' }: { steps: Record<
         return (
           <li
             key={step}
-            aria-current={state === 'current' ? 'step' : undefined}
+            aria-current={state === 'current' || state === 'needs_attention' ? 'step' : undefined}
             className={cn('flex flex-1 items-start gap-2', row && 'md:flex-col md:items-center md:text-center')}
           >
             <span className="flex size-5 shrink-0 items-center justify-center">

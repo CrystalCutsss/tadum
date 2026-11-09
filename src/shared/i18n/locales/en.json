@@ -143,7 +143,6 @@
     "review": {
       "eta_one": "Usually takes up to {count} hour",
       "eta_other": "Usually takes up to {count} hours",
-      "may_ask_more": "We may ask for a few more documents. If so, we will let you know here",
       "nothing_needed": "Our team is reviewing your documents. Nothing is needed from you right now",
       "title": "Your application"
     },

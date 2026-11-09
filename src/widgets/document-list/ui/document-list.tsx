@@ -63,8 +63,9 @@ export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
   return (
     <div className="flex flex-1 flex-col gap-3">
       {moreDocs ? (
-        <Alert>
-          <Icon icon={RiInformationLine} />
+        // Светло-жёлтый фон из палитры статусов (тёплый «нужно внимание», не ошибка), решение 2026-11-09.
+        <Alert className="border-status-rejected/30 bg-status-rejected-muted">
+          <Icon icon={RiInformationLine} className="text-status-rejected" />
           <AlertTitle>{t('documents.more.title', { count: set.documents.length })}</AlertTitle>
           <AlertDescription>{t('documents.more.body')}</AlertDescription>
         </Alert>

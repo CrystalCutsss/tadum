@@ -17,12 +17,16 @@ const FILL: Record<TimelineStepState, string> = {
 
 export function StatusStepBar({ steps }: { steps: Record<ClientTimelineStep, TimelineStepState> }) {
   const { t } = useTranslation();
-  const index = CLIENT_TIMELINE_STEPS.findIndex((s) => steps[s] === 'current');
+  // Текущий шаг — и при дозапросе (needs_attention на «Проверке»).
+  const index = CLIENT_TIMELINE_STEPS.findIndex((s) => steps[s] === 'current' || steps[s] === 'needs_attention');
   const current = CLIENT_TIMELINE_STEPS[Math.max(0, index)] ?? 'documents';
   return (
     <div className="flex flex-col gap-2">
       <p className="flex items-baseline justify-between gap-2 text-sm">
-        <span className="font-medium">{t(`timeline.client.${current}`)}</span>
+        <span className="flex flex-col">
+          <span className="font-medium">{t(`timeline.client.${current}`)}</span>
+          {steps[current] === 'needs_attention' ? <span className="text-xs text-status-rejected">{t('timeline.needs_more_docs')}</span> : null}
+        </span>
         <span className="text-xs text-muted-foreground">
           {t('timeline.step_of', { n: formatNumber(Math.max(0, index) + 1), total: formatNumber(CLIENT_TIMELINE_STEPS.length) })}
         </span>
@@ -31,7 +35,7 @@ export function StatusStepBar({ steps }: { steps: Record<ClientTimelineStep, Tim
         {CLIENT_TIMELINE_STEPS.map((step) => {
           const state = steps[step];
           return (
-            <li key={step} aria-current={state === 'current' ? 'step' : undefined} className={cn('h-1.5 flex-1 rounded-full', FILL[state])}>
+            <li key={step} aria-current={state === 'current' || state === 'needs_attention' ? 'step' : undefined} className={cn('h-1.5 flex-1 rounded-full', FILL[state])}>
               <span className="sr-only">
                 {t(`timeline.client.${step}`)} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}
               </span>
