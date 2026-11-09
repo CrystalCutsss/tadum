@@ -31,11 +31,12 @@ const account = (canvasElement: HTMLElement) => within(canvasElement).findByRole
 export const Client: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Основное меню: Home и Documents, текущая страница — в крошках шапки.
+    // Основное меню: Home и Documents, текущая страница отмечена в меню.
     const nav = await canvas.findByRole('navigation', { name: tr('nav.main') });
     await expect(within(nav).getByRole('link', { name: tr('nav.home') })).toHaveAttribute('data-active', 'true');
     await expect(within(nav).getByRole('link', { name: tr('nav.documents') })).toBeVisible();
-    await expect(within(canvas.getByRole('navigation', { name: tr('nav.breadcrumb') })).getByText(tr('nav.home'))).toBeVisible();
+    // Один уровень — крошек в шапке нет (решение Кирилла 2026-11-09), они появятся с вложенными страницами.
+    await expect(canvas.queryByRole('navigation', { name: tr('nav.breadcrumb') })).toBeNull();
     // Аккаунт: название компании (по-арабски в ar, A-055) и роль подстрочником.
     await waitFor(async () => expect(await account(canvasElement)).toHaveTextContent(/أفق للأثاث المكتبي|Ufuq Office Furniture/));
     await expect(await account(canvasElement)).toHaveTextContent(tr('role.client'));

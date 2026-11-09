@@ -33,8 +33,8 @@ function ReviewNotes({ app }: { app: Application }) {
 function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   const { t } = useTranslation();
   return (
-    // Компактно — в половину колонки, фон с лёгким градиентом (решение Кирилла 2026-11-09).
-    <Card className="sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl bg-linear-to-t from-muted/70 to-card shadow-xs dark:from-muted/30">
+    // Компактно — в половину колонки, без обводки, фон как у сайдбара (решения Кирилла 2026-11-09).
+    <Card className="sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl bg-sidebar text-sidebar-foreground ring-0">
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
@@ -49,7 +49,7 @@ function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
 /** Телефон и планшет: степ-бар сверху — подпись только у текущего шага (решение 2026-11-09). */
 function StepsTopPanel({ steps, app }: { steps: Steps; app: Application }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border bg-card p-3 text-card-foreground lg:hidden">
+    <div className="flex flex-col gap-2 rounded-xl bg-sidebar p-3 text-sidebar-foreground lg:hidden">
       <StatusStepBar steps={steps} />
       <ReviewNotes app={app} />
     </div>

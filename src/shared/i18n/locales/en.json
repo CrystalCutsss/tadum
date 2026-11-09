@@ -136,14 +136,13 @@
       "example_alt": "An example of {title}",
       "example_title": "An example of this document",
       "play": "Play the video",
-      "video": "How to get it (video)",
-      "video_ar": "How to get it (video in Arabic)",
+      "video": "How to get it",
       "video_title": "How to get this document"
     },
     "review": {
       "eta_one": "Usually takes up to {count} hour",
       "eta_other": "Usually takes up to {count} hours",
-      "title": "Your application"
+      "title": "Steps"
     },
     "row": {
       "collapse": "Hide details for {title}",
@@ -169,7 +168,7 @@
     },
     "subtitle": "Upload each document. When everything is uploaded, send them for review",
     "subtitle_locked": "Your documents are with our team",
-    "title": "Your documents"
+    "title": "Your application"
   },
   "help": {
     "language": "Language",

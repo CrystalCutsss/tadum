@@ -43,7 +43,7 @@ function DrivePlayer({ src, title, playLabel }: { src: string; title: string; pl
 const isDrivePreview = (url: string) => url.startsWith('https://drive.google.com/');
 
 export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [view, setView] = useState<'example' | 'video' | null>(null);
   // Ассеты из каталога, если бэкенд их не прислал (A-058).
   const image = exampleImageFor(doc.portal_key);
@@ -71,7 +71,7 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
           }}
         >
           <Icon icon={RiPlayCircleLine} />
-          {i18n.language === 'ar' ? t('documents.resources.video') : t('documents.resources.video_ar')}
+          {t('documents.resources.video')}
         </Button>
       ) : null}
       {image ? (
