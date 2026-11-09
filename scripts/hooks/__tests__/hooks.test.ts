@@ -10,11 +10,26 @@ import { describe, expect, it } from 'vitest';
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const hook = (name: string) => join(root, 'scripts/hooks', name);
 
-function run(name: string, input: unknown, env: Record<string, string> = {}) {
+// Пустой git-репозиторий на нужной ветке: хуки читают текущую ветку (ветка синхронизации снимка Drive),
+// поэтому тесты не должны зависеть от ветки, в которой их запускают.
+const repos = new Map<string, string>();
+function gitDirOn(branch: string): string {
+  let repo = repos.get(branch);
+  if (!repo) {
+    repo = mkdtempSync(join(tmpdir(), 'tadum-hook-branch-'));
+    execFileSync('git', ['init', '-q', '-b', branch, repo]);
+    repos.set(branch, repo);
+  }
+  return join(repo, '.git');
+}
+
+function run(name: string, input: unknown, env: Record<string, string> = {}, branch = 'feat/x') {
+  // Свой CLAUDE_PROJECT_DIR (тест git commit) — ветка берётся из него, GIT_DIR не подставляем.
+  const git = env.CLAUDE_PROJECT_DIR ? {} : { GIT_DIR: gitDirOn(branch) };
   const r = spawnSync(hook(name), {
     input: JSON.stringify(input),
     encoding: 'utf8',
-    env: { ...process.env, CLAUDE_PROJECT_DIR: root, TADUM_ALLOW_PROTECTED: '', TADUM_DOCS_SYNC: '', ...env },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: root, TADUM_ALLOW_PROTECTED: '', TADUM_DOCS_SYNC: '', ...git, ...env },
   });
   return { code: r.status, stdout: r.stdout, stderr: r.stderr };
 }
@@ -63,6 +78,16 @@ describe('protect-paths.sh', () => {
     const env = { TADUM_DOCS_SYNC: '1' };
     expect(decision(run('protect-paths.sh', edit('docs/product/01-roles.md'), env).stdout)).toBeUndefined();
     expect(decision(run('protect-paths.sh', edit('tov-lexicon.json'), env).stdout)).toBeUndefined();
+  });
+
+  it('ветка docs/sync-product-docs-* открывает снимок Drive и шаблон PR, но не остальное', () => {
+    const sync = 'docs/sync-product-docs-2026-11-09';
+    expect(decision(run('protect-paths.sh', edit('docs/product/01-roles.md'), {}, sync).stdout)).toBeUndefined();
+    expect(decision(run('protect-paths.sh', edit('tov-lexicon.json'), {}, sync).stdout)).toBeUndefined();
+    expect(decision(run('protect-paths.sh', edit('.github/PULL_REQUEST_TEMPLATE.md'), {}, sync).stdout)).toBeUndefined();
+    expect(decision(run('protect-paths.sh', edit('src/shared/ui/button.tsx'), {}, sync).stdout)).toBe('deny');
+    expect(decision(run('protect-paths.sh', edit('.github/workflows/ci.yml'), {}, sync).stdout)).toBe('deny');
+    expect(decision(run('protect-paths.sh', edit('.github/PULL_REQUEST_TEMPLATE.md')).stdout)).toBe('deny');
   });
 
   it('путь нормализуется: ../ и ./ не обходят защиту', () => {
@@ -137,6 +162,11 @@ describe('guard-bash.sh', () => {
   it('запись в токены через Bash — разрешена design-system-owner', () => {
     expect(decision(run('guard-bash.sh', bash("sed -i 's/a/b/' src/styles/tokens.css", 'design-system-owner')).stdout)).toBeUndefined();
     expect(decision(run('guard-bash.sh', bash('echo x >> docs/product/a.md'), { TADUM_DOCS_SYNC: '1' }).stdout)).toBeUndefined();
+  });
+
+  it('запись в снимок Drive через Bash — только в ветке docs/sync-product-docs-*', () => {
+    expect(decision(run('guard-bash.sh', bash('echo x >> docs/product/a.md')).stdout)).toBe('deny');
+    expect(decision(run('guard-bash.sh', bash('echo x >> docs/product/a.md'), {}, 'docs/sync-product-docs-2026-11-09').stdout)).toBeUndefined();
   });
 
   it('shadcn add — только design-system-owner', () => {

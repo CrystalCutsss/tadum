@@ -47,7 +47,7 @@ for raw in "${parts[@]}"; do
     for target in "src/styles/tokens.css" "src/shared/ui/" "docs/product/" "tov-lexicon.json" "src/shared/api/ports/" "pnpm-lock.yaml" ".github/" ".gitlab-ci.yml" "wrangler.jsonc" ".claude/settings.json"; do
       [[ "$part" == *"$target"* ]] || continue
       case "$target" in
-        docs/product/ | tov-lexicon.json) [[ "${TADUM_DOCS_SYNC:-0}" == 1 ]] && continue ;;
+        docs/product/ | tov-lexicon.json) docs_sync_allowed && continue ;;
         src/styles/tokens.css | src/shared/ui/) [[ "$agent" == design-system-owner || "${TADUM_ALLOW_PROTECTED:-0}" == 1 ]] && continue ;;
         *) [[ "${TADUM_ALLOW_PROTECTED:-0}" == 1 ]] && continue ;;
       esac
