@@ -1,4 +1,4 @@
-<!-- source: Drive 1s3nhsFgvXYpRRtNmtG18AwowmsdUk7LG, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1fRQxjxJrPk30qtIFS3woQPwm4sybCGRt, synced: 2026-11-09. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -68,7 +68,7 @@ docs_required ──submit──▶ under_review ──approve──▶ approved
       └────need more docs──────┘            любое состояние ──reject / lost──▶ closed
 ```
 
-Дозапрос (`under_review → docs_required`, раунд +1) — **единственный шаг назад** в данных; в UI шкала не откатывается (D-008): шаг «Проверка» остаётся текущим, на шаге «Документы» — метка `needs_attention`.
+Дозапрос (`under_review → docs_required`, раунд +1) — **единственный шаг назад** в данных; в UI шкала не откатывается (D-008): шаг «Проверка» остаётся текущим, «Документы» — пройдены, без метки (D-078).
 
 ---
 
@@ -181,7 +181,7 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | `client_status` | `round` | `limit.status` | `checklist.completed` | documents | review | decision | signing | limit_active |
 |---|---|---|---|---|---|---|---|---|
 | docs_required | 1 | — | — | current | upcoming | upcoming | upcoming | upcoming |
-| docs_required | ≥2 | — | — | needs_attention | current | upcoming | upcoming | upcoming |
+| docs_required | ≥2 | — | — | done | current | upcoming | upcoming | upcoming |
 | under_review | any | — | — | done | current | upcoming | upcoming | upcoming |
 | approved | any | pending / ready | false | done | done | done | current | upcoming |
 | approved | any | active | true | done | done | done | done | current |
