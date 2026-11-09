@@ -1,5 +1,6 @@
 // /c/documents (SC-02…SC-05, решения Кирилла 2026-11-09): список документов — единственный экран этапа
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
+import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +14,9 @@ import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-sh
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
 import { SupportBar } from '@/widgets/support-bar';
+
+/** Вторичный текст на фоне sidebar с контрастом AA (muted-foreground на sidebar — 4.4:1). */
+const PANEL_MUTED = '[&_.text-muted-foreground]:text-sidebar-foreground/60';
 
 type Steps = Extract<ClientTimeline, { hidden: false }>['steps'];
 
@@ -34,7 +38,8 @@ function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   const { t } = useTranslation();
   return (
     // Компактно — в половину колонки, без обводки, фон как у сайдбара (решения Кирилла 2026-11-09).
-    <Card className="sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl bg-sidebar text-sidebar-foreground ring-0">
+    // muted-foreground на фоне sidebar — 4.4:1 (ниже AA), поэтому вторичные подписи внутри панели темнее (~5:1).
+    <Card className={cn('sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl bg-sidebar text-sidebar-foreground ring-0', PANEL_MUTED)}>
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
@@ -49,7 +54,7 @@ function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
 /** Телефон и планшет: степ-бар сверху — подпись только у текущего шага (решение 2026-11-09). */
 function StepsTopPanel({ steps, app }: { steps: Steps; app: Application }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-sidebar p-3 text-sidebar-foreground lg:hidden">
+    <div className={cn('flex flex-col gap-2 rounded-xl bg-sidebar p-3 text-sidebar-foreground lg:hidden', PANEL_MUTED)}>
       <StatusStepBar steps={steps} />
       <ReviewNotes app={app} />
     </div>
