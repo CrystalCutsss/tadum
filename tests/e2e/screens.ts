@@ -62,7 +62,7 @@ export const SCREENS: readonly Screen[] = [
   },
   // /c/home до проработки разделов — заглушка (Кирилл 2026-11-06, A-055); состояния главной — в историях ClientHome.
   persona('client.home', 'client_new', '/', heading('stub.coming_soon.title')),
-  persona('client.documents', 'client_new', '/c/documents', heading('stub.coming_soon.title')),
+  persona('client.documents', 'client_new', '/c/documents', heading('documents.title')),
   persona('client.help', 'client_active', '/c/help', heading('help.title')),
   persona('supplier.home', 'supplier_active', '/s/home', heading('stub.coming_soon.title')),
   persona('supplier.help', 'supplier_active', '/s/help', heading('help.title')),

@@ -39,3 +39,4 @@
 | `notfound.home` | ar, en | Go to home / الانتقال إلى الرئيسية | кнопка экрана 404 — единообразно с пунктом «Home» |
 | `support.cta.title` | ar, en | Have a question? / لديك سؤال؟ | заголовок блока помощи в сайдбаре (первая строка) |
 | `support.cta.subtitle` | ar, en | Message us / راسلنا | подзаголовок блока помощи: вторая строка, мельче, regular, серый |
+| `documents.*`, `document.*.title/.hint`, `upload.*`, `source_picker.*`, `prevalidation.*`, `reject.*`, `timeline.step_of` | ar, en | тексты экрана «Ваши документы»: заголовки, подсказки документов, загрузка и ошибки, выбор источника, панель шагов, тосты отправки | в сценариях SC-02…SC-04 даны не все строки; черновики по TOV и лексикону, A-058 |
