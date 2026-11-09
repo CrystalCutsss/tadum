@@ -4,7 +4,7 @@
 
 ## Источник правды
 
-- Продуктовые документы — Google Drive `Tadum/` (русский). `docs/product/` — дословный снимок: правится только скиллом `/sync-product-docs`, правки предлагать текстом.
+- Продуктовые документы — Google Drive `Tadum/` (русский). `docs/product/` — дословный снимок: правится только скиллом `/sync-product-docs`. Документы в Drive агент правит сам только по решению Кирилла в чате, показав правку и получив «да»; затем сразу синхронизация (процедура — `.claude/rules/product-docs.md`).
 - Решения — `docs/product/00-decision-log.md` (D-###). Допущения без владельца — `docs/decisions/assumptions.md` (A-###). ADR — `docs/decisions/`.
 - Карта документации — `docs/README.md`. История настройки среды — `docs/setup/progress.md`.
 
@@ -41,9 +41,9 @@
 
 `/feature-brief TD-###` → `/plan TD-###` → ветка или worktree → реализация → `/verify` → по необходимости `/rtl-qa`, `/design-review`, `/ux-copy-review`, `/a11y-review` → `/pr` → ревью → merge Кириллом; для выпуска release notes `docs/releases/vN.md` кладутся в ту же ветку до PR.
 
-Выпуск (ADR-004): одна ветка — один PR с кодом и `docs/releases/vN.md`; merge Кириллом публикует версию сам. Просмотр правок (решение Кирилла 2026-11-06): реализация → `/verify` → push в рабочую ветку → Кирилл смотрит превью ветки `https://<ветка>-tadum.kirillgloba.workers.dev` (≈1 мин после push, CI не ждёт) или dev-сервер в сессии → **PR только по его команде** → merge Кириллом. Коммиты в рабочую ветку — можно, PR без команды — нет.
+Выпуск (ADR-004): одна ветка — один PR с кодом и `docs/releases/vN.md`; merge Кириллом публикует версию сам. Просмотр правок (решение Кирилла 2026-11-06): реализация → `/verify` → push в рабочую ветку → Кирилл смотрит превью ветки `https://<ветка>-tadum.kirillgloba.workers.dev` (≈1 мин после push, CI не ждёт) или dev-сервер в сессии → **PR только по его команде** → merge Кириллом. Коммиты в рабочую ветку — можно, PR без команды — нет. Исключение — PR синхронизации `docs: sync product docs …` после правки Drive по решению Кирилла: агент открывает его сам (решение 2026-11-09), merge — Кирилл.
 
-Процедуры — в скиллах `.claude/skills/` (`/feature-brief`, `/pr`, `/release-proto`, `/sync-product-docs` запускает только человек: они пишут в Drive, GitHub или Proto); правила по областям — `.claude/rules/` (подгружаются по путям); роли — `.claude/agents/`.
+Процедуры — в скиллах `.claude/skills/` (`/feature-brief`, `/pr`, `/release-proto` запускает только человек: они пишут в Drive, GitHub или Proto; `/sync-product-docs` — Кирилл или агент после правки Drive по решению Кирилла); правила по областям — `.claude/rules/` (подгружаются по путям); роли — `.claude/agents/`.
 
 ## Когда спрашивать Кирилла
 

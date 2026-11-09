@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # PreToolUse (Edit|Write|MultiEdit|NotebookEdit): защищённые пути проекта (мастер-промпт 8b.1, инварианты 4 и 7).
 # Пропуск: tokens.css и shared/ui — субагенту design-system-owner или с TADUM_ALLOW_PROTECTED=1;
-# docs/product и tov-lexicon.json — только с TADUM_DOCS_SYNC=1 (скилл /sync-product-docs).
+# docs/product, tov-lexicon.json и копия шаблона DoD — только в ветке синхронизации docs/sync-product-docs-*
+# (скилл /sync-product-docs, решение Кирилла 2026-11-09) или с TADUM_DOCS_SYNC=1.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_jq_or_block
@@ -16,11 +17,20 @@ rel=$(rel_path "$file")
 [[ "$rel" == ../* ]] && exit 0
 
 allow_protected=${TADUM_ALLOW_PROTECTED:-0}
+# Ветка синхронизации снимка Drive: снимок меняется только в ней, а merge в main делает Кирилл.
+branch=$(git -C "$(project_dir)" branch --show-current 2>/dev/null || true)
+docs_sync=0
+[[ "${TADUM_DOCS_SYNC:-0}" == 1 || "$branch" == docs/sync-product-docs-* ]] && docs_sync=1
 
 case "$rel" in
   docs/product/* | tov-lexicon.json)
-    [[ "${TADUM_DOCS_SYNC:-0}" == 1 ]] && exit 0
-    deny "Защищённый путь: $rel. Это снимок Google Drive: меняется только скиллом /sync-product-docs в сессии TADUM_DOCS_SYNC=1. Правку предложите Кириллу текстом."
+    [[ "$docs_sync" == 1 ]] && exit 0
+    deny "Защищённый путь: $rel. Это снимок Google Drive: меняется только скиллом /sync-product-docs в ветке docs/sync-product-docs-*. Сначала правка в Drive (по решению Кирилла), затем синхронизация."
+    ;;
+  .github/PULL_REQUEST_TEMPLATE.md)
+    # Копия шаблона DoD из Drive — тоже только синхронизацией.
+    [[ "$docs_sync" == 1 || "$allow_protected" == 1 ]] && exit 0
+    deny "Защищённый путь: $rel. Копия шаблона из Drive: меняется скиллом /sync-product-docs в ветке docs/sync-product-docs-*."
     ;;
   src/styles/tokens.css | src/shared/ui/*)
     [[ "$agent" == design-system-owner || "$allow_protected" == 1 ]] && exit 0
