@@ -1,4 +1,5 @@
 // Тесты чистых функций release:proto (блок 9).
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -55,8 +56,8 @@ describe('метаданные Proto', () => {
     expect(PERSONA_ITEMS[0].id).toBe('login');
     for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     for (const { id } of PERSONA_ITEMS.slice(1)) expect(PERSONA_IDS).toContain(personaFromParam(id));
-    // v6: клиентские сценарии экрана документов вернулись в меню (SC-02…SC-04).
-    expect(PERSONA_ITEMS.map((i) => i.id)).toEqual(['login', 'client-new', 'client-rejected', 'client-more-docs', 'supplier-active', 'dual-active']);
+    // v6: клиентские сценарии экрана документов вернулись в меню (SC-02…SC-04), «Поставщик» убран (Кирилл 2026-11-09).
+    expect(PERSONA_ITEMS.map((i) => i.id)).toEqual(['login', 'client-new', 'client-rejected', 'client-more-docs', 'dual-active']);
   });
 
   it('прототип: только компьютер, меню оболочки без версий и в стиле shadcn', () => {
@@ -97,5 +98,12 @@ describe('публикация из CI (ADR-004)', () => {
       'prototypes/credit-activation/prototype.json',
       'packages/proto-shell/src/menu.ts',
     ]);
+  });
+  it('клон Proto в рабочей копии (release.yml, path: proto) не делает дерево Tadum грязным', () => {
+    // Регрессия v6 (2026-11-09): без /proto/ в .gitignore release:proto в CI падал на «незакоммиченных изменениях».
+    const root = join(import.meta.dirname, '..');
+    // В контейнере CI рабочая копия принадлежит другому пользователю: safe.directory — только для этого вызова.
+    const ignored = execFileSync('git', ['-c', 'safe.directory=*', '-C', root, 'check-ignore', 'proto/packages/registry'], { encoding: 'utf8' });
+    expect(ignored.trim()).toBe('proto/packages/registry');
   });
 });

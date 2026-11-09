@@ -10,3 +10,6 @@ tests/screenshots
 *.log
 .DS_Store
 .lighthouseci
+# Клон Proto, который release.yml кладёт в рабочую копию (actions/checkout path: proto): без этого
+# release:proto видит «незакоммиченные изменения» и останавливает публикацию.
+/proto/
