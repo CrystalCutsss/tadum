@@ -11,6 +11,15 @@ rel_path() {
   realpath -m --relative-to="$(project_dir)" "$1"
 }
 
+# Снимок Drive (docs/product, tov-lexicon.json, шаблон PR) можно менять: в ветке синхронизации
+# docs/sync-product-docs-* (скилл /sync-product-docs, решение Кирилла 2026-11-09) или с TADUM_DOCS_SYNC=1.
+docs_sync_allowed() {
+  [[ "${TADUM_DOCS_SYNC:-0}" == 1 ]] && return 0
+  local branch
+  branch=$(git -C "$(project_dir)" branch --show-current 2>/dev/null || true)
+  [[ "$branch" == docs/sync-product-docs-* ]]
+}
+
 # Отказ PreToolUse с причиной на русском.
 deny() {
   jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'

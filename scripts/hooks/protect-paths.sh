@@ -18,9 +18,8 @@ rel=$(rel_path "$file")
 
 allow_protected=${TADUM_ALLOW_PROTECTED:-0}
 # Ветка синхронизации снимка Drive: снимок меняется только в ней, а merge в main делает Кирилл.
-branch=$(git -C "$(project_dir)" branch --show-current 2>/dev/null || true)
 docs_sync=0
-[[ "${TADUM_DOCS_SYNC:-0}" == 1 || "$branch" == docs/sync-product-docs-* ]] && docs_sync=1
+docs_sync_allowed && docs_sync=1
 
 case "$rel" in
   docs/product/* | tov-lexicon.json)
