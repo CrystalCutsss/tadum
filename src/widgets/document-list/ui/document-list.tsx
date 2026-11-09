@@ -61,7 +61,7 @@ export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-1 flex-col gap-3">
       {moreDocs ? (
         <Alert>
           <Icon icon={RiInformationLine} />

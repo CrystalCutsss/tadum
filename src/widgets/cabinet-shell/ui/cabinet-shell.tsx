@@ -78,16 +78,23 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
       />
       <SidebarInset className="min-w-0 text-foreground">
         <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} themeToggle={themeToggle} />
-        <div className="grid flex-1 grid-cols-1 content-start gap-4 p-4 pb-safe-bottom lg:grid-cols-3">
-          {/* Заголовок экрана (CabinetPageHeader) — на всю ширину; пустой не занимает места. */}
-          <div ref={setHeader} className="min-w-0 empty:hidden lg:col-span-3" />
-          <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
-            <OfflineBanner />
-            <StorageBanner />
-            <AsideSlotContext.Provider value={slots}>{children}</AsideSlotContext.Provider>
+        {/* Отступ контента 16 px со всех сторон; safe-area iOS — отдельно снизу (раньше pb-safe-bottom обнулял нижний
+            отступ). Колонки растянуты на высоту окна: плавающая панель экрана (sticky + mt-auto) стоит внизу окна
+            даже при коротком контенте (решение Кирилла 2026-11-09). */}
+        <div className="flex flex-1 flex-col pb-safe-bottom">
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            {/* Заголовок экрана (CabinetPageHeader) — над колонками; пустой не занимает места. */}
+            <div ref={setHeader} className="min-w-0 empty:hidden" />
+            <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
+                <OfflineBanner />
+                <StorageBanner />
+                <AsideSlotContext.Provider value={slots}>{children}</AsideSlotContext.Provider>
+              </div>
+              {/* Третья колонка (≥1024 px): блоки экрана через CabinetAside. */}
+              <div ref={setAside} className="hidden min-w-0 flex-col gap-4 lg:flex" />
+            </div>
           </div>
-          {/* Третья колонка (≥1024 px): блоки экрана через CabinetAside. Пустая — не занимает места. */}
-          <div ref={setAside} className="hidden min-w-0 flex-col gap-4 lg:flex" />
         </div>
       </SidebarInset>
     </SidebarProvider>

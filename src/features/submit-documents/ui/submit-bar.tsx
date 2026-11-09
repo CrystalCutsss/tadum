@@ -56,7 +56,7 @@ export function SubmitBar({ set, uploading, onBlocked }: SubmitBarProps) {
   };
 
   return (
-    <div className="sticky bottom-4 z-10 flex items-center gap-4 rounded-xl border bg-card p-3 text-card-foreground shadow-md md:p-4">
+    <div className="sticky bottom-4 z-10 mt-auto flex items-center gap-4 rounded-xl border bg-card p-3 text-card-foreground shadow-md md:p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <p id="submit-progress" className="text-sm font-medium" aria-live="polite">
           {label}

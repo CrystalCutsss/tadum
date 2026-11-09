@@ -35,7 +35,7 @@ function ReviewNotes({ app, set }: { app: Application; set: DocumentSet }) {
 function StepsPanel({ steps, app, set }: { steps: Steps; app: Application; set: DocumentSet }) {
   const { t } = useTranslation();
   return (
-    <Card className="sticky top-4 rounded-xl">
+    <Card className="sticky top-4 gap-4 rounded-xl">
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
@@ -90,7 +90,7 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
   const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: null });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       {/* Заголовок — над обеими колонками: панель шагов справа начинается вровень с первой карточкой. */}
       <CabinetPageHeader>
         <header className="flex flex-col gap-1">

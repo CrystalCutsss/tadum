@@ -29,6 +29,15 @@ import {
   ItemMedia,
   ItemTitle,
   StatusBadge,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  toast,
 } from '@/shared/ui';
 
 import { DocumentResources } from './document-resources';
@@ -59,10 +68,24 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
   // Готовые задачи исчезают: файл уже пришёл в doc.files после обновления комплекта.
   const tasks = upload.tasks.filter((task) => task.state !== 'done');
 
-  const pick = (files: File[], source: UploadSource) => {
-    upload.start(files, source, picker?.replaceFileId);
+  // Один файл на документ (решение Кирилла 2026-11-09): несколько сразу — тост; уже есть файл — спросить про замену.
+  const [confirmReplace, setConfirmReplace] = useState<{ file: File; source: UploadSource } | null>(null);
+  const accept = (files: File[], source: UploadSource, replaceFileId?: string) => {
+    const [file] = files;
+    if (!file) return;
+    if (files.length > 1) {
+      toast(t('upload.error.one_file'), { position: 'top-center' });
+      return;
+    }
+    const existing = doc.files[0];
+    if (!replaceFileId && existing) {
+      setConfirmReplace({ file, source });
+      return;
+    }
+    upload.start([file], source, replaceFileId);
     setOpen(true);
   };
+  const pick = (files: File[], source: UploadSource) => accept(files, source, picker?.replaceFileId);
   const action = mode === 'upload' || mode === 'reupload';
   const busy = upload.busy;
   useEffect(() => onUploadingChange?.(doc.portal_key, busy), [busy, doc.portal_key, onUploadingChange]);
@@ -74,7 +97,7 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
         onOpenChange={setOpen}
         className={cn(
           'rounded-xl border bg-card text-card-foreground transition-shadow duration-base ease-standard',
-          highlighted && 'border-status-rejected ring-2 ring-status-rejected/40',
+          highlighted && 'border-primary ring-2 ring-primary/30',
         )}
       >
         {/* Кнопка и шеврон — по центру блока «заголовок + описание» (решение 2026-11-09). */}
@@ -141,15 +164,6 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
 
           <DocumentResources doc={doc} title={title} />
 
-          {editable ? (
-            <UploadDropzone
-              disabled={!online}
-              disabledHint={t('common.offline_actions_disabled')}
-              onChoose={() => setPicker({})}
-              onDropFiles={(files) => upload.start(files, 'files')}
-            />
-          ) : null}
-
           {doc.files.length > 0 || tasks.length > 0 ? (
             <ul className="flex flex-col gap-2" aria-label={t('documents.row.files', { title })}>
               {doc.files.map((file) => (
@@ -164,6 +178,15 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
               ))}
             </ul>
           ) : null}
+          {editable ? (
+            <UploadDropzone
+              disabled={!online}
+              disabledHint={t('common.offline_actions_disabled')}
+              onChoose={() => setPicker({})}
+              onDropFiles={(files) => accept(files, 'files')}
+            />
+          ) : null}
+
         </CollapsibleContent>
       </Collapsible>
 
@@ -172,9 +195,34 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
         onOpenChange={(next) => !next && setPicker(null)}
         title={title}
         hint={hint}
-        multiple={!picker?.replaceFileId}
+        multiple={false}
         onPick={pick}
       />
+
+      <AlertDialog open={confirmReplace !== null} onOpenChange={(next) => !next && setConfirmReplace(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('documents.file.replace_title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('documents.file.replace_body', { name: doc.files[0]?.name ?? '' })}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const pending = confirmReplace;
+                const existing = doc.files[0];
+                setConfirmReplace(null);
+                if (pending && existing) {
+                  upload.start([pending.file], pending.source, existing.id);
+                  setOpen(true);
+                }
+              }}
+            >
+              {t('documents.file.replace_confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </li>
   );
 }

@@ -98,7 +98,7 @@ export function FileActions({ documentId, portalKey, status, file, editable, onR
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => remove.mutate()}>{t('documents.file.delete')}</AlertDialogAction>
+            <AlertDialogAction variant="destructive" onClick={() => remove.mutate()}>{t('documents.file.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

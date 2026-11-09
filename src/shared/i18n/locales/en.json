@@ -293,7 +293,8 @@
       "locked": "Your documents are under review and can't be changed right now",
       "offline": "You're offline. Try again when you're back online",
       "network": "Upload interrupted. Check your connection and try again",
-      "server": "We couldn't save the file. Please try again"
+      "server": "We couldn't save the file. Please try again",
+      "one_file": "Upload one file for this document"
     },
     "state": {
       "queued": "Waiting…",
@@ -351,7 +352,10 @@
       "delete": "Delete",
       "delete_title": "Delete this file?",
       "uploaded": "Uploaded · {size}",
-      "previous": "Previous file, not accepted · {size}"
+      "previous": "Previous file, not accepted · {size}",
+      "replace_title": "Replace the file?",
+      "replace_body": "{name} will be replaced with the new file",
+      "replace_confirm": "Replace"
     },
     "row": {
       "upload": "Upload",
