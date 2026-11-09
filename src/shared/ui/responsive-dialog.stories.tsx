@@ -6,6 +6,7 @@ import { T } from '../../../.storybook/t';
 import { Button } from './button';
 import {
   ResponsiveDialog,
+  ResponsiveDialogBody,
   ResponsiveDialogClose,
   ResponsiveDialogContent,
   ResponsiveDialogDescription,

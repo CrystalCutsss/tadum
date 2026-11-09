@@ -135,6 +135,7 @@ function ResponsiveDialogContent({
   closeLabel,
   showCloseButton = true,
   dir,
+  size = "default",
   ...props
 }: Omit<React.ComponentProps<typeof DialogContent>, "dir" | "showCloseButton"> & {
   /** Подпись кнопки закрытия для скринридера — строка из i18n. */
@@ -142,6 +143,11 @@ function ResponsiveDialogContent({
   showCloseButton?: boolean
   /** Направление, если отличается от Direction.Provider (портал вне дерева с dir). */
   dir?: "ltr" | "rtl"
+  /**
+   * tall — окно почти на всю высоту (просмотр примера документа, Кирилл 2026-11-09): Drawer — от верхнего края
+   * до низа, Dialog — до 90% окна. Шапка фиксирована, ResponsiveDialogBody растягивается и прокручивается.
+   */
+  size?: "default" | "tall"
 }) {
   const drawer = useDrawer()
   const isMobile = drawer !== null
@@ -164,6 +170,7 @@ function ResponsiveDialogContent({
       <DrawerContent
         data-slot="responsive-dialog-content"
         data-mode="drawer"
+        data-size={size}
         dir={direction}
         className={className}
         {...props}
@@ -177,9 +184,10 @@ function ResponsiveDialogContent({
     <DialogContent
       data-slot="responsive-dialog-content"
       data-mode="dialog"
+      data-size={size}
       dir={direction}
       showCloseButton={false}
-      className={className}
+      className={cn(size === "tall" && "flex max-h-9/10 flex-col", className)}
       {...props}
     >
       {children}
@@ -191,6 +199,21 @@ function ResponsiveDialogContent({
 function ResponsiveDialogHeader(props: React.ComponentProps<"div">) {
   const Comp = useDrawer()?.DrawerHeader ?? DialogHeader
   return <Comp data-slot="responsive-dialog-header" {...props} />
+}
+
+/**
+ * Тело окна: занимает оставшуюся высоту под шапкой и прокручивается (нужно для size="tall").
+ * Отступы: в Drawer — как у шапки и подвала (px-4, pb-4), в Dialog — от контента (p-6, gap-6).
+ */
+function ResponsiveDialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  const isMobile = useDrawer() !== null
+  return (
+    <div
+      data-slot="responsive-dialog-body"
+      className={cn("min-h-0 flex-1 overflow-y-auto", isMobile && "px-4 pb-4", className)}
+      {...props}
+    />
+  )
 }
 
 function ResponsiveDialogFooter(props: React.ComponentProps<"div">) {
@@ -212,6 +235,7 @@ function ResponsiveDialogDescription(
 
 export {
   ResponsiveDialog,
+  ResponsiveDialogBody,
   ResponsiveDialogClose,
   ResponsiveDialogContent,
   ResponsiveDialogDescription,

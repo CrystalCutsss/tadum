@@ -12,6 +12,7 @@ import {
   Button,
   Icon,
   ResponsiveDialog,
+  ResponsiveDialogBody,
   ResponsiveDialogContent,
   ResponsiveDialogDescription,
   ResponsiveDialogHeader,
@@ -97,27 +98,28 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
       ))}
 
       <ResponsiveDialog open={view !== null} onOpenChange={(open) => !open && setView(null)}>
-        <ResponsiveDialogContent closeLabel={t('common.close')} className="md:max-w-2xl">
+        {/* Пример — окно почти на всю высоту, чтобы документ помещался (Кирилл 2026-11-09); видео — обычный размер. */}
+        <ResponsiveDialogContent closeLabel={t('common.close')} size={view === 'example' ? 'tall' : 'default'} className="md:max-w-2xl">
           <ResponsiveDialogHeader>
             <ResponsiveDialogTitle>{title}</ResponsiveDialogTitle>
             <ResponsiveDialogDescription>
               {view === 'video' ? t('documents.resources.video_title') : t('documents.resources.example_title')}
             </ResponsiveDialogDescription>
           </ResponsiveDialogHeader>
-          <div className="px-4 pb-4 md:p-0">
-            {view === 'video' && video ? (
-              isDrivePreview(video) ? (
+          {view === 'video' && video ? (
+            <div className="px-4 pb-4 md:p-0">
+              {isDrivePreview(video) ? (
                 <DrivePlayer src={video} title={t('documents.resources.video_title')} playLabel={t('documents.resources.play')} />
               ) : (
                 <video src={video} controls playsInline className="aspect-video w-full cursor-pointer rounded-lg bg-muted" />
-              )
-            ) : null}
-            {view === 'example' && image ? (
-              <div className="max-h-96 overflow-y-auto rounded-lg border bg-muted md:max-h-160">
-                <img src={image} alt={t('documents.resources.example_alt', { title })} className="w-full" />
-              </div>
-            ) : null}
-          </div>
+              )}
+            </div>
+          ) : null}
+          {view === 'example' && image ? (
+            <ResponsiveDialogBody>
+              <img src={image} alt={t('documents.resources.example_alt', { title })} className="w-full rounded-lg border bg-muted" />
+            </ResponsiveDialogBody>
+          ) : null}
         </ResponsiveDialogContent>
       </ResponsiveDialog>
     </div>
