@@ -1,20 +1,17 @@
 // /c/documents (SC-02…SC-05, решения Кирилла 2026-11-09): список документов — единственный экран этапа
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
-import { RiArrowDownSLine } from '@remixicon/react';
 import { useQuery } from '@tanstack/react-query';
-import { cn } from 'cn';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { applicationQuery, canEditFiles, computeClientTimeline, CLIENT_TIMELINE_STEPS, type ClientTimeline } from '@/entities/application';
+import { applicationQuery, canEditFiles, computeClientTimeline, type ClientTimeline } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
 import { track } from '@/shared/analytics';
 import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
-import { formatNumber } from '@/shared/i18n';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Collapsible, CollapsibleContent, CollapsibleTrigger, Icon, Skeleton } from '@/shared/ui';
-import { CabinetAside, LoadError } from '@/widgets/cabinet-shell';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@/shared/ui';
+import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
-import { StatusTimeline } from '@/widgets/status-timeline';
+import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
 import { SupportBar } from '@/widgets/support-bar';
 
 type Steps = Extract<ClientTimeline, { hidden: false }>['steps'];
@@ -38,7 +35,7 @@ function ReviewNotes({ app, set }: { app: Application; set: DocumentSet }) {
 function StepsPanel({ steps, app, set }: { steps: Steps; app: Application; set: DocumentSet }) {
   const { t } = useTranslation();
   return (
-    <Card className="sticky top-4">
+    <Card className="sticky top-4 rounded-xl">
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
@@ -50,28 +47,13 @@ function StepsPanel({ steps, app, set }: { steps: Steps; app: Application; set: 
   );
 }
 
-/** Телефон и планшет: сверху, свёрнуто до «Шаг N из 5: …», раскрывается во все шаги. */
+/** Телефон и планшет: степ-бар сверху — подпись только у текущего шага (решение 2026-11-09). */
 function StepsTopPanel({ steps, app, set }: { steps: Steps; app: Application; set: DocumentSet }) {
-  const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const index = CLIENT_TIMELINE_STEPS.findIndex((s) => steps[s] === 'current');
-  const current = CLIENT_TIMELINE_STEPS[index] ?? 'documents';
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="rounded-xl border bg-card lg:hidden">
-      <CollapsibleTrigger asChild>
-        <Button type="button" variant="ghost" className="h-auto min-h-11 w-full justify-between gap-2 px-4 py-3 text-start whitespace-normal">
-          <span className="flex flex-col">
-            <span className="text-xs text-muted-foreground">{t('documents.review.step_of', { n: formatNumber(index + 1), total: formatNumber(CLIENT_TIMELINE_STEPS.length) })}</span>
-            <span className="font-medium">{t(`timeline.client.${current}`)}</span>
-          </span>
-          <Icon icon={RiArrowDownSLine} className={cn('transition-transform duration-base ease-standard', open && 'rotate-180')} />
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="flex flex-col gap-4 border-t px-4 py-3">
-        <StatusTimeline steps={steps} orientation="vertical" />
-        <ReviewNotes app={app} set={set} />
-      </CollapsibleContent>
-    </Collapsible>
+    <div className="flex flex-col gap-2 rounded-xl border bg-card p-3 text-card-foreground lg:hidden">
+      <StatusStepBar steps={steps} />
+      <ReviewNotes app={app} set={set} />
+    </div>
   );
 }
 
@@ -109,10 +91,13 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold">{t('documents.title')}</h1>
-        <p className="text-sm text-muted-foreground">{editable ? t('documents.subtitle') : t('documents.subtitle_locked')}</p>
-      </header>
+      {/* Заголовок — над обеими колонками: панель шагов справа начинается вровень с первой карточкой. */}
+      <CabinetPageHeader>
+        <header className="flex flex-col gap-1">
+          <h1 className="text-xl font-semibold">{t('documents.title')}</h1>
+          <p className="text-sm text-muted-foreground">{editable ? t('documents.subtitle') : t('documents.subtitle_locked')}</p>
+        </header>
+      </CabinetPageHeader>
 
       {timeline.hidden ? null : (
         <>
@@ -126,7 +111,7 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
       <DocumentList set={set.data} editable={editable} focusKey={focusKey} />
 
       {!editable ? (
-        <Card>
+        <Card className="rounded-xl">
           <CardHeader>
             <CardTitle className="text-base">{t('documents.locked.title')}</CardTitle>
             <CardDescription>{t('documents.locked.body')}</CardDescription>

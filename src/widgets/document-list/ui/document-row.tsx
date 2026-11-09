@@ -39,10 +39,12 @@ export interface DocumentRowProps {
   /** Комплект можно менять (не отправлен). */
   editable: boolean;
   defaultOpen?: boolean;
+  /** Подсветка после попытки отправить с незагруженными документами (решение 2026-11-09). */
+  highlighted?: boolean;
   onUploadingChange?: (portalKey: string, uploading: boolean) => void;
 }
 
-export function DocumentRow({ doc, editable, defaultOpen = false, onUploadingChange }: DocumentRowProps) {
+export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = false, onUploadingChange }: DocumentRowProps) {
   const { t, i18n } = useTranslation();
   const online = useOnline();
   const [open, setOpen] = useState(defaultOpen);
@@ -67,8 +69,16 @@ export function DocumentRow({ doc, editable, defaultOpen = false, onUploadingCha
 
   return (
     <li id={`doc-${doc.portal_key}`} className="list-none scroll-mt-4">
-      <Collapsible open={open} onOpenChange={setOpen} className="rounded-xl border bg-card text-card-foreground">
-        <Item className="flex-nowrap items-start rounded-xl border-0 p-3 md:p-4">
+      <Collapsible
+        open={open}
+        onOpenChange={setOpen}
+        className={cn(
+          'rounded-xl border bg-card text-card-foreground transition-shadow duration-base ease-standard',
+          highlighted && 'border-status-rejected ring-2 ring-status-rejected/40',
+        )}
+      >
+        {/* Кнопка и шеврон — по центру блока «заголовок + описание» (решение 2026-11-09). */}
+        <Item className="flex-nowrap items-center rounded-xl border-0 p-3 md:p-4">
           <ItemMedia variant="icon" className="hidden sm:flex">
             <Icon icon={RiFileTextLine} />
           </ItemMedia>
@@ -82,23 +92,17 @@ export function DocumentRow({ doc, editable, defaultOpen = false, onUploadingCha
               ) : null}
             </ItemTitle>
             <ItemDescription className="line-clamp-none">{hint}</ItemDescription>
-            {reasonText && !open ? (
-              <p id={`${reasonId}-short`} className="mt-1 flex items-start gap-1 text-sm text-status-rejected">
-                <Icon icon={RiErrorWarningLine} className="mt-0.5 size-4 shrink-0" />
-                <span className="line-clamp-3">{reasonText}</span>
-              </p>
-            ) : null}
             {action ? null : (
               <div className="mt-1 sm:hidden">
                 <StatusBadge kind="document" status={doc.status} />
               </div>
             )}
           </ItemContent>
-          <ItemActions className="shrink-0 self-start">
+          <ItemActions className="shrink-0">
             {action ? (
               <Button
                 type="button"
-                variant={mode === 'reupload' ? 'default' : 'outline'}
+                variant="secondary"
                 className="min-h-11"
                 disabled={!online || upload.busy}
                 aria-describedby={reasonText ? `${reasonId}-short` : undefined}
@@ -118,6 +122,13 @@ export function DocumentRow({ doc, editable, defaultOpen = false, onUploadingCha
             </CollapsibleTrigger>
           </ItemActions>
         </Item>
+        {reasonText && !open ? (
+          // SC-03: причина в 1–3 строки прямо в свёрнутой строке.
+          <p id={`${reasonId}-short`} className="-mt-1 flex items-start gap-1 px-3 pb-3 text-sm text-status-rejected md:px-4 md:pb-4">
+            <Icon icon={RiErrorWarningLine} className="mt-0.5 size-4 shrink-0" />
+            <span className="line-clamp-3">{reasonText}</span>
+          </p>
+        ) : null}
 
         <CollapsibleContent className="flex flex-col gap-4 border-t p-3 md:p-4">
           {reasonText ? (

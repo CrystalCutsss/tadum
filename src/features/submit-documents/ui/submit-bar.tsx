@@ -1,49 +1,70 @@
-// Нижняя панель отправки (бенчмарк № 02: одна кнопка внизу; D-029: без диалога). Закреплена внизу колонки
-// контента, на телефоне учитывает safe-area. Пока не всё загружено — кнопка неактивна, подпись говорит сколько осталось.
+// Плавающая панель отправки (решения Кирилла 2026-11-09): карточка шириной со строки документов, закреплена
+// внизу колонки контента. Слева — «Загружено X из N» и прогресс, справа — «Отправить на проверку», по центру блока.
+// Кнопка всегда активна: если что-то не загружено или не прошло проверку, нажатие показывает тост сверху,
+// подсвечивает эти документы и прокручивает к верхнему из них (onBlocked). D-029: без диалога.
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 import { canSubmitDocumentSet } from '@/entities/application';
 import { documentsProgress } from '@/entities/document';
 import type { DocumentSet } from '@/shared/api';
+import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
-import { Button, Spinner, toast } from '@/shared/ui';
+import { Button, Progress, Spinner, toast } from '@/shared/ui';
 
 import { submitErrorKey, useSubmitDocuments } from '../model/use-submit-documents';
 
-export function SubmitBar({ set, uploading }: { set: DocumentSet; uploading: boolean }) {
+/** Документы, которые мешают отправке: обязательные «Нужен» и «Нужен новый файл». */
+export function blockingDocuments(set: Pick<DocumentSet, 'documents'>): string[] {
+  return set.documents.filter((d) => d.status === 'rejected' || (d.required && d.status === 'pending')).map((d) => d.portal_key);
+}
+
+export interface SubmitBarProps {
+  set: DocumentSet;
+  uploading: boolean;
+  /** Отправить пока нельзя: какие документы подсветить. */
+  onBlocked: (portalKeys: string[]) => void;
+}
+
+export function SubmitBar({ set, uploading, onBlocked }: SubmitBarProps) {
   const { t } = useTranslation();
   const online = useOnline();
   const submit = useSubmitDocuments(set);
-  const { requiredRemaining } = documentsProgress(set);
-  const hasRejected = set.documents.some((d) => d.status === 'rejected');
-  const ready = canSubmitDocumentSet(set) && !uploading;
+  const progress = documentsProgress(set);
+  const ready = canSubmitDocumentSet(set);
+  const label = t('documents.progress', { uploaded: formatNumber(progress.uploaded), total: formatNumber(progress.total) });
 
-  const hint = !online
-    ? t('common.offline_actions_disabled')
-    : hasRejected
-      ? t('documents.submit.hint_rejected')
-      : requiredRemaining > 0
-        ? t('documents.submit.hint_remaining', { count: requiredRemaining })
-        : t('documents.submit.hint_locks');
+  const onSend = () => {
+    if (!online) {
+      toast(t('common.offline_actions_disabled'), { position: 'top-center' });
+      return;
+    }
+    if (uploading) {
+      toast(t('documents.submit.wait_uploads'), { position: 'top-center' });
+      return;
+    }
+    if (!ready) {
+      const blocking = blockingDocuments(set);
+      toast(t('documents.submit.blocked', { count: blocking.length }), { position: 'top-center' });
+      onBlocked(blocking);
+      return;
+    }
+    submit.mutate(undefined, {
+      onSuccess: () => toast(t('documents.submit.done'), { position: 'top-center' }),
+      onError: (error) => toast(t(submitErrorKey(error) as ParseKeys), { position: 'top-center' }),
+    });
+  };
 
   return (
-    <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t bg-background px-4 pt-3 pb-safe-bottom md:flex-row md:items-center md:justify-between">
-      <p id="submit-hint" className="text-sm text-muted-foreground" aria-live="polite">
-        {hint}
-      </p>
-      <Button
-        type="button"
-        className="min-h-11 w-full md:w-auto"
-        disabled={!ready || !online || submit.isPending}
-        aria-describedby="submit-hint"
-        onClick={() =>
-          submit.mutate(undefined, {
-            onSuccess: () => toast(t('documents.submit.done')),
-            onError: (error) => toast(t(submitErrorKey(error) as ParseKeys)),
-          })
-        }
-      >
+    <div className="sticky bottom-4 z-10 flex items-center gap-4 rounded-xl border bg-card p-3 text-card-foreground shadow-md md:p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <p id="submit-progress" className="text-sm font-medium" aria-live="polite">
+          {label}
+        </p>
+        <Progress value={progress.total === 0 ? 0 : (progress.uploaded / progress.total) * 100} aria-labelledby="submit-progress" />
+        {ready ? <p className="text-xs text-muted-foreground">{t('documents.submit.hint_locks')}</p> : null}
+      </div>
+      <Button type="button" className="min-h-11 shrink-0" aria-busy={submit.isPending} onClick={onSend}>
         {submit.isPending ? <Spinner aria-label={t('documents.submit.sending')} /> : null}
         {t('documents.submit.cta')}
       </Button>

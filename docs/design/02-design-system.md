@@ -127,7 +127,14 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 **ThemeToggleIcon** (`icon/theme-toggle-icon.tsx`, решение Кирилла 2026-11-06) — иконка кнопки темы, как `ModeSwitcher` на ui.shadcn.com: Tabler Icons `brightness` (MIT) — круг и половина со штриховкой. В Remix Icon такой нет; компонент имеет тип `RemixiconComponentType`, поэтому рисуется через `<Icon icon={ThemeToggleIcon} />`. Нейтральная, в `mirroredIcons` не входит.
 
-**Скругления** — значения пресета (решение Кирилла 2026-11-06, правки радиусов откатаны).
+**Скругления** — значения пресета (решение Кирилла 2026-11-06, правки радиусов откатаны), кроме двух решений Кирилла 2026-11-09:
+
+| Что | Радиус | Где |
+| :--- | :--- | :--- |
+| Все кнопки портала | `rounded-lg` (= `--radius`), как кнопка «Email» блока помощи; вместо пилюли пресета `rounded-4xl` | база `buttonVariants` в `button.tsx` — единый для всех `size` (включая `xs`, `icon-*`) и вариантов; `AlertDialogAction`/`AlertDialogCancel` и крестики окон берут его через `Button`/`buttonVariants` |
+| Модальные окна | `rounded-xl`, как строки-карточки документов | `DialogContent`, `AlertDialogContent`, `DrawerContent` (`before:rounded-xl`); `ResponsiveDialog` своего радиуса не задаёт и наследует их. `Sheet`, `Popover`, `DropdownMenu` — по пресету |
+
+Повторный `shadcn add button|dialog|alert-dialog|drawer` покажет эти радиусы как отличие — не перезаписывать.
 
 Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot`, `Icon/ThemeToggle` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
 
@@ -142,7 +149,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `Spinner` | `aria-label` обязателен (без хардкода «Loading»); `role="status"` — на обёртке `span`, иконка — через `Icon` (декоративная) |
 | `Item`, `Empty`, `Field`, `Label`, `Collapsible`, `AlertDialog` | Без изменений: строк и физических классов нет |
 
-**ResponsiveDialog** (`responsive-dialog.tsx`, проектный, по образцу shadcn `drawer-dialog`): меньше `md` (`useIsMobile`) — `Drawer` снизу, иначе `Dialog`. Части: `ResponsiveDialog` (`open`, `defaultOpen`, `onOpenChange`), `ResponsiveDialogTrigger`, `ResponsiveDialogContent` (`closeLabel` обязателен, `showCloseButton`, `dir`), `ResponsiveDialogHeader`, `ResponsiveDialogTitle`, `ResponsiveDialogDescription`, `ResponsiveDialogFooter`, `ResponsiveDialogClose`. Режим передаётся частям через контекст; `dir` контента — из Radix Direction; у контента `data-mode="drawer" | "dialog"`.
+**ResponsiveDialog** (`responsive-dialog.tsx`, проектный, по образцу shadcn `drawer-dialog`): меньше `md` (`useIsMobile`) — `Drawer` снизу, иначе `Dialog`. Части: `ResponsiveDialog` (`open`, `defaultOpen`, `onOpenChange`), `ResponsiveDialogTrigger`, `ResponsiveDialogContent` (`closeLabel` обязателен, `showCloseButton`, `dir`), `ResponsiveDialogHeader`, `ResponsiveDialogTitle`, `ResponsiveDialogDescription`, `ResponsiveDialogFooter`, `ResponsiveDialogClose`. Режим передаётся частям через контекст; `dir` контента — из Radix Direction; у контента `data-mode="drawer" | "dialog"`. Кнопка-крестик (`closeLabel`) — в обоих режимах, и в Drawer на телефоне (Кирилл 2026-11-09); история `ResponsiveDialog/Mobile` (viewport `mobile360`) проверяет режим `drawer` и видимость крестика.
 
 **Progress** — исправлен RTL: заливка шла слева и в RTL. Сдвиг индикатора теперь по `Direction.useDirection()` (`translateX(+N%)` в RTL), заливка растёт от начала строки; `value` передаётся в Root (`aria-valuenow`). Play-тест `shared/ui/Progress/Partial`: при 30 % в AR заливка у правого края, в EN — у левого.
 
@@ -160,7 +167,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 `src/app/theme.tsx`: `system | light | dark`, по умолчанию `system` (D-025), хранение — `storage('theme')`, класс `.dark` на `<html>`, `<meta name="theme-color">` для обеих тем (`#ffffff` / `#090b0c` = `--background` пресета). Вспышки нет: `index.html` ставит `.dark` до загрузки бандла.
 
-Кнопка темы в шапке кабинета (Кирилл 2026-11-06): `ThemeToggle` (`widgets/theme-switch`) — ghost-кнопка с `ThemeToggleIcon`, как ModeSwitcher на ui.shadcn.com: светлая ↔ тёмная от видимой темы; стоит в конце шапки после переключателя языка, через вертикальный `Separator`. Выбор «Как в системе» — в настройках (`ThemeSwitch`). Кнопки блока помощи «Have a question?» (`SupportCard`) — `rounded-lg` вместо пилюли пресета.
+Кнопка темы в шапке кабинета (Кирилл 2026-11-06): `ThemeToggle` (`widgets/theme-switch`) — ghost-кнопка с `ThemeToggleIcon`, как ModeSwitcher на ui.shadcn.com: светлая ↔ тёмная от видимой темы; стоит в конце шапки после переключателя языка, через вертикальный `Separator`. Выбор «Как в системе» — в настройках (`ThemeSwitch`). Кнопки блока помощи «Have a question?» (`SupportCard`) — `rounded-lg`; с 2026-11-09 это радиус всех кнопок (§4a, «Скругления»).
 
 ## 8. Запрет сырых значений
 

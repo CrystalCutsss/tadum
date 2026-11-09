@@ -63,3 +63,17 @@ export const Open: Story = {
     await expect(close?.getAttribute('aria-label')).toBe(en ? 'Close' : 'إغلاق');
   },
 };
+
+/** Телефон (< md): режим Drawer, кнопка-крестик видна и закрывает окно (Кирилл 2026-11-09). */
+export const Mobile: Story = {
+  globals: { viewport: { value: 'mobile360', isRotated: false } },
+  render: () => <Demo />,
+  play: async ({ globals }) => {
+    const en = globals.locale === 'en';
+    const dialog = await within(document.body).findByRole('dialog');
+    await expect(dialog.getAttribute('data-mode')).toBe('drawer');
+    await expect(dialog).toHaveAttribute('dir', en ? 'ltr' : 'rtl');
+    const close = within(dialog).getByRole('button', { name: en ? 'Close' : 'إغلاق' });
+    await expect(close).toBeVisible();
+  },
+};

@@ -4,6 +4,7 @@ export {
   ACCEPTED_MIME,
   DOCUMENT_CATALOG,
   catalogIndex,
+  exampleImageFor,
   findDocumentType,
   hintFor,
   sourceLinksFor,

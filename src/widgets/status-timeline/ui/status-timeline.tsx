@@ -1,19 +1,21 @@
 // Шкала прогресса клиента (01-cabinet-structure.md §5). Состояния шагов вычисляет entities/application
 // (computeClientTimeline) — здесь только отображение. В RTL шкала зеркальна (порядок flex), галочки не зеркалятся;
 // у каждого шага текстовое состояние и aria-current для текущего.
-import { RiCheckLine, RiErrorWarningLine, RiRecordCircleLine, RiCheckboxBlankCircleLine, type RemixiconComponentType } from '@remixicon/react';
+import { RiCheckboxCircleFill, RiErrorWarningFill, RiProgress4Line, RiCheckboxBlankCircleFill, type RemixiconComponentType } from '@remixicon/react';
 import { cn } from 'cn';
 import { useTranslation } from 'react-i18next';
 
 import { CLIENT_TIMELINE_STEPS, type ClientTimelineStep, type TimelineStepState } from '@/entities/application';
 import { Icon } from '@/shared/ui';
 
+// Иконки не похожи на радиокнопки (решение Кирилла 2026-11-09): готово — круг с галочкой, текущий — круг,
+// заполненный наполовину («в процессе»), следующие — маленькая точка, нужно внимание — восклицательный знак.
 const ICON: Record<TimelineStepState, RemixiconComponentType> = {
-  done: RiCheckLine,
-  current: RiRecordCircleLine,
-  upcoming: RiCheckboxBlankCircleLine,
-  needs_attention: RiErrorWarningLine,
-  closed: RiCheckboxBlankCircleLine,
+  done: RiCheckboxCircleFill,
+  current: RiProgress4Line,
+  upcoming: RiCheckboxBlankCircleFill,
+  needs_attention: RiErrorWarningFill,
+  closed: RiCheckboxBlankCircleFill,
 };
 
 // Цвет — только у иконки; подписи — цвета текста (AA в обеих темах). needs_attention — цвет статуса rejected,
@@ -42,7 +44,9 @@ export function StatusTimeline({ steps, orientation = 'auto' }: { steps: Record<
             aria-current={state === 'current' ? 'step' : undefined}
             className={cn('flex flex-1 items-start gap-2', row && 'md:flex-col md:items-center md:text-center')}
           >
-            <Icon icon={ICON[state]} className={cn('size-5 shrink-0', TONE[state])} />
+            <span className="flex size-5 shrink-0 items-center justify-center">
+              <Icon icon={ICON[state]} className={cn(state === 'upcoming' || state === 'closed' ? 'size-2.5' : 'size-5', TONE[state])} />
+            </span>
             <div className="flex flex-col">
               <span className={cn('text-sm', state === 'current' || state === 'needs_attention' ? 'font-medium text-foreground' : 'text-muted-foreground')}>
                 {t(`timeline.client.${step}`)}

@@ -258,7 +258,8 @@
       "needs_attention": "Needs your attention",
       "upcoming": "Next"
     },
-    "title": "Application progress"
+    "title": "Application progress",
+    "step_of": "Step {n} of {total}"
   },
   "units": {
     "kb": "KB",
@@ -331,14 +332,14 @@
     "submit": {
       "cta": "Send for review",
       "done": "Thank you. Your documents are with our team",
-      "hint_rejected": "Upload new files where needed, then send for review",
-      "hint_remaining_one": "{count} document left to upload",
-      "hint_remaining_other": "{count} documents left to upload",
       "hint_locks": "After sending, files can't be changed until the review is done",
       "error_incomplete": "Some documents are still missing. Upload them and try again",
       "error_locked": "Your documents have already been sent",
       "error_generic": "We couldn't send your documents. Please try again",
-      "sending": "Sending…"
+      "sending": "Sending…",
+      "wait_uploads": "Wait until the files finish uploading, then send",
+      "blocked_one": "Upload the highlighted document to send for review",
+      "blocked_other": "Upload the {count} highlighted documents to send for review"
     },
     "file": {
       "actions": "Actions for {name}",
@@ -366,16 +367,14 @@
       "example": "See an example",
       "video_title": "How to get this document",
       "example_title": "An example of this document",
-      "example_fallback": "The preview isn't available in this browser. Open the example below",
-      "example_open": "Open the example"
+      "example_alt": "An example of {title}"
     },
     "review": {
       "title": "Your application",
       "nothing_needed": "Our team is reviewing your documents. Nothing is needed from you right now",
       "eta_one": "Usually takes up to {count} hour",
       "eta_other": "Usually takes up to {count} hours",
-      "may_ask_more": "We may ask for a few more documents. If so, we will let you know here",
-      "step_of": "Step {n} of {total}"
+      "may_ask_more": "We may ask for a few more documents. If so, we will let you know here"
     },
     "locked": {
       "title": "Files can't be changed right now",
