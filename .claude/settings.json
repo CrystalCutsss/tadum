@@ -33,7 +33,11 @@
       "mcp__Mobbin__search_flows",
       "mcp__Mobbin__search_sections",
       "mcp__Mobbin__list_collections",
-      "mcp__Mobbin__get_collection_contents"
+      "mcp__Mobbin__get_collection_contents",
+      "mcp__Google_Drive__search_files",
+      "mcp__Google_Drive__get_file_metadata",
+      "mcp__Google_Drive__read_file_content",
+      "mcp__Google_Drive__download_file_content"
     ],
     "ask": [
       "Bash(pnpm run release:proto*)",
