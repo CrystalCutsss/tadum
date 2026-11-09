@@ -1,4 +1,5 @@
 // Тесты чистых функций release:proto (блок 9).
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -97,5 +98,10 @@ describe('публикация из CI (ADR-004)', () => {
       'prototypes/credit-activation/prototype.json',
       'packages/proto-shell/src/menu.ts',
     ]);
+  });
+  it('клон Proto в рабочей копии (release.yml, path: proto) не делает дерево Tadum грязным', () => {
+    // Регрессия v6 (2026-11-09): без /proto/ в .gitignore release:proto в CI падал на «незакоммиченных изменениях».
+    const root = join(import.meta.dirname, '..');
+    expect(execFileSync('git', ['-C', root, 'check-ignore', 'proto/packages/registry'], { encoding: 'utf8' }).trim()).toBe('proto/packages/registry');
   });
 });
