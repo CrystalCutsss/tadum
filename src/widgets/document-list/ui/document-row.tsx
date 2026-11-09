@@ -2,6 +2,8 @@
 // Свёрнуто: название, короткое описание, справа либо статус, либо действие (бенчмарк № 03), «Загрузить» — прямо
 // из строки (№ 02). Для «Нужен новый файл» — причина в 1–3 строки под описанием (SC-03).
 // Раскрыто: причина полностью, видео, ссылки «где получить», пример, зона загрузки, файлы.
+// Телефон (решение Кирилла 2026-11-09): строка всегда раскрыта, без шеврона и без зоны перетаскивания —
+// загрузка только кнопкой в строке.
 import { RiErrorWarningLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
@@ -11,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { documentRowMode, rejectReason } from '@/entities/document';
 import { SourcePicker, UploadDropzone, useDocumentUpload, type UploadSource } from '@/features/upload-document';
 import type { Document } from '@/shared/api';
-import { useOnline } from '@/shared/lib';
+import { useIsMobile, useOnline } from '@/shared/lib';
 import {
   Alert,
   AlertDescription,
@@ -58,7 +60,9 @@ export interface DocumentRowProps {
 export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = false, onUploadingChange }: DocumentRowProps) {
   const { t, i18n } = useTranslation();
   const online = useOnline();
-  const [open, setOpen] = useState(defaultOpen);
+  const isMobile = useIsMobile();
+  const [expanded, setOpen] = useState(defaultOpen);
+  const open = isMobile || expanded;
   const [picker, setPicker] = useState<{ replaceFileId?: string } | null>(null);
   const upload = useDocumentUpload(doc);
   const mode = documentRowMode(doc, editable);
@@ -140,11 +144,13 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
                 <StatusBadge kind="document" status={doc.status} />
               </span>
             )}
-            <CollapsibleTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11 aria-expanded:bg-transparent hover:aria-expanded:bg-muted dark:hover:aria-expanded:bg-muted/50" aria-label={open ? t('documents.row.collapse', { title }) : t('documents.row.expand', { title })}>
-                <Icon icon={RiArrowDownSLine} className={cn('transition-transform duration-base ease-standard', open && 'rotate-180')} />
-              </Button>
-            </CollapsibleTrigger>
+            {isMobile ? null : (
+              <CollapsibleTrigger asChild>
+                <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11 aria-expanded:bg-transparent hover:aria-expanded:bg-muted dark:hover:aria-expanded:bg-muted/50" aria-label={open ? t('documents.row.collapse', { title }) : t('documents.row.expand', { title })}>
+                  <Icon icon={RiArrowDownSLine} className={cn('transition-transform duration-base ease-standard', open && 'rotate-180')} />
+                </Button>
+              </CollapsibleTrigger>
+            )}
           </ItemActions>
         </Item>
         {reasonText && !open ? (
@@ -155,7 +161,7 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
           </p>
         ) : null}
 
-        <CollapsibleContent className="flex flex-col gap-4 border-t p-3 md:p-4">
+        <CollapsibleContent className="flex flex-col gap-4 border-t p-3 empty:hidden md:p-4">
           {reasonText ? (
             <Alert id={reasonId} className="border-status-rejected/30 bg-status-rejected-muted text-status-rejected">
               <Icon icon={RiErrorWarningLine} />
@@ -180,7 +186,7 @@ export function DocumentRow({ doc, editable, defaultOpen = false, highlighted = 
               ))}
             </ul>
           ) : null}
-          {editable ? (
+          {editable && !isMobile ? (
             <UploadDropzone
               disabled={!online}
               disabledHint={t('common.offline_actions_disabled')}

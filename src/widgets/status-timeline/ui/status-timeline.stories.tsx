@@ -22,10 +22,11 @@ type Story = StoryObj<typeof meta>;
 
 export const DocsRequired: Story = { args: { steps: steps({ client_status: 'docs_required', round: 1, limit: null }) } };
 export const MoreDocsRequested: Story = {
-  name: 'docs_required, дозапрос (needs_attention)',
+  name: 'docs_required, дозапрос (Проверка — текущий шаг)',
   args: { steps: steps({ client_status: 'docs_required', round: 2, limit: null }) },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getAllByText(/A few more documents needed|نحتاج بضعة مستندات إضافية/).length).toBe(4);
+    await expect(canvasElement.querySelectorAll('li[aria-current="step"]').length).toBe(4);
+    await expect(within(canvasElement).queryAllByText(/A few more documents needed|نحتاج بضعة مستندات إضافية/).length).toBe(0);
   },
 };
 export const UnderReview: Story = {

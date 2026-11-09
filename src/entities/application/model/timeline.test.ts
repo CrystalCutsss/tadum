@@ -8,10 +8,10 @@ import { readProductDoc, section, tableWithHeader } from '@/test-utils/markdown'
 
 import { CLIENT_TIMELINE_STEPS, computeClientTimeline } from './timeline';
 
-// Решение Кирилла 2026-11-09 (экран документов): при дозапросе «Документы» пройдены, метка needs_attention —
-// на «Проверке». Таблицы 01-statuses.md §8 и 01-cabinet-structure.md §5 в Drive ещё со старой строкой; правку вносит
+// Решение Кирилла 2026-11-09 (экран документов): при дозапросе «Документы» пройдены, «Проверка» —
+// текущий шаг без метки. Таблицы 01-statuses.md §8 и 01-cabinet-structure.md §5 в Drive ещё со старой строкой; правку вносит
 // Кирилл, после /sync-product-docs это переопределение убрать (A-058).
-const MORE_DOCS_ROW = ['done', 'needs_attention', 'upcoming', 'upcoming', 'upcoming'];
+const MORE_DOCS_ROW = ['done', 'current', 'upcoming', 'upcoming', 'upcoming'];
 const withDecision = (status: string, round: number, states: string[]) => (status.startsWith('docs_required') && round > 1 ? MORE_DOCS_ROW : states);
 
 const ALL_LIMITS: LimitStatus[] = ['pending', 'ready', 'active', 'cancelled', 'rejected'];
@@ -66,9 +66,9 @@ describe('01-cabinet-structure.md §5 — состояния шагов, каж�
     expect(out).toEqual({ hidden: false, steps: Object.fromEntries(CLIENT_TIMELINE_STEPS.map((s, i) => [s, row[i]])) });
   });
 
-  it('шкала не откатывается при дозапросе: «Документы» пройдены, «Проверка» с меткой (D-008, решение 2026-11-09)', () => {
+  it('шкала не откатывается при дозапросе: «Документы» пройдены, «Проверка» — текущий шаг (D-008, решение 2026-11-09)', () => {
     const out = computeClientTimeline({ client_status: 'docs_required', round: 2, limit: null });
     expect(out.steps?.documents).toBe('done');
-    expect(out.steps?.review).toBe('needs_attention');
+    expect(out.steps?.review).toBe('current');
   });
 });

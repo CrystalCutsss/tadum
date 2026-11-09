@@ -1,6 +1,7 @@
 // Помощь по документу в раскрытой строке (решения Кирилла 2026-11-09): видео (только на арабском, D-026),
 // ссылки на сервисы, где получить документ, и пример — картинкой в модальном окне с крестиком (без просмотрщика PDF).
 // Нет ассетов — блок не показывается (A10).
+import { RiFileLine } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +19,6 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
   RiExternalLinkLine,
-  RiFileSearchLine,
   RiPlayCircleLine,
 } from '@/shared/ui';
 
@@ -76,14 +76,14 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
       ) : null}
       {image ? (
         <Button type="button" variant="secondary" size="sm" className="min-h-11" onClick={openExample}>
-          <Icon icon={RiFileSearchLine} />
+          <Icon icon={RiFileLine} />
           {t('documents.resources.example')}
         </Button>
       ) : examplePdf ? (
         // Пример только в PDF (без картинки) — открываем файл, свой просмотрщик не делаем.
         <Button asChild variant="secondary" size="sm" className="min-h-11">
           <a href={examplePdf} target="_blank" rel="noopener noreferrer" onClick={() => track('document_example_opened', { owner: 'client', portal_key: doc.portal_key })}>
-            <Icon icon={RiFileSearchLine} />
+            <Icon icon={RiFileLine} />
             {t('documents.resources.example')}
           </a>
         </Button>

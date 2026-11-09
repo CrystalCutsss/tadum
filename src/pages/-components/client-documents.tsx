@@ -16,13 +16,12 @@ import { SupportBar } from '@/widgets/support-bar';
 
 type Steps = Extract<ClientTimeline, { hidden: false }>['steps'];
 
-/** Подпись под шкалой: срок — только из данных (D-033), без предупреждения о возможном дозапросе (решение 2026-11-09). */
+/** Подпись под шкалой: срок — только из данных (D-033), без предупреждения о возможном дозапросе и без «от вас ничего не нужно» (решения 2026-11-09). */
 function ReviewNotes({ app }: { app: Application }) {
   const { t } = useTranslation();
   const reviewing = app.client_status === 'under_review';
   return (
     <>
-      {reviewing ? <p className="text-sm">{t('documents.review.nothing_needed')}</p> : null}
       {reviewing && app.review_eta_hours !== undefined ? (
         <p className="text-sm text-muted-foreground">{t('documents.review.eta', { count: app.review_eta_hours })}</p>
       ) : null}
@@ -34,7 +33,8 @@ function ReviewNotes({ app }: { app: Application }) {
 function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   const { t } = useTranslation();
   return (
-    <Card className="sticky top-4 gap-4 rounded-xl">
+    // Компактно — в половину колонки, фон с лёгким градиентом (решение Кирилла 2026-11-09).
+    <Card className="sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl bg-linear-to-t from-muted/70 to-card shadow-xs dark:from-muted/30">
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
