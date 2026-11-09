@@ -17,6 +17,12 @@ deny() {
   exit 0
 }
 
+# Вместо отказа — вопрос владельцу: Claude Code показывает диалог подтверждения с причиной.
+ask() {
+  jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "ask", permissionDecisionReason: $reason}}'
+  exit 0
+}
+
 # Защитные хуки работают по принципу fail closed: без jq ввод не разобрать — отказываем (exit 2 блокирует
 # действие, stderr видит Claude). Иначе ошибка 127 считалась бы «некритичной» и действие прошло бы.
 require_jq_or_block() {

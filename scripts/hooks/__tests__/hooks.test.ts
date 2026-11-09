@@ -30,12 +30,17 @@ const edit = (file: string, agent?: string) => ({
 });
 
 describe('protect-paths.sh', () => {
-  it.each(['src/styles/tokens.css', 'src/shared/ui/button.tsx', 'src/shared/api/ports/ports.ts', 'pnpm-lock.yaml', '.github/workflows/ci.yml', '.gitlab-ci.yml', 'wrangler.jsonc', '.claude/settings.json', 'docs/product/01-roles.md', 'tov-lexicon.json'])(
+  it.each(['src/styles/tokens.css', 'src/shared/ui/button.tsx', 'src/shared/api/ports/ports.ts', 'pnpm-lock.yaml', '.github/workflows/ci.yml', '.gitlab-ci.yml', 'wrangler.jsonc', 'docs/product/01-roles.md', 'tov-lexicon.json'])(
     'запрещает %s',
     (file) => {
       expect(decision(run('protect-paths.sh', edit(file)).stdout)).toBe('deny');
     },
   );
+
+  it('.claude/settings.json — вопрос владельцу, с TADUM_ALLOW_PROTECTED=1 — без вопроса', () => {
+    expect(decision(run('protect-paths.sh', edit('.claude/settings.json')).stdout)).toBe('ask');
+    expect(decision(run('protect-paths.sh', edit('.claude/settings.json'), { TADUM_ALLOW_PROTECTED: '1' }).stdout)).toBeUndefined();
+  });
 
   it('разрешает обычные файлы', () => {
     expect(decision(run('protect-paths.sh', edit('src/features/logout/ui/logout-button.tsx')).stdout)).toBeUndefined();

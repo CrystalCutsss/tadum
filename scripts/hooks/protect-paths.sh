@@ -26,9 +26,15 @@ case "$rel" in
     [[ "$agent" == design-system-owner || "$allow_protected" == 1 ]] && exit 0
     deny "Защищённый путь: $rel. Токены и shared/ui меняет только субагент design-system-owner — делегируйте ему."
     ;;
-  src/shared/api/ports/* | pnpm-lock.yaml | .github/* | .gitlab-ci.yml | wrangler.jsonc | .claude/settings.json)
+  .claude/settings.json)
+    # Решение Кирилла 2026-11-06: настройки Claude — не отказ, а вопрос в диалоге, чтобы одобрить правку
+    # (например, разрешения коннекторов) в текущей сессии без перезапуска с TADUM_ALLOW_PROTECTED=1.
     [[ "$allow_protected" == 1 ]] && exit 0
-    deny "Защищённый путь: $rel. Порты, lock-файл, CI, wrangler и настройки Claude меняются через ADR или с разрешения Кирилла (сессия TADUM_ALLOW_PROTECTED=1). lock-файл — только через pnpm."
+    ask "Защищённый путь: $rel (настройки Claude). Нужно подтверждение Кирилла: проверьте правку и разрешите или отклоните."
+    ;;
+  src/shared/api/ports/* | pnpm-lock.yaml | .github/* | .gitlab-ci.yml | wrangler.jsonc)
+    [[ "$allow_protected" == 1 ]] && exit 0
+    deny "Защищённый путь: $rel. Порты, lock-файл, CI и wrangler меняются через ADR или с разрешения Кирилла (сессия TADUM_ALLOW_PROTECTED=1). lock-файл — только через pnpm."
     ;;
 esac
 

@@ -28,7 +28,12 @@
       "Bash(gh run *)",
       "Bash(gh issue *)",
       "Bash(wrangler deploy --dry-run*)",
-      "Bash(wrangler whoami*)"
+      "Bash(wrangler whoami*)",
+      "mcp__Mobbin__search_screens",
+      "mcp__Mobbin__search_flows",
+      "mcp__Mobbin__search_sections",
+      "mcp__Mobbin__list_collections",
+      "mcp__Mobbin__get_collection_contents"
     ],
     "ask": [
       "Bash(pnpm run release:proto*)",

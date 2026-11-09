@@ -60,14 +60,16 @@
 | Путь | Кто может менять |
 | :--- | :--- |
 | `src/styles/tokens.css`, `src/shared/ui/**` | субагент `design-system-owner`; сессия с `TADUM_ALLOW_PROTECTED=1` |
-| `src/shared/api/ports/**`, `pnpm-lock.yaml` (только через pnpm), `.github/**`, `.gitlab-ci.yml`, `wrangler.jsonc`, `.claude/settings.json` | сессия с `TADUM_ALLOW_PROTECTED=1` (ставит Кирилл при запуске: `TADUM_ALLOW_PROTECTED=1 claude`) |
+| `src/shared/api/ports/**`, `pnpm-lock.yaml` (только через pnpm), `.github/**`, `.gitlab-ci.yml`, `wrangler.jsonc` | сессия с `TADUM_ALLOW_PROTECTED=1` (ставит Кирилл при запуске: `TADUM_ALLOW_PROTECTED=1 claude`) |
+| `.claude/settings.json` | Кирилл подтверждает правку в диалоге (хук отвечает «ask», решение 2026-11-06) — в той же сессии, без перезапуска; в сессии с `TADUM_ALLOW_PROTECTED=1` — без вопроса. Запись через Bash по-прежнему запрещена |
 | `docs/product/**`, `tov-lexicon.json` | только `/sync-product-docs` в сессии `TADUM_DOCS_SYNC=1` |
 
 Запрет путей сделан хуком, а не правилами `deny`: `deny` нельзя снять даже владельцу, а хук пропускает по переменной окружения.
 
 ## Разрешения (`permissions`)
 
-- **allow** — без вопроса: `pnpm install/run/exec/verify/test/lint/typecheck/build`, `pnpm dlx shadcn@*`, чтение и коммиты git, push в `chore/*`, `feat/*`, `fix/*`, `docs/*`, `gh pr view/create/checks`, `gh run`, `gh issue`, `wrangler deploy --dry-run`, `wrangler whoami`.
+- **allow** — без вопроса: `pnpm install/run/exec/verify/test/lint/typecheck/build`, `pnpm dlx shadcn@*`, чтение и коммиты git, push в `chore/*`, `feat/*`, `fix/*`, `docs/*`, `gh pr view/create/checks`, `gh run`, `gh issue`, `wrangler deploy --dry-run`, `wrangler whoami`; коннектор Mobbin — поиск и чтение коллекций (`mcp__Mobbin__search_screens`, `search_flows`, `search_sections`, `list_collections`, `get_collection_contents`; решение Кирилла 2026-11-06). Запись в коллекции Mobbin (`save_content`, `create_collection`) спрашивает.
+- **Режим сессии.** В облачной сессии режим выбирают в списке рядом с полем ввода: в «Auto» большинство вызовов идут без вопроса. Перезапуск рабочего процесса может вернуть режим, с которым сессия открыта (например, «Plan»), — тогда выберите «Auto» снова.
 - **ask** — всегда спросить: `pnpm run release:proto`, `pnpm run deploy:preview`, `pnpm run deploy:branch`, `gh pr merge`, `gh api`, `git -C … push`, push тегов `v*`.
 - **deny** — никогда: force-push, push в `main`, `gh repo delete`, `gh secret`, `wrangler secret`, `wrangler delete`.
 
