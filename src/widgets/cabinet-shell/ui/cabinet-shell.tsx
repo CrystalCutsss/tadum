@@ -18,6 +18,7 @@ import { formatNationalInput, nationalDigits, storage } from '@/shared/lib';
 import { SidebarInset, SidebarProvider } from '@/shared/ui';
 
 import { crumbsFor } from '../model/nav';
+import { AsideSlotContext } from './cabinet-aside';
 import { AppHeader } from './app-header';
 import { AppSidebar } from './app-sidebar';
 import { OfflineBanner, StorageBanner } from './banners';
@@ -47,6 +48,7 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
   const company = useQuery({ ...companyQuery, enabled: family === 'client' || families.includes('client') });
   const supplier = useQuery({ ...supplierQuery, enabled: family === 'supplier' || families.includes('supplier') });
   const [open, setOpen] = useState(() => storage.get(SIDEBAR_KEY) !== '0');
+  const [aside, setAside] = useState<HTMLElement | null>(null);
   // «Уже видел подсказку dual» читается один раз за монтирование оболочки.
   const [hintPending, setHintPending] = useState(() => !roleHint.seen());
 
@@ -78,8 +80,10 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
           <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
             <OfflineBanner />
             <StorageBanner />
-            {children}
+            <AsideSlotContext.Provider value={aside}>{children}</AsideSlotContext.Provider>
           </div>
+          {/* Третья колонка (≥1024 px): блоки экрана через CabinetAside. Пустая — не занимает места. */}
+          <div ref={setAside} className="hidden min-w-0 flex-col gap-4 lg:flex" />
         </div>
       </SidebarInset>
     </SidebarProvider>

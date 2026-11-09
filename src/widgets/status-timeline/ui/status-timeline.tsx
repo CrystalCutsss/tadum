@@ -26,17 +26,21 @@ const TONE: Record<TimelineStepState, string> = {
   closed: 'text-muted-foreground',
 };
 
-export function StatusTimeline({ steps }: { steps: Record<ClientTimelineStep, TimelineStepState> }) {
+/** `auto` — вертикально на телефоне, в строку с md; `vertical` — всегда столбиком (боковая панель экрана документов). */
+export type TimelineOrientation = 'auto' | 'vertical';
+
+export function StatusTimeline({ steps, orientation = 'auto' }: { steps: Record<ClientTimelineStep, TimelineStepState>; orientation?: TimelineOrientation }) {
+  const row = orientation === 'auto';
   const { t } = useTranslation();
   return (
-    <ol aria-label={t('timeline.title')} className="flex flex-col gap-3 md:flex-row md:gap-2">
+    <ol aria-label={t('timeline.title')} className={cn('flex flex-col gap-3', row && 'md:flex-row md:gap-2')}>
       {CLIENT_TIMELINE_STEPS.map((step) => {
         const state = steps[step];
         return (
           <li
             key={step}
             aria-current={state === 'current' ? 'step' : undefined}
-            className="flex flex-1 items-start gap-2 md:flex-col md:items-center md:text-center"
+            className={cn('flex flex-1 items-start gap-2', row && 'md:flex-col md:items-center md:text-center')}
           >
             <Icon icon={ICON[state]} className={cn('size-5 shrink-0', TONE[state])} />
             <div className="flex flex-col">

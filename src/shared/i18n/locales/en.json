@@ -65,6 +65,43 @@
       "pending": "Needed",
       "received": "Uploaded",
       "rejected": "Needs a new file"
+    },
+    "optional": "Optional",
+    "source": {
+      "zatca": "ZATCA portal",
+      "molim": "Molim app",
+      "simah": "SIMAH reports"
+    },
+    "rejected": {
+      "generic": "This file couldn't be accepted. Please upload a new one following the hint below"
+    },
+    "bs": {
+      "title": "Bank statement",
+      "hint": "Last 6 months, from your company's main account, as a PDF from the bank app"
+    },
+    "national_id": {
+      "title": "Owner's national ID",
+      "hint": "A clear photo or scan of both sides, valid today"
+    },
+    "vat": {
+      "title": "VAT certificate",
+      "hint": "The registration certificate from the ZATCA portal, as a PDF"
+    },
+    "vat_sales": {
+      "title": "VAT returns",
+      "hint": "Your latest filed returns from the ZATCA portal"
+    },
+    "ch_owner": {
+      "title": "Owner's credit report (Molim)",
+      "hint": "The owner's report from the Molim app, as a PDF"
+    },
+    "ch_company": {
+      "title": "Company credit report (SIMAH)",
+      "hint": "Your company's report from SIMAH, as a PDF"
+    },
+    "aoa": {
+      "title": "Articles of association",
+      "hint": "Your company's current articles of association"
     }
   },
   "help": {
@@ -226,5 +263,123 @@
   "units": {
     "kb": "KB",
     "mb": "MB"
+  },
+  "reject": {
+    "bs": {
+      "period": "The statement should cover the last 6 months. Please upload a statement for the full period"
+    },
+    "iban": {
+      "unreadable": "We couldn't read this file. Please upload a clearer copy"
+    }
+  },
+  "prevalidation": {
+    "failed": {
+      "title": "This file doesn't match what we need"
+    },
+    "warning": {
+      "generic": "Please double-check this file"
+    },
+    "bs": {
+      "period_too_short": "The statement should cover the last 6 months",
+      "owner_mismatch": "The account holder's name doesn't match your company"
+    }
+  },
+  "upload": {
+    "error": {
+      "too_large": "The file is larger than {max_mb} MB. Choose a smaller file",
+      "unsupported_type": "Use a PDF, JPG or PNG file",
+      "same_file": "This is the same file as before. Please upload a new one",
+      "locked": "Your documents are under review and can't be changed right now",
+      "offline": "You're offline. Try again when you're back online",
+      "network": "Upload interrupted. Check your connection and try again",
+      "server": "We couldn't save the file. Please try again"
+    },
+    "state": {
+      "queued": "Waiting…",
+      "uploading": "Uploading… {percent}%",
+      "validating": "Checking the file…",
+      "cancelled": "Upload cancelled",
+      "progress_label": "Uploading {name}"
+    },
+    "cancel": "Cancel uploading {name}",
+    "dismiss": "Hide {name}",
+    "dropzone": {
+      "title": "Drop files here or choose how to add them",
+      "formats": "PDF, JPG or PNG, up to {max_mb} MB",
+      "choose": "Add a file"
+    }
+  },
+  "source_picker": {
+    "camera": "Camera",
+    "gallery": "Photos",
+    "files": "Files",
+    "formats": "PDF, JPG or PNG, up to {max_mb} MB"
+  },
+  "documents": {
+    "title": "Your documents",
+    "subtitle": "Upload each document. When everything is uploaded, send them for review",
+    "subtitle_locked": "Your documents are with our team",
+    "progress": "{uploaded} of {total} uploaded",
+    "sent_one": "{count} document sent",
+    "sent_other": "{count} documents sent",
+    "list_label": "Documents",
+    "more": {
+      "title_one": "Almost there — {count} more document",
+      "title_other": "Almost there — {count} more documents",
+      "body": "Everything you sent earlier is safe with us. Add the documents below and send them for review"
+    },
+    "submit": {
+      "cta": "Send for review",
+      "done": "Thank you. Your documents are with our team",
+      "hint_rejected": "Upload new files where needed, then send for review",
+      "hint_remaining_one": "{count} document left to upload",
+      "hint_remaining_other": "{count} documents left to upload",
+      "hint_locks": "After sending, files can't be changed until the review is done",
+      "error_incomplete": "Some documents are still missing. Upload them and try again",
+      "error_locked": "Your documents have already been sent",
+      "error_generic": "We couldn't send your documents. Please try again",
+      "sending": "Sending…"
+    },
+    "file": {
+      "actions": "Actions for {name}",
+      "deleted": "File deleted",
+      "delete_failed": "We couldn't delete the file. Please try again",
+      "download_failed": "We couldn't open the file. Please try again",
+      "download": "Download",
+      "replace": "Replace",
+      "delete": "Delete",
+      "delete_title": "Delete this file?",
+      "uploaded": "Uploaded · {size}",
+      "previous": "Previous file, not accepted · {size}"
+    },
+    "row": {
+      "upload": "Upload",
+      "reupload": "Upload a new file",
+      "collapse": "Hide details for {title}",
+      "expand": "Show details for {title}",
+      "reason_title": "Why this file didn't work",
+      "files": "Files for {title}"
+    },
+    "resources": {
+      "video": "How to get it (video)",
+      "video_ar": "How to get it (video in Arabic)",
+      "example": "See an example",
+      "video_title": "How to get this document",
+      "example_title": "An example of this document",
+      "example_fallback": "The preview isn't available in this browser. Open the example below",
+      "example_open": "Open the example"
+    },
+    "review": {
+      "title": "Your application",
+      "nothing_needed": "Our team is reviewing your documents. Nothing is needed from you right now",
+      "eta_one": "Usually takes up to {count} hour",
+      "eta_other": "Usually takes up to {count} hours",
+      "may_ask_more": "We may ask for a few more documents. If so, we will let you know here",
+      "step_of": "Step {n} of {total}"
+    },
+    "locked": {
+      "title": "Files can't be changed right now",
+      "body": "You can download your files. Questions? Message us"
+    }
   }
 }

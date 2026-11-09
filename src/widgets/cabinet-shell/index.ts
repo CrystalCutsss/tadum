@@ -1,5 +1,6 @@
 // Публичный API виджета cabinet-shell.
 export { CabinetShell, type CabinetShellProps } from './ui/cabinet-shell';
+export { CabinetAside } from './ui/cabinet-aside';
 export { AppHeader, type AppHeaderProps } from './ui/app-header';
 export { AppSidebar, type AppSidebarProps } from './ui/app-sidebar';
 export { NavAccount, type NavAccountProps } from './ui/nav-account';

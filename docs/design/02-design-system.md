@@ -131,6 +131,23 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 Истории: `shared/ui/Sidebar` (`Expanded`, `Collapsed`, `ControlledOpen`, `Mobile`), `shared/ui/Breadcrumb` (`Default`, `WithEllipsis`), `Button/Whatsapp`, `Wordmark/Dot`, `Icon/ThemeToggle` — в матрице AR/EN × light/dark с axe; play-тесты проверяют сторону сайдбара и Sheet по направлению, отсутствие cookie, `onOpenChange`, зеркалирование шеврона и доступный текст словесного знака.
 
+### Экран «Ваши документы» (2026-11-09)
+
+`pnpm dlx shadcn@4.23.0 add item collapsible empty field drawer spinner alert-dialog label` — новые `item`, `collapsible`, `empty`, `field`, `label` (нужен `field`), `drawer` (зависимость `vaul` 1.1.2), `spinner`, `alert-dialog`. Перезапись `button.tsx` и `separator.tsx` CLI предложил и получил отказ. Классы пресета новых файлов внесены в список `SHADCN_GENERATED` в `eslint.config.js` (как у остальных файлов CLI). Новых токенов нет. Адаптация:
+
+| Компонент | Что |
+| :--- | :--- |
+| `cva` в `item`, `empty`, `field` | `/* @__PURE__ */` |
+| `Drawer` | `vaul-drawer-direction` — физическая сторона: CLI превратил `left-0`/`right-0` в `start-0`/`end-0` (в RTL левый Drawer встал бы справа) — возвращены физические с `eslint-disable` и причиной. `DrawerContent dir` — из `Direction.useDirection()` (портал вне дерева). Ручка `w-[100px]` → `w-25` (шкала), `aria-hidden` |
+| `Spinner` | `aria-label` обязателен (без хардкода «Loading»); `role="status"` — на обёртке `span`, иконка — через `Icon` (декоративная) |
+| `Item`, `Empty`, `Field`, `Label`, `Collapsible`, `AlertDialog` | Без изменений: строк и физических классов нет |
+
+**ResponsiveDialog** (`responsive-dialog.tsx`, проектный, по образцу shadcn `drawer-dialog`): меньше `md` (`useIsMobile`) — `Drawer` снизу, иначе `Dialog`. Части: `ResponsiveDialog` (`open`, `defaultOpen`, `onOpenChange`), `ResponsiveDialogTrigger`, `ResponsiveDialogContent` (`closeLabel` обязателен, `showCloseButton`, `dir`), `ResponsiveDialogHeader`, `ResponsiveDialogTitle`, `ResponsiveDialogDescription`, `ResponsiveDialogFooter`, `ResponsiveDialogClose`. Режим передаётся частям через контекст; `dir` контента — из Radix Direction; у контента `data-mode="drawer" | "dialog"`.
+
+**Progress** — исправлен RTL: заливка шла слева и в RTL. Сдвиг индикатора теперь по `Direction.useDirection()` (`translateX(+N%)` в RTL), заливка растёт от начала строки; `value` передаётся в Root (`aria-valuenow`). Play-тест `shared/ui/Progress/Partial`: при 30 % в AR заливка у правого края, в EN — у левого.
+
+Истории: `Item`, `Collapsible`, `Empty`, `Field`, `Label`, `Spinner`, `Progress` — в матрице AR/EN × light/dark; `Drawer`, `AlertDialog`, `ResponsiveDialog` — порталы, как `Dialog`/`Sheet`, одна копия по глобалам тулбара, play проверяет `dir` контента.
+
 ## 5. Шрифты
 
 Латиница — Geist из пресета (совпадает с D-004), арабский — всегда IBM Plex Sans Arabic. Фактические имена семейств пакетов: `"Geist Variable"` и `"IBM Plex Sans Arabic"` (A-016). `:lang(ar)` — интерлиньяж тела 1.625, заголовков 1.3. Словесный знак `Wordmark` — всегда Geist латиницей: по умолчанию 600 «Tadum» (D-052), в сайдбаре — `variant="dot"`, 700 «tadum.» (§4a). Тест истории `shared/ui/Typography/Fonts` проверяет `document.fonts.check` для обоих семейств и что арабский текст не падает в системный шрифт.
