@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { personaFromParam } from '../src/shared/api/demo-persona';
 import { PERSONA_IDS } from '../src/shared/api/fixtures/types';
 
-import { PERSONA_ITEMS, PROTOTYPE_META, frozenManifest, pendingVersion, releaseVersions, touchedOutsideTadum, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
+import { PERSONA_ITEMS, PROTOTYPE_META, PROTO_INSTALL_ARGS, frozenManifest, pendingVersion, releaseVersions, touchedOutsideTadum, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
 
 describe('injectProtoTags', () => {
   const html = '<!doctype html><html lang="ar" dir="rtl"><head><title>Tadum</title></head><body></body></html>';
@@ -98,6 +98,10 @@ describe('публикация из CI (ADR-004)', () => {
       'prototypes/credit-activation/prototype.json',
       'packages/proto-shell/src/menu.ts',
     ]);
+  });
+  it('pnpm install в Proto обновляет lock-файл и в CI (там по умолчанию --frozen-lockfile)', () => {
+    // Регрессия v6 (2026-11-09): ERR_PNPM_OUTDATED_LOCKFILE на новом пакете версии.
+    expect(PROTO_INSTALL_ARGS).toEqual(['install', '--no-frozen-lockfile']);
   });
   it('клон Proto в рабочей копии (release.yml, path: proto) не делает дерево Tadum грязным', () => {
     // Регрессия v6 (2026-11-09): без /proto/ в .gitignore release:proto в CI падал на «незакоммиченных изменениях».

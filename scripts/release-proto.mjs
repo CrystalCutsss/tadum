@@ -183,6 +183,12 @@ function switchProtoBranch(proto, branch) {
   run('git', ['-C', proto, 'merge', '--ff-only', 'origin/main']);
 }
 
+/**
+ * Установка в Proto после добавления пакета версии: lock-файл обязан обновиться (новая запись
+ * @proto/build-kit для vN). В CI pnpm по умолчанию ставит --frozen-lockfile и падает (выпуск v6, 2026-11-09).
+ */
+export const PROTO_INSTALL_ARGS = ['install', '--no-frozen-lockfile'];
+
 /** Файлы коммита публикации вне prototypes/tadum/** и pnpm-lock.yaml — их быть не должно (ADR-004). */
 export function touchedOutsideTadum(files) {
   return files.filter((f) => f && !f.startsWith(`prototypes/${SLUG}/`) && f !== 'pnpm-lock.yaml');
@@ -246,7 +252,7 @@ function prepare(version, proto, branch, ci = false, allowProtoFiles = false) {
   writeFileSync(join(versionDir, 'package.json'), json(versionPackage(version)));
 
   console.log('\n→ Proto: pnpm install, форматирование, проверка реестра и линт, сборка витрины');
-  run('pnpm', ['install'], { cwd: proto });
+  run('pnpm', PROTO_INSTALL_ARGS, { cwd: proto });
   // Метаданные — в стиле Proto (его Prettier проверяет CI); .frozen/ Prettier Proto игнорирует.
   const meta = [`prototypes/${SLUG}/prototype.json`, `prototypes/${SLUG}/versions/${version}/version.json`, `prototypes/${SLUG}/versions/${version}/package.json`];
   run('pnpm', ['exec', 'prettier', '--write', ...meta], { cwd: proto });
