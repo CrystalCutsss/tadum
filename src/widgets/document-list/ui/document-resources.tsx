@@ -58,7 +58,7 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
   };
 
   // Кнопки в нижней панели: фон панели, наведение — белый (решение Кирилла 2026-11-10).
-  // Размер sm дизайн-системы (h-8, px-3; с иконкой в начале — ps-2) без увеличения до 44 px (решение 2026-11-10).
+  // Размер sm дизайн-системы (h-8, px-3; с иконкой в начале — ps-2) без увеличения до 44 px, иконки 14 px (решение 2026-11-10).
   const panelButton = 'shrink-0 hover:bg-card dark:hover:bg-card';
   // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10).
   return (
@@ -74,20 +74,20 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
             setView('video');
           }}
         >
-          <Icon icon={RiPlayCircleLine} data-icon="inline-start" />
+          <Icon icon={RiPlayCircleLine} data-icon="inline-start" className="size-3.5" />
           {t('documents.resources.video')}
         </Button>
       ) : null}
       {image ? (
         <Button type="button" variant="ghost" size="sm" className={panelButton} onClick={openExample}>
-          <Icon icon={RiFileLine} data-icon="inline-start" />
+          <Icon icon={RiFileLine} data-icon="inline-start" className="size-3.5" />
           {t('documents.resources.example')}
         </Button>
       ) : examplePdf ? (
         // Пример только в PDF (без картинки) — открываем файл, свой просмотрщик не делаем.
         <Button asChild variant="ghost" size="sm" className={panelButton}>
           <a href={examplePdf} target="_blank" rel="noopener noreferrer" onClick={() => track('document_example_opened', { owner: 'client', portal_key: doc.portal_key })}>
-            <Icon icon={RiFileLine} data-icon="inline-start" />
+            <Icon icon={RiFileLine} data-icon="inline-start" className="size-3.5" />
             {t('documents.resources.example')}
           </a>
         </Button>
@@ -98,7 +98,7 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
           {links.map((link) => (
             <Button key={link.url} asChild variant="ghost" size="sm" className={panelButton}>
               <a href={link.url} target="_blank" rel="noopener noreferrer">
-                <Icon icon={RiExternalLinkLine} data-icon="inline-start" />
+                <Icon icon={RiExternalLinkLine} data-icon="inline-start" className="size-3.5" />
                 {t(link.label_key as ParseKeys)}
               </a>
             </Button>

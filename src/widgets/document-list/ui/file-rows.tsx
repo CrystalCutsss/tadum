@@ -69,12 +69,12 @@ function taskStatus(task: FileTask, t: TFunction): string {
 
 /**
  * Ошибка в нижней панели карточки: под загруженным файлом, в том же виде, что и файл — иконка в квадрате
- * по центру строки (решение Кирилла 2026-11-10). Тона — «нужно внимание» (status-rejected), не destructive.
+ * по центру строки; фон белый, квадрат иконки — оранжевый (решение Кирилла 2026-11-10). Тона — «нужно внимание» (status-rejected), не destructive.
  */
 export function ErrorNotice({ id, title, text, action }: { id?: string; title?: ReactNode; text: ReactNode; action?: ReactNode }) {
   return (
-    <Item id={id} size="sm" className="flex-nowrap items-center border-0 bg-status-rejected-muted text-status-rejected">
-      <ItemMedia variant="icon" className={cn(FILE_MEDIA, 'bg-card')}>
+    <Item id={id} size="sm" className="flex-nowrap items-center border-0 bg-card text-status-rejected">
+      <ItemMedia variant="icon" className={cn(FILE_MEDIA, 'bg-status-rejected-muted')}>
         <Icon icon={RiErrorWarningLine} />
       </ItemMedia>
       <ItemContent className="min-w-0">
