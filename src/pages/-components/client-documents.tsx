@@ -40,8 +40,9 @@ function ReviewNotes({ app }: { app: Application }) {
 function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   const { t } = useTranslation();
   return (
-    // Компактно — в половину колонки, без обводки (2026-11-09); фон как у нижней панели карточки (2026-11-10).
-    <Card className={cn('sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl bg-secondary text-secondary-foreground ring-0', PANEL_MUTED)}>
+    // Компактно — в половину колонки, без обводки (2026-11-09); фон как у нижней панели карточки,
+    // отступы сверху и снизу 20 px вместо 24 px (2026-11-10).
+    <Card className={cn('sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl py-5 bg-secondary text-secondary-foreground ring-0', PANEL_MUTED)}>
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
