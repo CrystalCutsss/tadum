@@ -18,7 +18,8 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
     <main className="flex min-h-svh flex-col items-center gap-6 bg-background p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-1 flex-col justify-center gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <Wordmark className="text-2xl" />
+          {/* Логотип кабинета (с точкой) вдвое крупнее; отступ до заголовка больше (Кирилл 2026-11-10). */}
+          <Wordmark variant="dot" className="mb-6 text-5xl" />
           {title ? <h1 className="text-xl font-bold">{title}</h1> : null}
           {subtitle ? <FieldDescription className="text-center">{subtitle}</FieldDescription> : null}
         </div>

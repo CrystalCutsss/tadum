@@ -70,7 +70,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
             {t('auth.phone.label')}
           </FieldLabel>
           <div dir="ltr" className="flex items-center gap-2">
-            <Ltr className="text-muted-foreground">{KSA_PREFIX}</Ltr>
+            <Ltr className="text-base text-muted-foreground">{KSA_PREFIX}</Ltr>
             <Input
               id={ids.input}
               dir="ltr"
@@ -78,6 +78,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
               inputMode="tel"
               autoComplete="tel-national"
               placeholder={t('auth.phone.placeholder')}
+              className="h-12 rounded-lg text-base md:text-base"
               value={formatNationalInput(digits)}
               onChange={(e) => {
                 setDigits(nationalDigits(e.target.value));
@@ -93,11 +94,11 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
         </Field>
         <Field>
           {retryable ? (
-            <Button type="submit" variant="outline" className="w-full" disabled={!phone || request.isPending}>
+            <Button type="submit" variant="outline" size="lg" className="h-12 w-full text-base" disabled={!phone || request.isPending}>
               {t('common.retry')}
             </Button>
           ) : (
-            <Button type="submit" className="w-full" disabled={blocked} aria-busy={request.isPending}>
+            <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={blocked} aria-busy={request.isPending}>
               {request.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
               {t('auth.phone.submit')}
             </Button>

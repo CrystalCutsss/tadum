@@ -35,7 +35,7 @@
       "placeholder": "5X XXX XXXX",
       "submit": "Get code",
       "subtitle": "Enter the phone number you used in your application",
-      "title": "Sign in to your Tadum account",
+      "title": "Welcome to Tadum",
       "too_many_requests_one": "Too many attempts. Try again in {minutes} min",
       "too_many_requests_other": "Too many attempts. Try again in {minutes} min"
     }

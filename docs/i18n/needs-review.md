@@ -41,3 +41,4 @@
 | `support.cta.subtitle` | ar, en | Message us / راسلنا | подзаголовок блока помощи: вторая строка, мельче, regular, серый |
 | `documents.*`, `document.*.title/.hint`, `upload.*`, `source_picker.*`, `prevalidation.*`, `reject.*`, `timeline.step_of` | ar, en | тексты экрана «Ваши документы»: заголовки, подсказки документов, загрузка и ошибки, выбор источника, панель шагов, тосты отправки | в сценариях SC-02…SC-04 даны не все строки; черновики по TOV и лексикону, A-058 |
 | `common.loading` | ar, en | Loading… / جارٍ التحميل… | подпись спиннера для скринридера: кнопка «Получить код», проверка кода, «Отправить новый код» (SC-01 §3 loading); Кирилл 2026-11-10 |
+| `auth.phone.title` | ar, en | Welcome to Tadum / مرحبًا بك في تدوم | заголовок экрана входа; Кирилл 2026-11-10 (было «Sign in to your Tadum account»), A-059 |

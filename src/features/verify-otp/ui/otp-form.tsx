@@ -136,7 +136,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
           pattern="[0-9]*"
           autoComplete="one-time-code"
           maxLength={OTP.length}
-          className="h-12 text-center text-lg tracking-widest tabular-nums md:text-lg"
+          className="h-12 rounded-lg text-center text-lg tracking-widest tabular-nums md:text-lg"
           value={value}
           onChange={(e) => {
             const next = codeDigits(e.target.value);
@@ -166,12 +166,12 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
 
       <Field>
         {needsConfirm ? (
-          <Button type="button" className="w-full" onClick={() => submit(value)}>
+          <Button type="button" size="lg" className="h-12 w-full text-base" onClick={() => submit(value)}>
             {t('auth.otp.confirm')}
           </Button>
         ) : null}
         {retryable && submitted ? (
-          <Button type="button" variant="outline" className="w-full" onClick={() => submit(submitted)}>
+          <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base" onClick={() => submit(submitted)}>
             {t('common.retry')}
           </Button>
         ) : null}
