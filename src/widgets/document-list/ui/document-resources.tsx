@@ -1,4 +1,4 @@
-// Помощь по документу в раскрытой строке (решения Кирилла 2026-11-09): видео (только на арабском, D-026),
+// Помощь по документу в нижней панели карточки (решения Кирилла 2026-11-09): видео (только на арабском, D-026),
 // ссылки на сервисы, где получить документ, и пример — картинкой в модальном окне с крестиком (без просмотрщика PDF).
 // Нет ассетов — блок не показывается (A10).
 import { RiFileLine } from '@remixicon/react';
@@ -57,45 +57,54 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
     setView('example');
   };
 
+  // Кнопки в нижней панели: фон панели, наведение — белый (решение Кирилла 2026-11-10).
+  // Размер sm дизайн-системы (h-8, px-3; с иконкой в начале — ps-2) без увеличения до 44 px, иконки 14 px (решение 2026-11-10).
+  const panelButton = 'shrink-0 hover:bg-card dark:hover:bg-card';
+  // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10).
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="-mx-3 flex flex-nowrap items-center gap-2 overflow-x-auto px-3 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
       {video ? (
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
-          className="min-h-11"
+          className={panelButton}
           onClick={() => {
             track('document_video_opened', { owner: 'client', portal_key: doc.portal_key, lang_video: 'ar' });
             setView('video');
           }}
         >
-          <Icon icon={RiPlayCircleLine} />
+          <Icon icon={RiPlayCircleLine} data-icon="inline-start" className="size-3.5" />
           {t('documents.resources.video')}
         </Button>
       ) : null}
       {image ? (
-        <Button type="button" variant="secondary" size="sm" className="min-h-11" onClick={openExample}>
-          <Icon icon={RiFileLine} />
+        <Button type="button" variant="ghost" size="sm" className={panelButton} onClick={openExample}>
+          <Icon icon={RiFileLine} data-icon="inline-start" className="size-3.5" />
           {t('documents.resources.example')}
         </Button>
       ) : examplePdf ? (
         // Пример только в PDF (без картинки) — открываем файл, свой просмотрщик не делаем.
-        <Button asChild variant="secondary" size="sm" className="min-h-11">
+        <Button asChild variant="ghost" size="sm" className={panelButton}>
           <a href={examplePdf} target="_blank" rel="noopener noreferrer" onClick={() => track('document_example_opened', { owner: 'client', portal_key: doc.portal_key })}>
-            <Icon icon={RiFileLine} />
+            <Icon icon={RiFileLine} data-icon="inline-start" className="size-3.5" />
             {t('documents.resources.example')}
           </a>
         </Button>
       ) : null}
-      {links.map((link) => (
-        <Button key={link.url} asChild variant="secondary" size="sm" className="min-h-11">
-          <a href={link.url} target="_blank" rel="noopener noreferrer">
-            <Icon icon={RiExternalLinkLine} />
-            {t(link.label_key as ParseKeys)}
-          </a>
-        </Button>
-      ))}
+      {links.length > 0 ? (
+        // Ссылки на внешние сервисы — у правого края панели (в RTL — у левого).
+        <div className="ms-auto flex shrink-0 flex-nowrap justify-end gap-2 md:flex-wrap">
+          {links.map((link) => (
+            <Button key={link.url} asChild variant="ghost" size="sm" className={panelButton}>
+              <a href={link.url} target="_blank" rel="noopener noreferrer">
+                <Icon icon={RiExternalLinkLine} data-icon="inline-start" className="size-3.5" />
+                {t(link.label_key as ParseKeys)}
+              </a>
+            </Button>
+          ))}
+        </div>
+      ) : null}
 
       <ResponsiveDialog open={view !== null} onOpenChange={(open) => !open && setView(null)}>
         {/* Пример — окно почти на всю высоту, чтобы документ помещался (Кирилл 2026-11-09); видео — обычный размер. */}

@@ -1,5 +1,6 @@
 import {
   RiCheckboxCircleLine,
+  RiCheckLine,
   RiCloseCircleLine,
   RiErrorWarningLine,
   RiSendPlane2Line,
@@ -10,7 +11,6 @@ import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 import {
-  RiFileUploadLine,
   RiFolderOpenLine,
   RiHourglassLine,
   RiShoppingBag3Line,
@@ -39,7 +39,7 @@ type Meta = { tone: Tone; icon: RemixiconComponentType; label: () => string };
 // Ключи i18n — явными строками, чтобы их видел i18next-cli.
 const documentMeta = (t: TFunction): Record<DocumentStatus, Meta> => ({
   pending: { tone: 'pending', icon: RiUploadCloud2Line, label: () => t('document.status.pending') },
-  received: { tone: 'received', icon: RiFileUploadLine, label: () => t('document.status.received') },
+  received: { tone: 'received', icon: RiCheckLine, label: () => t('document.status.received') },
   rejected: { tone: 'rejected', icon: RiErrorWarningLine, label: () => t('document.status.rejected') },
   approved: { tone: 'approved', icon: RiCheckboxCircleLine, label: () => t('document.status.approved') },
 });

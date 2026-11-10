@@ -5,7 +5,7 @@ import { RiInformationLine } from '@remixicon/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { documentsProgress, sortDocuments } from '@/entities/document';
+import { sortDocuments } from '@/entities/document';
 import { SubmitBar } from '@/features/submit-documents';
 import { track } from '@/shared/analytics';
 import type { DocumentSet } from '@/shared/api';
@@ -39,8 +39,6 @@ export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
   const onUploadingChange = useCallback((key: string, busy: boolean) => setUploading((all) => (all[key] === busy ? all : { ...all, [key]: busy })), []);
   const docs = sortDocuments(set.documents);
   const moreDocs = set.round > 1 && editable;
-  // Новый клиент (ничего не загружено): первая карточка раскрыта (решение 2026-11-09).
-  const firstOpen = editable && documentsProgress(set).uploaded === 0 ? docs[0]?.portal_key : undefined;
 
   useEffect(() => {
     if (moreDocs) track('more_docs_banner_viewed', { owner: 'client', round: set.round, requested_count: set.documents.length, repeated_count: 0 });
@@ -77,7 +75,6 @@ export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
             key={doc.id}
             doc={doc}
             editable={editable}
-            defaultOpen={doc.portal_key === focusKey || doc.portal_key === firstOpen || (editable && doc.status === 'rejected')}
             // Подсветка гаснет сама, когда документ загружен.
             highlighted={highlight.includes(doc.portal_key) && (doc.status === 'pending' || doc.status === 'rejected')}
             onUploadingChange={onUploadingChange}

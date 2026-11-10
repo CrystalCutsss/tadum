@@ -125,8 +125,7 @@
       "replace": "استبدال",
       "replace_body": "سيُستبدل {name} بالملف الجديد",
       "replace_confirm": "استبدال",
-      "replace_title": "هل تريد استبدال الملف؟",
-      "uploaded": "تم الرفع · {size}"
+      "replace_title": "هل تريد استبدال الملف؟"
     },
     "list_label": "المستندات",
     "locked": {
