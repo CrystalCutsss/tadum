@@ -1,7 +1,7 @@
 // Файлы документа: загруженные (с предупреждением предвалидации) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
 import { RiCheckLine, RiCloseLine, RiErrorWarningLine } from '@remixicon/react';
-import type { ParseKeys } from 'i18next';
+import type { ParseKeys, TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 import { FileActions } from '@/features/manage-document-file';
@@ -22,9 +22,9 @@ export function UploadedFileRow({
   onReplace: () => void;
 }) {
   const { t } = useTranslation();
-  const warning = file.prevalidation.state === 'warning' ? file.prevalidation.rule_keys[0] : undefined;
+  // Предупреждение предвалидации показывается в основной карточке документа (решение 2026-11-10).
   return (
-    <Item size="sm" variant="muted" className="flex-nowrap">
+    <Item size="sm" className="flex-nowrap border-0 bg-card">
       <ItemMedia variant="icon">
         <Icon icon={RiFileTextLine} />
       </ItemMedia>
@@ -41,12 +41,6 @@ export function UploadedFileRow({
             {t('documents.file.uploaded', { size: formatFileSize(file.size_bytes, t) })}
           </ItemDescription>
         )}
-        {warning ? (
-          <p className="flex items-start gap-1 text-sm text-status-rejected">
-            <Icon icon={RiErrorWarningLine} className="mt-0.5 size-4 shrink-0" />
-            {t(warning as ParseKeys)}
-          </p>
-        ) : null}
       </ItemContent>
       <ItemActions>
         <FileActions documentId={doc.id} portalKey={doc.portal_key} status={doc.status} file={file} editable={editable} onReplace={onReplace} />
@@ -55,23 +49,44 @@ export function UploadedFileRow({
   );
 }
 
+function taskStatus(task: FileTask, t: TFunction): string {
+  return task.state === 'queued'
+    ? t('upload.state.queued')
+    : task.state === 'uploading'
+      ? t('upload.state.uploading', { percent: formatNumber(task.percent) })
+      : task.state === 'validating'
+        ? t('upload.state.validating')
+        : task.state === 'cancelled'
+          ? t('upload.state.cancelled')
+          : task.messageKey
+            ? String(t(task.messageKey as ParseKeys, task.messageValues ?? {}))
+            : t('upload.error.server');
+}
+
+/** Ошибка или отмена загрузки — сообщение в основной карточке документа (решение 2026-11-10). */
+export function UploadTaskMessage({ task, onDismiss }: { task: FileTask; onDismiss: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-start gap-1 text-sm text-status-rejected" role="status">
+      <Icon icon={RiErrorWarningLine} className="mt-0.5 size-4 shrink-0" />
+      <p className="min-w-0 flex-1">
+        <bdi className="font-medium">{task.name}</bdi>
+        {': '}
+        {taskStatus(task, t)}
+      </p>
+      <Button type="button" variant="ghost" size="icon" className="-my-3 min-h-11 min-w-11 shrink-0" aria-label={t('upload.dismiss', { name: task.name })} onClick={onDismiss}>
+        <Icon icon={RiCloseLine} />
+      </Button>
+    </div>
+  );
+}
+
 export function UploadTaskRow({ task, onCancel, onDismiss }: { task: FileTask; onCancel: () => void; onDismiss: () => void }) {
   const { t } = useTranslation();
   const active = task.state === 'queued' || task.state === 'uploading' || task.state === 'validating';
-  const status =
-    task.state === 'queued'
-      ? t('upload.state.queued')
-      : task.state === 'uploading'
-        ? t('upload.state.uploading', { percent: formatNumber(task.percent) })
-        : task.state === 'validating'
-          ? t('upload.state.validating')
-          : task.state === 'cancelled'
-            ? t('upload.state.cancelled')
-            : task.messageKey
-              ? t(task.messageKey as ParseKeys, task.messageValues ?? {})
-              : t('upload.error.server');
+  const status = taskStatus(task, t);
   return (
-    <Item size="sm" variant="outline" className="flex-nowrap" aria-live="polite">
+    <Item size="sm" className="flex-nowrap border-0 bg-card" aria-live="polite">
       <ItemMedia variant="icon">
         {task.state === 'validating' ? <Spinner aria-label={t('upload.state.validating')} /> : <Icon icon={task.state === 'failed' ? RiErrorWarningLine : RiFileTextLine} />}
       </ItemMedia>
