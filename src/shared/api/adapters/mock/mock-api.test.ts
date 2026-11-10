@@ -40,9 +40,12 @@ async function clientSet(api: Api): Promise<DocumentSet> {
   return api.documents.getSet({ kind: 'application', id: app.id });
 }
 
-/** Загрузить файлы во все pending-документы комплекта. */
+/** Загрузить файлы во все pending-документы комплекта и заменить файлы с замечаниями. */
 async function fillAll(api: Api, set: DocumentSet) {
-  for (const d of set.documents) if (d.status === 'pending') await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
+  for (const d of set.documents) {
+    if (d.status === 'pending') await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
+    for (const f of d.files) if (f.issue) await api.documents.replace(d.id, f.id, pdf(`${d.portal_key}-${f.id}.pdf`));
+  }
 }
 
 beforeEach(() => {
@@ -193,7 +196,10 @@ describe('хранилище (D-072)', () => {
   it('повреждённое состояние — сброс к фикстуре', async () => {
     as('client_new');
     storage.set('mock:client_new', '{not json');
-    expect((await clientSet(testApi())).documents.every((d) => d.status === 'pending')).toBe(true);
+    // Фикстура: всё «Нужен», кроме удостоверения с ошибкой в файле (решение Кирилла 2026-11-10).
+    const docs = (await clientSet(testApi())).documents;
+    expect(docs.filter((d) => d.status !== 'pending').map((d) => d.portal_key)).toEqual(['national_id']);
+    expect(docs.every((d) => d.portal_key === 'national_id' || d.files.length === 0)).toBe(true);
   });
 });
 

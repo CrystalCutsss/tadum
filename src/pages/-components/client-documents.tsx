@@ -98,6 +98,11 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
     );
   }
 
+  // Номер CR — только при первом сборе документов (решение Кирилла 2026-11-10): после проверки (дозапрос, «нужен новый
+  // файл» — комплект уже возвращался) и во время проверки блока нет; номер к этому времени уже сохранён.
+  const reviewed = set.data.round > 1 || set.data.documents.some((d) => d.rejected_file_hashes.length > 0);
+  const crStage = editable && !reviewed;
+
   const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: null });
 
   return (
@@ -123,8 +128,8 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
         set={set.data}
         editable={editable}
         focusKey={focusKey}
-        header={<CompanyCrCard company={company.data} editable={editable} attention={crAttention} />}
-        crReady={isValidCr(company.data?.cr_number)}
+        header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
+        crReady={!crStage || isValidCr(company.data?.cr_number)}
         onCrMissing={() => setCrAttention((n) => n + 1)}
       />
 

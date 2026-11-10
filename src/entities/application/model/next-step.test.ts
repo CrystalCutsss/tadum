@@ -79,3 +79,15 @@ describe('уточнения сценариев', () => {
     });
   });
 });
+
+describe('дозапрос к файлу — это дозапрос, а не «нужен новый файл» (решение Кирилла 2026-11-10)', () => {
+  const requested = doc('rejected', { files: [{ ...doc('received').files[0]!, issue: { kind: 'request' } }] });
+  it('раунд 2: документ только с дозапросом к файлу и ещё не загруженный — more_docs_requested', () => {
+    const step = clientNextStep({ ...base, client_status: 'docs_required', document_set: docSet([doc('pending'), { ...requested, portal_key: 'vat' }], { round: 2 }) });
+    expect(step.text_key).toBe('next_step.more_docs_requested');
+  });
+  it('ошибка к файлу — reupload_rejected', () => {
+    const failed = doc('rejected', { files: [{ ...doc('received').files[0]!, issue: { kind: 'error' } }] });
+    expect(clientNextStep({ ...base, client_status: 'docs_required', document_set: docSet([failed]) }).text_key).toBe('next_step.reupload_rejected');
+  });
+});

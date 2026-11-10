@@ -20,7 +20,7 @@ export const clientRejected: PersonaFixture = (now) => {
         odoo_stage: 'Document collection',
         client_status: 'docs_required',
         permission_state: 'collecting',
-        next_step: { owner: 'user', text_key: 'next_step.reupload_rejected', cta: { label_key: 'next_step.cta.documents', route: '/c/documents' }, meta: { count: 4 } },
+        next_step: { owner: 'user', text_key: 'next_step.reupload_rejected', cta: { label_key: 'next_step.cta.documents', route: '/c/documents' }, meta: { count: 3 } },
         current_document_set_id: SET,
         created_at: ago(now, { days: 2 }),
         updated_at: r,

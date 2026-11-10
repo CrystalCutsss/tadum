@@ -1,6 +1,6 @@
 // client_more_docs — client_contact; docs_required, раунд 2: новый комплект из 2 документов, старый superseded (SC-04).
-// Дозапрос к выписке — на весь документ (решение Кирилла 2026-11-10).
-import { CLIENT_BASE_KEYS, ago, document, documentSet, phone, uploaded } from '../build';
+// Дозапросы (решение Кирилла 2026-11-10): к выписке — на весь документ, к декларации — к загруженному файлу.
+import { CLIENT_BASE_KEYS, ago, document, documentSet, file, phone, uploaded } from '../build';
 import type { PersonaFixture } from '../types';
 
 const OLD = 'set_cm_1';
@@ -53,7 +53,19 @@ export const clientMoreDocs: PersonaFixture = (now) => {
               en: 'We also need the last 3 months from your second account',
             },
           }),
-          document(NEW, 'vat_sales', { status: 'pending', updated_at: asked }),
+          document(NEW, 'vat_sales', {
+            status: 'rejected',
+            updated_at: asked,
+            files: [
+              file({
+                id: `${NEW}_vat_sales_f1`,
+                name: 'vat-return-q3.pdf',
+                sha256: `sha_${NEW}_vat_sales_1`,
+                uploaded_at: t,
+                issue: { kind: 'request', reason_text: { ar: 'نحتاج نسخة مختومة من هذا الإقرار', en: 'We need a stamped copy of this return' } },
+              }),
+            ],
+          }),
         ],
       }),
     ],

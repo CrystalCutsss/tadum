@@ -45,7 +45,6 @@
 | `cr.title` | ar, en | Commercial Registration (CR) number / رقم السجل التجاري | блок ввода CR над документами заявки, Кирилл 2026-11-10; в арабском без латинского «CR» — термин «السجل التجاري» общепринят |
 | `cr.hint` | ar, en | You'll find the 10-digit number on your CR certificate / تجد الرقم المكوّن من 10 أرقام في شهادة السجل التجاري | где найти номер; формат 10 цифр — `01-entities.md` (`cr_number`) |
 | `cr.label` | ar, en | CR number / رقم السجل التجاري | подпись поля; значение поля — LTR |
-| `cr.helper` | ar, en | 10 digits / 10 أرقام | вспомогательный текст под полем без ошибки |
 | `cr.error.required` | ar, en | Enter your CR number / أدخل رقم السجل التجاري | пустое поле: только действие, без «обязательное поле» |
 | `cr.error.length` | ar, en | Enter all 10 digits of your CR number / أدخل رقم السجل التجاري كاملًا من 10 أرقام | не 10 цифр: формулировка через действие, без «неверно» (blame_language) |
 | `cr.error.save` | ar, en | We couldn't save your CR number. Try again / لم نتمكن من حفظ رقم السجل التجاري. حاول مرة أخرى | формула ошибки как у `upload.error.server` |

@@ -1,12 +1,12 @@
 // Блок «Номер CR» над документами (решение Кирилла 2026-11-10): карточка как у документа (обводка, та же ширина),
 // поле — половина блока на компьютере и вся ширина на телефоне, высота 48 px. Только цифры, ровно 10;
-// ошибка — assistive text под полем. Номер сохраняется, как только набраны 10 цифр, и при уходе с поля.
+// ошибка — assistive text под полем, без ошибки текста под полем нет. Номер сохраняется, как только набраны 10 цифр, и при уходе с поля.
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { crDigits, crError, CR_LENGTH } from '@/entities/application';
 import type { Company } from '@/shared/api';
-import { Field, FieldDescription, FieldError, FieldLabel, Input, Spinner } from '@/shared/ui';
+import { Field, FieldError, FieldLabel, Input, Spinner } from '@/shared/ui';
 
 import { useSaveCr } from '../model/use-save-cr';
 
@@ -65,6 +65,8 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
             ref={input}
             id={ids.input}
             size="lg"
+            // Скругление как у кнопок «Upload» (решение Кирилла 2026-11-10).
+            className="rounded-lg"
             dir="ltr"
             inputMode="numeric"
             autoComplete="off"
@@ -73,7 +75,7 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
             value={value}
             readOnly={!editable}
             aria-invalid={message !== null}
-            aria-describedby={ids.help}
+            aria-describedby={message ? ids.help : undefined}
             onChange={(e) => {
               const next = crDigits(e.target.value);
               setValue(next);
@@ -90,11 +92,8 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
           />
           {save.isPending ? <Spinner className="absolute end-3 top-1/2 -translate-y-1/2" aria-label={t('common.loading')} /> : null}
         </div>
-        {message ? (
-          <FieldError id={ids.help}>{message}</FieldError>
-        ) : (
-          <FieldDescription id={ids.help}>{t('cr.helper')}</FieldDescription>
-        )}
+        {/* Текст под полем — только ошибка (решение Кирилла 2026-11-10). */}
+        {message ? <FieldError id={ids.help}>{message}</FieldError> : null}
       </Field>
     </section>
   );

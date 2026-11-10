@@ -66,7 +66,6 @@
       "required": "Enter your CR number",
       "save": "We couldn't save your CR number. Try again"
     },
-    "helper": "10 digits",
     "hint": "You'll find the 10-digit number on your CR certificate",
     "label": "CR number",
     "missing": "Add your CR number to send for review",
