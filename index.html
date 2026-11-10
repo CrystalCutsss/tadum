@@ -22,9 +22,16 @@
         } catch (e) {}
       })();
     </script>
+    <style>
+      /* Заставка до старта бандла (Кирилл 2026-11-10: белый экран при открытии). React заменяет её первым рендером.
+         Цвета — как theme-color выше; токены ещё не загружены. */
+      .boot-splash { position: fixed; inset: 0; display: grid; place-items: center; background: #ffffff; }
+      html.dark .boot-splash { background: #090b0c; }
+      .boot-splash img { width: 48px; height: 48px; opacity: 0.9; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot-splash" aria-busy="true"><img src="/icons/icon.svg" alt="" /></div></div>
     <script type="module" src="/src/app/main.tsx"></script>
   </body>
 </html>
