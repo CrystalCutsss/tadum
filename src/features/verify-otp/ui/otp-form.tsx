@@ -10,7 +10,7 @@ import { getApi, type OtpChallenge, type Session } from '@/shared/api';
 import { OTP } from '@/shared/config';
 import { maskPhone } from '@/shared/i18n';
 import { now, toDate, useNow } from '@/shared/lib';
-import { Button, Field, FieldDescription, FieldGroup, Input, toast } from '@/shared/ui';
+import { Button, Field, FieldDescription, FieldGroup, Input, Spinner, toast } from '@/shared/ui';
 
 import { canResend, inputLocked, otpErrorFrom, otpErrorMessage, otpFailReason, type OtpFormError } from '../model/errors';
 
@@ -151,9 +151,13 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
           aria-invalid={shown !== null && shown.kind !== 'offline'}
           aria-busy={verify.isPending}
         />
-        <p id={ids.error} data-slot="field-error" role="alert" aria-live="assertive" className="min-h-5 text-center text-sm text-destructive">
-          {message ? t(message.key, message.values) : null}
-        </p>
+        {/* Слот под полем: текст ошибки (A3–A10) или индикатор проверки (SC-01 §3, loading) — на время проверки ошибка сброшена. */}
+        <div className="flex min-h-5 flex-col items-center justify-center">
+          <p id={ids.error} data-slot="field-error" role="alert" aria-live="assertive" className="text-center text-sm text-destructive">
+            {message ? t(message.key, message.values) : null}
+          </p>
+          {verify.isPending ? <Spinner aria-label={t('common.loading')} className="text-muted-foreground" /> : null}
+        </div>
       </Field>
 
       <Field className="gap-3">
@@ -168,6 +172,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
           </Button>
         ) : null}
         <Button type="button" variant="ghost" className="w-full" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
+          {resend.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
           {resendEnabled ? t('auth.otp.resend') : t('auth.otp.resend_in', { seconds: secondsLeft })}
         </Button>
         {shown?.kind === 'server' ? supportSlot : null}

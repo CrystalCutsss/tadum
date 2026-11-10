@@ -8,7 +8,7 @@ import { authMemory, loginFlow } from '@/entities/session';
 import { track } from '@/shared/analytics';
 import { getApi, type OtpChallenge } from '@/shared/api';
 import { formatNationalInput, nationalDigits, now, toKsaMobile, useNow } from '@/shared/lib';
-import { Button, Field, FieldGroup, FieldLabel, Input, Ltr } from '@/shared/ui';
+import { Button, Field, FieldGroup, FieldLabel, Input, Ltr, Spinner } from '@/shared/ui';
 
 import { phoneErrorActive, phoneErrorFrom, phoneErrorMessage, phoneFailReason, type PhoneFormError } from '../model/errors';
 
@@ -100,6 +100,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
             </Button>
           ) : (
             <Button type="submit" className="w-full" disabled={blocked} aria-busy={request.isPending}>
+              {request.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
               {t('auth.phone.submit')}
             </Button>
           )}

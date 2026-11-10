@@ -50,6 +50,7 @@
     "close": "Close",
     "copy_link": "Copy link",
     "load_error": "We couldn't load this page",
+    "loading": "Loading…",
     "offline_action_hint": "Available when you're back online",
     "offline_actions_disabled": "You're offline. Uploads will be available when you're back online",
     "offline_banner": "You're offline. Some actions are unavailable until you're back online",
