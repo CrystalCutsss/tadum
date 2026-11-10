@@ -64,7 +64,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
 
   return (
     <form noValidate onSubmit={submit}>
-      <FieldGroup>
+      <FieldGroup className="gap-5">
         <Field>
           <FieldLabel id={ids.label} htmlFor={ids.input}>
             {t('auth.phone.label')}

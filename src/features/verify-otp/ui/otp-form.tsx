@@ -114,7 +114,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
   const channel = t(challenge.channel === 'sms' ? 'auth.channel.sms' : 'auth.channel.whatsapp');
 
   return (
-    <FieldGroup>
+    <FieldGroup className="gap-5">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 id={ids.title} className="text-xl font-bold">
           {t('auth.otp.title')}
