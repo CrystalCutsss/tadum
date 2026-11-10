@@ -117,8 +117,7 @@
       "replace": "Replace",
       "replace_body": "{name} will be replaced with the new file",
       "replace_confirm": "Replace",
-      "replace_title": "Replace the file?",
-      "uploaded": "Uploaded · {size}"
+      "replace_title": "Replace the file?"
     },
     "list_label": "Documents",
     "locked": {

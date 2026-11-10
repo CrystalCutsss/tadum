@@ -1,6 +1,6 @@
 // Файлы документа: загруженные (с предупреждением предвалидации) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
-import { RiCheckLine, RiCloseLine, RiErrorWarningLine } from '@remixicon/react';
+import { RiCloseLine, RiErrorWarningLine, RiFileLine } from '@remixicon/react';
 import type { ParseKeys, TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +8,11 @@ import { FileActions } from '@/features/manage-document-file';
 import type { FileTask } from '@/features/upload-document';
 import type { Document, FileAsset } from '@/shared/api';
 import { formatFileSize, formatNumber } from '@/shared/i18n';
-import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, Progress, RiFileTextLine, Spinner } from '@/shared/ui';
+import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, Progress, Spinner } from '@/shared/ui';
+
+// Иконка файла — в сером квадрате по центру строки, иконка документа как в сайдбаре (решение Кирилла 2026-11-10).
+const FILE_MEDIA =
+  'size-10 rounded-lg bg-muted group-has-data-[slot=item-description]/item:translate-y-0 group-has-data-[slot=item-description]/item:self-center';
 
 export function UploadedFileRow({
   doc,
@@ -24,9 +28,9 @@ export function UploadedFileRow({
   const { t } = useTranslation();
   // Предупреждение предвалидации показывается в основной карточке документа (решение 2026-11-10).
   return (
-    <Item size="sm" className="flex-nowrap border-0 bg-card">
-      <ItemMedia variant="icon">
-        <Icon icon={RiFileTextLine} />
+    <Item size="sm" className="flex-nowrap items-center border-0 bg-card">
+      <ItemMedia variant="icon" className={FILE_MEDIA}>
+        <Icon icon={RiFileLine} />
       </ItemMedia>
       <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0">
@@ -36,10 +40,8 @@ export function UploadedFileRow({
           // SC-03: старый файл остаётся видимым с пометкой, без «галочки».
           <ItemDescription>{t('documents.file.previous', { size: formatFileSize(file.size_bytes, t) })}</ItemDescription>
         ) : (
-          <ItemDescription className="flex items-center gap-1">
-            <Icon icon={RiCheckLine} className="size-4 text-status-received" />
-            {t('documents.file.uploaded', { size: formatFileSize(file.size_bytes, t) })}
-          </ItemDescription>
+          // Только размер, без «Uploaded» и галочки (решение Кирилла 2026-11-10).
+          <ItemDescription>{formatFileSize(file.size_bytes, t)}</ItemDescription>
         )}
       </ItemContent>
       <ItemActions>
@@ -86,9 +88,9 @@ export function UploadTaskRow({ task, onCancel, onDismiss }: { task: FileTask; o
   const active = task.state === 'queued' || task.state === 'uploading' || task.state === 'validating';
   const status = taskStatus(task, t);
   return (
-    <Item size="sm" className="flex-nowrap border-0 bg-card" aria-live="polite">
-      <ItemMedia variant="icon">
-        {task.state === 'validating' ? <Spinner aria-label={t('upload.state.validating')} /> : <Icon icon={task.state === 'failed' ? RiErrorWarningLine : RiFileTextLine} />}
+    <Item size="sm" className="flex-nowrap items-center border-0 bg-card" aria-live="polite">
+      <ItemMedia variant="icon" className={FILE_MEDIA}>
+        {task.state === 'validating' ? <Spinner aria-label={t('upload.state.validating')} /> : <Icon icon={task.state === 'failed' ? RiErrorWarningLine : RiFileLine} />}
       </ItemMedia>
       <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0">
