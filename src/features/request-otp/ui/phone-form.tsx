@@ -1,4 +1,5 @@
 // Экран auth.phone (SC-01 §1, A1, A2, A9, A10, A13): поле номера с маской, «Получить код».
+// Разметка — блок shadcn login-05 (FieldGroup → Field → кнопка во всю ширину).
 import { useMutation } from '@tanstack/react-query';
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +8,7 @@ import { authMemory, loginFlow } from '@/entities/session';
 import { track } from '@/shared/analytics';
 import { getApi, type OtpChallenge } from '@/shared/api';
 import { formatNationalInput, nationalDigits, now, toKsaMobile, useNow } from '@/shared/lib';
-import { Button, Input, Ltr } from '@/shared/ui';
+import { Button, Field, FieldGroup, FieldLabel, Input, Ltr } from '@/shared/ui';
 
 import { phoneErrorActive, phoneErrorFrom, phoneErrorMessage, phoneFailReason, type PhoneFormError } from '../model/errors';
 
@@ -62,45 +63,49 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
   const retryable = shown?.kind === 'offline' || shown?.kind === 'server';
 
   return (
-    <form className="flex flex-col gap-4" noValidate onSubmit={submit}>
-      <div className="flex flex-col gap-2">
-        <label id={ids.label} htmlFor={ids.input} className="text-sm font-medium">
-          {t('auth.phone.label')}
-        </label>
-        <div dir="ltr" className="flex items-center gap-2">
-          <Ltr className="text-muted-foreground">{KSA_PREFIX}</Ltr>
-          <Input
-            id={ids.input}
-            dir="ltr"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel-national"
-            placeholder={t('auth.phone.placeholder')}
-            value={formatNationalInput(digits)}
-            onChange={(e) => {
-              setDigits(nationalDigits(e.target.value));
-              if (error?.kind === 'invalid_format') setError(null);
-            }}
-            onBlur={() => setBlurred(true)}
-            disabled={request.isPending}
-            aria-invalid={shown !== null}
-            aria-describedby={message ? ids.error : undefined}
-          />
-        </div>
-        <p id={ids.error} aria-live="polite" className="min-h-5 text-sm text-destructive">
-          {message ? t(message.key, message.values) : null}
-        </p>
-      </div>
-      {retryable ? (
-        <Button type="submit" variant="outline" disabled={!phone || request.isPending}>
-          {t('common.retry')}
-        </Button>
-      ) : (
-        <Button type="submit" disabled={blocked} aria-busy={request.isPending}>
-          {t('auth.phone.submit')}
-        </Button>
-      )}
-      {shown?.kind === 'server' ? supportSlot : null}
+    <form noValidate onSubmit={submit}>
+      <FieldGroup className="gap-6">
+        <Field className="gap-2">
+          <FieldLabel id={ids.label} htmlFor={ids.input}>
+            {t('auth.phone.label')}
+          </FieldLabel>
+          <div dir="ltr" className="flex items-center gap-2">
+            <Ltr className="text-muted-foreground">{KSA_PREFIX}</Ltr>
+            <Input
+              id={ids.input}
+              dir="ltr"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              placeholder={t('auth.phone.placeholder')}
+              value={formatNationalInput(digits)}
+              onChange={(e) => {
+                setDigits(nationalDigits(e.target.value));
+                if (error?.kind === 'invalid_format') setError(null);
+              }}
+              onBlur={() => setBlurred(true)}
+              disabled={request.isPending}
+              aria-invalid={shown !== null}
+              aria-describedby={message ? ids.error : undefined}
+            />
+          </div>
+          <p id={ids.error} data-slot="field-error" aria-live="polite" className="min-h-5 text-sm text-destructive">
+            {message ? t(message.key, message.values) : null}
+          </p>
+        </Field>
+        <Field className="gap-3">
+          {retryable ? (
+            <Button type="submit" variant="outline" className="w-full" disabled={!phone || request.isPending}>
+              {t('common.retry')}
+            </Button>
+          ) : (
+            <Button type="submit" className="w-full" disabled={blocked} aria-busy={request.isPending}>
+              {t('auth.phone.submit')}
+            </Button>
+          )}
+          {shown?.kind === 'server' ? supportSlot : null}
+        </Field>
+      </FieldGroup>
     </form>
   );
 }

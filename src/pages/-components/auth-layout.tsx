@@ -1,19 +1,27 @@
-// Каркас экранов входа: логотип, заголовок, содержимое. Шапка с языком и SupportBar — в блоке 6b.
+// Каркас экранов входа по блоку shadcn login-05: по центру экрана колонка max-w-sm,
+// шапка — логотип (словесный знак Tadum), заголовок и описание по центру, ниже — содержимое.
+// Шапка с языком и SupportBar — в блоке 6b.
 import type { ReactNode } from 'react';
 
-import { Wordmark } from '@/shared/ui';
+import { FieldDescription, Wordmark } from '@/shared/ui';
 
-export function AuthLayout({ title, subtitle, children }: { title?: string; subtitle?: string; children: ReactNode }) {
+export interface AuthLayoutProps {
+  title?: string;
+  subtitle?: ReactNode;
+  children: ReactNode;
+}
+
+export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col gap-6 px-4 py-10">
-      <Wordmark />
-      {title ? (
-        <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold">{title}</h1>
-          {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
+    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <Wordmark className="text-2xl" />
+          {title ? <h1 className="text-xl font-bold">{title}</h1> : null}
+          {subtitle ? <FieldDescription className="text-center">{subtitle}</FieldDescription> : null}
         </div>
-      ) : null}
-      {children}
+        {children}
+      </div>
     </main>
   );
 }

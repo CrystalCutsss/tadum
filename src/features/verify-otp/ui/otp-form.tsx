@@ -1,6 +1,6 @@
-// Экран auth.otp (SC-01 §1, A3–A10, A13): 4 ячейки с автоотправкой, повтор через 40 с, 5 попыток.
+// Экран auth.otp (SC-01 §1, A3–A10, A13): одно поле на 4 цифры с автоотправкой, повтор через 40 с, 5 попыток.
+// Разметка — блок shadcn login-05: шапка по центру, FieldGroup → Field → кнопки во всю ширину.
 import { useMutation } from '@tanstack/react-query';
-import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +10,7 @@ import { getApi, type OtpChallenge, type Session } from '@/shared/api';
 import { OTP } from '@/shared/config';
 import { maskPhone } from '@/shared/i18n';
 import { now, toDate, useNow } from '@/shared/lib';
-import { Button, InputOTP, InputOTPGroup, InputOTPSlot, toast } from '@/shared/ui';
+import { Button, Field, FieldDescription, FieldGroup, Input, toast } from '@/shared/ui';
 
 import { canResend, inputLocked, otpErrorFrom, otpErrorMessage, otpFailReason, type OtpFormError } from '../model/errors';
 
@@ -18,6 +18,13 @@ import { canResend, inputLocked, otpErrorFrom, otpErrorMessage, otpFailReason, t
 const ltrIsolate = (text: string) => `\u2066${text}\u2069`;
 const isOnline = () => typeof navigator === 'undefined' || navigator.onLine !== false;
 const ms = (iso: string) => toDate(iso).getTime();
+/** Только цифры кода: арабско-индийские (٠–٩, ۰–۹) приводим к западным, прочее отбрасываем. */
+const codeDigits = (raw: string) =>
+  raw
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/\D/g, '')
+    .slice(0, OTP.length);
 
 export interface OtpFormProps {
   pending: PendingLogin;
@@ -66,7 +73,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
       }
       setError(next);
       if (next.kind === 'invalid') {
-        // A3: ячейки очищаются, фокус на первой.
+        // A3: поле очищается, фокус в поле.
         setValue('');
         inputRef.current?.focus();
       }
@@ -107,65 +114,64 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
   const channel = t(challenge.channel === 'sms' ? 'auth.channel.sms' : 'auth.channel.whatsapp');
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h1 id={ids.title} className="text-xl font-semibold">
+    <FieldGroup className="gap-6">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h1 id={ids.title} className="text-xl font-bold">
           {t('auth.otp.title')}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <FieldDescription className="text-center">
           {t('auth.otp.sent_to', { phone: ltrIsolate(maskPhone(pending.phone)), channel })}
-        </p>
-        <Button type="button" variant="ghost" className="self-start" onClick={onChangePhone}>
+        </FieldDescription>
+        <Button type="button" variant="ghost" size="sm" onClick={onChangePhone}>
           {t('auth.otp.change_phone')}
         </Button>
       </div>
 
-      <div dir="ltr" className="flex justify-center">
-        <InputOTP
+      <Field className="gap-2">
+        <Input
           ref={inputRef}
-          maxLength={OTP.length}
-          pattern={REGEXP_ONLY_DIGITS}
+          dir="ltr"
+          type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
           autoComplete="one-time-code"
+          maxLength={OTP.length}
+          className="h-12 text-center text-lg tracking-widest tabular-nums md:text-lg"
           value={value}
-          onChange={(v) => {
-            setValue(v);
+          onChange={(e) => {
+            const next = codeDigits(e.target.value);
+            setValue(next);
             if (shown?.kind === 'invalid') setError(null);
+            // Автоотправка после 4-й цифры — и при наборе, и при вставке целиком.
+            if (next.length === OTP.length && next !== value) submit(next);
           }}
-          onComplete={submit}
           disabled={verify.isPending || locked}
           aria-labelledby={ids.title}
           aria-describedby={message ? ids.error : undefined}
           aria-invalid={shown !== null && shown.kind !== 'offline'}
           aria-busy={verify.isPending}
-        >
-          <InputOTPGroup>
-            {Array.from({ length: OTP.length }, (_, i) => (
-              <InputOTPSlot key={i} index={i} aria-invalid={shown?.kind === 'invalid'} />
-            ))}
-          </InputOTPGroup>
-        </InputOTP>
-      </div>
+        />
+        <p id={ids.error} data-slot="field-error" role="alert" aria-live="assertive" className="min-h-5 text-center text-sm text-destructive">
+          {message ? t(message.key, message.values) : null}
+        </p>
+      </Field>
 
-      <p id={ids.error} role="alert" aria-live="assertive" className="min-h-5 text-center text-sm text-destructive">
-        {message ? t(message.key, message.values) : null}
-      </p>
-
-      {needsConfirm ? (
-        <Button type="button" onClick={() => submit(value)}>
-          {t('auth.otp.confirm')}
+      <Field className="gap-3">
+        {needsConfirm ? (
+          <Button type="button" className="w-full" onClick={() => submit(value)}>
+            {t('auth.otp.confirm')}
+          </Button>
+        ) : null}
+        {retryable && submitted ? (
+          <Button type="button" variant="outline" className="w-full" onClick={() => submit(submitted)}>
+            {t('common.retry')}
+          </Button>
+        ) : null}
+        <Button type="button" variant="ghost" className="w-full" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
+          {resendEnabled ? t('auth.otp.resend') : t('auth.otp.resend_in', { seconds: secondsLeft })}
         </Button>
-      ) : null}
-      {retryable && submitted ? (
-        <Button type="button" variant="outline" onClick={() => submit(submitted)}>
-          {t('common.retry')}
-        </Button>
-      ) : null}
-
-      <Button type="button" variant="ghost" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
-        {resendEnabled ? t('auth.otp.resend') : t('auth.otp.resend_in', { seconds: secondsLeft })}
-      </Button>
-      {shown?.kind === 'server' ? supportSlot : null}
-    </div>
+        {shown?.kind === 'server' ? supportSlot : null}
+      </Field>
+    </FieldGroup>
   );
 }
