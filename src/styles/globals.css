@@ -86,8 +86,10 @@
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
     }
+  /* Подложка при оверскролле сверху и снизу — цвет сайдбара (решение Кирилла 2026-11-10): фон html виден
+     за пределами body, сам body остаётся bg-background. */
   html {
-    @apply font-sans;
+    @apply font-sans bg-sidebar;
     }
   /* Tadum: интерлиньяж по письменности (§3.2), без переносов по слогам в арабском (§1.2). */
   body {
