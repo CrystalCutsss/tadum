@@ -35,7 +35,7 @@
       "placeholder": "5X XXX XXXX",
       "submit": "Get code",
       "subtitle": "Enter the phone number you used in your application",
-      "title": "Sign in to your Tadum account",
+      "title": "Welcome to Tadum",
       "too_many_requests_one": "Too many attempts. Try again in {minutes} min",
       "too_many_requests_other": "Too many attempts. Try again in {minutes} min"
     }
@@ -50,6 +50,7 @@
     "close": "Close",
     "copy_link": "Copy link",
     "load_error": "We couldn't load this page",
+    "loading": "Loading…",
     "offline_action_hint": "Available when you're back online",
     "offline_actions_disabled": "You're offline. Uploads will be available when you're back online",
     "offline_banner": "You're offline. Some actions are unavailable until you're back online",

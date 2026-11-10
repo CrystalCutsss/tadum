@@ -1,4 +1,4 @@
-// auth.otp (SC-01): normal, автоотправка, вставка, A3–A10, A13 — play-тесты против MockAdapter.
+// auth.otp (SC-01, разметка login-05, одно поле кода): normal, автоотправка, вставка, A3–A10, A13 — play-тесты против MockAdapter.
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
@@ -64,8 +64,25 @@ export const PastedCode: Story = {
   },
 };
 
+export const ArabicDigits: Story = {
+  name: 'Арабско-индийские цифры приводятся к западным',
+  play: async ({ canvasElement, args }) => {
+    await userEvent.type(code(canvasElement), '٠٠٠٠');
+    await waitFor(() => expect(args.onVerified).toHaveBeenCalledTimes(1));
+  },
+};
+
+export const PastedWithText: Story = {
+  name: 'Вставка с лишними символами — берутся только цифры',
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(code(canvasElement));
+    await userEvent.paste('Code: 00 00');
+    await waitFor(() => expect(args.onVerified).toHaveBeenCalledTimes(1));
+  },
+};
+
 export const InvalidCode: Story = {
-  name: 'A3 · неверный код — ячейки очищены, фокус на первой',
+  name: 'A3 · неверный код — поле очищено, фокус в поле',
   play: async ({ canvasElement, args }) => {
     await userEvent.type(code(canvasElement), '1234');
     await waitFor(() => expect(within(canvasElement).getByRole('alert')).toHaveTextContent(tr('auth.otp.invalid_retry')));
