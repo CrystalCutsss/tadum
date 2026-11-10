@@ -1,8 +1,8 @@
-// auth.phone (SC-01): normal, ввод и вставка номера, A1, A2, A9, A10, A13 — play-тесты против MockAdapter.
+// auth.phone (SC-01): normal, loading, ввод и вставка номера, A1, A2, A9, A10, A13 — play-тесты против MockAdapter.
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
-import { freshMock, tr } from '../../../../.storybook/story-helpers';
+import { freshMock, holdAuth, tr } from '../../../../.storybook/story-helpers';
 import { loginFlow } from '@/entities/session';
 import { getApi } from '@/shared/api';
 import { now, setClock } from '@/shared/lib';
@@ -29,6 +29,26 @@ export const Normal: Story = {
     await expect(field(canvasElement)).toHaveAttribute('inputmode', 'tel');
     await expect(field(canvasElement)).toHaveAttribute('dir', 'ltr');
     await expect(submit(canvasElement)).toBeDisabled();
+  },
+};
+
+export const Loading: Story = {
+  name: 'Loading · спиннер в кнопке, поле заблокировано',
+  play: async ({ canvasElement, args }) => {
+    const release = await holdAuth('requestOtp');
+    try {
+      await userEvent.type(field(canvasElement), '500000001');
+      await userEvent.click(submit(canvasElement));
+      await expect(await within(canvasElement).findByRole('status', { name: tr('common.loading') })).toBeVisible();
+      await expect(field(canvasElement)).toBeDisabled();
+      // Во время запроса имя кнопки начинается с подписи спиннера: «Loading… Get code».
+      const busy = within(canvasElement).getByRole('button', { name: new RegExp(tr('auth.phone.submit')) });
+      await expect(busy).toHaveAttribute('aria-busy', 'true');
+      await expect(busy).toBeDisabled();
+    } finally {
+      release();
+    }
+    await waitFor(() => expect(args.onRequested).toHaveBeenCalledTimes(1));
   },
 };
 

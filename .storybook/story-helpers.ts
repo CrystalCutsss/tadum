@@ -44,3 +44,23 @@ export async function signedIn(persona: string): Promise<Api> {
   api.demo!.setPersona(persona);
   return api;
 }
+
+/**
+ * Придержать ответ метода auth до вызова release() — для историй состояния loading
+ * (в Storybook мок без задержек). Возвращает release, который отпускает ответ и восстанавливает метод.
+ */
+export async function holdAuth(method: 'requestOtp' | 'verifyOtp'): Promise<() => void> {
+  const api = await getApi();
+  const auth = api.auth as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>;
+  const original = auth[method]!;
+  let open!: () => void;
+  const gate = new Promise<void>((resolve) => (open = resolve));
+  auth[method] = async (...args: unknown[]) => {
+    await gate;
+    return original.apply(api.auth, args);
+  };
+  return () => {
+    open();
+    auth[method] = original;
+  };
+}
