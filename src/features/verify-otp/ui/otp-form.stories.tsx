@@ -1,8 +1,8 @@
-// auth.otp (SC-01, разметка login-05, одно поле кода): normal, автоотправка, вставка, A3–A10, A13 — play-тесты против MockAdapter.
+// auth.otp (SC-01, разметка login-05, одно поле кода): normal, loading, автоотправка, вставка, A3–A10, A13 — play-тесты против MockAdapter.
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
-import { pendingLogin, tr } from '../../../../.storybook/story-helpers';
+import { holdAuth, pendingLogin, tr } from '../../../../.storybook/story-helpers';
 import type { PendingLogin } from '@/entities/session';
 import { getApi } from '@/shared/api';
 import { Button } from '@/shared/ui';
@@ -44,6 +44,38 @@ export const Normal: Story = {
     await expect(resendButton(canvasElement)).toHaveTextContent(/\d/);
     // Кнопки «Подтвердить» в счастливом пути нет.
     await expect(within(canvasElement).queryByRole('button', { name: tr('auth.otp.confirm') })).toBeNull();
+  },
+};
+
+export const Loading: Story = {
+  name: 'Loading · индикатор проверки, поле заблокировано',
+  play: async ({ canvasElement, args }) => {
+    const release = await holdAuth('verifyOtp');
+    try {
+      await userEvent.type(code(canvasElement), '0000');
+      await expect(await within(canvasElement).findByRole('status', { name: tr('common.loading') })).toBeVisible();
+      await expect(code(canvasElement)).toBeDisabled();
+      await expect(code(canvasElement)).toHaveAttribute('aria-busy', 'true');
+    } finally {
+      release();
+    }
+    await waitFor(() => expect(args.onVerified).toHaveBeenCalledTimes(1));
+  },
+};
+
+export const ResendLoading: Story = {
+  name: 'Loading · отправка нового кода',
+  loaders: [async () => ({ pending: await pendingLogin(PHONE, 'client_new', 60_000) })],
+  play: async ({ canvasElement }) => {
+    const release = await holdAuth('requestOtp');
+    try {
+      await userEvent.click(resendButton(canvasElement));
+      await expect(await within(resendButton(canvasElement)).findByRole('status', { name: tr('common.loading') })).toBeVisible();
+      await expect(resendButton(canvasElement)).toBeDisabled();
+    } finally {
+      release();
+    }
+    await waitFor(() => expect(within(canvasElement).queryByRole('status', { name: tr('common.loading') })).toBeNull());
   },
 };
 
