@@ -38,13 +38,8 @@ export function UploadedFileRow({
         <ItemTitle className="w-full min-w-0">
           <bdi className="truncate">{file.name}</bdi>
         </ItemTitle>
-        {doc.status === 'rejected' ? (
-          // SC-03: старый файл остаётся видимым с пометкой, без «галочки».
-          <ItemDescription>{t('documents.file.previous', { size: formatFileSize(file.size_bytes, t) })}</ItemDescription>
-        ) : (
-          // Только размер, без «Uploaded» и галочки (решение Кирилла 2026-11-10).
-          <ItemDescription>{formatFileSize(file.size_bytes, t)}</ItemDescription>
-        )}
+        {/* Только размер файла, без подписей статуса (решения Кирилла 2026-11-10). */}
+        <ItemDescription>{formatFileSize(file.size_bytes, t)}</ItemDescription>
       </ItemContent>
       <ItemActions>
         <FileActions documentId={doc.id} portalKey={doc.portal_key} status={doc.status} file={file} editable={editable} onReplace={onReplace} />

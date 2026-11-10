@@ -86,8 +86,20 @@
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
     }
+  /* Подложка при оверскролле сверху и снизу — цвет сайдбара (решение Кирилла 2026-11-10): фон html виден
+     за пределами body, сам body остаётся bg-background. */
   html {
-    @apply font-sans;
+    @apply font-sans bg-sidebar;
+    }
+  /* В кабинете и body цвета сайдбара: белый body не выглядывает полосой при оверскролле. */
+  body:has([data-slot="sidebar-wrapper"]) {
+    @apply bg-sidebar;
+    }
+  /* ≥768 px документ не прокручивается (прокрутка — внутри области контента), отскок страницы не нужен. */
+  @media (width >= 48rem) {
+    html:has([data-slot="sidebar-wrapper"]) {
+      overscroll-behavior-y: none;
+      }
     }
   /* Tadum: интерлиньяж по письменности (§3.2), без переносов по слогам в арабском (§1.2). */
   body {

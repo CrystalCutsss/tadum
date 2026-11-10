@@ -65,6 +65,9 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
 
   return (
     <SidebarProvider
+      // ≥768 px прокручивается только область контента: при оверскролле вокруг неё остаётся цвет сайдбара,
+      // без белых прямоугольников сверху и снизу (решение Кирилла 2026-11-10).
+      className="md:h-svh md:overflow-hidden"
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
@@ -76,7 +79,7 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
         support={support}
         account={<NavAccount family={family} name={contextName} nameLoading={nameLoading} phone={phone} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
       />
-      <SidebarInset className="min-w-0 text-foreground">
+      <SidebarInset className="min-w-0 text-foreground md:overflow-y-auto">
         <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} themeToggle={themeToggle} />
         {/* Отступ контента 16 px со всех сторон; safe-area iOS — отдельно снизу (раньше pb-safe-bottom обнулял нижний
             отступ). Колонки растянуты на высоту окна: плавающая панель экрана (sticky + mt-auto) стоит внизу окна
