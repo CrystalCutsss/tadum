@@ -122,7 +122,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
         <FieldDescription className="text-center">
           {t('auth.otp.sent_to', { phone: ltrIsolate(maskPhone(pending.phone)), channel })}
         </FieldDescription>
-        <Button type="button" variant="ghost" size="sm" onClick={onChangePhone}>
+        <Button type="button" variant="ghost" size="sm" className="min-h-11" onClick={onChangePhone}>
           {t('auth.otp.change_phone')}
         </Button>
       </div>
@@ -135,7 +135,6 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
           inputMode="numeric"
           pattern="[0-9]*"
           autoComplete="one-time-code"
-          maxLength={OTP.length}
           className="h-12 rounded-lg text-center text-lg tracking-widest tabular-nums md:text-lg"
           value={value}
           onChange={(e) => {
@@ -175,7 +174,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
             {t('common.retry')}
           </Button>
         ) : null}
-        <Button type="button" variant="ghost" className="w-full" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
+        <Button type="button" variant="ghost" className="min-h-11 w-full" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
           {resend.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
           {resendEnabled ? t('auth.otp.resend') : t('auth.otp.resend_in', { seconds: secondsLeft })}
         </Button>

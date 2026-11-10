@@ -28,7 +28,9 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
   const [digits, setDigits] = useState(() => nationalDigits(loginFlow.lastPhone() ?? ''));
   const [blurred, setBlurred] = useState(false);
   const [error, setError] = useState<PhoneFormError | null>(null);
-  const tick = useNow(error && 'until' in error ? 1000 : null);
+  // useNow отдаёт новое время только раз в секунду, а первое значение — время монтирования формы;
+  // без now() сразу после ошибки с таймером обратный отсчёт показывал бы на минуту больше.
+  const tick = Math.max(useNow(error && 'until' in error ? 1000 : null), now());
 
   const phone = toKsaMobile(digits);
   // A1: инлайн-ошибка, если номер не с 5 или (после ухода из поля) неполный.
