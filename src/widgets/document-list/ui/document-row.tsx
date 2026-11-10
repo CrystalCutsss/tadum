@@ -142,40 +142,45 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
           </Item>
         </div>
 
-        <div className="flex flex-col gap-2 p-3 empty:hidden md:p-4">
-          {hasFiles ? (
-            <ul className="flex flex-col gap-2" aria-label={t('documents.row.files', { title })}>
-              {doc.files.map((file) => (
-                <li key={file.id}>
-                  <UploadedFileRow doc={doc} file={file} editable={editable} onReplace={() => setPicker({ replaceFileId: file.id })} />
-                </li>
-              ))}
-              {activeTasks.map((task) => (
-                <li key={task.key}>
-                  <UploadTaskRow task={task} onCancel={() => upload.cancel(task.key)} onDismiss={() => upload.dismiss(task.key)} />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {/* Ошибки и «нужен новый файл» — под загруженным файлом, в том же виде, что и файл (решение 2026-11-10). */}
-          {hasNotices ? (
-            <ul className="flex flex-col gap-2">
-              {reasonText ? (
-                <li>
-                  <ErrorNotice id={reasonId} title={t('documents.row.reason_title')} text={reasonText} />
-                </li>
+        {/* Отступ до кнопок сверху равен нижнему отступу панели (решение Кирилла 2026-11-10). */}
+        <div className="flex flex-col gap-3 p-3 empty:hidden md:gap-4 md:p-4">
+          {hasFiles || hasNotices ? (
+            <div className="flex flex-col gap-2">
+              {hasFiles ? (
+                <ul className="flex flex-col gap-2" aria-label={t('documents.row.files', { title })}>
+                  {doc.files.map((file) => (
+                    <li key={file.id}>
+                      <UploadedFileRow doc={doc} file={file} editable={editable} onReplace={() => setPicker({ replaceFileId: file.id })} />
+                    </li>
+                  ))}
+                  {activeTasks.map((task) => (
+                    <li key={task.key}>
+                      <UploadTaskRow task={task} onCancel={() => upload.cancel(task.key)} onDismiss={() => upload.dismiss(task.key)} />
+                    </li>
+                  ))}
+                </ul>
               ) : null}
-              {warnings.map((warning) => (
-                <li key={warning.id}>
-                  <ErrorNotice text={t(warning.key as ParseKeys)} />
-                </li>
-              ))}
-              {messages.map((task) => (
-                <li key={task.key}>
-                  <UploadTaskMessage task={task} onDismiss={() => upload.dismiss(task.key)} />
-                </li>
-              ))}
-            </ul>
+              {/* Ошибки и «нужен новый файл» — под загруженным файлом, в том же виде, что и файл (решение 2026-11-10). */}
+              {hasNotices ? (
+                <ul className="flex flex-col gap-2">
+                  {reasonText ? (
+                    <li>
+                      <ErrorNotice id={reasonId} title={t('documents.row.reason_title')} text={reasonText} />
+                    </li>
+                  ) : null}
+                  {warnings.map((warning) => (
+                    <li key={warning.id}>
+                      <ErrorNotice text={t(warning.key as ParseKeys)} />
+                    </li>
+                  ))}
+                  {messages.map((task) => (
+                    <li key={task.key}>
+                      <UploadTaskMessage task={task} onDismiss={() => upload.dismiss(task.key)} />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           ) : null}
           <DocumentResources doc={doc} title={title} />
         </div>
