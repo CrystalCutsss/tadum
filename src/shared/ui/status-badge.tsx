@@ -39,7 +39,8 @@ type Meta = { tone: Tone; icon: RemixiconComponentType; label: () => string };
 // Ключи i18n — явными строками, чтобы их видел i18next-cli.
 const documentMeta = (t: TFunction): Record<DocumentStatus, Meta> => ({
   pending: { tone: 'pending', icon: RiUploadCloud2Line, label: () => t('document.status.pending') },
-  received: { tone: 'received', icon: RiCheckLine, label: () => t('document.status.received') },
+  // «Загружен» — зелёная палитра approved (решение Кирилла 2026-11-10); от «Принят» отличается иконкой RiCheckLine.
+  received: { tone: 'approved', icon: RiCheckLine, label: () => t('document.status.received') },
   rejected: { tone: 'rejected', icon: RiErrorWarningLine, label: () => t('document.status.rejected') },
   approved: { tone: 'approved', icon: RiCheckboxCircleLine, label: () => t('document.status.approved') },
 });

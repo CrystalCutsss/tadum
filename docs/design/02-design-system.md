@@ -70,7 +70,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `--motion-fast/base/slow` | 120 / 200 / 320 ms | — | §3.3; при `prefers-reduced-motion` — 0ms |
 | `--ease-standard` | cubic-bezier(0.2, 0, 0, 1) | — | §3.3 |
 
-Сопоставление со статусами: документы `needed`→`pending`, `uploaded`→`received`, `needs a new file`→`rejected`, `accepted`→`approved`; шкала и чек-лист: `needs_attention`/`failed` = `rejected`; `supplier_view`: `applied`/`collecting_docs`→`pending`, `under_review`→`received`, `approved`/`first_purchase`→`approved`, `closed` → нейтральный `muted` (не `rejected`). Компонент — `StatusBadge` (иконка + текст + цвет).
+Сопоставление со статусами: документы `needed`→`pending`, `uploaded`→ зелёная палитра `approved` (решение Кирилла 2026-11-10; от `accepted` отличается иконкой `RiCheckLine`), `needs a new file`→`rejected`, `accepted`→`approved`; шкала и чек-лист: `needs_attention`/`failed` = `rejected`; `supplier_view`: `applied`/`collecting_docs`→`pending`, `under_review`→`received`, `approved`/`first_purchase`→`approved`, `closed` → нейтральный `muted` (не `rejected`). Компонент — `StatusBadge` (иконка + текст + цвет).
 
 Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `shadow-inset`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
 

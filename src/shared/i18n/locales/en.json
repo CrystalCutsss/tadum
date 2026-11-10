@@ -113,7 +113,6 @@
       "deleted": "File deleted",
       "download": "Download",
       "download_failed": "We couldn't open the file. Try again",
-      "previous": "Previous file, not accepted · {size}",
       "replace": "Replace",
       "replace_body": "{name} will be replaced with the new file",
       "replace_confirm": "Replace",

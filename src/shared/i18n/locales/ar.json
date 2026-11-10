@@ -121,7 +121,6 @@
       "deleted": "تم حذف الملف",
       "download": "تنزيل",
       "download_failed": "لم نتمكن من فتح الملف. حاول مرة أخرى",
-      "previous": "الملف السابق، لم يُقبل · {size}",
       "replace": "استبدال",
       "replace_body": "سيُستبدل {name} بالملف الجديد",
       "replace_confirm": "استبدال",
