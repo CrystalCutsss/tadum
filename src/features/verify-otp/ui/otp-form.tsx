@@ -10,7 +10,7 @@ import { getApi, type OtpChallenge, type Session } from '@/shared/api';
 import { OTP } from '@/shared/config';
 import { maskPhone } from '@/shared/i18n';
 import { now, toDate, useNow } from '@/shared/lib';
-import { Button, Field, FieldDescription, FieldGroup, Input, Spinner, toast } from '@/shared/ui';
+import { Button, Field, FieldDescription, FieldError, FieldGroup, Input, Spinner, toast } from '@/shared/ui';
 
 import { canResend, inputLocked, otpErrorFrom, otpErrorMessage, otpFailReason, type OtpFormError } from '../model/errors';
 
@@ -114,7 +114,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
   const channel = t(challenge.channel === 'sms' ? 'auth.channel.sms' : 'auth.channel.whatsapp');
 
   return (
-    <FieldGroup className="gap-6">
+    <FieldGroup>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 id={ids.title} className="text-xl font-bold">
           {t('auth.otp.title')}
@@ -127,7 +127,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
         </Button>
       </div>
 
-      <Field className="gap-2">
+      <Field>
         <Input
           ref={inputRef}
           dir="ltr"
@@ -151,16 +151,20 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
           aria-invalid={shown !== null && shown.kind !== 'offline'}
           aria-busy={verify.isPending}
         />
-        {/* Слот под полем: текст ошибки (A3–A10) или индикатор проверки (SC-01 §3, loading) — на время проверки ошибка сброшена. */}
-        <div className="flex min-h-5 flex-col items-center justify-center">
-          <p id={ids.error} data-slot="field-error" role="alert" aria-live="assertive" className="text-center text-sm text-destructive">
-            {message ? t(message.key, message.values) : null}
-          </p>
-          {verify.isPending ? <Spinner aria-label={t('common.loading')} className="text-muted-foreground" /> : null}
-        </div>
+        {/* Под полем — текст ошибки (A3–A10) или индикатор проверки (SC-01 §3, loading); на время проверки ошибка сброшена. */}
+        {message ? (
+          <FieldError id={ids.error} aria-live="assertive" className="text-center">
+            {t(message.key, message.values)}
+          </FieldError>
+        ) : null}
+        {verify.isPending ? (
+          <div className="flex justify-center text-muted-foreground">
+            <Spinner aria-label={t('common.loading')} />
+          </div>
+        ) : null}
       </Field>
 
-      <Field className="gap-3">
+      <Field>
         {needsConfirm ? (
           <Button type="button" className="w-full" onClick={() => submit(value)}>
             {t('auth.otp.confirm')}

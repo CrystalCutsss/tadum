@@ -8,7 +8,7 @@ import { authMemory, loginFlow } from '@/entities/session';
 import { track } from '@/shared/analytics';
 import { getApi, type OtpChallenge } from '@/shared/api';
 import { formatNationalInput, nationalDigits, now, toKsaMobile, useNow } from '@/shared/lib';
-import { Button, Field, FieldGroup, FieldLabel, Input, Ltr, Spinner } from '@/shared/ui';
+import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Ltr, Spinner } from '@/shared/ui';
 
 import { phoneErrorActive, phoneErrorFrom, phoneErrorMessage, phoneFailReason, type PhoneFormError } from '../model/errors';
 
@@ -64,8 +64,8 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
 
   return (
     <form noValidate onSubmit={submit}>
-      <FieldGroup className="gap-6">
-        <Field className="gap-2">
+      <FieldGroup>
+        <Field>
           <FieldLabel id={ids.label} htmlFor={ids.input}>
             {t('auth.phone.label')}
           </FieldLabel>
@@ -89,11 +89,9 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
               aria-describedby={message ? ids.error : undefined}
             />
           </div>
-          <p id={ids.error} data-slot="field-error" aria-live="polite" className="min-h-5 text-sm text-destructive">
-            {message ? t(message.key, message.values) : null}
-          </p>
+          {message ? <FieldError id={ids.error}>{t(message.key, message.values)}</FieldError> : null}
         </Field>
-        <Field className="gap-3">
+        <Field>
           {retryable ? (
             <Button type="submit" variant="outline" className="w-full" disabled={!phone || request.isPending}>
               {t('common.retry')}
