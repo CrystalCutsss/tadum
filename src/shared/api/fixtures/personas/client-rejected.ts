@@ -1,6 +1,7 @@
-// client_rejected — client_owner; docs_required, отклонённые документы: причина AR+EN, причина только AR,
-// без причины; файл выписки уже отклонялся раньше (TADUM-536) (SC-03).
-import { ago, documentSet, phone, uploaded } from '../build';
+// client_rejected — client_owner; docs_required, отклонённые документы (SC-03; решение Кирилла 2026-11-10):
+// выписка — причина на весь документ (AR+EN), два файла; декларация — два файла, замечание к одному (только AR);
+// сертификат владельца — замечание к файлу без текста; удостоверение — дозапрос к файлу. Файлы выписки уже отклонялись раньше (TADUM-536).
+import { ago, document, documentSet, file, phone, uploaded } from '../build';
 import type { PersonaFixture } from '../types';
 
 const SET = 'set_cr_1';
@@ -19,7 +20,7 @@ export const clientRejected: PersonaFixture = (now) => {
         odoo_stage: 'Document collection',
         client_status: 'docs_required',
         permission_state: 'collecting',
-        next_step: { owner: 'user', text_key: 'next_step.reupload_rejected', cta: { label_key: 'next_step.cta.documents', route: '/c/documents' }, meta: { count: 3 } },
+        next_step: { owner: 'user', text_key: 'next_step.reupload_rejected', cta: { label_key: 'next_step.cta.documents', route: '/c/documents' }, meta: { count: 4 } },
         current_document_set_id: SET,
         created_at: ago(now, { days: 2 }),
         updated_at: r,
@@ -34,18 +35,55 @@ export const clientRejected: PersonaFixture = (now) => {
         round: 1,
         status: 'draft',
         documents: [
-          uploaded(SET, 'bs', 'rejected', r, {
+          document(SET, 'bs', {
+            status: 'rejected',
+            updated_at: r,
             reject_reason_key: 'reject.bs.period',
             reject_reason_text: { ar: 'نحتاج كشف حساب يغطي آخر 6 أشهر', en: 'We need a statement covering the last 6 months' },
-            rejected_file_hashes: ['sha_set_cr_1_bs_0', 'sha_set_cr_1_bs_1'],
+            rejected_file_hashes: ['sha_set_cr_1_bs_0', 'sha_set_cr_1_bs_1', 'sha_set_cr_1_bs_2'],
+            files: [
+              file({ id: `${SET}_bs_f1`, name: 'bank-statement-march.pdf', sha256: 'sha_set_cr_1_bs_1', uploaded_at: t }),
+              file({ id: `${SET}_bs_f2`, name: 'bank-statement-april.pdf', sha256: 'sha_set_cr_1_bs_2', uploaded_at: t, size_bytes: 786_432 }),
+            ],
           }),
-          uploaded(SET, 'national_id', 'received', t),
+          document(SET, 'national_id', {
+            status: 'rejected',
+            updated_at: r,
+            files: [
+              file({
+                id: `${SET}_national_id_f1`,
+                name: 'national_id.pdf',
+                sha256: 'sha_set_cr_1_national_id_1',
+                uploaded_at: t,
+                issue: {
+                  kind: 'request',
+                  reason_text: { ar: 'نحتاج صورة الوجه الخلفي للهوية أيضًا', en: 'We also need the back side of the ID' },
+                },
+              }),
+            ],
+          }),
           uploaded(SET, 'vat', 'received', t),
-          uploaded(SET, 'vat_sales', 'rejected', r, {
-            reject_reason_text: { ar: 'الإقرار غير موقّع' },
-            rejected_file_hashes: ['sha_set_cr_1_vat_sales_1'],
+          document(SET, 'vat_sales', {
+            status: 'rejected',
+            updated_at: r,
+            rejected_file_hashes: ['sha_set_cr_1_vat_sales_2'],
+            files: [
+              file({ id: `${SET}_vat_sales_f1`, name: 'vat-return-q1.pdf', sha256: 'sha_set_cr_1_vat_sales_1', uploaded_at: t }),
+              file({
+                id: `${SET}_vat_sales_f2`,
+                name: 'vat-return-q2.pdf',
+                sha256: 'sha_set_cr_1_vat_sales_2',
+                uploaded_at: t,
+                issue: { kind: 'error', reason_text: { ar: 'الإقرار غير موقّع' } },
+              }),
+            ],
           }),
-          uploaded(SET, 'ch_owner', 'rejected', r, { rejected_file_hashes: ['sha_set_cr_1_ch_owner_1'] }),
+          document(SET, 'ch_owner', {
+            status: 'rejected',
+            updated_at: r,
+            rejected_file_hashes: ['sha_set_cr_1_ch_owner_1'],
+            files: [file({ id: `${SET}_ch_owner_f1`, name: 'ch_owner.pdf', sha256: 'sha_set_cr_1_ch_owner_1', uploaded_at: t, issue: { kind: 'error' } })],
+          }),
           uploaded(SET, 'ch_company', 'received', t),
           uploaded(SET, 'aoa', 'received', t),
         ],

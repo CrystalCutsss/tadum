@@ -69,10 +69,21 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `--elevation-inset` | `0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)` | = светлой | значение `shadow-sm` Tailwind/shadcn; тень контейнера контента `SidebarInset`, как в `sidebar-08` (решение Кирилла 2026-11-06). `--elevation-sm` слабее и в тёмной теме `none`, поэтому тени не было видно. Класс — `shadow-inset` |
 | `--motion-fast/base/slow` | 120 / 200 / 320 ms | — | §3.3; при `prefers-reduced-motion` — 0ms |
 | `--ease-standard` | cubic-bezier(0.2, 0, 0, 1) | — | §3.3 |
+| `--motion-bounce` | 480 ms | — | лёгкий отскок (экран документов клиента, решение Кирилла 2026-11-10); при `prefers-reduced-motion` — 0ms, как остальные `--motion-*`. Класс — `duration-bounce` |
+| `--ease-bounce` | cubic-bezier(0.34, 1.56, 0.64, 1) | — | кривая с перелётом ≈ 10 % (2026-11-10). Класс — `ease-bounce` |
+| `--glow-primary-color` | `color-mix(in oklch, var(--primary) 35%, transparent)` | `color-mix(in oklch, var(--sidebar-primary) 50%, transparent)` | синий пресета с прозрачностью (2026-11-10). В тёмной — более светлый синий пресета: `--primary` тёмной темы (0.424) на фоне почти не виден. В `.dark` переобъявлен обязательно — `var(--primary)` в `:root` вычисляется в `:root` |
+| `--glow-primary` / `-faint` / `-none` | `0 0 8px 6px` / `0 0 4px 2px` / `0 0 0 0` + `--glow-primary-color` | те же, цвет тёмной темы | ступени свечения одной формы (интерполяция в `@keyframes`). В отличие от `--elevation-*`, в тёмной теме не `none`. Классы — `shadow-glow-primary`, `shadow-glow-primary-faint` |
+| `--motion-glow` | 2400 ms | — | период волны `animate-glow-wave` (2026-11-10). В reduced-motion не обнуляется: анимацию снимает сама утилита |
 
 Сопоставление со статусами: документы `needed`→`pending`, `uploaded`→ зелёная палитра `approved` (решение Кирилла 2026-11-10; от `accepted` отличается иконкой `RiCheckLine`), `needs a new file`→`rejected`, `accepted`→`approved`; шкала и чек-лист: `needs_attention`/`failed` = `rejected`; `supplier_view`: `applied`/`collecting_docs`→`pending`, `under_review`→`received`, `approved`/`first_purchase`→`approved`, `closed` → нейтральный `muted` (не `rejected`). Компонент — `StatusBadge` (иконка + текст + цвет).
 
-Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `shadow-inset`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
+Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `shadow-inset`, `duration-base`, `ease-standard`, `duration-bounce`, `ease-bounce`, `shadow-glow-primary`, `animate-glow-wave`, `font-wordmark` и т. д.
+
+**Свечение-волна `animate-glow-wave`** (`@utility` и `@keyframes glow-wave` в `globals.css`, 2026-11-10): `box-shadow` плавно растёт от `--glow-primary-none` до `--glow-primary` и гаснет, период `--motion-glow`, `ease-in-out`, бесконечно. Анимация перекрывает собственный `box-shadow` элемента (и кольцо `ring`), поэтому на `:focus-visible` она снимается — кольцо фокуса видно. При `prefers-reduced-motion: reduce` анимации нет, вместо неё статичное слабое свечение `--glow-primary-faint` (кроме состояния `:focus-visible`). Свечение декоративное: смысл элемента не должен держаться только на нём. История — `shared/ui/Motion` (`GlowWave`, `Bounce`, `HeightReveal`).
+
+**Исправление 2026-11-10:** утилиты `duration-*` в Tailwind v4 берут значения из пространства `--transition-duration-*`. В `@theme` было `--duration-fast/base/slow`, поэтому `duration-fast`, `duration-base`, `duration-slow` не генерировались, и элементы шли с 150 ms по умолчанию. Теперь сопоставление — `--transition-duration-{fast,base,slow,bounce}: var(--motion-*)`; существующие вызовы получили задуманные длительности.
+
+**Раскрытие по высоте** (`@utility` в `globals.css`, 2026-11-10, липкая панель отправки): `grid-rows-collapsed` (`grid-template-rows: 0fr`), `grid-rows-expanded` (`1fr`), `transition-grid-rows` (`transition-property: grid-template-rows`; длительность и кривая — `--tw-duration`/`--tw-ease` с откатом на значения по умолчанию Tailwind, как у встроенных `transition-*`, поэтому работают `duration-bounce ease-bounce`). Разметка: `grid grid-rows-collapsed|expanded transition-grid-rows duration-bounce ease-bounce` на обёртке, `min-h-0 overflow-hidden` на единственном дочернем элементе. Заменяют произвольные `grid-rows-[0fr]` и `transition-[grid-template-rows]`, запрещённые ESLint. При reduced-motion `--motion-bounce` = 0ms, раскрытие мгновенное.
 
 ## 4. Контраст (WCAG 2.2 AA)
 
@@ -163,6 +174,14 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 **Progress** — исправлен RTL: заливка шла слева и в RTL. Сдвиг индикатора теперь по `Direction.useDirection()` (`translateX(+N%)` в RTL), заливка растёт от начала строки; `value` передаётся в Root (`aria-valuenow`). Play-тест `shared/ui/Progress/Partial`: при 30 % в AR заливка у правого края, в EN — у левого.
 
 Истории: `Item`, `Collapsible`, `Empty`, `Field`, `Label`, `Spinner`, `Progress` — в матрице AR/EN × light/dark; `Drawer`, `AlertDialog`, `ResponsiveDialog` — порталы, как `Dialog`/`Sheet`, одна копия по глобалам тулбара, play проверяет `dir` контента.
+
+### Экран документов клиента (2026-11-10)
+
+Решения Кирилла 2026-11-10. Новые токены движения и свечения — §3. Контраст не менялся (A-019).
+
+**Input** — размер через `cva` (`inputVariants`), проп `size`: `"default"` — прежний `h-9 px-3 py-1 text-base md:text-sm` (существующие вызовы не меняются), `"lg"` — 48 px: `h-12 px-4 py-2 text-base` (отступ и кегль как у `Button size="lg"`). Нативный атрибут `size` (ширина в символах) исключён из пропсов — как у `Button`; в проекте он не использовался. На элементе — `data-size`. Повторный `shadcn add input` покажет это как отличие — не перезаписывать. Истории `Input/Large`, `Input/Sizes`; истории `Input` переведены в матрицу AR/EN × light/dark.
+
+**SpeechBubble** (`speech-bubble.tsx`, проектный) — блочное облачко-подсказка с хвостиком на верхней грани, указывающим вверх (например, под полем ввода с ошибкой; связь — `id` облачка в `aria-describedby` поля). Пропсы: `tone` (`"attention"` — пока единственный, по умолчанию: `bg-status-rejected-muted text-status-rejected`, пара бейджа статуса, AA §4), `tailOffset` (CSS-длина от начальной грани облачка до центра хвостика, по умолчанию `calc(var(--spacing) * 5)`), остальные — пропсы `div`. Вид: `rounded-lg px-3 py-1.5 text-sm` — отступы `Button size="sm"` (`px-3`, высота строки 32 px при одной строке). Хвостик — `span aria-hidden` (`data-slot="speech-bubble-tail"`): повёрнутый квадрат `size-3 rotate-45 rounded-xs bg-inherit`, `-top-1.5`, `inset-inline-start: calc(tailOffset − 1.5 × --spacing)` — логическое свойство, поэтому в RTL хвостик зеркалится сам. Облачко — `relative isolate`, хвостик — `-z-10`: его нижняя половина рисуется под текстом, но поверх фона облачка. Над облачком нужен зазор ≥ `1.5 × --spacing`, иначе хвостик налезет на соседний элемент. Истории `SpeechBubble/Attention` (play: хвостик выше верхней грани и ближе к стороне начала в AR и EN), `SpeechBubble/CustomTailOffset`.
 
 ## 5. Шрифты
 

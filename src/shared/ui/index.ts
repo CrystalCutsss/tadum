@@ -22,6 +22,7 @@ export * from './separator';
 export * from './sheet';
 export * from './sidebar';
 export * from './skeleton';
+export * from './speech-bubble';
 export * from './spinner';
 export * from './sonner';
 export * from './table';

@@ -1,4 +1,5 @@
 // client_more_docs — client_contact; docs_required, раунд 2: новый комплект из 2 документов, старый superseded (SC-04).
+// Дозапрос к выписке — на весь документ (решение Кирилла 2026-11-10).
 import { CLIENT_BASE_KEYS, ago, document, documentSet, phone, uploaded } from '../build';
 import type { PersonaFixture } from '../types';
 
@@ -42,7 +43,18 @@ export const clientMoreDocs: PersonaFixture = (now) => {
         owner: { kind: 'application', id: 'app_cm' },
         round: 2,
         status: 'draft',
-        documents: REQUESTED.map((key) => document(NEW, key, { status: 'pending', updated_at: asked })),
+        documents: [
+          document(NEW, 'bs', {
+            status: 'pending',
+            updated_at: asked,
+            reason_kind: 'request',
+            reject_reason_text: {
+              ar: 'نحتاج أيضًا كشف حساب لآخر 3 أشهر من الحساب الثاني',
+              en: 'We also need the last 3 months from your second account',
+            },
+          }),
+          document(NEW, 'vat_sales', { status: 'pending', updated_at: asked }),
+        ],
       }),
     ],
     limits: [],

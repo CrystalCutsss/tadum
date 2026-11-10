@@ -249,6 +249,38 @@ describe('документы (01-statuses.md §4–5, SC-02, SC-03)', () => {
     expect(ok.document.reject_reason_text).toBeUndefined();
     expect(ok.document.rejected_file_hashes).toContain(hex);
   });
+  it('несколько файлов: второй файл добавляется, тот же — same_file_rejected, больше 10 — too_many (2026-11-10)', async () => {
+    const api = as('client_partial');
+    const vat = (await clientSet(api)).documents.find((d) => d.portal_key === 'vat')!;
+    const two = await api.documents.upload(vat.id, pdf('vat-2.pdf'));
+    expect(two.document.files).toHaveLength(2);
+    expect(two.document.status).toBe('received');
+    expect(await code(api.documents.upload(vat.id, pdf('again.pdf', 'vat-2.pdf')))).toBe('document.same_file_rejected');
+    for (let i = 3; i <= 10; i++) await api.documents.upload(vat.id, pdf(`vat-${i}.pdf`));
+    expect(await code(api.documents.upload(vat.id, pdf('vat-11.pdf')))).toBe('upload.error.too_many');
+  });
+  it('замечание к файлу: замена файла снимает его, документ → received; удаление файла с замечанием — тоже', async () => {
+    const api = as('client_rejected');
+    const docs = (await clientSet(api)).documents;
+    const vatSales = docs.find((d) => d.portal_key === 'vat_sales')!;
+    const bad = vatSales.files.find((f) => f.issue)!;
+    const replaced = await api.documents.replace(vatSales.id, bad.id, pdf('vat-signed.pdf'));
+    expect(replaced.document.status).toBe('received');
+    expect(replaced.document.files.some((f) => f.issue)).toBe(false);
+    const id = docs.find((d) => d.portal_key === 'national_id')!;
+    const extra = await api.documents.upload(id.id, pdf('id-back.pdf'));
+    expect(extra.document.status).toBe('rejected');
+    const cleaned = await api.documents.delete(id.id, id.files[0]!.id);
+    expect(cleaned).toMatchObject({ status: 'received' });
+  });
+  it('CR: 10 цифр сохраняются, иначе company.cr_invalid; без CR комплект не отправить', async () => {
+    const api = as('client_new');
+    expect(await code(api.application.setCrNumber('123'))).toBe('company.cr_invalid');
+    await fillAll(api, await clientSet(api));
+    expect(await code(api.documents.submit((await clientSet(api)).id))).toBe('documents.submit_incomplete');
+    expect((await api.application.setCrNumber('1010000001')).cr_number).toBe('1010000001');
+    expect((await api.documents.submit((await clientSet(api)).id)).status).toBe('submitted');
+  });
   it('отправка неполного комплекта — documents.submit_incomplete с числом оставшихся', async () => {
     const api = as('client_partial');
     const set = await clientSet(api);
@@ -257,6 +289,7 @@ describe('документы (01-statuses.md §4–5, SC-02, SC-03)', () => {
   it('§10 инвариант: после submitted любая попытка изменить файл → document_set_locked', async () => {
     const api = as('client_new');
     await fillAll(api, await clientSet(api));
+    await api.application.setCrNumber('1010000001');
     const set = await api.documents.submit((await clientSet(api)).id);
     expect(set).toMatchObject({ status: 'submitted', locked: true });
     const doc = set.documents[0]!;

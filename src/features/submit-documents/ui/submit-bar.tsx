@@ -4,6 +4,9 @@
 // внизу колонки контента. Слева — «Загружено X из N» и прогресс, справа — «Отправить на проверку», по центру блока.
 // Кнопка всегда активна: если что-то не загружено или не прошло проверку, нажатие показывает тост сверху,
 // подсвечивает эти документы и прокручивает к верхнему из них (onBlocked). D-029: без диалога.
+// Всё загружено и номер CR введён (решение Кирилла 2026-11-10): панель с лёгким bounce вырастает по высоте, над
+// прогрессом появляется текст «всё готово — отправьте», обводка синяя, вокруг — мягкое синее свечение волнами.
+// Удалили файл или файл не прошёл проверку — эффекты гаснут, панель с тем же bounce возвращается к обычному виду.
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +15,8 @@ import { documentsProgress } from '@/entities/document';
 import type { DocumentSet } from '@/shared/api';
 import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
+import { cn } from 'cn';
+
 import { Button, Progress, Spinner, toast } from '@/shared/ui';
 
 import { submitErrorKey, useSubmitDocuments } from '../model/use-submit-documents';
@@ -24,16 +29,21 @@ export function blockingDocuments(set: Pick<DocumentSet, 'documents'>): string[]
 export interface SubmitBarProps {
   set: DocumentSet;
   uploading: boolean;
+  /** Номер CR компании сохранён и подходит. */
+  crReady: boolean;
   /** Отправить пока нельзя: какие документы подсветить. */
   onBlocked: (portalKeys: string[]) => void;
+  /** Нет номера CR: показать ошибку у поля и перейти к нему. */
+  onCrMissing: () => void;
 }
 
-export function SubmitBar({ set, uploading, onBlocked }: SubmitBarProps) {
+export function SubmitBar({ set, uploading, crReady, onBlocked, onCrMissing }: SubmitBarProps) {
   const { t } = useTranslation();
   const online = useOnline();
   const submit = useSubmitDocuments(set);
   const progress = documentsProgress(set);
-  const ready = canSubmitDocumentSet(set);
+  const documentsReady = canSubmitDocumentSet(set);
+  const ready = documentsReady && crReady;
   const label = t('documents.progress', { uploaded: formatNumber(progress.uploaded), total: formatNumber(progress.total) });
 
   const onSend = () => {
@@ -43,6 +53,11 @@ export function SubmitBar({ set, uploading, onBlocked }: SubmitBarProps) {
     }
     if (uploading) {
       toast(t('documents.submit.wait_uploads'), { position: 'top-center' });
+      return;
+    }
+    if (documentsReady && !crReady) {
+      toast(t('cr.missing'), { position: 'top-center' });
+      onCrMissing();
       return;
     }
     if (!ready) {
@@ -58,18 +73,38 @@ export function SubmitBar({ set, uploading, onBlocked }: SubmitBarProps) {
   };
 
   return (
-    <div className="sticky bottom-4 z-10 mt-auto md:bottom-6 flex items-center gap-4 rounded-xl border bg-card p-3 text-card-foreground shadow-md md:p-4">
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <p id="submit-progress" className="text-sm font-medium" aria-live="polite">
-          {label}
-        </p>
-        <Progress value={progress.total === 0 ? 0 : (progress.uploaded / progress.total) * 100} aria-labelledby="submit-progress" />
-        {ready ? <p className="text-xs text-muted-foreground">{t('documents.submit.hint_locks')}</p> : null}
+    <div
+      data-ready={ready}
+      className={cn(
+        'sticky bottom-4 z-10 mt-auto flex flex-col rounded-xl border bg-card p-3 text-card-foreground shadow-md transition duration-slow ease-standard md:bottom-6 md:p-4',
+        ready && 'animate-glow-wave border-primary',
+      )}
+    >
+      {/* Высота текста растёт от нуля с лёгким перелётом (ease-bounce) и так же схлопывается. */}
+      <div className={cn('grid transition-grid-rows duration-bounce ease-bounce', ready ? 'grid-rows-expanded' : 'grid-rows-collapsed')} aria-hidden={!ready}>
+        <div className="min-h-0 overflow-hidden">
+          <div className={cn('flex flex-col gap-1 pb-3 transition-opacity duration-slow ease-standard md:pb-4', ready ? 'opacity-100' : 'opacity-0')}>
+            <p className="text-base font-semibold">{t('documents.submit.ready_title')}</p>
+            <p className="text-sm text-muted-foreground">{t('documents.submit.ready_body')}</p>
+          </div>
+        </div>
       </div>
-      <Button type="button" className="min-h-11 shrink-0" aria-busy={submit.isPending} onClick={onSend}>
-        {submit.isPending ? <Spinner aria-label={t('documents.submit.sending')} /> : null}
-        {t('documents.submit.cta')}
-      </Button>
+      <p className="sr-only" aria-live="polite">
+        {ready ? `${t('documents.submit.ready_title')}. ${t('documents.submit.ready_body')}` : ''}
+      </p>
+      <div className="flex items-center gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <p id="submit-progress" className="text-sm font-medium" aria-live="polite">
+            {label}
+          </p>
+          <Progress value={progress.total === 0 ? 0 : (progress.uploaded / progress.total) * 100} aria-labelledby="submit-progress" />
+          {ready ? <p className="text-xs text-muted-foreground">{t('documents.submit.hint_locks')}</p> : null}
+        </div>
+        <Button type="button" className="min-h-11 shrink-0" aria-busy={submit.isPending} onClick={onSend}>
+          {submit.isPending ? <Spinner aria-label={t('documents.submit.sending')} /> : null}
+          {t('documents.submit.cta')}
+        </Button>
+      </div>
     </div>
   );
 }

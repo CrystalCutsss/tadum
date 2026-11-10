@@ -68,6 +68,8 @@ export type DomainErrorCode =
   | 'document.same_file_rejected'
   | 'upload.error.too_large'
   | 'upload.error.unsupported_type'
+  | 'upload.error.too_many'
+  | 'company.cr_invalid'
   | 'documents.submit_incomplete'
   | 'application_not_closed'
   | 'limit_exceeded'

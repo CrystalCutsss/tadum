@@ -60,6 +60,18 @@
     "server_error_retry": "Something went wrong on our side. Please try again",
     "storage_unavailable": "Your browser doesn't keep data between visits. You may need to sign in again next time"
   },
+  "cr": {
+    "error": {
+      "length": "Enter all 10 digits of your CR number",
+      "required": "Enter your CR number",
+      "save": "We couldn't save your CR number. Try again"
+    },
+    "helper": "10 digits",
+    "hint": "You'll find the 10-digit number on your CR certificate",
+    "label": "CR number",
+    "missing": "Add your CR number to send for review",
+    "title": "Commercial Registration (CR) number"
+  },
   "document": {
     "aoa": {
       "hint": "Your company's current articles of association",
@@ -86,9 +98,9 @@
       "generic": "This file couldn't be accepted. Upload a new one following the hint below"
     },
     "source": {
-      "molim": "Molim app",
-      "simah": "SIMAH reports",
-      "zatca": "ZATCA portal"
+      "molim": "Get it on Molim",
+      "simah": "Get it on SIMAH",
+      "zatca": "Get it on ZATCA"
     },
     "status": {
       "approved": "Accepted",
@@ -114,10 +126,7 @@
       "deleted": "File deleted",
       "download": "Download",
       "download_failed": "We couldn't open the file. Try again",
-      "replace": "Replace",
-      "replace_body": "{name} will be replaced with the new file",
-      "replace_confirm": "Replace",
-      "replace_title": "Replace the file?"
+      "replace": "Replace"
     },
     "list_label": "Documents",
     "locked": {
@@ -144,6 +153,7 @@
       "title": "Steps"
     },
     "row": {
+      "add_file": "Add another file",
       "collapse": "Hide details for {title}",
       "expand": "Show details for {title}",
       "files": "Files for {title}",
@@ -162,6 +172,8 @@
       "error_incomplete": "Some documents are still missing. Upload them and try again",
       "error_locked": "Your documents have already been sent",
       "hint_locks": "After sending, files can't be changed until the review is done",
+      "ready_body": "You've uploaded all the documents. Now send them for review",
+      "ready_title": "Everything is ready",
       "sending": "Sending…",
       "wait_uploads": "Wait until the files finish uploading, then send"
     },
@@ -190,6 +202,7 @@
   },
   "nav": {
     "account": "Account",
+    "application": "Application",
     "breadcrumb": "Breadcrumb",
     "clients": "Clients",
     "documents": "Documents",
@@ -365,14 +378,20 @@
       "title": "Drop a file or tap here"
     },
     "error": {
+      "files_limit": "You can add up to {max} files to one document",
       "locked": "Your documents are under review and can't be changed right now",
       "network": "Upload interrupted. Check your connection and try again",
       "offline": "You're offline. Try again when you're back online",
-      "one_file": "Upload one file for this document",
-      "same_file": "This is the same file as before. Upload a new one",
+      "same_file": "You've already uploaded this file. Choose another one",
       "server": "We couldn't save the file. Try again",
       "too_large": "The file is larger than {max_mb} MB. Choose a smaller file",
       "unsupported_type": "Use a PDF, JPG or PNG file"
+    },
+    "same_file": {
+      "body": "We didn't upload {name}: it's already in this document or wasn't accepted earlier. Choose another file",
+      "choose_another": "Choose another file",
+      "ok": "Got it",
+      "title": "You've already uploaded this file"
     },
     "state": {
       "cancelled": "Upload cancelled",

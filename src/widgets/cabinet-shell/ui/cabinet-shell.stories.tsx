@@ -31,10 +31,10 @@ const account = (canvasElement: HTMLElement) => within(canvasElement).findByRole
 export const Client: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Основное меню: Home и Documents, текущая страница отмечена в меню.
+    // Основное меню клиента: Home и Application, текущая страница отмечена в меню.
     const nav = await canvas.findByRole('navigation', { name: tr('nav.main') });
     await expect(within(nav).getByRole('link', { name: tr('nav.home') })).toHaveAttribute('data-active', 'true');
-    await expect(within(nav).getByRole('link', { name: tr('nav.documents') })).toBeVisible();
+    await expect(within(nav).getByRole('link', { name: tr('nav.application') })).toBeVisible();
     // Один уровень — крошек в шапке нет (решение Кирилла 2026-11-09), они появятся с вложенными страницами.
     await expect(canvas.queryByRole('navigation', { name: tr('nav.breadcrumb') })).toBeNull();
     // Аккаунт: название компании (по-арабски в ar, A-055) и роль подстрочником.
@@ -109,7 +109,7 @@ export const MobileSheet: Story = {
     await userEvent.click(await within(canvasElement).findByRole('button', { name: tr('nav.toggle_sidebar') }));
     const sheet = await body.findByRole('dialog', { name: tr('nav.mobile_title') });
     // Шторка выезжает с анимацией — ждём, пока пункты станут видны.
-    await waitFor(() => expect(within(sheet).getByRole('link', { name: tr('nav.documents') })).toBeVisible());
+    await waitFor(() => expect(within(sheet).getByRole('link', { name: tr('nav.application') })).toBeVisible());
     await waitFor(() => expect(within(sheet).getByRole('button', { name: new RegExp(tr('nav.account')) })).toBeVisible());
     await userEvent.keyboard('{Escape}');
   },

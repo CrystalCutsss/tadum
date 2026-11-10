@@ -32,10 +32,16 @@
     --shadow-sm: var(--elevation-sm);
     --shadow-md: var(--elevation-md);
     --shadow-inset: var(--elevation-inset);
-    --duration-fast: var(--motion-fast);
-    --duration-base: var(--motion-base);
-    --duration-slow: var(--motion-slow);
+    /* Утилиты duration-* Tailwind v4 берут значения из пространства --transition-duration-*, не --duration-*
+       (до 2026-11-10 здесь было --duration-*, и duration-fast/base/slow не генерировались). */
+    --transition-duration-fast: var(--motion-fast);
+    --transition-duration-base: var(--motion-base);
+    --transition-duration-slow: var(--motion-slow);
+    --transition-duration-bounce: var(--motion-bounce);
     --ease-standard: var(--ease-standard);
+    --ease-bounce: var(--ease-bounce);
+    --shadow-glow-primary: var(--glow-primary);
+    --shadow-glow-primary-faint: var(--glow-primary-faint);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -113,4 +119,44 @@
 /* Нижняя навигация над «домашней полосой» iOS (01-cabinet-structure.md §2: учёт safe-area-inset-bottom). */
 @utility pb-safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Свечение-волна (2026-11-10): мягко нарастает от нуля до --glow-primary и гаснет, по кругу.
+   Анимация перекрывает box-shadow элемента (в том числе ring), поэтому при :focus-visible она снимается —
+   кольцо фокуса остаётся видимым. При prefers-reduced-motion — без анимации, слабое статичное свечение. */
+@keyframes glow-wave {
+  0%,
+  100% {
+    box-shadow: var(--glow-primary-none);
+  }
+  50% {
+    box-shadow: var(--glow-primary);
+  }
+}
+@utility animate-glow-wave {
+  animation: glow-wave var(--motion-glow) ease-in-out infinite;
+  &:focus-visible {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    &:not(:focus-visible) {
+      box-shadow: var(--glow-primary-faint);
+    }
+  }
+}
+
+/* Раскрытие по высоте (липкая панель отправки, 2026-11-10): grid-template-rows 0fr ↔ 1fr, у дочернего
+   элемента — min-h-0 overflow-hidden. Длительность и кривая — как у transition-* Tailwind: --tw-duration и
+   --tw-ease, поэтому duration-bounce ease-bounce (и другие duration-/ease-) применяются. */
+@utility grid-rows-collapsed {
+  grid-template-rows: 0fr;
+}
+@utility grid-rows-expanded {
+  grid-template-rows: 1fr;
+}
+@utility transition-grid-rows {
+  transition-property: grid-template-rows;
+  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration, var(--default-transition-duration));
 }

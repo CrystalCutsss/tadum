@@ -1,4 +1,4 @@
-// Файлы документа: загруженные (с предупреждением предвалидации) и загружающиеся сейчас
+// Файлы документа: загруженные (с замечанием проверяющего — бабл под файлом) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
 import { RiCloseLine, RiErrorWarningLine, RiFileLine } from '@remixicon/react';
 import { cn } from 'cn';
@@ -10,7 +10,8 @@ import { FileActions } from '@/features/manage-document-file';
 import type { FileTask } from '@/features/upload-document';
 import type { Document, FileAsset } from '@/shared/api';
 import { formatFileSize, formatNumber } from '@/shared/i18n';
-import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, Progress, Spinner } from '@/shared/ui';
+import { fileIssueReason } from '@/entities/document';
+import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemMedia, ItemTitle, Progress, SpeechBubble, Spinner } from '@/shared/ui';
 
 // Иконка файла — в сером квадрате по центру строки, иконка документа как в сайдбаре (решение Кирилла 2026-11-10).
 const FILE_MEDIA =
@@ -27,12 +28,17 @@ export function UploadedFileRow({
   editable: boolean;
   onReplace: () => void;
 }) {
-  const { t } = useTranslation();
-  // Предупреждение предвалидации показывается в основной карточке документа (решение 2026-11-10).
+  const { t, i18n } = useTranslation();
+  const issue = file.issue;
+  const reason = issue ? fileIssueReason(issue, i18n.language === 'ar' ? 'ar' : 'en') : null;
+  const reasonText = reason ? (reason.kind === 'text' ? reason.text : String(t(reason.key as ParseKeys))) : null;
+  const reasonId = `issue-${file.id}`;
+  // Замечание к файлу (решение Кирилла 2026-11-10): вместо иконки файла — восклицательный знак в оранжевом квадрате,
+  // под именем и весом — оранжевый бабл с хвостиком в центр квадрата иконки.
   return (
-    <Item size="sm" className="flex-nowrap items-center border-0 bg-card">
-      <ItemMedia variant="icon" className={FILE_MEDIA}>
-        <Icon icon={RiFileLine} />
+    <Item size="sm" className={cn('items-center border-0 bg-card', issue ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
+      <ItemMedia variant="icon" className={cn(FILE_MEDIA, issue && 'bg-status-rejected-muted text-status-rejected')}>
+        <Icon icon={issue ? RiErrorWarningLine : RiFileLine} />
       </ItemMedia>
       <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0">
@@ -44,6 +50,14 @@ export function UploadedFileRow({
       <ItemActions>
         <FileActions documentId={doc.id} portalKey={doc.portal_key} status={doc.status} file={file} editable={editable} onReplace={onReplace} />
       </ItemActions>
+      {reasonText ? (
+        <ItemFooter>
+          {/* Центр квадрата иконки: половина его ширины (size-10) от начала бабла. */}
+          <SpeechBubble id={reasonId} tailOffset="calc(var(--spacing) * 5)" className="w-full">
+            {reasonText}
+          </SpeechBubble>
+        </ItemFooter>
+      ) : null}
     </Item>
   );
 }

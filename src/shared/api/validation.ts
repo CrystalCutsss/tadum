@@ -26,7 +26,7 @@ type Schemas<P> = { [K in keyof P]: z.ZodType };
 
 export const RESPONSE_SCHEMAS: { [K in keyof Ports]: Schemas<Ports[K]> } = {
   auth: { requestOtp: OtpChallengeSchema, verifyOtp: SessionSchema, getSession: SessionSchema.nullable(), logout: z.void() },
-  application: { getCurrent: ApplicationSchema, getCompany: CompanySchema, createApplication: ApplicationSchema },
+  application: { getCurrent: ApplicationSchema, getCompany: CompanySchema, setCrNumber: CompanySchema, createApplication: ApplicationSchema },
   documents: {
     getSet: DocumentSetSchema,
     upload: UploadResultSchema,

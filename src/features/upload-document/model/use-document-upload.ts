@@ -1,12 +1,14 @@
 // Загрузка файлов документа (SC-02, D-028): файлы идут по одному (стабильнее во встроенном браузере WhatsApp),
 // у каждого своё состояние queued → uploading % → validating → done | failed. Клиент остаётся в списке.
 // Отмена: в порте нет прерывания, поэтому результат отменённой загрузки удаляем, если файл успел сохраниться (A-058).
+// Несколько файлов в документе, до MAX_FILES_PER_DOCUMENT (решение Кирилла 2026-11-10). Тот же файл (по SHA-256: уже
+// есть в документе или раньше не подошёл) не отправляется — вызывающий показывает окно-предупреждение (onSameFile).
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { track } from '@/shared/analytics';
-import { DomainError, getApi, MAX_FILE_SIZE_BYTES, NetworkError, type Document, type UploadResult } from '@/shared/api';
-import { network, now } from '@/shared/lib';
+import { DomainError, getApi, MAX_FILE_SIZE_BYTES, MAX_FILES_PER_DOCUMENT, NetworkError, type Document, type UploadResult } from '@/shared/api';
+import { network, now, sha256Hex } from '@/shared/lib';
 
 export type UploadSource = 'camera' | 'gallery' | 'files' | 'unknown';
 export type FileTaskState = 'queued' | 'uploading' | 'validating' | 'done' | 'failed' | 'cancelled';
@@ -37,6 +39,7 @@ export function uploadErrorOf(error: unknown): { key: string; values?: Record<st
     if (error.code === 'upload.error.unsupported_type') return { key: 'upload.error.unsupported_type', reason: 'unsupported_type' };
     if (error.code === 'document.same_file_rejected') return { key: 'upload.error.same_file', reason: 'same_file_rejected' };
     if (error.code === 'document_set_locked') return { key: 'upload.error.locked', reason: 'server_error' };
+    if (error.code === 'upload.error.too_many') return { key: 'upload.error.files_limit', values: { max: MAX_FILES_PER_DOCUMENT }, reason: 'server_error' };
   }
   if (!network.isOnline()) return { key: 'upload.error.offline', reason: 'offline' };
   if (error instanceof NetworkError) return { key: 'upload.error.network', reason: 'network' };
@@ -52,12 +55,33 @@ interface Job {
 
 let seq = 0;
 
-export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'status' | 'files'>) {
+/** Хэш файла; браузер без crypto.subtle (не https) — проверку пропускаем, её повторит сервер. */
+async function hashOf(file: File): Promise<string | null> {
+  try {
+    return await sha256Hex(await file.arrayBuffer());
+  } catch {
+    return null;
+  }
+}
+
+export interface UploadHandlers {
+  /** Выбран тот же файл: он не загружается, показать предупреждение. */
+  onSameFile?: (names: string[]) => void;
+  /** Выбрано больше файлов, чем помещается в документ. */
+  onTooMany?: (max: number) => void;
+}
+
+export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'status' | 'files' | 'rejected_file_hashes'>, handlers: UploadHandlers = {}) {
   const queryClient = useQueryClient();
   const [tasks, setTasks] = useState<FileTask[]>([]);
   const queue = useRef<Job[]>([]);
   const running = useRef(false);
   const cancelled = useRef(new Set<string>());
+  // Обработчики из пропсов меняются на каждом рендере — держим последние в ref, колбэки очереди от них не зависят.
+  const handlersRef = useRef(handlers);
+  useEffect(() => {
+    handlersRef.current = handlers;
+  });
 
   const patch = useCallback((key: string, next: Partial<FileTask>) => {
     setTasks((all) => all.map((t) => (t.key === key ? { ...t, ...next } : t)));
@@ -133,6 +157,13 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
       } catch (error) {
         if (cancelled.current.has(key)) return;
         const e = uploadErrorOf(error);
+        if (e.reason === 'same_file_rejected' && handlersRef.current.onSameFile) {
+          // Сервер узнал тот же файл — то же окно, что и при проверке до отправки.
+          track('document_upload_failed', { owner: 'client', portal_key, reason: e.reason });
+          setTasks((all) => all.filter((t) => t.key !== key));
+          handlersRef.current.onSameFile([file.name]);
+          return;
+        }
         fail(key, portal_key, e.reason, e.key, e.values);
       } finally {
         await queryClient.invalidateQueries({ queryKey: ['documents'] });
@@ -156,14 +187,38 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
 
   /** Добавить файлы в очередь. replaceFileId — заменить конкретный файл (только первый из выбранных). */
   const start = useCallback(
-    (files: readonly File[], source: UploadSource, replaceFileId?: string) => {
-      const picked = replaceFileId ? files.slice(0, 1) : [...files];
-      const jobs = picked.map((file): Job => ({ key: `u${(seq += 1)}`, file, source, replaceFileId }));
+    async (files: readonly File[], source: UploadSource, replaceFileId?: string) => {
+      let picked = replaceFileId ? files.slice(0, 1) : [...files];
+      if (!replaceFileId) {
+        const queued = tasks.filter((t) => t.state === 'queued' || t.state === 'uploading' || t.state === 'validating').length;
+        const room = Math.max(0, MAX_FILES_PER_DOCUMENT - doc.files.length - queued);
+        if (picked.length > room) {
+          handlersRef.current.onTooMany?.(MAX_FILES_PER_DOCUMENT);
+          picked = picked.slice(0, room);
+        }
+      }
+      // Тот же файл: уже есть в документе (кроме заменяемого), раньше не подошёл или выбран дважды.
+      const known = new Set([...doc.rejected_file_hashes, ...doc.files.filter((f) => f.id !== replaceFileId).map((f) => f.sha256)]);
+      const same: string[] = [];
+      const fresh: File[] = [];
+      for (const file of picked) {
+        const sha = await hashOf(file);
+        if (sha && known.has(sha)) {
+          same.push(file.name);
+          track('document_upload_failed', { owner: 'client', portal_key: doc.portal_key, reason: 'same_file_rejected' });
+          continue;
+        }
+        if (sha) known.add(sha);
+        fresh.push(file);
+      }
+      if (same.length > 0) handlersRef.current.onSameFile?.(same);
+      const jobs = fresh.map((file): Job => ({ key: `u${(seq += 1)}`, file, source, replaceFileId }));
+      if (jobs.length === 0) return;
       setTasks((all) => [...all, ...jobs.map((j): FileTask => ({ key: j.key, name: j.file.name, size: j.file.size, state: 'queued', percent: 0 }))]);
       queue.current.push(...jobs);
       void drain();
     },
-    [drain],
+    [doc.files, doc.portal_key, doc.rejected_file_hashes, drain, tasks],
   );
 
   const cancel = useCallback(

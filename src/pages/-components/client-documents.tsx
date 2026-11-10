@@ -2,11 +2,12 @@
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { applicationQuery, canEditFiles, computeClientTimeline, type ClientTimeline } from '@/entities/application';
+import { applicationQuery, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
+import { CompanyCrCard } from '@/features/edit-company-cr';
 import { track } from '@/shared/analytics';
 import { useStatusPolling, type Application } from '@/shared/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@/shared/ui';
@@ -69,6 +70,9 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
   const app = useStatusPolling(applicationQuery);
   const owner = { kind: 'application' as const, id: app.data?.id ?? '' };
   const set = useQuery({ ...documentSetQuery(owner), enabled: Boolean(app.data) });
+  const company = useQuery(companyQuery);
+  // Попытка отправить без номера CR — поле показывает ошибку и получает фокус.
+  const [crAttention, setCrAttention] = useState(0);
 
   const data = app.data;
   const editable = data && set.data ? canEditFiles(data.permission_state, set.data) : false;
@@ -115,7 +119,14 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
         </>
       )}
 
-      <DocumentList set={set.data} editable={editable} focusKey={focusKey} />
+      <DocumentList
+        set={set.data}
+        editable={editable}
+        focusKey={focusKey}
+        header={<CompanyCrCard company={company.data} editable={editable} attention={crAttention} />}
+        crReady={isValidCr(company.data?.cr_number)}
+        onCrMissing={() => setCrAttention((n) => n + 1)}
+      />
 
       {!editable ? (
         <Card className="rounded-xl">

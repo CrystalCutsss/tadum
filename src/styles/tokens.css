@@ -120,6 +120,19 @@
   --motion-base: 200ms;
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  /* Лёгкий отскок с перелётом (экран документов клиента, решение Кирилла 2026-11-10). */
+  --motion-bounce: 480ms;
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Свечение-волна (2026-11-10): цвет — --primary с прозрачностью через color-mix.
+     В отличие от --elevation-*, в тёмной теме не none: там берётся более светлый синий пресета.
+     Три ступени одинаковой формы (blur, spread) — чтобы box-shadow интерполировался в @keyframes. */
+  --glow-primary-color: color-mix(in oklch, var(--primary) 35%, transparent);
+  --glow-primary: 0 0 8px 6px var(--glow-primary-color);
+  --glow-primary-faint: 0 0 4px 2px var(--glow-primary-color);
+  --glow-primary-none: 0 0 0 0 var(--glow-primary-color);
+  /* Период волны; при prefers-reduced-motion анимация выключается утилитой, остаётся слабое статичное свечение. */
+  --motion-glow: 2400ms;
 }
 
 .dark {
@@ -144,6 +157,12 @@
 
   --elevation-sm: none;
   --elevation-md: none;
+
+  /* Переобъявление обязательно: var(--primary) в :root вычисляется в :root и не видит .dark. */
+  --glow-primary-color: color-mix(in oklch, var(--sidebar-primary) 50%, transparent);
+  --glow-primary: 0 0 8px 6px var(--glow-primary-color);
+  --glow-primary-faint: 0 0 4px 2px var(--glow-primary-color);
+  --glow-primary-none: 0 0 0 0 var(--glow-primary-color);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -151,5 +170,6 @@
     --motion-fast: 0ms;
     --motion-base: 0ms;
     --motion-slow: 0ms;
+    --motion-bounce: 0ms;
   }
 }

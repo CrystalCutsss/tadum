@@ -5,7 +5,7 @@ import {
   derivePermissionState,
   deriveSupplierViewStatus,
 } from '@/entities/application';
-import { findDocumentType, hintFor, transitionDocument } from '@/entities/document';
+import { findDocumentType, hintFor, isSameFile, settleDocumentStatus, transitionDocument } from '@/entities/document';
 import { computeLimitAmounts, computeTurnover, isChecklistCompleted } from '@/entities/limit';
 import { initialActiveRole, resolveRoles } from '@/entities/session';
 import { deriveSupplierStatus, supplierNextStep } from '@/entities/supplier';
@@ -23,6 +23,8 @@ export const mockDomain: MockDomain = {
   computeTurnover,
   isChecklistCompleted,
   transitionDocument,
+  settleDocumentStatus,
+  isSameFile,
   resolveRoles,
   initialActiveRole,
   hintFor,

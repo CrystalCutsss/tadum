@@ -62,6 +62,8 @@ export interface ApplicationPort {
   getCurrent(): Promise<Application>;
   /** Компания текущей заявки: название в шапке кабинета (01-cabinet-structure.md §4). */
   getCompany(): Promise<Company>;
+  /** Номер CR компании: 10 цифр; неверный — DomainError `company.cr_invalid`. */
+  setCrNumber(crNumber: string): Promise<Company>;
   /** Только из `closed` (D-038): новая заявка, старая остаётся закрытой. */
   createApplication(): Promise<Application>;
 }
