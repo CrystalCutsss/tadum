@@ -1,4 +1,4 @@
-<!-- source: Drive 1hGlAJ_MDSGP0s58WYFcU77lfFY7tqooR, synced: 2026-11-10. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1YXkrKZ3RYTypkBw4MYHABg1rQrRxKTUo, synced: 2026-11-10. Не редактировать — источник в Drive. -->
 # SC-01 · Первый вход
 
 | Поле | Значение |
@@ -92,7 +92,7 @@
 
 | Ключ | EN | AR | Примечание |
 |---|---|---|---|
-| `auth.phone.title` | Sign in to your Tadum account | تسجيل الدخول إلى حسابك في تدوم | «Tadum» в арабском — تدوم (подтвердить написание бренда) |
+| `auth.phone.title` | Welcome to Tadum | مرحبًا بك في تدوم | «Tadum» в арабском — تدوم; заголовок под логотипом (Кирилл 2026-11-10) |
 | `auth.phone.subtitle` | Enter the phone number you used in your application | أدخل رقم الجوال الذي استخدمته في طلبك | |
 | `auth.phone.label` | Mobile number | رقم الجوال | |
 | `auth.phone.placeholder` | 5X XXX XXXX | 5X XXX XXXX | Код страны `+966` — отдельный неизменяемый префикс |
