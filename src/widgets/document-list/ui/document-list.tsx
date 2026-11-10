@@ -1,5 +1,5 @@
-// Список документов клиента (SC-02…SC-04): баннер второго раунда, строки документов (сначала те, где нужно
-// действие), плавающая карточка отправки с прогрессом «Загружено X из N» (решения Кирилла 2026-11-09).
+// Список документов клиента (SC-02…SC-04): баннер второго раунда, строки документов (при открытии сначала те, где
+// нужно действие; дальше порядок не меняется), плавающая карточка отправки с прогрессом «Загружено X из N» (решения Кирилла 2026-11-09).
 // Попытка отправить с незагруженными документами подсвечивает их и прокручивает к верхнему, если он не виден целиком.
 import { RiInformationLine } from '@remixicon/react';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,12 +32,26 @@ function revealRow(portalKey: string) {
   el.scrollIntoView({ block: 'start', behavior: reducedMotion() ? 'auto' : 'smooth' });
 }
 
+/** Документы в порядке, зафиксированном при открытии; неизвестные порядку — в конце, в порядке sortDocuments. */
+export function stableOrder<T extends DocumentSet['documents'][number]>(docs: readonly T[], keys: readonly string[]): T[] {
+  const rank = (key: string) => {
+    const i = keys.indexOf(key);
+    return i === -1 ? keys.length : i;
+  };
+  return sortDocuments(docs).sort((a, b) => rank(a.portal_key) - rank(b.portal_key));
+}
+
 export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
   const { t } = useTranslation();
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [highlight, setHighlight] = useState<readonly string[]>([]);
   const onUploadingChange = useCallback((key: string, busy: boolean) => setUploading((all) => (all[key] === busy ? all : { ...all, [key]: busy })), []);
-  const docs = sortDocuments(set.documents);
+  // Порядок фиксируется при открытии экрана (и в каждом новом раунде): после загрузки карточка остаётся на месте,
+  // а не уезжает вниз со сменой статуса (решение Кирилла 2026-11-10). Новые документы — в конец.
+  const initialOrder = () => ({ round: set.round, keys: sortDocuments(set.documents).map((d) => d.portal_key) });
+  const [order, setOrder] = useState(initialOrder);
+  if (order.round !== set.round) setOrder(initialOrder());
+  const docs = stableOrder(set.documents, order.keys);
   const moreDocs = set.round > 1 && editable;
 
   useEffect(() => {
