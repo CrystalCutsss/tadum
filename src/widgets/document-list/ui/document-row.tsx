@@ -1,8 +1,7 @@
 // Карточка документа (решения Кирилла 2026-11-09/10): отдельного экрана нет — всё здесь, без сворачивания.
-// Основная карточка: ошибки и «нужен новый файл» сверху, затем название, описание и справа статус либо «Загрузить».
-// Нижняя серая панель: загруженный файл (белая карточка), видео и пример слева, ссылки на сервисы справа.
+// Основная карточка: название, описание и справа статус либо «Загрузить».
+// Нижняя серая панель: загруженный файл (белая карточка), под ним ошибки, затем видео и пример слева, ссылки на сервисы справа.
 // Перетаскивания нет — загрузка только кнопкой в карточке.
-import { RiErrorWarningLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
@@ -13,9 +12,6 @@ import { SourcePicker, useDocumentUpload, type UploadSource } from '@/features/u
 import type { Document } from '@/shared/api';
 import { useOnline } from '@/shared/lib';
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
   Badge,
   Button,
   Icon,
@@ -39,7 +35,7 @@ import {
 } from '@/shared/ui';
 
 import { DocumentResources } from './document-resources';
-import { UploadTaskMessage, UploadTaskRow, UploadedFileRow } from './file-rows';
+import { ErrorNotice, UploadTaskMessage, UploadTaskRow, UploadedFileRow } from './file-rows';
 
 export interface DocumentRowProps {
   doc: Document;
@@ -104,27 +100,6 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
             highlighted && 'border-primary ring-2 ring-primary/30',
           )}
         >
-          {/* Ошибки и «нужен новый файл» — внутри карточки, над названием (решение 2026-11-10). */}
-          {hasNotices ? (
-            <div className="flex flex-col gap-2">
-              {reasonText ? (
-                <Alert id={reasonId} className="border-status-rejected/30 bg-status-rejected-muted text-status-rejected">
-                  <Icon icon={RiErrorWarningLine} />
-                  <AlertTitle>{t('documents.row.reason_title')}</AlertTitle>
-                  <AlertDescription className="text-status-rejected">{reasonText}</AlertDescription>
-                </Alert>
-              ) : null}
-              {warnings.map((warning) => (
-                <p key={warning.id} className="flex items-start gap-1 text-sm text-status-rejected">
-                  <Icon icon={RiErrorWarningLine} className="mt-0.5 size-4 shrink-0" />
-                  {t(warning.key as ParseKeys)}
-                </p>
-              ))}
-              {messages.map((task) => (
-                <UploadTaskMessage key={task.key} task={task} onDismiss={() => upload.dismiss(task.key)} />
-              ))}
-            </div>
-          ) : null}
           {/* Кнопка — по центру блока «заголовок + описание», у правого края (решение 2026-11-10). */}
           <Item className="flex-nowrap items-center rounded-none border-0 p-0">
             <ItemMedia variant="icon" className="hidden sm:flex">
@@ -178,6 +153,26 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
               {activeTasks.map((task) => (
                 <li key={task.key}>
                   <UploadTaskRow task={task} onCancel={() => upload.cancel(task.key)} onDismiss={() => upload.dismiss(task.key)} />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {/* Ошибки и «нужен новый файл» — под загруженным файлом, в том же виде, что и файл (решение 2026-11-10). */}
+          {hasNotices ? (
+            <ul className="flex flex-col gap-2">
+              {reasonText ? (
+                <li>
+                  <ErrorNotice id={reasonId} title={t('documents.row.reason_title')} text={reasonText} />
+                </li>
+              ) : null}
+              {warnings.map((warning) => (
+                <li key={warning.id}>
+                  <ErrorNotice text={t(warning.key as ParseKeys)} />
+                </li>
+              ))}
+              {messages.map((task) => (
+                <li key={task.key}>
+                  <UploadTaskMessage task={task} onDismiss={() => upload.dismiss(task.key)} />
                 </li>
               ))}
             </ul>

@@ -1,7 +1,9 @@
 // Файлы документа: загруженные (с предупреждением предвалидации) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
 import { RiCloseLine, RiErrorWarningLine, RiFileLine } from '@remixicon/react';
+import { cn } from 'cn';
 import type { ParseKeys, TFunction } from 'i18next';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FileActions } from '@/features/manage-document-file';
@@ -65,21 +67,38 @@ function taskStatus(task: FileTask, t: TFunction): string {
             : t('upload.error.server');
 }
 
-/** Ошибка или отмена загрузки — сообщение в основной карточке документа (решение 2026-11-10). */
+/**
+ * Ошибка в нижней панели карточки: под загруженным файлом, в том же виде, что и файл — иконка в квадрате
+ * по центру строки (решение Кирилла 2026-11-10). Тона — «нужно внимание» (status-rejected), не destructive.
+ */
+export function ErrorNotice({ id, title, text, action }: { id?: string; title?: ReactNode; text: ReactNode; action?: ReactNode }) {
+  return (
+    <Item id={id} size="sm" className="flex-nowrap items-center border-0 bg-status-rejected-muted text-status-rejected">
+      <ItemMedia variant="icon" className={cn(FILE_MEDIA, 'bg-card')}>
+        <Icon icon={RiErrorWarningLine} />
+      </ItemMedia>
+      <ItemContent className="min-w-0">
+        {title ? <ItemTitle>{title}</ItemTitle> : null}
+        <ItemDescription className="line-clamp-none text-status-rejected">{text}</ItemDescription>
+      </ItemContent>
+      {action ? <ItemActions>{action}</ItemActions> : null}
+    </Item>
+  );
+}
+
+/** Ошибка или отмена загрузки — то же сообщение, с кнопкой «скрыть». */
 export function UploadTaskMessage({ task, onDismiss }: { task: FileTask; onDismiss: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-start gap-1 text-sm text-status-rejected" role="status">
-      <Icon icon={RiErrorWarningLine} className="mt-0.5 size-4 shrink-0" />
-      <p className="min-w-0 flex-1">
-        <bdi className="font-medium">{task.name}</bdi>
-        {': '}
-        {taskStatus(task, t)}
-      </p>
-      <Button type="button" variant="ghost" size="icon" className="-my-3 min-h-11 min-w-11 shrink-0" aria-label={t('upload.dismiss', { name: task.name })} onClick={onDismiss}>
-        <Icon icon={RiCloseLine} />
-      </Button>
-    </div>
+    <ErrorNotice
+      title={<bdi className="truncate">{task.name}</bdi>}
+      text={taskStatus(task, t)}
+      action={
+        <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11 text-status-rejected" aria-label={t('upload.dismiss', { name: task.name })} onClick={onDismiss}>
+          <Icon icon={RiCloseLine} />
+        </Button>
+      }
+    />
   );
 }
 
