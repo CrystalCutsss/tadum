@@ -4,7 +4,7 @@
 // только когда есть что сказать (ждём подтверждения, 24 ч, не получилось, инструкция Nafith).
 // Акцент — на первом незавершённом пункте. До согласования условий (лимит pending) пункты видны, но неактивны.
 import {
-  RiCheckboxCircleLine,
+  RiCheckLine,
   RiErrorWarningLine,
   RiFileShield2Line,
   RiLockLine,
@@ -35,7 +35,7 @@ type View = ChecklistItemView | 'locked';
 const META: Record<Exclude<View, 'pending'>, { tone: Tone; icon: RemixiconComponentType }> = {
   in_progress: { tone: 'received', icon: RiTimeLine },
   stale: { tone: 'received', icon: RiTimeLine },
-  done: { tone: 'approved', icon: RiCheckboxCircleLine },
+  done: { tone: 'approved', icon: RiCheckLine },
   failed: { tone: 'neutral', icon: RiErrorWarningLine },
   locked: { tone: 'neutral', icon: RiLockLine },
 };
@@ -103,17 +103,6 @@ export function OnboardingChecklistView({ items, locked = false, dataUpdatedAt }
               index={index}
               view={view}
               focused={focus === item.key}
-              again={
-                !locked && (view === 'in_progress' || view === 'stale') && item.external_url ? (
-                  <ChecklistLinkButton
-                    item={{ key: item.key, external_url: item.external_url }}
-                    position={index + 1}
-                    primary={false}
-                    again
-                    onOpened={() => setOpenedTick((n) => n + 1)}
-                  />
-                ) : null
-              }
               action={
                 canOpen && item.external_url ? (
                   <ChecklistLinkButton
@@ -138,15 +127,12 @@ function ChecklistRow({
   view,
   focused,
   action,
-  again,
 }: {
   item: ChecklistItem;
   index: number;
   view: View;
   focused: boolean;
   action: React.ReactNode;
-  /** «Открыть снова» — у пункта, который ждёт подтверждения. */
-  again: React.ReactNode;
 }) {
   const { t } = useTranslation();
 
@@ -165,19 +151,17 @@ function ChecklistRow({
           ? t('checklist.nafith_instruction')
           : null;
 
-  const tray = note !== null || again !== null;
+  const tray = note !== null;
   return (
     <div className="flex flex-col rounded-xl bg-secondary">
       <div
-        className={cn(
-          'flex flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground transition-shadow duration-base ease-standard md:p-4',
-          focused && 'border-primary ring-2 ring-primary/30',
-        )}
+        className="flex flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground md:p-4"
         aria-current={focused ? 'step' : undefined}
       >
         <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-          <ItemMedia variant="icon" className={cn('hidden sm:flex', view === 'done' && 'text-status-approved')}>
-            <Icon icon={view === 'done' ? RiCheckboxCircleLine : ITEM_ICON[item.key]} />
+          {/* Иконка — в сером квадрате по центру строки, как у загруженных файлов (Кирилл 2026-11-11). */}
+          <ItemMedia variant="icon" className="size-10 self-center rounded-lg bg-muted">
+            <Icon icon={ITEM_ICON[item.key]} />
           </ItemMedia>
           <ItemContent className="min-w-0 gap-1">
             <ItemTitle className="flex-wrap">
@@ -192,7 +176,6 @@ function ChecklistRow({
       {tray ? (
         <div className="flex flex-col gap-1 px-3 py-2 md:px-4">
           {note ? <p className="text-sm text-muted-foreground">{note}</p> : null}
-          {again}
         </div>
       ) : null}
     </div>

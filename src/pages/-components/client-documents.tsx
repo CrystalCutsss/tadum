@@ -40,6 +40,9 @@ import { SupportBar } from '@/widgets/support-bar';
  * Панель шагов — фон как у нижней панели карточки документа, secondary (решение Кирилла 2026-11-10).
  * Вторичный текст с контрастом AA: muted-foreground на secondary — 4.2:1, secondary-foreground/65 — 5.3:1.
  */
+/** Лендинг «Подать заявку» (как в SC-08). */
+const landingUrl: string = import.meta.env.VITE_LANDING_URL ?? 'https://tadum.sa';
+
 const PANEL_MUTED = '[&_.text-muted-foreground]:text-secondary-foreground/65';
 
 type Steps = Extract<ClientTimeline, { hidden: false }>['steps'];
@@ -135,7 +138,7 @@ function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: b
   const isMobile = useIsMobile();
   const title = t('application.folder.title');
   const description = t('application.documents_accepted', { count: set.documents.length });
-  const list = <DocumentList set={set} editable={false} crReady onCrMissing={() => undefined} />;
+  const list = <DocumentList set={set} editable={false} archive crReady onCrMissing={() => undefined} />;
   if (isMobile) {
     return (
       <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
@@ -272,11 +275,12 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
       ) : lim ? (
         <>
           {stage === 'cancelled' ? (
-            <CancelledLimitCard />
+            <CancelledLimitCard applyUrl={landingUrl} />
           ) : (
             <>
               <LimitCard limit={lim} />
-              <SigningSteps limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
+              {/* Отступ от карточки лимита до заголовка подписей больше обычного (Кирилл 2026-11-11). */}
+              <SigningSteps className="mt-4" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
             </>
           )}
           {/* Телефон: папка — под шагами подписания; на компьютере она в третьей колонке под шагами заявки. */}

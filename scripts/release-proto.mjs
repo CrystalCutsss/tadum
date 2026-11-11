@@ -33,8 +33,9 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
  * через «Клиент и поставщик» или вход по номеру. «Клиент: на проверке» (client-submitted) — вход по номеру
  * 500000004; «Клиент: лимит активен» (client-active) — до готовности главной клиента.
  * v14 (Кирилл 2026-11-11, A-063): в меню — все сценарии этапов после одобрения: «Решение», «Подписание»,
- * «Подписание: частично», «Лимит отменён», «Лимит одобрен». Ось расширена до 12 пунктов — схема Proto
- * (`packages/registry/schemas/version.schema.json`, axes.items.maxItems) меняется отдельным PR в Proto.
+ * «Подписание: частично», «Лимит отменён», «Лимит одобрен». «Клиент и поставщик» (dual-active) убран: состояние
+ * не понадобится (Кирилл 2026-11-11). Девять пунктов — больше 6, которые пускает схема Proto
+ * (`packages/registry/schemas/version.schema.json`, axes.items.maxItems): правку Proto Кирилл пока не согласовал.
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру' },
@@ -46,7 +47,6 @@ export const PERSONA_ITEMS = [
   { id: 'client-signing-partial', title: 'Клиент: подписание, частично' },
   { id: 'client-limit-cancelled', title: 'Клиент: лимит отменён' },
   { id: 'client-active', title: 'Клиент: лимит одобрен' },
-  { id: 'dual-active', title: 'Клиент и поставщик' },
 ];
 
 export const PROTOTYPE_META = {

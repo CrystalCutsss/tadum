@@ -1,6 +1,7 @@
 {
   "application": {
     "cancelled": {
+      "apply": "Apply again",
       "body": "Our team can tell you more",
       "title": "This limit is no longer active"
     },
@@ -32,10 +33,8 @@
     "summary": {
       "approved_at": "Limit approved",
       "limit": "Limit",
-      "no_action": "Nothing is needed from you",
       "open": "Open application",
       "sent": "Sent for review",
-      "status": "Limit approved",
       "title": "Your limit is approved"
     }
   },
@@ -86,7 +85,6 @@
     "locked_hint": "These steps open after we confirm the terms",
     "nafith_instruction": "Open the Nafith app and approve the note sent to you",
     "open": "Open",
-    "open_again": "Open again",
     "pn_company_nafith": "Approve the company note (Nafith)",
     "pn_owner_nafith": "Approve the owner's note (Nafith)",
     "spa_sadq": "Sign the agreement (Sadq)",

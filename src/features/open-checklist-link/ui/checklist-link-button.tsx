@@ -14,9 +14,8 @@ export interface ChecklistLinkButtonProps {
   item: Pick<ChecklistItem, 'key' | 'external_url'> & { external_url: string };
   /** Позиция пункта в чек-листе, с 1 — для события. */
   position: number;
-  /** Акцентная кнопка — у первого незавершённого пункта, у остальных — вторичная; `again` — ссылка «Открыть снова». */
+  /** Акцентная кнопка — у первого незавершённого пункта, у остальных — вторичная. */
   primary: boolean;
-  again?: boolean;
   /** Клиент открыл ссылку — экран сразу показывает «ждём подтверждения». */
   onOpened: () => void;
 }
@@ -29,14 +28,14 @@ const hostOf = (url: string) => {
   }
 };
 
-export function ChecklistLinkButton({ item, position, primary, again = false, onOpened }: ChecklistLinkButtonProps) {
+export function ChecklistLinkButton({ item, position, primary, onOpened }: ChecklistLinkButtonProps) {
   const { t } = useTranslation();
   const [blocked, setBlocked] = useState(false);
-  const variant = again ? 'link' : primary ? 'default' : 'secondary';
+  const variant = primary ? 'default' : 'secondary';
 
   if (blocked) {
     return (
-      <div className={again ? 'flex flex-col items-start gap-1' : 'flex flex-col items-end gap-1 text-end'}>
+      <div className="flex flex-col items-end gap-1 text-end">
         <p className="text-sm text-muted-foreground">{t('common.open_in_browser')}</p>
         <Button
           type="button"
@@ -56,7 +55,7 @@ export function ChecklistLinkButton({ item, position, primary, again = false, on
   }
 
   return (
-    <Button asChild variant={variant} className={again ? 'h-auto min-h-11 justify-start px-0' : 'min-h-11'}>
+    <Button asChild variant={variant} className="min-h-11">
       <a
         href={item.external_url}
         target="_blank"
@@ -73,7 +72,7 @@ export function ChecklistLinkButton({ item, position, primary, again = false, on
           onOpened();
         }}
       >
-        {again ? t('checklist.open_again') : t('checklist.open')}
+        {t('checklist.open')}
         <Icon icon={RiExternalLinkLine} data-icon="inline-end" className="size-4" />
       </a>
     </Button>
