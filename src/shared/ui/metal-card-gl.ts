@@ -6,8 +6,8 @@
 // проходы CAPTURE и BLUR (capture = 0 — отражается только процедурная «комната»).
 // Изменено под Tadum: основа — синий металл из токенов (--metal-deep → --metal-mid → --metal-steel, градиент 330°
 // как у CSS-слоёв), блики — светлая лазурь --metal-gl-highlight; кромка — светлая сверху слева и тёмная снизу
-// справа; под строками текста (маска с мягким краем) яркость ограничена потолком uCap — белый текст ≥ 4.5:1 в любой
-// точке. Числа в шейдере — математика освещения, не дизайн-значения; цвета и силы приходят из токенов.
+// справа; яркость всей поверхности (кроме кромки) проходит через одну мягкую кривую с потолком uCap — без
+// локальных затемнений, белый текст ≥ 4.5:1 в любой точке. Числа в шейдере — математика освещения, не дизайн-значения; цвета и силы приходят из токенов.
 // Здесь же пружина наклона, указатель и чтение токенов (mountMetal): модуль грузится динамическим import() из
 // metal-card.tsx и в первый чанк не попадает. Без WebGL2 mountMetal всё равно ведёт наклон CSS-слоёв.
 
@@ -21,7 +21,6 @@ void main() {
 
 const PLATE = `#version 300 es
 precision highp float;
-#define MAX_TEXT 16
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -43,10 +42,6 @@ uniform vec3 uMid;
 uniform vec3 uSteel;
 uniform vec3 uLight;
 uniform float uCap;
-uniform vec4 uText[MAX_TEXT];
-uniform int uTextCount;
-uniform float uTextPad;
-uniform float uTextFeather;
 
 const float BLUR = 6.0;
 
@@ -123,24 +118,6 @@ float room(vec2 q, vec2 sigma) {
   return mix(0.85, 0.12, fall) * (1.0 - 0.6 * flag);
 }
 
-// Расстояние до скруглённого прямоугольника (центр в нуле, полуразмер b, радиус r); < 0 — внутри.
-float sdRoundBox(vec2 p, vec2 b, float r) {
-  vec2 q = abs(p) - b + r;
-  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
-}
-
-// Маска текста: 1 на строках текста (с полем uTextPad), плавно до 0 на ширине uTextFeather.
-float textMask(vec2 p) {
-  float mask = 0.0;
-  for (int i = 0; i < MAX_TEXT; i++) {
-    if (i >= uTextCount) break;
-    vec4 box = uText[i];
-    float s = sdRoundBox(p - box.xy, box.zw + uTextPad, uTextPad);
-    mask = max(mask, 1.0 - smoothstep(0.0, uTextFeather, s));
-  }
-  return mask;
-}
-
 vec3 toSrgb(vec3 c) {
   c = clamp(c, 0.0, 1.0);
   return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c));
@@ -206,18 +183,18 @@ void main() {
   // «Комната» отражается в металле: светлее сверху, дымчато-темнее снизу.
   vec3 color = base * mix(0.62, 1.3, clamp(scene, 0.0, 1.0)) + uLight * highlight * 0.35;
 
+  // Потолок яркости — одна кривая для всей поверхности, без зависимости от положения: ниже колена цвет не
+  // меняется, выше яркость плавно (без излома) подходит к uCap. Карточка освещена ровно, без тёмных зон, а
+  // белый текст в любой точке сохраняет AA. Кромку не ограничиваем — она лежит вне текста.
+  float y = dot(color, LUMA);
+  float knee = uCap * 0.55;
+  float capped = y <= knee ? y : knee + (uCap - knee) * (1.0 - exp(-(y - knee) / (uCap - knee)));
+  color *= capped / max(y, 0.00001);
+
   // Кромка: фаска светлая сверху слева, тёмная снизу справа.
   float rim = chamfer * dot(outward, vec2(-0.7071068, -0.7071068));
   color += uLight * max(rim, 0.0) * uRim;
   color *= 1.0 - max(-rim, 0.0) * 0.75;
-
-  // Под строками текста — мягкий потолок яркости (белый текст сохраняет AA); маска с широким мягким краем,
-  // поэтому блик между строками и вокруг них непрерывен, без видимой «панели».
-  float inner = textMask(p);
-  float y = dot(color, LUMA);
-  float knee = uCap * 0.7;
-  float capped = y <= knee ? y : knee + (uCap - knee) * (1.0 - exp(-(y - knee) / (uCap - knee)));
-  color *= mix(1.0, capped / max(y, 0.00001), inner);
 
   vec3 outColor = toSrgb(color) + (hash(gl_FragCoord.xy) - 0.5) / 255.0;
   outColor = clamp(outColor, 0.0, 1.0);
@@ -233,9 +210,6 @@ type MetalFrame = {
   pointerX: number
   pointerY: number
   glare: number
-  /** Строки текста: [cx, cy, halfW, halfH] × count, координаты от центра карточки (y вниз). */
-  text: Float32Array
-  textCount: number
 }
 
 /** Материал из токенов: цвета — линейный sRGB, длины — CSS-пиксели. */
@@ -246,8 +220,6 @@ type MetalMaterial = {
   light: number[]
   cap: number
   radius: number
-  textPad: number
-  textFeather: number
   view: number
   shine: number
   glare: number
@@ -358,10 +330,6 @@ function createMetalRenderer(canvas: HTMLCanvasElement): MetalRenderer | null {
     gl.uniform3fv(u.uSteel!, m.steel)
     gl.uniform3fv(u.uLight!, m.light)
     gl.uniform1f(u.uCap!, m.cap)
-    gl.uniform4fv(u["uText[0]"]!, frame.text)
-    gl.uniform1i(u.uTextCount!, frame.textCount)
-    gl.uniform1f(u.uTextPad!, m.textPad)
-    gl.uniform1f(u.uTextFeather!, m.textFeather)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
@@ -386,8 +354,6 @@ const LIGHT_OUT = 0.45
 const REST_X = -0.4
 const REST_Y = -0.6
 const EPSILON = 0.0005
-// Предел строк текста в маске шейдера (MAX_TEXT в PLATE).
-const MAX_TEXT = 16
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
@@ -442,8 +408,6 @@ function readMaterial(root: HTMLElement, read: (value: string) => number[]): Met
     light: read(token("--metal-gl-highlight")),
     cap,
     radius: parseFloat(style.borderTopLeftRadius) || 0,
-    textPad: toPx(token("--metal-gl-text-pad"), rootFont),
-    textFeather: toPx(token("--metal-gl-text-feather"), rootFont),
     view: toPx(token("--metal-perspective"), rootFont),
     shine: num("--metal-gl-shine"),
     glare: num("--metal-gl-glare"),
@@ -470,38 +434,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
   let renderer: MetalRenderer | null = null
   let material: MetalMaterial | null = null
   let read: ((value: string) => number[]) | null = null
-  const text = new Float32Array(MAX_TEXT * 4)
-  let textCount = 0
-
-  // Строки текста в координатах карточки (от центра, y вниз): каждая строка каждого текстового узла.
-  // Меряется по статичному корню; при наклоне смещение строк ≤ нескольких px — его покрывает мягкий край маски.
-  const measureText = () => {
-    const rootRect = root.getBoundingClientRect()
-    const cx = rootRect.left + rootRect.width / 2
-    const cy = rootRect.top + rootRect.height / 2
-    const boxes: DOMRect[] = []
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
-    const range = document.createRange()
-    while (walker.nextNode()) {
-      const node = walker.currentNode
-      if (!node.textContent?.trim()) continue
-      range.selectNodeContents(node)
-      for (const rect of range.getClientRects()) if (rect.width > 0 && rect.height > 0) boxes.push(rect)
-    }
-    // Больше MAX_TEXT строк — хвост объединяется в один общий прямоугольник.
-    if (boxes.length > MAX_TEXT) {
-      const tail = boxes.splice(MAX_TEXT - 1)
-      const left = Math.min(...tail.map((r) => r.left))
-      const top = Math.min(...tail.map((r) => r.top))
-      const right = Math.max(...tail.map((r) => r.right))
-      const bottom = Math.max(...tail.map((r) => r.bottom))
-      boxes.push(new DOMRect(left, top, right - left, bottom - top))
-    }
-    textCount = boxes.length
-    boxes.forEach((rect, index) => {
-      text.set([rect.left + rect.width / 2 - cx, rect.top + rect.height / 2 - cy, rect.width / 2, rect.height / 2], index * 4)
-    })
-  }
   let raf = 0
   let last = 0
   let disposed = false
@@ -528,8 +460,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
       pointerX: px.p * size.width * 0.5,
       pointerY: py.p * size.height * 0.5,
       glare: light.p,
-      text,
-      textCount,
     }
     renderer.render(frame, material)
   }
@@ -569,7 +499,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     canvas.width = Math.max(1, Math.round(size.width * scale))
     canvas.height = Math.max(1, Math.round(size.height * scale))
     if (read) material = readMaterial(root, read)
-    measureText()
     draw()
   }
 
@@ -604,18 +533,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
 
   const resizeObserver = new ResizeObserver(resize)
   resizeObserver.observe(root)
-  for (const child of root.children) if (child !== canvas) resizeObserver.observe(child)
-  // Текст сменился (сумма, язык) или догрузился шрифт — перемерить строки.
-  const contentObserver = new MutationObserver(() => {
-    measureText()
-    draw()
-  })
-  contentObserver.observe(root, { subtree: true, childList: true, characterData: true })
-  void document.fonts?.ready.then(() => {
-    if (disposed) return
-    measureText()
-    draw()
-  })
 
   // Смена темы (класс или стиль на <html>) — перечитать токены и перерисовать.
   const themeObserver = new MutationObserver(() => {
@@ -648,7 +565,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     disposed = true
     cancelAnimationFrame(raf)
     resizeObserver.disconnect()
-    contentObserver.disconnect()
     themeObserver.disconnect()
     canvas.removeEventListener("webglcontextlost", onLost)
     if (tracking) {
