@@ -3,7 +3,7 @@
 // Адаптировано из компонента «Folder» React Bits (https://reactbits.dev, режим flap): интегратор пружины
 // (жёсткость omega, затухание zeta, фиксированный шаг 1/240 с), коэффициенты наклона за указателем
 // (rx = −y·8·tilt, ry = x·10·tilt), «подглядывание» листов при наведении (подъём, разлёт, поворот ×1.6, лист
-// ближе к указателю поднимается выше), ступенчатая задержка листов и лёгкое отгибание передней стенки к зрителю.
+// ближе к указателю поднимается выше) и ступенчатая задержка листов. Отгибание передней стенки не взято: ломает размытие.
 // Лицензия React Bits — MIT + Commons Clause (по данным на 2026-11-11; текст лицензии в этой сессии не сверяли —
 // A-063). Взято только движение: внешний вид папки — наш (documents-folder.tsx), WebGL-стекло не переносили.
 //
@@ -19,7 +19,6 @@ const BOUNCE = 0.4;
 const SPEED = 1;
 const TILT = 0.5;
 const ZETA = 1 - 0.72 * BOUNCE;
-const FRONT_OMEGA = TAU * 2 * SPEED;
 const ITEM_OMEGA = TAU * 2.1 * SPEED;
 const SOFT_OMEGA = TAU * 1.6 * SPEED;
 /** Ступенька задержки листов при смене фазы, с. */
@@ -29,9 +28,6 @@ const STAGGER = 0.045 / SPEED;
 const HOVER_SCALE = 0.05;
 const PRESS_SCALE = 0.975;
 const TILT_PERSPECTIVE = 800;
-/** Отгибание передней стенки вокруг нижнего края при наведении, градусы (образец: −15, у нас мягче). */
-const FRONT_PEEK = 10;
-const FRONT_PERSPECTIVE = 600;
 
 /** Листы: наклон в покое и при наведении (наш вид: 6° и 12°), разлёт и подъём в px. */
 const PAPER_REST_TURN = 6;
@@ -79,8 +75,6 @@ export interface FolderMotionNodes {
   area: HTMLElement;
   /** Контейнер папки: масштаб и наклон. */
   folder: HTMLElement;
-  /** Передняя стенка: отгибание вокруг нижнего края. */
-  front: HTMLElement;
   /** Листы в порядке «у начала строки», «у конца строки». */
   papers: HTMLElement[];
 }
@@ -97,7 +91,7 @@ interface PaperState {
  * (лист у начала строки — справа).
  */
 export function startFolderMotion(nodes: FolderMotionNodes, rtl: boolean): () => void {
-  const { trigger, area, folder, front, papers } = nodes;
+  const { trigger, area, folder, papers } = nodes;
   const media = window.matchMedia('(prefers-reduced-motion: reduce)');
   let reduce = media.matches;
   /** Направление «наружу» для листа у начала строки: в LTR — влево (−1), в RTL — вправо (+1). */
@@ -119,7 +113,6 @@ export function startFolderMotion(nodes: FolderMotionNodes, rtl: boolean): () =>
     squash: spring(1),
     rx: spring(0),
     ry: spring(0),
-    front: spring(0),
   };
   const restTurn = (index: number) => (index === 0 ? outward : -outward) * PAPER_REST_TURN;
   const paperStates: PaperState[] = papers.map((node, index) => ({
@@ -132,7 +125,6 @@ export function startFolderMotion(nodes: FolderMotionNodes, rtl: boolean): () =>
   const write = () => {
     const scale = (1 + state.lift.value * HOVER_SCALE) * state.squash.value;
     folder.style.transform = `perspective(${TILT_PERSPECTIVE}px) rotateX(${state.rx.value.toFixed(3)}deg) rotateY(${state.ry.value.toFixed(3)}deg) scale(${scale.toFixed(4)})`;
-    front.style.transform = `perspective(${FRONT_PERSPECTIVE}px) rotateX(${state.front.value.toFixed(3)}deg)`;
     paperStates.forEach((paper) => {
       paper.node.style.transform = `translate3d(${paper.x.value.toFixed(2)}px, ${paper.y.value.toFixed(2)}px, 0) rotate(${paper.r.value.toFixed(3)}deg)`;
     });
@@ -167,7 +159,6 @@ export function startFolderMotion(nodes: FolderMotionNodes, rtl: boolean): () =>
     busy = integrate(state.ry, tilting ? state.pointerX * 10 * TILT : 0, SOFT_OMEGA, 1, dt) || busy;
     busy = integrate(state.lift, peek ? 1 : 0, SOFT_OMEGA, 1, dt) || busy;
     busy = integrate(state.squash, state.pressed ? PRESS_SCALE : 1, TAU * 3.2, 0.6, dt) || busy;
-    busy = integrate(state.front, peek ? FRONT_PEEK : 0, FRONT_OMEGA, ZETA, dt) || busy;
     paperStates.forEach((paper, index) => {
       // Листы трогаются по очереди: пока задержка не прошла, лист держит прежнюю фазу.
       const delay = index * STAGGER;
@@ -192,7 +183,6 @@ export function startFolderMotion(nodes: FolderMotionNodes, rtl: boolean): () =>
     snap(state.ry, 0);
     snap(state.squash, 1);
     snap(state.lift, peek ? 1 : 0);
-    snap(state.front, peek ? FRONT_PEEK : 0);
     paperStates.forEach((paper, index) => {
       const target = paperTarget(index, peek);
       snap(paper.x, target.x);

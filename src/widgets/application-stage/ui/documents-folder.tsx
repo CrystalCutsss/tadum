@@ -5,8 +5,9 @@
 // артефакты на нижних углах). Вся карточка — кнопка: открывает панель с документами; на наведение папка чуть
 // увеличивается, листы расходятся. Цвета — только токены (primary, primary-foreground, card, muted).
 // Движение (решение Кирилла 2026-11-11, A-063) — пружины по образцу React Bits «Folder» (folder-motion.ts): папка
-// чуть увеличивается и наклоняется за указателем, листы по очереди поднимаются и расходятся, передняя стенка слегка
-// отгибается к зрителю; при prefers-reduced-motion — без анимации.
+// чуть увеличивается и наклоняется за указателем, листы по очереди поднимаются и расходятся; передняя стенка не
+// наклоняется отдельно — её трансформация изолировала слой и ломала размытие и шум; при prefers-reduced-motion —
+// без анимации.
 import { cn } from 'cn';
 import { useId, useLayoutEffect, useRef, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -54,8 +55,6 @@ const FRONT_MASK = {
   WebkitMaskSize: '100% 100%',
   WebkitMaskRepeat: 'no-repeat',
 };
-/** Передняя стенка отгибается вокруг нижнего края (y = 168 из 176). */
-const FRONT_ORIGIN = { transformOrigin: '50% 95%' };
 /** Шум стекла — фрактальный шум SVG, очень слабый. */
 const NOISE = {
   backgroundImage:
@@ -74,28 +73,25 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
   const trigger = useRef<HTMLButtonElement>(null);
   const area = useRef<HTMLDivElement>(null);
   const folder = useRef<HTMLDivElement>(null);
-  const front = useRef<HTMLDivElement>(null);
   const paperStart = useRef<HTMLDivElement>(null);
   const paperEnd = useRef<HTMLDivElement>(null);
   const rtl = i18n.dir() === 'rtl';
 
   // До первой отрисовки: поза покоя ставится сразу, без вспышки неповёрнутых листов.
   useLayoutEffect(() => {
-    const [triggerNode, areaNode, folderNode, frontNode, startNode, endNode] = [
+    const [triggerNode, areaNode, folderNode, startNode, endNode] = [
       trigger.current,
       area.current,
       folder.current,
-      front.current,
       paperStart.current,
       paperEnd.current,
     ];
-    if (!triggerNode || !areaNode || !folderNode || !frontNode || !startNode || !endNode) return;
+    if (!triggerNode || !areaNode || !folderNode || !startNode || !endNode) return;
     return startFolderMotion(
       {
         trigger: triggerNode,
         area: areaNode,
         folder: folderNode,
-        front: frontNode,
         papers: [startNode, endNode],
       },
       rtl,
@@ -124,7 +120,8 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
           <Paper ref={paperStart} className="start-12" />
           <Paper ref={paperEnd} className="end-12 top-1" />
           {/* Передняя стенка — матовое стекло: размытие листов под ним, шум, светлая подложка и синий градиент. */}
-          <div ref={front} className="absolute inset-0 transform-gpu" style={FRONT_ORIGIN}>
+          {/* Без собственной трансформации: иначе слой изолируется, и размытие и шум перестают видеть листы позади. */}
+          <div className="absolute inset-0">
             <div className="absolute inset-0 backdrop-blur-sm" style={FRONT_MASK} />
             <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ ...FRONT_MASK, ...NOISE }} />
             <svg viewBox="0 0 208 176" className="absolute inset-0 size-full drop-shadow-lg">
