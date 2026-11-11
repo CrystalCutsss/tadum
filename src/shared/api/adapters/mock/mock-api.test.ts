@@ -40,11 +40,13 @@ async function clientSet(api: Api): Promise<DocumentSet> {
   return api.documents.getSet({ kind: 'application', id: app.id });
 }
 
-/** Загрузить файлы во все pending-документы комплекта и заменить файлы с замечаниями. */
+/** Загрузить файлы во все pending-документы, заменить файлы с замечаниями, догрузить файл при ошибке на документ. */
 async function fillAll(api: Api, set: DocumentSet) {
   for (const d of set.documents) {
-    if (d.status === 'pending') await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
-    for (const f of d.files) if (f.issue) await api.documents.replace(d.id, f.id, pdf(`${d.portal_key}-${f.id}.pdf`));
+    const fileIssues = d.files.filter((f) => f.issue);
+    for (const f of fileIssues) await api.documents.replace(d.id, f.id, pdf(`${d.portal_key}-${f.id}.pdf`));
+    // «Нужен» или ошибка на весь документ без замечаний к файлам — новый файл.
+    if (d.status === 'pending' || (d.status === 'rejected' && fileIssues.length === 0)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
   }
 }
 
@@ -188,25 +190,26 @@ describe('хранилище (D-072)', () => {
   it('schemaVersion не совпал — сброс к фикстуре', async () => {
     const api = as('client_new');
     const set = await clientSet(api);
-    await api.documents.upload(set.documents[0]!.id, pdf());
+    const first = set.documents.find((d) => d.status === 'pending')!;
+    await api.documents.upload(first.id, pdf());
     const stored = JSON.parse(storage.get('mock:client_new')!) as { schemaVersion: number };
     storage.set('mock:client_new', JSON.stringify({ ...stored, schemaVersion: MOCK_SCHEMA_VERSION + 1 }));
-    expect((await clientSet(testApi())).documents[0]!.status).toBe('pending');
+    expect((await clientSet(testApi())).documents.find((d) => d.id === first.id)!.status).toBe('pending');
   });
   it('повреждённое состояние — сброс к фикстуре', async () => {
     as('client_new');
     storage.set('mock:client_new', '{not json');
-    // Фикстура: всё «Нужен», кроме удостоверения с ошибкой в файле (решение Кирилла 2026-11-10).
+    // Фикстура: всё «Нужен», кроме выписки (ошибка на документ) и удостоверения (ошибка файла), решения 2026-11-10/11.
     const docs = (await clientSet(testApi())).documents;
-    expect(docs.filter((d) => d.status !== 'pending').map((d) => d.portal_key)).toEqual(['national_id']);
-    expect(docs.every((d) => d.portal_key === 'national_id' || d.files.length === 0)).toBe(true);
+    expect(docs.filter((d) => d.status !== 'pending').map((d) => d.portal_key).sort()).toEqual(['bs', 'national_id']);
+    expect(docs.every((d) => ['bs', 'national_id'].includes(d.portal_key) || d.files.length === 0)).toBe(true);
   });
 });
 
 describe('документы (01-statuses.md §4–5, SC-02, SC-03)', () => {
   it('загрузка: pending → received; несколько файлов на документ (D-028)', async () => {
     const api = as('client_new');
-    const doc = (await clientSet(api)).documents[0]!;
+    const doc = (await clientSet(api)).documents.find((d) => d.status === 'pending')!;
     const progress: string[] = [];
     const r = await api.documents.upload(doc.id, pdf('a.pdf'), { onProgress: (p) => progress.push(p.state) });
     expect(r.document.status).toBe('received');
@@ -215,7 +218,8 @@ describe('документы (01-statuses.md §4–5, SC-02, SC-03)', () => {
     expect(r2.document.files.map((f) => f.name)).toEqual(['a.pdf', 'b.pdf']);
   });
   it('предвалидация failed — файл не принят, документ остаётся pending (SC-02 A3); warning — received (A4)', async () => {
-    const api = as('client_new');
+    // Выписка без файлов: в client_new у неё уже ошибка на документ (2026-11-11), поэтому — раунд дозапроса.
+    const api = as('client_more_docs');
     const bs = (await clientSet(api)).documents.find((d) => d.portal_key === 'bs')!;
     const failed = await api.documents.upload(bs.id, pdf('statement-fail.pdf'));
     expect(failed.prevalidation).toEqual({ state: 'failed', rule_keys: ['prevalidation.bs.period_too_short'] });
