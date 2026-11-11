@@ -1,16 +1,19 @@
-import type { HTMLAttributes, PointerEvent } from "react"
+import { useEffect, useRef, type HTMLAttributes } from "react"
 import { cn } from "cn"
 
-// Tadum (решение Кирилла 2026-11-11, доработка по его ревью того же дня; по мотивам React Bits Reflective Card,
-// реализация своя): карточка «глубокий синий металл». Отражение камеры заменено градиентами — камера в
-// песочнице просмотрщика запрещена.
-// Корень — статичная обёртка: держит раскладку и содержимое, слушает указатель и сам не трансформируется.
-// Наклоняются только декоративные слои ::before (поверхность с бликами) и ::after (кольцо-обводка) —
-// область наведения не двигается, поэтому у углов нет дрожания и «потери» карточки.
-// Угол под указателем выходит к зрителю. Слои и токены — @utility metal-card в globals.css, --metal-* в
-// tokens.css. Текст внутри — белый (--primary-foreground) без прозрачности; прозрачность (/80) — только у
-// крупного текста. Отступ по умолчанию p-6, переопределяется className. Наклон — по физической позиции
-// указателя (RTL не важен).
+// Tadum (решение Кирилла 2026-11-11, доработки по его ревью того же дня, раунд 3): карточка «глубокий синий
+// металл». Основная реализация — WebGL2-порт React Bits «Reflective Card» (https://reactbits.dev, David Haz,
+// MIT + Commons Clause): шейдер, пружина наклона и чтение токенов — metal-card-gl.ts, грузится лениво. Видео и камера не используются
+// (песочница просмотрщика запрещает камеру): металл отражает процедурную «комнату» и софтбоксы.
+// Корень — статичная обёртка: держит раскладку, слушает указатель (прямоугольник корня, а не наклонённого
+// тела — без дрожания у углов) и сам не трансформируется. Наклоняются его прямые дети — canvas поверхности и
+// содержимое — и CSS-слои ::before/::after, все на один угол с общей перспективой: карточка поворачивается
+// целиком, угол под указателем выходит к зрителю. Наклон — пружина (жёсткость/демпфирование как в оригинале).
+// Без WebGL2 или при потере контекста видны CSS-слои @utility metal-card (globals.css) — запасной вариант.
+// prefers-reduced-motion и сенсорные экраны — без наклона, один статичный кадр с бликом у верхнего левого угла.
+// Цвета и силы бликов — токены --metal-* (tokens.css), перечитываются при смене темы.
+// Текст внутри — белый (--primary-foreground) без прозрачности. Отступ по умолчанию p-6, переопределяется
+// className. Наклон — по физической позиции указателя (RTL не важен).
 
 type MetalCardTag = "div" | "section" | "article" | "aside" | "li"
 
@@ -19,63 +22,42 @@ type MetalCardProps = HTMLAttributes<HTMLElement> & {
   as?: MetalCardTag
 }
 
-// Мёртвая зона у центра и насыщение у краёв (доли полуоси): у центра карточка не шевелится от мелких
-// движений, у углов наклон упирается в максимум раньше края — без рывков на границе.
-const DEAD_ZONE = 0.12
-const SATURATE = 0.85
+function MetalCard({ as: Tag = "div", className, children, ...props }: MetalCardProps) {
+  const rootRef = useRef<HTMLElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-const TRACKED = ["--metal-x", "--metal-y", "--metal-rx", "--metal-ry"] as const
+  useEffect(() => {
+    const root = rootRef.current
+    const canvas = canvasRef.current
+    if (!root || !canvas) return
+    // Шейдер, пружина и чтение токенов — ленивым модулем: в первый чанк не попадают.
+    let cleanup: (() => void) | undefined
+    let cancelled = false
+    void import("./metal-card-gl").then(
+      ({ mountMetal }) => {
+        if (!cancelled) cleanup = mountMetal(root, canvas)
+      },
+      // Модуль не загрузился (офлайн без кеша) — остаются статичные CSS-слои.
+      () => undefined,
+    )
+    return () => {
+      cancelled = true
+      cleanup?.()
+    }
+  }, [])
 
-// Наклон и подвижный блик — только мышь (на сенсорных экранах нет наведения) и без reduced-motion.
-function canTrack(event: PointerEvent<HTMLElement>): boolean {
-  return event.pointerType === "mouse" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-}
-
-const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
-const round = (value: number) => Math.round(value * 1000) / 1000
-
-/** Позиция 0…1 → наклон −1…1 с мёртвой зоной и насыщением. */
-function tilt(position: number): number {
-  const offset = position * 2 - 1
-  const magnitude = (Math.abs(offset) - DEAD_ZONE) / (SATURATE - DEAD_ZONE)
-  return round(Math.sign(offset) * clamp01(magnitude))
-}
-
-function follow(event: PointerEvent<HTMLElement>) {
-  if (!canTrack(event)) return
-  // currentTarget — статичная обёртка: её прямоугольник не меняется от наклона слоёв.
-  const el = event.currentTarget
-  const rect = el.getBoundingClientRect()
-  if (rect.width === 0 || rect.height === 0) return
-  const x = clamp01((event.clientX - rect.left) / rect.width)
-  const y = clamp01((event.clientY - rect.top) / rect.height)
-  el.style.setProperty("--metal-x", `${round(x * 100)}%`)
-  el.style.setProperty("--metal-y", `${round(y * 100)}%`)
-  el.style.setProperty("--metal-rx", `${tilt(x)}`)
-  el.style.setProperty("--metal-ry", `${tilt(y)}`)
-}
-
-// Снятие свойств возвращает исходные значения @property — переход плавный.
-function reset(event: PointerEvent<HTMLElement>) {
-  const { style } = event.currentTarget
-  for (const name of TRACKED) style.removeProperty(name)
-}
-
-function MetalCard({ as: Tag = "div", className, onPointerMove, onPointerLeave, ...props }: MetalCardProps) {
   return (
     <Tag
+      ref={(node: HTMLElement | null) => {
+        rootRef.current = node
+      }}
       data-slot="metal-card"
       className={cn("metal-card rounded-2xl p-6", className)}
-      onPointerMove={(event: PointerEvent<HTMLElement>) => {
-        onPointerMove?.(event)
-        follow(event)
-      }}
-      onPointerLeave={(event: PointerEvent<HTMLElement>) => {
-        onPointerLeave?.(event)
-        reset(event)
-      }}
       {...props}
-    />
+    >
+      <canvas ref={canvasRef} data-slot="metal-card-gl" aria-hidden="true" />
+      {children}
+    </Tag>
   )
 }
 
