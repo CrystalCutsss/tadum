@@ -1,4 +1,4 @@
-<!-- source: Drive 1xZavpWQsvcmYFBK1utr423NIxh_64W1d, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1F2l3jNAUlHjM6JZJgfRqXRjdIWdR58ER, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -84,7 +84,7 @@ DocumentSet:
   status: DocumentSetStatus        # draft | submitted | in_review | completed | superseded; см. 01-statuses.md §4
   locked: boolean                  # true после отправки на проверку; редактирование запрещено
   submitted_at?: datetime
-  completion_grace_until?: datetime # «после последней загрузки система ждёт 10 минут»; internal для мока
+  completion_grace_until?: datetime # не используется (D-080); поле зарезервировано
   documents: Document[]            # порядок: rejected первыми, затем pending, затем received/approved
 ```
 
