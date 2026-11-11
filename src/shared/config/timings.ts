@@ -13,6 +13,9 @@ export const OTP = {
   rate_limit: { max_requests: 3, window_ms: 10 * 60_000 },
 } as const;
 
+/** Экран кода: сколько показывать анимацию успеха в ячейках (заливка и галочка) перед переходом (Кирилл 2026-11-11). */
+export const OTP_SUCCESS_HOLD_MS = 700;
+
 /** Срок сессии — 30 дней, без таймаута неактивности (D-007). */
 export const SESSION_TTL_MS = 30 * 24 * 60 * 60_000;
 

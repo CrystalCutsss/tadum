@@ -7,6 +7,7 @@ export * from './border-beam';
 export * from './breadcrumb';
 export * from './button';
 export * from './card';
+export * from './code-slots';
 export * from './collapsible';
 export * from './dialog';
 export * from './dropdown-menu';
