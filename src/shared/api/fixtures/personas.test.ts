@@ -14,6 +14,16 @@ const rows = tableWithHeader(section(readProductDoc('01-entities.md'), '6.'), 'p
 const id = (cell: string) => cell.replace(/`/g, '') as PersonaId;
 const now = () => Date.parse(TEST_NOW);
 
+/**
+ * Персоны этапов «Решение» и «Подписание» (A-063): в таблице 01-entities.md §6 их пока нет — строки добавятся в Drive
+ * по решению Кирилла. До этого реестр = таблица + ровно этот список, и для них те же проверки графа.
+ */
+const PENDING_DOC_PERSONAS = [
+  ['client_offer_pending', 'approved'],
+  ['client_signing_partial', 'approved'],
+  ['client_limit_cancelled', 'approved'],
+] as const;
+
 /** Все объекты Money в графе. */
 function moneys(value: unknown, out: number[] = []): number[] {
   if (Array.isArray(value)) value.forEach((v) => moneys(v, out));
@@ -40,8 +50,16 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('01-entities.md §6 — персоны, каждая строка', () => {
-  it('реестр совпадает с таблицей (14)', () => {
-    expect(rows.map((r) => id(r[0]!))).toEqual([...PERSONA_IDS]);
+  it('реестр совпадает с таблицей (14) и списком персон, ждущих строки в документе (A-063)', () => {
+    const pending: readonly PersonaId[] = PENDING_DOC_PERSONAS.map(([pid]) => pid);
+    expect(rows.map((r) => id(r[0]!))).toEqual(PERSONA_IDS.filter((pid) => !pending.includes(pid)));
+  });
+
+  it.each(PENDING_DOC_PERSONAS)('%s (A-063): граф проходит Zod, производные поля совпадают, статус %s', (pid, status) => {
+    const g = PERSONAS[pid](now());
+    expect(PersonaGraphSchema.parse(g)).toEqual(g);
+    expect(normalize(g, mockDomain, landingUrl)).toEqual(g);
+    expect(g.applications.at(-1)?.client_status).toBe(status);
   });
 
   it.each(rows)('%s — %s — %s', async (cell, rolesCell, stateCell) => {

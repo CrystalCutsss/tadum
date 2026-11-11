@@ -103,11 +103,18 @@ export const documentSet = (s: Omit<DocumentSet, 'locked'> & { locked?: boolean 
   locked: s.locked ?? s.status !== 'draft',
 });
 
+/**
+ * Ссылка пункта чек-листа в моке — демо-страница подписи внутри прототипа (решение Кирилла 2026-11-11, A-063): настоящих
+ * Sadq и Nafith у мока нет, а демо-панели нет (A-057). С бэкендом ссылка приходит из Sadq / Nafith.
+ */
+const demoSignUrl = (key: 'spa_sadq' | 'pn_company_nafith' | 'pn_owner_nafith'): string =>
+  `${import.meta.env.BASE_URL}demo/sign?item=${key}`;
+
 export const checklist = (spa: 'pending' | 'in_progress' | 'done' | 'failed', pnCompany: typeof spa, pnOwner: typeof spa) => ({
   items: [
-    { key: 'spa_sadq' as const, status: spa, external_url: 'https://sadq.sa/' },
-    { key: 'pn_company_nafith' as const, status: pnCompany, external_url: 'https://nafith.sa/' },
-    { key: 'pn_owner_nafith' as const, status: pnOwner, external_url: 'https://nafith.sa/' },
+    { key: 'spa_sadq' as const, status: spa, external_url: demoSignUrl('spa_sadq') },
+    { key: 'pn_company_nafith' as const, status: pnCompany, external_url: demoSignUrl('pn_company_nafith') },
+    { key: 'pn_owner_nafith' as const, status: pnOwner, external_url: demoSignUrl('pn_owner_nafith') },
   ],
   completed: spa === 'done' && pnCompany === 'done' && pnOwner === 'done',
 });

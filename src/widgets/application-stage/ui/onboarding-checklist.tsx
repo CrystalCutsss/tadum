@@ -1,0 +1,178 @@
+// Чек-лист подключения лимита (SC-06): три пункта в фиксированном порядке, у каждого — либо кнопка «Открыть», либо
+// статус текстом и иконкой (бенчмарк 2026-11-11, приём № 03 из прошлого бенчмарка: статус или действие, не оба).
+// Акцент — на первом незавершённом пункте. До согласования условий (лимит pending) пункты видны, но неактивны.
+import { RiCheckboxCircleLine, RiErrorWarningLine, RiLockLine, RiTimeLine, type RemixiconComponentType } from '@remixicon/react';
+import { cn } from 'cn';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { checklistFocusKey, checklistItemView, checklistOpenedAt, type ChecklistItem, type ChecklistItemView } from '@/entities/limit';
+import { ChecklistLinkButton } from '@/features/open-checklist-link';
+import { track } from '@/shared/analytics';
+import { useNow } from '@/shared/lib';
+import { Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/shared/ui';
+
+type Tone = 'pending' | 'received' | 'approved' | 'rejected' | 'neutral';
+const TONE: Record<Tone, string> = {
+  pending: 'bg-status-pending-muted text-status-pending',
+  received: 'bg-status-received-muted text-status-received',
+  approved: 'bg-status-approved-muted text-status-approved',
+  rejected: 'bg-status-rejected-muted text-status-rejected',
+  neutral: 'bg-muted text-muted-foreground',
+};
+
+type View = ChecklistItemView | 'locked';
+const META: Record<Exclude<View, 'pending'>, { tone: Tone; icon: RemixiconComponentType }> = {
+  in_progress: { tone: 'received', icon: RiTimeLine },
+  stale: { tone: 'received', icon: RiTimeLine },
+  done: { tone: 'approved', icon: RiCheckboxCircleLine },
+  failed: { tone: 'neutral', icon: RiErrorWarningLine },
+  locked: { tone: 'neutral', icon: RiLockLine },
+};
+
+function StatusPill({ view }: { view: Exclude<View, 'pending'> }) {
+  const { t } = useTranslation();
+  const { tone, icon } = META[view];
+  const label =
+    view === 'done'
+      ? t('checklist.status.done')
+      : view === 'failed'
+        ? t('checklist.status.failed')
+        : view === 'locked'
+          ? t('checklist.status.locked')
+          : t('checklist.status.in_progress');
+  return (
+    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-medium whitespace-nowrap', TONE[tone])}>
+      <Icon icon={icon} className="size-4" />
+      {label}
+    </span>
+  );
+}
+
+const TITLE_KEY = {
+  spa_sadq: 'checklist.spa_sadq',
+  pn_company_nafith: 'checklist.pn_company_nafith',
+  pn_owner_nafith: 'checklist.pn_owner_nafith',
+} as const;
+const WHERE_KEY = {
+  spa_sadq: 'checklist.where.spa_sadq',
+  pn_company_nafith: 'checklist.where.pn_company_nafith',
+  pn_owner_nafith: 'checklist.where.pn_owner_nafith',
+} as const;
+
+export interface OnboardingChecklistViewProps {
+  items: readonly ChecklistItem[];
+  /** Лимит ещё pending (условия согласуются): пункты видны, но неактивны. */
+  locked?: boolean;
+  /** Время последнего ответа сервера по лимиту — локальная отметка «открыто» действует только до него (D-035). */
+  dataUpdatedAt: number;
+}
+
+export function OnboardingChecklistView({ items, locked = false, dataUpdatedAt }: OnboardingChecklistViewProps) {
+  const { t } = useTranslation();
+  const now = useNow(60_000);
+  // Клик по «Открыть» записывает отметку в sessionStorage — перерисовываем строку сразу.
+  const [, setOpenedTick] = useState(0);
+  const focus = locked ? null : checklistFocusKey(items);
+
+  return (
+    <ol className="flex flex-col gap-2" aria-label={t('checklist.title')}>
+      {items.map((item, index) => {
+        const view: View = locked ? 'locked' : checklistItemView(item, checklistOpenedAt(item.key), dataUpdatedAt, now);
+        const canOpen = !locked && view === 'pending' && item.external_url;
+        return (
+          <li key={item.key} className="list-none">
+            <ChecklistRow
+              item={item}
+              index={index}
+              view={view}
+              focused={focus === item.key}
+              again={
+                !locked && (view === 'in_progress' || view === 'stale') && item.external_url ? (
+                  <ChecklistLinkButton
+                    item={{ key: item.key, external_url: item.external_url }}
+                    position={index + 1}
+                    primary={false}
+                    again
+                    onOpened={() => setOpenedTick((n) => n + 1)}
+                  />
+                ) : null
+              }
+              action={
+                canOpen && item.external_url ? (
+                  <ChecklistLinkButton
+                    item={{ key: item.key, external_url: item.external_url }}
+                    position={index + 1}
+                    primary={focus === item.key}
+                    onOpened={() => setOpenedTick((n) => n + 1)}
+                  />
+                ) : null
+              }
+            />
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function ChecklistRow({
+  item,
+  index,
+  view,
+  focused,
+  action,
+  again,
+}: {
+  item: ChecklistItem;
+  index: number;
+  view: View;
+  focused: boolean;
+  action: React.ReactNode;
+  /** «Открыть снова» — у пункта, который ждёт подтверждения. */
+  again: React.ReactNode;
+}) {
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (view === 'failed') track('checklist_item_failed_viewed', { item: item.key });
+    // Один раз на показ состояния.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
+
+  const note =
+    view === 'stale'
+      ? t('checklist.stale_hint')
+      : view === 'failed'
+        ? t('checklist.item_failed')
+        : view === 'pending' && !item.external_url
+          ? t('checklist.nafith_instruction')
+          : null;
+
+  return (
+    <Item
+      size="sm"
+      className={cn('flex-nowrap items-center border-0 bg-card', focused && 'ring-2 ring-primary/30')}
+      aria-current={focused ? 'step' : undefined}
+    >
+      <ItemMedia
+        variant="icon"
+        className={cn(
+          'size-10 rounded-lg text-sm font-semibold',
+          view === 'done' ? 'bg-status-approved-muted text-status-approved' : 'bg-muted text-muted-foreground',
+        )}
+      >
+        {view === 'done' ? <Icon icon={RiCheckboxCircleLine} className="size-5" /> : <span aria-hidden="true">{index + 1}</span>}
+      </ItemMedia>
+      <ItemContent className="min-w-0 gap-1">
+        <ItemTitle className="flex-wrap">{t(TITLE_KEY[item.key])}</ItemTitle>
+        <ItemDescription className="line-clamp-none">{t(WHERE_KEY[item.key])}</ItemDescription>
+        {note ? <p className="text-sm text-muted-foreground">{note}</p> : null}
+        {again}
+      </ItemContent>
+      <ItemActions className="ms-auto shrink-0">
+        {action ?? (view === 'pending' ? null : <StatusPill view={view} />)}
+      </ItemActions>
+    </Item>
+  );
+}

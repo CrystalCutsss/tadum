@@ -5,7 +5,7 @@
 import { MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
 import { now as clockNow, storage, toDate } from '@/shared/lib';
 
-import { CLIENT_BASE_KEYS } from '../../fixtures/build';
+import { CLIENT_BASE_KEYS, checklist } from '../../fixtures/build';
 import { PERSONAS } from '../../fixtures/personas';
 import { PersonaGraphSchema } from '../../fixtures/schema';
 import { PERSONA_IDS, type PersonaGraph, type PersonaId } from '../../fixtures/types';
@@ -44,7 +44,7 @@ import { hash, hashRange, sha256Hex } from './hash';
  * сбрасывается к фикстуре. 2 — замечания к файлам, номер CR, новые фикстуры client_new и других (2026-11-11):
  * без сброса браузер показывал старое состояние персоны (уже отправленный комплект).
  */
-export const MOCK_SCHEMA_VERSION = 3;
+export const MOCK_SCHEMA_VERSION = 4;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
@@ -723,14 +723,7 @@ export function createMockApi(options: MockApiOptions): Api {
     return app;
   };
 
-  const checklistPending = (): OnboardingChecklist => ({
-    items: [
-      { key: 'spa_sadq', status: 'pending', external_url: 'https://sadq.sa/' },
-      { key: 'pn_company_nafith', status: 'pending', external_url: 'https://nafith.sa/' },
-      { key: 'pn_owner_nafith', status: 'pending', external_url: 'https://nafith.sa/' },
-    ],
-    completed: false,
-  });
+  const checklistPending = (): OnboardingChecklist => checklist('pending', 'pending', 'pending');
 
   function demoState(): PersonaState {
     const id = loadActive().persona_id;

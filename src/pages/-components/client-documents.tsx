@@ -1,20 +1,39 @@
-// /c/documents (SC-02…SC-05, решения Кирилла 2026-11-09): список документов — единственный экран этапа
+// /c/documents (SC-02…SC-06, решения Кирилла 2026-11-09 и 2026-11-11): экран «Заявка» — список документов
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
+// После одобрения раскладка та же (A-063): над списком — карточка этапа («Решение», «Подписание»), принятые документы
+// свёрнуты; на этапе «Лимит одобрен» — только готовая карточка заявки, а даты, лимит и документы — внутри (?view=details).
+import { RiArrowLeftLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { applicationQuery, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
+import { limitQuery, type Limit } from '@/entities/limit';
 import { CompanyCrCard } from '@/features/edit-company-cr';
-import { track } from '@/shared/analytics';
-import { useStatusPolling, type Application } from '@/shared/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@/shared/ui';
+import { amountBucket, track } from '@/shared/analytics';
+import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  Icon,
+  RiArrowDownSLine,
+  Skeleton,
+  toast,
+} from '@/shared/ui';
+import { ApplicationFacts, ApplicationStageCard, ApplicationSummaryCard } from '@/widgets/application-stage';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
-import { SupportBar } from '@/widgets/support-bar';
+import { SupportBar, SupportInline } from '@/widgets/support-bar';
 
 /**
  * Панель шагов — фон как у нижней панели карточки документа, secondary (решение Кирилла 2026-11-10).
@@ -65,14 +84,88 @@ function StepsTopPanel({ steps, app }: { steps: Steps; app: Application }) {
   );
 }
 
-export function ClientDocuments({ focusKey }: { focusKey?: string | undefined }) {
+type Stage = 'documents' | 'decision' | 'signing' | 'cancelled' | 'approved';
+
+/** Этап экрана — только из клиентского статуса и статуса лимита (odoo_stage сюда не доходит). */
+function stageOf(app: Application, limit: Limit | null | undefined): Stage {
+  if ((app.client_status !== 'approved' && app.client_status !== 'first_purchase') || !limit) return 'documents';
+  switch (limit.status) {
+    case 'pending':
+      return 'decision';
+    case 'ready':
+      return 'signing';
+    case 'active':
+      return 'approved';
+    case 'cancelled':
+    case 'rejected':
+      return 'cancelled';
+  }
+}
+
+const SUBTITLE = {
+  decision: 'application.subtitle.decision',
+  signing: 'application.subtitle.signing',
+  cancelled: 'application.subtitle.cancelled',
+  approved: 'application.subtitle.approved',
+} as const;
+
+/** Смена статуса лимита при открытом экране: тост (D-034) и limit_activated при переходе в active. */
+function useLimitChangeNotice(limit: Limit | null | undefined) {
+  const { t } = useTranslation();
+  const prev = useRef<Limit['status'] | null | undefined>(undefined);
+  useEffect(() => {
+    if (limit === undefined) return;
+    const status = limit?.status ?? null;
+    if (prev.current !== undefined && prev.current !== status) {
+      toast(t('status.updated'));
+      if (status === 'active' && limit) {
+        track('limit_activated', { days_since_approved: 0, amount_bucket: amountBucket(limit.approved) });
+      }
+    }
+    prev.current = status;
+  }, [limit, t]);
+}
+
+/** Принятые документы свёрнуты под карточкой этапа: раскрываются по кнопке, только чтение. */
+function AcceptedDocuments({ set }: { set: DocumentSet }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-card p-3 md:p-4">
+        <p className="text-sm font-medium">{t('application.documents_accepted', { count: set.documents.length })}</p>
+        <CollapsibleTrigger asChild>
+          <Button type="button" variant="secondary" className="min-h-11">
+            {open ? t('application.documents_hide') : t('application.documents_show')}
+            <Icon icon={RiArrowDownSLine} data-icon="inline-end" className={cn('size-4 transition-transform', open && 'rotate-180')} />
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+      <CollapsibleContent>
+        <DocumentList set={set} editable={false} crReady onCrMissing={() => undefined} />
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+export interface ClientDocumentsProps {
+  focusKey?: string | undefined;
+  /** Подробности заявки на этапе «Лимит одобрен» (?view=details). */
+  details?: boolean;
+  onOpenDetails?: () => void;
+  onCloseDetails?: () => void;
+}
+
+export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCloseDetails }: ClientDocumentsProps) {
   const { t } = useTranslation();
   const app = useStatusPolling(applicationQuery);
   const owner = { kind: 'application' as const, id: app.data?.id ?? '' };
   const set = useQuery({ ...documentSetQuery(owner), enabled: Boolean(app.data) });
   const company = useQuery(companyQuery);
+  const limit = useStatusPolling(limitQuery);
   // Попытка отправить без номера CR — поле показывает ошибку и получает фокус.
   const [crAttention, setCrAttention] = useState(0);
+  useLimitChangeNotice(limit.data);
 
   const data = app.data;
   const editable = data && set.data ? canEditFiles(data.permission_state, set.data) : false;
@@ -86,7 +179,7 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
   if (app.isError || set.isError) {
     return <LoadError onRetry={() => void (app.isError ? app.refetch() : set.refetch())} support={<SupportBar context="error" />} />;
   }
-  if (!data || !set.data) {
+  if (!data || !set.data || limit.isPending) {
     return (
       <div className="flex flex-col gap-3" aria-busy="true">
         <Skeleton className="h-8 w-48" />
@@ -103,15 +196,29 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
   const reviewed = set.data.round > 1 || set.data.documents.some((d) => d.rejected_file_hashes.length > 0);
   const crStage = editable && !reviewed;
 
-  const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: null });
+  const stage = stageOf(data, limit.data);
+  const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: limit.data ?? null });
+  const sentAt = set.data.submitted_at ?? data.created_at;
+  const lim = limit.data;
+
+  const subtitle =
+    stage === 'documents' ? (editable ? t('documents.subtitle') : t('documents.subtitle_locked')) : t(SUBTITLE[stage]);
 
   return (
     <div className="flex flex-1 flex-col gap-4">
       {/* Заголовок — над обеими колонками: панель шагов справа начинается вровень с первой карточкой. */}
       <CabinetPageHeader>
         <header className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold">{t('documents.title')}</h1>
-          <p className="text-sm text-muted-foreground">{editable ? t('documents.subtitle') : t('documents.subtitle_locked')}</p>
+          {stage === 'approved' && details ? (
+            <div>
+              <Button type="button" variant="ghost" size="sm" className="-ms-2 min-h-11" onClick={onCloseDetails}>
+                <Icon icon={RiArrowLeftLine} data-icon="inline-start" className="size-4" />
+                {t('application.details.back')}
+              </Button>
+            </div>
+          ) : null}
+          <h1 className="text-xl font-semibold">{stage === 'approved' && details ? t('application.details.title') : t('documents.title')}</h1>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </header>
       </CabinetPageHeader>
 
@@ -124,22 +231,48 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
         </>
       )}
 
-      <DocumentList
-        set={set.data}
-        editable={editable}
-        focusKey={focusKey}
-        header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
-        crReady={!crStage || isValidCr(company.data?.cr_number)}
-        onCrMissing={() => setCrAttention((n) => n + 1)}
-      />
-
-      {!editable ? (
-        <Card className="rounded-xl">
-          <CardHeader>
-            <CardTitle className="text-base">{t('documents.locked.title')}</CardTitle>
-            <CardDescription>{t('documents.locked.body')}</CardDescription>
-          </CardHeader>
-        </Card>
+      {stage === 'documents' ? (
+        <>
+          <DocumentList
+            set={set.data}
+            editable={editable}
+            focusKey={focusKey}
+            header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
+            crReady={!crStage || isValidCr(company.data?.cr_number)}
+            onCrMissing={() => setCrAttention((n) => n + 1)}
+          />
+          {!editable ? (
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-base">{t('documents.locked.title')}</CardTitle>
+                <CardDescription>{t('documents.locked.body')}</CardDescription>
+              </CardHeader>
+            </Card>
+          ) : null}
+        </>
+      ) : stage === 'approved' && lim ? (
+        details ? (
+          <>
+            <Card className="rounded-xl">
+              <CardContent>
+                <ApplicationFacts sentAt={sentAt} limit={lim} />
+              </CardContent>
+            </Card>
+            <h2 className="text-base font-semibold">{t('application.details.documents')}</h2>
+            <DocumentList set={set.data} editable={false} crReady onCrMissing={() => undefined} />
+          </>
+        ) : (
+          <ApplicationSummaryCard sentAt={sentAt} limit={lim} onOpen={() => onOpenDetails?.()} />
+        )
+      ) : lim ? (
+        <>
+          <ApplicationStageCard
+            limit={lim}
+            limitUpdatedAt={limit.dataUpdatedAt}
+            support={stage === 'decision' || stage === 'cancelled' ? <SupportInline status={data.client_status} /> : null}
+          />
+          <AcceptedDocuments set={set.data} />
+        </>
       ) : null}
     </div>
   );

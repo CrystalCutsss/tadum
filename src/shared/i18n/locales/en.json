@@ -1,4 +1,44 @@
 {
+  "application": {
+    "amount_label": "Approved limit",
+    "cancelled": {
+      "body": "Our team can tell you more",
+      "title": "This limit is no longer active"
+    },
+    "decision": {
+      "body": "Nothing is needed from you right now. Our team will call you to confirm the terms",
+      "no_amount": "The limit amount will appear here after we confirm the terms",
+      "title": "Your application is approved"
+    },
+    "details": {
+      "back": "Back",
+      "documents": "Documents",
+      "title": "Application details"
+    },
+    "documents_accepted_one": "{count} document accepted",
+    "documents_accepted_other": "{count} documents accepted",
+    "documents_hide": "Hide documents",
+    "documents_show": "Show documents",
+    "signing": {
+      "body": "Each step opens on the partner's website or in their app. When you're done, come back here — we'll update the status",
+      "title": "Sign to activate your limit"
+    },
+    "subtitle": {
+      "approved": "Your limit is approved",
+      "cancelled": "Your application is approved",
+      "decision": "Your application is approved",
+      "signing": "One last step — sign the documents"
+    },
+    "summary": {
+      "approved_at": "Limit approved",
+      "limit": "Approved limit",
+      "no_action": "Nothing is needed from you",
+      "open": "Open application",
+      "sent": "Sent for review",
+      "status": "Limit approved",
+      "title": "Your limit is approved"
+    }
+  },
   "auth": {
     "channel": {
       "sms": "SMS",
@@ -40,6 +80,31 @@
       "too_many_requests_other": "Too many attempts. Try again in {minutes} min"
     }
   },
+  "checklist": {
+    "item_failed": "We couldn't confirm this step. Our team will help",
+    "link_copied": "Link copied",
+    "locked_hint": "These steps open after we confirm the terms",
+    "nafith_instruction": "Open the Nafith app and approve the note sent to you",
+    "open": "Open",
+    "open_again": "Open again",
+    "pn_company_nafith": "Approve the company note (Nafith)",
+    "pn_owner_nafith": "Approve the owner's note (Nafith)",
+    "spa_sadq": "Sign the agreement (Sadq)",
+    "stale_hint": "Already signed? Message us and we'll check",
+    "status": {
+      "done": "Done",
+      "failed": "Needs attention",
+      "in_progress": "Waiting for confirmation",
+      "locked": "Not available yet",
+      "pending": "To do"
+    },
+    "title": "Steps to activate",
+    "where": {
+      "pn_company_nafith": "In the Nafith app",
+      "pn_owner_nafith": "In the Nafith app",
+      "spa_sadq": "On the Sadq website"
+    }
+  },
   "closed": {
     "body": "We're not able to continue with this application right now. You're welcome to apply again, and our team is here if you have questions",
     "title": "This application is closed"
@@ -70,6 +135,14 @@
     "label": "CR number",
     "missing": "Add your CR number to send for review",
     "title": "Commercial Registration (CR) number"
+  },
+  "demo_sign": {
+    "back": "Back to application",
+    "badge": "Demo: signing with a partner",
+    "body": "In the real product this step happens on the partner's website or in their app. Here you can mark it as signed",
+    "sign": "Sign",
+    "signed": "Signed. You can go back to the Tadum tab",
+    "unknown": "This step isn't available"
   },
   "document": {
     "aoa": {
@@ -349,7 +422,7 @@
     "client": {
       "decision": "Decision",
       "documents": "Documents",
-      "limit_active": "Limit active",
+      "limit_active": "Limit approved",
       "review": "Review",
       "signing": "Signing"
     },

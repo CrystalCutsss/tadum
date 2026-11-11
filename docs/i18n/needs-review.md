@@ -60,3 +60,5 @@
 | `nav.application` | ar, en | Application / الطلب | пункт меню клиента; термин из глоссария (`application`); `nav.documents` остаётся у поставщика |
 | `documents.submit.ready_title` | ar, en | Everything is ready / كل شيء جاهز | успех липкой панели, когда всё загружено; без «Congratulations / مبروك» (лексикон `success_filler`) и восклицаний |
 | `documents.submit.ready_body` | ar, en | You've uploaded all the documents. Now send them for review / رفعت جميع المستندات. أرسلها الآن للمراجعة | то же |
+| `application.*`, `checklist.where.*`, `checklist.status.locked`, `checklist.locked_hint`, `checklist.open_again`, `checklist.link_copied`, `demo_sign.*` | ar, en | тексты этапов «Решение», «Подписание», «Лимит одобрен» на экране «Заявка» и демо-страницы подписи (A-063); арабские формы `application.documents_accepted_*` | в SC-06/SC-07 этих текстов нет — экран «Заявка» вместо главной (решение Кирилла 2026-11-11) |
+| `timeline.client.limit_active` | ar, en | «Limit approved» / «تم اعتماد الحد» вместо «Limit active» | переименование шага (Кирилл 2026-11-11) |

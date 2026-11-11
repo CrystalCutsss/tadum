@@ -83,3 +83,27 @@ export function SupportCard(props: SupportBarProps) {
     </Card>
   );
 }
+
+/**
+ * Одна строка «Есть вопрос? Напишите нам» со ссылкой в WhatsApp — внутри карточки этапа заявки (бенчмарк 2026-11-11,
+ * Mercury № 52: «вопросы?» — единственное действие на шаге, который на нашей стороне).
+ */
+export function SupportInline(props: SupportBarProps) {
+  const { t } = useTranslation();
+  const links = useSupportLinks(props);
+  return (
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+      <span className="text-muted-foreground">{t('support.cta.title')}</span>
+      <a
+        href={links.whatsapp.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={links.whatsapp.onClick}
+        className="inline-flex min-h-11 items-center gap-1 font-medium underline-offset-4 hover:underline"
+      >
+        <Icon icon={RiWhatsappFill} className="size-4" />
+        {t('support.cta.subtitle')}
+      </a>
+    </p>
+  );
+}

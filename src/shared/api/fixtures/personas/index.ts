@@ -7,10 +7,13 @@ import { clientApprovedUnsigned } from './client-approved-unsigned';
 import { clientClosedLost } from './client-closed-lost';
 import { clientClosedRejected } from './client-closed-rejected';
 import { clientFirstPurchase } from './client-first-purchase';
+import { clientLimitCancelled } from './client-limit-cancelled';
 import { clientMoreDocs } from './client-more-docs';
 import { clientNew } from './client-new';
+import { clientOfferPending } from './client-offer-pending';
 import { clientPartial } from './client-partial';
 import { clientRejected } from './client-rejected';
+import { clientSigningPartial } from './client-signing-partial';
 import { clientSubmitted } from './client-submitted';
 import { dualActive } from './dual-active';
 import { supplierActive } from './supplier-active';
@@ -24,6 +27,9 @@ export const PERSONAS: Readonly<Record<PersonaId, PersonaFixture>> = {
   client_submitted: clientSubmitted,
   client_more_docs: clientMoreDocs,
   client_approved_unsigned: clientApprovedUnsigned,
+  client_offer_pending: clientOfferPending,
+  client_signing_partial: clientSigningPartial,
+  client_limit_cancelled: clientLimitCancelled,
   client_active: clientActive,
   client_first_purchase: clientFirstPurchase,
   client_closed_rejected: clientClosedRejected,
