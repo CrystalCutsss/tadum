@@ -49,19 +49,20 @@ export const BorderBeamTrace: Story = {
     await expect(beamBox.height).toBeCloseTo(hostBox.height, 0);
     await expect(beamStyle.borderTopLeftRadius).toBe(getComputedStyle(host).borderTopLeftRadius);
     await expect(getComputedStyle(edge).borderTopWidth).toBe(getComputedStyle(host).borderTopWidth);
-    // Дуга и свечение — в конической маске от угла --beam-angle.
-    await expect(getComputedStyle(edge).maskImage).toContain('conic-gradient');
-    await expect(getComputedStyle(glow).maskImage).toContain('conic-gradient');
+    // Дуга и свечение — под маской-эллипсом вокруг точки блика; свечение выходит за контейнер.
+    await expect(getComputedStyle(edge).maskImage).toContain('radial-gradient');
+    await expect(getComputedStyle(glow).maskImage).toContain('radial-gradient');
+    await expect(glow.getBoundingClientRect().width).toBeGreaterThan(hostBox.width);
     // Без prefers-reduced-motion — бесконечный цикл: проход 2 s + пауза 2 s.
     await expect(beamStyle.animationName).toBe('border-beam');
     await expect(beamStyle.animationIterationCount).toBe('infinite');
     await expect(beamStyle.animationDuration).toBe('4s');
     await expect(beamStyle.animationTimingFunction).toBe('linear');
-    // Угол обходит полный круг за проход, в паузе блик погашен.
+    // Доля периметра --beam-p идёт 0 → 1 за проход; в паузе блик погашен.
     // Перемотка идущей анимации: вычисленный стиль сразу отражает новое время.
     const [cycle] = beam.getAnimations();
     cycle!.currentTime = 1000;
-    await expect(getComputedStyle(beam).getPropertyValue('--beam-angle')).toBe('180deg');
+    await expect(getComputedStyle(beam).getPropertyValue('--beam-p')).toBe('0.5');
     await expect(getComputedStyle(beam).opacity).toBe('1');
     cycle!.currentTime = 3000;
     await expect(getComputedStyle(beam).opacity).toBe('0');

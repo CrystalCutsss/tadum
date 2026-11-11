@@ -120,18 +120,21 @@
 }
 
 /* Бегущий блик обводки (компонент BorderBeam, решение Кирилла 2026-11-11; приём по образцу React Bits
-   Border Glow, реализация своя, без пакета). Слой border-beam — absolute поверх border-box родителя
-   (выходит за padding-box на --beam-width), наследует скругление, не ловит указатель. Внутри:
-   - border-beam-edge — обводка цвета --beam-color той же толщины, видна только в конической маске
-     (сплошной конус ±--beam-cone, мягкий спад на --beam-cone-falloff, остальная обводка — альфа --mask-faint);
+   Border Glow — обводка цвета блика и слои свечения под общей маской; реализация своя, без пакета).
+   Слой border-beam — absolute поверх border-box родителя (выходит за padding-box на --beam-width),
+   наследует скругление, не ловит указатель, container-type: size (cqw/cqh дочерних слоёв — его размеры).
+   - border-beam-edge — обводка цвета --beam-color той же толщины под маской блика;
    - border-beam-glow — слой шире контейнера на --beam-glow-radius, его ::before совпадает с border-box
-     контейнера и даёт box-shadow --beam-glow (внутрь и наружу); маска — тот же конус без подкраски.
-   Движение: --beam-p (0 → 1 за --motion-beam, линейно) — доля периметра. Точка блика (--beam-x, --beam-y)
-   идёт по периметру с постоянной скоростью; центр конуса (--beam-cx, --beam-cy) скользит по средней линии
-   и держится на половине меньшей стороны от точки — поэтому на широкой панели конус освещает одну дугу,
-   а не обе длинные грани сразу, как конус из центра. Угол конуса — atan2 от центра к точке. Размеры —
-   единицы контейнера (cqw/cqh): border-beam — container-type: size. Затем --motion-beam-pause блика нет,
-   обводка серая. При prefers-reduced-motion — без анимации и свечения, статичная обводка --beam-color. */
+     контейнера и даёт box-shadow --beam-glow (внутрь и наружу) под той же маской.
+   Маска — эллипс вокруг точки блика: насыщенное ядро --beam-core, дальше плавный спад к краям эллипса;
+   у обводки за эллипсом остаётся слабая подкраска --mask-faint, у свечения — ноль. Полуоси — доля
+   --beam-arc полупериметра, но не больше 90 % ширины и высоты: на длинной грани эллипс не дотягивается
+   до противоположной, на коротком торце огибает углы. (Конус из центра, как в оригинале, на широкой
+   панели освещал обе длинные грани сразу.)
+   Движение: --beam-p 0 → 1 за --motion-beam линейно — доля периметра; точка (--beam-x, --beam-y) идёт по
+   периметру с постоянной скоростью от верхнего левого угла по часовой. Нарастание и гашение прозрачности
+   в начале и конце прохода, затем --motion-beam-pause блика нет — обводка серая.
+   При prefers-reduced-motion — без анимации и свечения, статичная обводка --beam-color. */
 @property --beam-p {
   syntax: '<number>';
   inherits: true;
@@ -161,14 +164,12 @@
   container-type: size;
   opacity: 0;
   animation: border-beam calc(var(--motion-beam) + var(--motion-beam-pause)) linear infinite;
-  /* Ниже — подстановки для дочерних слоёв: cqw/cqh разрешаются в них, относительно этого контейнера. */
+  /* Подстановки для дочерних слоёв: cqw/cqh разрешаются в них, относительно этого контейнера. */
   --beam-d: calc(var(--beam-p) * (200cqw + 200cqh));
   --beam-x: calc(clamp(0cqw, var(--beam-d), 100cqw) - clamp(0cqw, var(--beam-d) - 100cqw - 100cqh, 100cqw));
   --beam-y: calc(clamp(0cqh, var(--beam-d) - 100cqw, 100cqh) - clamp(0cqh, var(--beam-d) - 200cqw - 100cqh, 100cqh));
-  --beam-r: min(50cqw, 50cqh);
-  --beam-cx: clamp(var(--beam-r), var(--beam-x), 100cqw - var(--beam-r));
-  --beam-cy: clamp(var(--beam-r), var(--beam-y), 100cqh - var(--beam-r));
-  --beam-dir: atan2(calc(var(--beam-x) - var(--beam-cx)), calc(var(--beam-cy) - var(--beam-y)));
+  --beam-rx: min(calc(var(--beam-arc) * (100cqw + 100cqh)), 90cqw);
+  --beam-ry: min(calc(var(--beam-arc) * (100cqw + 100cqh)), 90cqh);
   @media (prefers-reduced-motion: reduce) {
     animation: none;
     opacity: 1;
@@ -179,12 +180,10 @@
   inset: 0;
   border: var(--beam-width) solid var(--beam-color);
   border-radius: inherit;
-  mask-image: conic-gradient(
-    from var(--beam-dir) at var(--beam-cx) var(--beam-cy),
-    var(--mask-solid) var(--beam-cone),
-    var(--mask-faint) calc(var(--beam-cone) + var(--beam-cone-falloff)),
-    var(--mask-faint) calc(100% - var(--beam-cone) - var(--beam-cone-falloff)),
-    var(--mask-solid) calc(100% - var(--beam-cone))
+  mask-image: radial-gradient(
+    var(--beam-rx) var(--beam-ry) at var(--beam-x) var(--beam-y),
+    var(--mask-solid) var(--beam-core),
+    var(--mask-faint) 100%
   );
   @media (prefers-reduced-motion: reduce) {
     mask-image: none;
@@ -194,12 +193,10 @@
   position: absolute;
   inset: calc(var(--beam-glow-radius) * -1);
   border-radius: inherit;
-  mask-image: conic-gradient(
-    from var(--beam-dir) at calc(var(--beam-cx) + var(--beam-glow-radius)) calc(var(--beam-cy) + var(--beam-glow-radius)),
-    var(--mask-solid) var(--beam-cone),
-    transparent calc(var(--beam-cone) + var(--beam-cone-falloff)),
-    transparent calc(100% - var(--beam-cone) - var(--beam-cone-falloff)),
-    var(--mask-solid) calc(100% - var(--beam-cone))
+  mask-image: radial-gradient(
+    var(--beam-rx) var(--beam-ry) at calc(var(--beam-x) + var(--beam-glow-radius)) calc(var(--beam-y) + var(--beam-glow-radius)),
+    var(--mask-solid) var(--beam-core),
+    transparent 100%
   );
   &::before {
     content: '';
