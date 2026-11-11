@@ -34,10 +34,11 @@ export function UploadedFileRow({
   const reasonText = reason ? (reason.kind === 'text' ? reason.text : String(t(reason.key as ParseKeys))) : null;
   const reasonId = `issue-${file.id}`;
   // Замечание к файлу (решение Кирилла 2026-11-11): как у всего документа — оранжевая точка с пульсом и оранжевый текст
-  // под строкой файла; точка — по центру колонки квадрата иконки, текст — в колонке имени. Иконка файла обычная.
+  // под строкой файла; точка — по центру колонки квадрата иконки, текст — в колонке имени; иконка и квадрат — оранжевые.
   return (
     <Item size="sm" className={cn('items-center border-0 bg-card', reasonText ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
-      <ItemMedia variant="icon" className={FILE_MEDIA}>
+      {/* Файл с замечанием — иконка и квадрат под ней в оранжевых тонах (Кирилл 2026-11-11). */}
+      <ItemMedia variant="icon" className={cn(FILE_MEDIA, reasonText && 'bg-status-rejected-muted text-status-rejected')}>
         <Icon icon={RiFileLine} />
       </ItemMedia>
       <ItemContent className="min-w-0">
