@@ -16,6 +16,7 @@ export * from './input';
 export * from './input-otp';
 export * from './item';
 export * from './label';
+export * from './metal-card';
 export * from './popover';
 export * from './progress';
 export * from './pulse-dot';

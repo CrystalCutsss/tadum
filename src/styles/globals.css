@@ -25,6 +25,7 @@
     --color-status-approved: var(--status-approved);
     --color-status-approved-foreground: var(--status-approved-foreground);
     --color-status-approved-muted: var(--status-approved-muted);
+    --color-status-done: var(--status-done);
     --color-limit-track: var(--limit-track);
     --color-limit-fill: var(--limit-fill);
     --color-whatsapp: var(--whatsapp);
@@ -286,4 +287,66 @@
   transition-property: grid-template-rows;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
   transition-duration: var(--tw-duration, var(--default-transition-duration));
+}
+
+/* Металлическая карточка MetalCard (решение Кирилла 2026-11-11; по мотивам React Bits Reflective Card,
+   без камеры). Слои: фон элемента — линейный градиент --metal-deep → --metal-mid → --metal-tint;
+   ::before (под содержимым: isolate + z-index -1) — радиальный блик --metal-glow и полоса отлива
+   --metal-sheen с центром в точке указателя (--metal-x, --metal-y); box-shadow — кромка --metal-edge
+   и тень --metal-shadow. Наклон — --metal-rx / --metal-ry (−1…1) × --metal-tilt-max; значения ставит
+   компонент на pointermove (только мышь, без reduced-motion), на pointerleave снимает — @property даёт
+   плавный возврат к исходным. Без указателя блик статичен у верхнего левого угла (30 % / 20 %).
+   При prefers-reduced-motion и на сенсорных экранах наклона и переходов нет. */
+@property --metal-x {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 30%;
+}
+@property --metal-y {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 20%;
+}
+@property --metal-rx {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --metal-ry {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@utility metal-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--primary-foreground);
+  background-image: linear-gradient(135deg, var(--metal-deep) 0%, var(--metal-mid) 60%, var(--metal-tint) 100%);
+  box-shadow: var(--metal-edge), var(--metal-shadow);
+  transform: perspective(var(--metal-perspective)) rotateX(calc(var(--metal-ry) * var(--metal-tilt-max) * -1))
+    rotateY(calc(var(--metal-rx) * var(--metal-tilt-max)));
+  transition-property: transform, --metal-x, --metal-y;
+  transition-duration: var(--motion-base);
+  transition-timing-function: var(--ease-standard);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at var(--metal-x) var(--metal-y), var(--metal-glow), transparent var(--metal-glow-radius)),
+      linear-gradient(
+        105deg,
+        transparent calc(var(--metal-x) - var(--metal-sheen-width)),
+        var(--metal-sheen) var(--metal-x),
+        transparent calc(var(--metal-x) + var(--metal-sheen-width))
+      );
+  }
+  @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+    transform: none;
+    transition: none;
+  }
 }

@@ -8,7 +8,7 @@ import { CLIENT_TIMELINE_STEPS, type ClientTimelineStep, type TimelineStepState 
 import { formatNumber } from '@/shared/i18n';
 
 const FILL: Record<TimelineStepState, string> = {
-  done: 'bg-status-approved',
+  done: 'bg-status-done',
   current: 'bg-primary',
   needs_attention: 'bg-status-rejected',
   // Непройденные шаги — белые: шкала лежит на серой панели, bg-muted с ней сливался (Кирилл 2026-11-11).

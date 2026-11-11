@@ -54,7 +54,7 @@ export function ApplicationSummaryCard({ sentAt, limit, onOpen }: ApplicationFac
       <dl className="flex flex-wrap gap-x-10 gap-y-3">
         {rows.map(([label, value]) => (
           <div key={label} className="flex flex-col gap-0.5">
-            <dt className="text-sm text-primary-foreground/75">{label}</dt>
+            <dt className="text-sm text-primary-foreground">{label}</dt>
             <dd className="tabular-nums">
               <Ltr>{value}</Ltr>
             </dd>

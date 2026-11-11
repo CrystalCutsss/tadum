@@ -10,13 +10,16 @@ import { useTranslation } from 'react-i18next';
 import type { Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
 import { formatMoney, isLanguage } from '@/shared/i18n';
-import { Button, Icon, Ltr } from '@/shared/ui';
+import { Button, Icon, Ltr, MetalCard } from '@/shared/ui';
 
 const NBSP = '\u00a0';
 
-/** Поверхность карточки лимита — синяя карточка; общая для этапов и «Лимит одобрен». */
+/**
+ * Поверхность карточки лимита — «металлическая» карточка с глубиной и бликом за указателем (MetalCard, Кирилл 2026-11-11);
+ * общая для этапов и «Лимит одобрен». Мелкий текст на ней — только primary-foreground без прозрачности (AA под бликом).
+ */
 export function LimitSurface({ className, ...props }: ComponentProps<'section'>) {
-  return <section className={cn('flex flex-col gap-6 rounded-2xl bg-primary p-6 text-primary-foreground md:p-7', className)} {...props} />;
+  return <MetalCard as="section" className={cn('flex flex-col gap-6 p-6 md:p-7', className)} {...props} />;
 }
 
 import { OnboardingChecklistView } from './onboarding-checklist';
@@ -59,10 +62,10 @@ export function LimitCard({ limit }: LimitCardProps) {
   return (
     <LimitSurface aria-live="polite">
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-primary-foreground/75">{t('application.limit_label')}</span>
+        <span className="text-sm text-primary-foreground">{t('application.limit_label')}</span>
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}
       </div>
-      <p className="flex items-start gap-2 text-sm text-primary-foreground/85">
+      <p className="flex items-start gap-2 text-sm text-primary-foreground">
         <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
         <span>{info}</span>
       </p>
