@@ -8,7 +8,7 @@ import { authMemory, loginFlow } from '@/entities/session';
 import { track } from '@/shared/analytics';
 import { getApi, type OtpChallenge } from '@/shared/api';
 import { formatNationalInput, nationalDigits, now, toKsaMobile, useNow } from '@/shared/lib';
-import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Ltr, Spinner } from '@/shared/ui';
+import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Spinner } from '@/shared/ui';
 
 import { phoneErrorActive, phoneErrorFrom, phoneErrorMessage, phoneFailReason, type PhoneFormError } from '../model/errors';
 
@@ -24,7 +24,7 @@ export interface PhoneFormProps {
 
 export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
   const { t } = useTranslation();
-  const ids = { input: useId(), error: useId(), label: useId() };
+  const ids = { input: useId(), error: useId(), label: useId(), prefix: useId() };
   const [digits, setDigits] = useState(() => nationalDigits(loginFlow.lastPhone() ?? ''));
   const [blurred, setBlurred] = useState(false);
   const [error, setError] = useState<PhoneFormError | null>(null);
@@ -71,8 +71,14 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
           <FieldLabel id={ids.label} htmlFor={ids.input}>
             {t('auth.phone.label')}
           </FieldLabel>
-          <div dir="ltr" className="flex items-center gap-2">
-            <Ltr className="text-base text-muted-foreground">{KSA_PREFIX}</Ltr>
+          {/* Код страны — внутри поля слева, как маска (Кирилл 2026-11-11); клики по нему проходят в поле. */}
+          <div dir="ltr" className="relative">
+            <span
+              id={ids.prefix}
+              className="pointer-events-none absolute inset-y-0 start-4 flex items-center text-base text-foreground"
+            >
+              {KSA_PREFIX}
+            </span>
             <Input
               id={ids.input}
               dir="ltr"
@@ -80,7 +86,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
               inputMode="tel"
               autoComplete="tel-national"
               placeholder={t('auth.phone.placeholder')}
-              className="h-12 rounded-lg text-base md:text-base"
+              className="h-12 rounded-lg ps-20 text-base md:text-base"
               value={formatNationalInput(digits)}
               onChange={(e) => {
                 setDigits(nationalDigits(e.target.value));
@@ -89,7 +95,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
               onBlur={() => setBlurred(true)}
               disabled={request.isPending}
               aria-invalid={shown !== null}
-              aria-describedby={message ? ids.error : undefined}
+              aria-describedby={message ? `${ids.prefix} ${ids.error}` : ids.prefix}
             />
           </div>
           {message ? <FieldError id={ids.error}>{t(message.key, message.values)}</FieldError> : null}
