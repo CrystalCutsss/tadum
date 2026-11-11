@@ -16,7 +16,7 @@ export function HelpScreen() {
   const ids = { language: useId(), theme: useId() };
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">{t('help.title')}</h1>
+      <h1 className="text-2xl font-semibold">{t('help.title')}</h1>
       <section className="flex flex-col gap-2">
         <h2 className="text-base font-medium">{t('help.support')}</h2>
         <SupportBar />

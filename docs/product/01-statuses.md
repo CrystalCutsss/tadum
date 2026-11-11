@@ -1,4 +1,4 @@
-<!-- source: Drive 1XEeojLX04fOTNt7d4gPGrsMgwz0cvasi, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 154bA6SwbF7yIup9v2x4cDyrY8uZrV82F, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -183,7 +183,8 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | docs_required | 1 | — | — | current | upcoming | upcoming | upcoming | upcoming |
 | docs_required | ≥2 | — | — | done | current | upcoming | upcoming | upcoming |
 | under_review | any | — | — | done | current | upcoming | upcoming | upcoming |
-| approved | any | pending / ready | false | done | done | done | current | upcoming |
+| approved | any | — / pending | false | done | done | current | upcoming | upcoming |
+| approved | any | ready | false | done | done | done | current | upcoming |
 | approved | any | active | true | done | done | done | done | current |
 | first_purchase | any | active | true | done | done | done | done | done |
 | closed | any | any | any | шкала скрыта, карточка «Заявка закрыта» | | | | |

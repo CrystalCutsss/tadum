@@ -25,14 +25,14 @@ export function AppHeader({ crumbs, languageSwitch, themeToggle }: AppHeaderProp
           <Separator orientation="vertical" className="data-vertical:h-4 data-vertical:self-auto" />
           {/* Кнопка 44 px с иконкой 16 px: от иконки до разделителя 14 + 8 px — тот же отступ (ms-3.5 + gap-2) от разделителя до заголовка. */}
           <Breadcrumb aria-label={t('nav.breadcrumb')} className="ms-3.5 min-w-0 flex-1">
-            <BreadcrumbList>
+            <BreadcrumbList className="flex-nowrap">
               {crumbs.map((c, i) => (
                 <Fragment key={c.labelKey}>
                   {i > 0 ? <BreadcrumbSeparator /> : null}
                   <BreadcrumbItem className="min-w-0">
                     {c.to && i < crumbs.length - 1 ? (
                       <BreadcrumbLink asChild>
-                        <Link to={c.to}>{t(c.labelKey)}</Link>
+                        <Link to={c.to} activeOptions={{ exact: true, includeSearch: true }}>{t(c.labelKey)}</Link>
                       </BreadcrumbLink>
                     ) : (
                       <BreadcrumbPage className="truncate font-medium">{t(c.labelKey)}</BreadcrumbPage>

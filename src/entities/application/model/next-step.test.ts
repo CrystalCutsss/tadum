@@ -91,3 +91,10 @@ describe('дозапрос к файлу — это дозапрос, а не «
     expect(clientNextStep({ ...base, client_status: 'docs_required', document_set: docSet([failed]) }).text_key).toBe('next_step.reupload_rejected');
   });
 });
+
+describe('лимит отменён (SC-06 A7, A-063)', () => {
+  it.each(['cancelled', 'rejected'] as const)('approved + лимит %s → путь к новой заявке, не «подпишите»', (status) => {
+    const step = clientNextStep({ ...base, client_status: 'approved', limit: limit(status, false) });
+    expect(step).toEqual({ owner: 'none', text_key: 'next_step.closed', cta: { label_key: 'next_step.cta.apply', external_url: base.landing_url } });
+  });
+});

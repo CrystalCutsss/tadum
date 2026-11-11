@@ -25,6 +25,7 @@
     --color-status-approved: var(--status-approved);
     --color-status-approved-foreground: var(--status-approved-foreground);
     --color-status-approved-muted: var(--status-approved-muted);
+    --color-status-done: var(--status-done);
     --color-limit-track: var(--limit-track);
     --color-limit-fill: var(--limit-fill);
     --color-whatsapp: var(--whatsapp);
@@ -286,4 +287,160 @@
   transition-property: grid-template-rows;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
   transition-duration: var(--tw-duration, var(--default-transition-duration));
+}
+
+/* Металлическая карточка MetalCard (решение Кирилла 2026-11-11, доработки по его ревью того же дня, раунд 3).
+   Основная реализация — WebGL2-поверхность (metal-card-gl.ts, порт React Bits «Reflective Card») в canvas
+   [data-slot=metal-card-gl]. Слои ниже — запасной вариант без WebGL2 (и до загрузки шейдера); кольцо ::after,
+   кромка и тень ::before видны всегда. Сам элемент (.metal-card) — статичная обёртка: держит место в раскладке
+   и обработчики указателя и никогда не трансформируется — область наведения не двигается.
+   ::before — поверхность (pointer-events: none, под содержимым: isolate + z-index −1). Снизу вверх: основа
+     --metal-deep → --metal-mid → --metal-steel (свет сверху слева); дымчатые тёмные зоны --metal-smoke
+     внизу; пятна фона --metal-blob-a / --metal-blob-b и встречное свечение --metal-glow (параллакс: каждое
+     со своей долей сдвига за указателем); широкая мягкая полоса отлива --metal-sheen; большой рассеянный
+     блик --metal-glare по верху; горячая точка --metal-hotspot у указателя; виньетка --metal-vignette;
+     box-shadow — --metal-edge и тень.
+   ::after — кольцо-обводка толщиной --metal-rim-width (маска content-box ⊕ border-box): градиент
+     светлый сверху слева → тёмный снизу справа и искра --metal-rim-glint у указателя.
+   Указатель — --metal-x / --metal-y (0…100 %), наклон — --metal-rx / --metal-ry (−1…1) × предел оси;
+   значения пишет пружина компонента каждый кадр (переходов CSS нет). Наклон и перспектива — только при
+   hover: hover, pointer: fine и без prefers-reduced-motion. */
+@property --metal-x {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 30%;
+}
+@property --metal-y {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 20%;
+}
+@property --metal-rx {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --metal-ry {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@utility metal-card {
+  position: relative;
+  isolation: isolate;
+  color: var(--primary-foreground);
+  /* Положение полосы отлива на диагонали — среднее координат указателя. */
+  --metal-p: calc((var(--metal-x) + var(--metal-y)) / 2);
+  /* Смещение указателя от центра (−50…50 %) — основа параллакса слоёв. */
+  --metal-dx: calc(var(--metal-x) - 50%);
+  --metal-dy: calc(var(--metal-y) - 50%);
+  /* Пределы по осям --metal-tilt-x / --metal-tilt-y ставит компонент от размера карточки (край выходит за
+     ячейку не дальше --metal-tilt-overshoot); без них — --metal-tilt-max. */
+  --metal-tilt: rotateX(calc(var(--metal-ry) * var(--metal-tilt-x, var(--metal-tilt-max))))
+    rotateY(calc(var(--metal-rx) * var(--metal-tilt-y, var(--metal-tilt-max)) * -1));
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  &::before {
+    background-image:
+      radial-gradient(ellipse at center, transparent 55%, var(--metal-vignette) 100%),
+      radial-gradient(circle var(--metal-hotspot-size) at var(--metal-x) var(--metal-y), var(--metal-hotspot), transparent),
+      radial-gradient(
+        ellipse var(--metal-glare-size) at calc(var(--metal-glare-x) + var(--metal-dx) * var(--metal-glare-shift))
+          calc(var(--metal-glare-y) + var(--metal-dy) * var(--metal-glare-shift)),
+        var(--metal-glare) 0%,
+        var(--metal-glare-soft) 45%,
+        transparent 100%
+      ),
+      linear-gradient(
+        115deg,
+        transparent calc(var(--metal-p) - var(--metal-sheen-width)),
+        var(--metal-sheen-soft) calc(var(--metal-p) - var(--metal-sheen-width) / 2),
+        var(--metal-sheen) var(--metal-p),
+        var(--metal-sheen-soft) calc(var(--metal-p) + var(--metal-sheen-width) / 2),
+        transparent calc(var(--metal-p) + var(--metal-sheen-width))
+      ),
+      radial-gradient(
+        ellipse var(--metal-blob-b-size) at calc(var(--metal-blob-b-x) + var(--metal-dx) * var(--metal-blob-b-shift))
+          calc(var(--metal-blob-b-y) + var(--metal-dy) * var(--metal-blob-b-shift)),
+        var(--metal-blob-b),
+        transparent
+      ),
+      radial-gradient(
+        ellipse var(--metal-blob-a-size) at calc(var(--metal-blob-a-x) + var(--metal-dx) * var(--metal-blob-a-shift))
+          calc(var(--metal-blob-a-y) + var(--metal-dy) * var(--metal-blob-a-shift)),
+        var(--metal-blob-a),
+        transparent
+      ),
+      radial-gradient(
+        ellipse 70% 55% at calc(100% - var(--metal-x)) calc(100% - var(--metal-y)),
+        var(--metal-glow),
+        transparent
+      ),
+      radial-gradient(
+        ellipse 50% 45% at calc(15% + var(--metal-dx) * var(--metal-smoke-shift))
+          calc(110% + var(--metal-dy) * var(--metal-smoke-shift)),
+        var(--metal-smoke-soft),
+        transparent
+      ),
+      radial-gradient(
+        ellipse 70% 50% at calc(70% + var(--metal-dx) * var(--metal-smoke-shift))
+          calc(105% + var(--metal-dy) * var(--metal-smoke-shift)),
+        var(--metal-smoke),
+        transparent
+      ),
+      linear-gradient(330deg, var(--metal-deep) 0%, var(--metal-mid) 50%, var(--metal-steel) 100%);
+    box-shadow: var(--metal-edge), var(--metal-shadow);
+  }
+  &::after {
+    padding: var(--metal-rim-width);
+    background-image:
+      radial-gradient(circle var(--metal-rim-glint-size) at var(--metal-x) var(--metal-y), var(--metal-rim-glint), transparent),
+      linear-gradient(135deg, var(--metal-rim-light) 0%, var(--metal-rim-mid) 45%, var(--metal-rim-dark) 100%);
+    mask-image: linear-gradient(var(--mask-solid) 0 0), linear-gradient(var(--mask-solid) 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+  }
+  /* Поверхность WebGL (основная реализация, metal-card-gl.ts): canvas — прямой ребёнок под содержимым. Пока
+     шейдер не загрузился или без WebGL2 canvas прозрачен — видны CSS-слои. С data-gl фон ::before снят
+     (остаются кромка и тень), кольцо ::after лежит поверх canvas. */
+  & > [data-slot='metal-card-gl'] {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  &[data-gl]::before {
+    background-image: none;
+  }
+  /* Наклон — только мышь без reduced-motion; на сенсорных экранах и при reduce трансформаций нет. Карточка
+     поворачивается целиком: слои, canvas и содержимое — на один угол с общей перспективой обёртки. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    perspective: var(--metal-perspective);
+    &::before,
+    &::after,
+    & > * {
+      transform: var(--metal-tilt);
+      backface-visibility: hidden;
+    }
+  }
+  /* Режим высокой контрастности: градиенты и тени скрыты системой — граница карточки системным цветом. */
+  @media (forced-colors: active) {
+    outline: var(--metal-rim-width) solid CanvasText;
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
 }

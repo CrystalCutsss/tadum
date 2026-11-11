@@ -27,7 +27,7 @@ const ICON: Record<TimelineStepState, RemixiconComponentType> = {
 // Цвет — только у иконки; подписи — цвета текста (AA в обеих темах). needs_attention — цвет статуса rejected,
 // а не «ошибка системы» (§5).
 const TONE: Record<TimelineStepState, string> = {
-  done: 'text-status-approved',
+  done: 'text-status-done',
   current: 'text-primary',
   upcoming: 'text-muted-foreground',
   needs_attention: 'text-status-rejected',

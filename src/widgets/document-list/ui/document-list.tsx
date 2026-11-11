@@ -24,6 +24,8 @@ export interface DocumentListProps {
   /** Номер CR сохранён — без него комплект не отправить. */
   crReady: boolean;
   onCrMissing: () => void;
+  /** Архив принятых документов (панель «Your documents», Кирилл 2026-11-11): только файлы — без бейджей статуса, видео, примеров и ссылок на сервисы. */
+  archive?: boolean;
 }
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -46,7 +48,7 @@ export function stableOrder<T extends DocumentSet['documents'][number]>(docs: re
   return sortDocuments(docs).sort((a, b) => rank(a.portal_key) - rank(b.portal_key));
 }
 
-export function DocumentList({ set, editable, focusKey, header, crReady, onCrMissing }: DocumentListProps) {
+export function DocumentList({ set, editable, focusKey, header, crReady, onCrMissing, archive = false }: DocumentListProps) {
   const { t } = useTranslation();
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [highlight, setHighlight] = useState<readonly string[]>([]);
@@ -95,6 +97,7 @@ export function DocumentList({ set, editable, focusKey, header, crReady, onCrMis
             key={doc.id}
             doc={doc}
             editable={editable}
+            archive={archive}
             // Подсветка гаснет сама, когда документ загружен.
             highlighted={highlight.includes(doc.portal_key) && (doc.status === 'pending' || doc.status === 'rejected')}
             onUploadingChange={onUploadingChange}

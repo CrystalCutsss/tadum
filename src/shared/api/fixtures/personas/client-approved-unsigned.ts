@@ -1,4 +1,5 @@
-// client_approved_unsigned — client_owner; approved, лимит ready, чек-лист: SPA in_progress, PN pending (SC-06).
+// client_approved_unsigned — client_owner; approved, лимит ready, чек-лист: все три pending (SC-06; «ждём подтверждения» —
+// у client_signing_partial: без «Открыть снова» пункт in_progress в демо не завершить, Кирилл 2026-11-11).
 import { CLIENT_BASE_KEYS, ZERO, ago, checklist, documentSet, phone, sar, uploaded } from '../build';
 import type { PersonaFixture } from '../types';
 
@@ -17,7 +18,7 @@ export const clientApprovedUnsigned: PersonaFixture = (now) => {
         odoo_stage: 'Signing SPA & PN',
         client_status: 'approved',
         permission_state: 'active',
-        next_step: { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/home#limit' } },
+        next_step: { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/documents' } },
         current_document_set_id: SET,
         limit_id: 'lim_cau',
         created_at: ago(now, { days: 8 }),
@@ -44,7 +45,7 @@ export const clientApprovedUnsigned: PersonaFixture = (now) => {
         approved: sar(200_000),
         used: ZERO,
         available: sar(200_000),
-        checklist: checklist('in_progress', 'pending', 'pending'),
+        checklist: checklist('pending', 'pending', 'pending'),
       },
     ],
     deals: [],

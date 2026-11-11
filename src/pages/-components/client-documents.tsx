@@ -1,16 +1,36 @@
-// /c/documents (SC-02…SC-05, решения Кирилла 2026-11-09): список документов — единственный экран этапа
+// /c/documents (SC-02…SC-06, решения Кирилла 2026-11-09 и 2026-11-11): экран «Заявка» — список документов
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
+// После одобрения раскладка та же (A-063): над списком — карточка этапа («Решение», «Подписание»), принятые документы
+// свёрнуты; на этапе «Лимит одобрен» — только готовая карточка заявки, а даты, лимит и документы — внутри (?view=details).
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { applicationQuery, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
+import { applicationQuery, applicationStage, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
+import { limitQuery, type Limit } from '@/entities/limit';
 import { CompanyCrCard } from '@/features/edit-company-cr';
 import { track } from '@/shared/analytics';
-import { useStatusPolling, type Application } from '@/shared/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from '@/shared/ui';
+import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
+import { useIsMobile } from '@/shared/lib';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  SideDrawer,
+  Skeleton,
+  toast,
+} from '@/shared/ui';
+import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, SigningSteps, trackLimitTransition } from '@/widgets/application-stage';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
@@ -20,6 +40,9 @@ import { SupportBar } from '@/widgets/support-bar';
  * Панель шагов — фон как у нижней панели карточки документа, secondary (решение Кирилла 2026-11-10).
  * Вторичный текст с контрастом AA: muted-foreground на secondary — 4.2:1, secondary-foreground/65 — 5.3:1.
  */
+/** Лендинг «Подать заявку» (как в SC-08). */
+const landingUrl: string = import.meta.env.VITE_LANDING_URL ?? 'https://tadum.sa';
+
 const PANEL_MUTED = '[&_.text-muted-foreground]:text-secondary-foreground/65';
 
 type Steps = Extract<ClientTimeline, { hidden: false }>['steps'];
@@ -43,7 +66,7 @@ function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   return (
     // Компактно — в половину колонки, без обводки (2026-11-09); фон как у нижней панели карточки,
     // отступы сверху и снизу 20 px вместо 24 px (2026-11-10).
-    <Card className={cn('sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl py-5 bg-secondary text-secondary-foreground ring-0', PANEL_MUTED)}>
+    <Card className={cn('gap-4 rounded-xl py-5 bg-secondary text-secondary-foreground ring-0', PANEL_MUTED)}>
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
@@ -65,14 +88,83 @@ function StepsTopPanel({ steps, app }: { steps: Steps; app: Application }) {
   );
 }
 
-export function ClientDocuments({ focusKey }: { focusKey?: string | undefined }) {
+const SUBTITLE = {
+  decision: 'application.subtitle.decision',
+  signing: 'application.subtitle.signing',
+  cancelled: 'application.subtitle.cancelled',
+} as const;
+
+/** Смена статуса лимита при открытом экране: тост (D-034). */
+function useLimitChangeNotice(limit: Limit | null | undefined) {
+  const { t } = useTranslation();
+  const prev = useRef<Limit['status'] | null | undefined>(undefined);
+  useEffect(() => {
+    if (limit === undefined) return;
+    const status = limit?.status ?? null;
+    if (prev.current !== undefined && prev.current !== status) {
+      trackLimitTransition(prev.current, limit);
+      toast(t('status.updated'));
+    }
+    prev.current = status;
+  }, [limit, t]);
+}
+
+/**
+ * Принятые документы — в выдвижной панели по клику на папку (Кирилл 2026-11-11): на компьютере — боковой Drawer
+ * (SideDrawer) с края экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
+ */
+function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const title = t('application.folder.title');
+  const description = t('application.documents_accepted', { count: set.documents.length });
+  const list = <DocumentList set={set} editable={false} archive crReady onCrMissing={() => undefined} />;
+  if (isMobile) {
+    return (
+      <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+        <ResponsiveDialogContent size="tall" closeLabel={t('common.close')}>
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>{title}</ResponsiveDialogTitle>
+            <ResponsiveDialogDescription>{description}</ResponsiveDialogDescription>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>{list}</ResponsiveDialogBody>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
+    );
+  }
+  return (
+    <SideDrawer open={open} onOpenChange={onOpenChange} title={title} description={description} closeLabel={t('common.close')}>
+      {list}
+    </SideDrawer>
+  );
+}
+
+export interface ClientDocumentsProps {
+  focusKey?: string | undefined;
+  /** Подробности заявки на этапе «Лимит одобрен» (?view=details). */
+  details?: boolean;
+  onOpenDetails?: () => void;
+}
+
+export function ClientDocuments({ focusKey, details = false, onOpenDetails }: ClientDocumentsProps) {
   const { t } = useTranslation();
   const app = useStatusPolling(applicationQuery);
   const owner = { kind: 'application' as const, id: app.data?.id ?? '' };
   const set = useQuery({ ...documentSetQuery(owner), enabled: Boolean(app.data) });
   const company = useQuery(companyQuery);
+  const limit = useStatusPolling(limitQuery);
   // Попытка отправить без номера CR — поле показывает ошибку и получает фокус.
   const [crAttention, setCrAttention] = useState(0);
+  const [docsOpen, setDocsOpen] = useState(false);
+  // Высота блока Steps (третья колонка, ≥1024 px) — карточка лимита и папка той же высоты (Кирилл 2026-11-11).
+  const [stepsHeight, setStepsHeight] = useState(0);
+  const stepsRef = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return undefined;
+    const observer = new ResizeObserver(([entry]) => setStepsHeight(Math.round(entry?.borderBoxSize[0]?.blockSize ?? 0)));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  useLimitChangeNotice(limit.data);
 
   const data = app.data;
   const editable = data && set.data ? canEditFiles(data.permission_state, set.data) : false;
@@ -83,10 +175,13 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editable, set.data?.round]);
 
-  if (app.isError || set.isError) {
-    return <LoadError onRetry={() => void (app.isError ? app.refetch() : set.refetch())} support={<SupportBar context="error" />} />;
+  // Лимит не загрузился у одобренной заявки — иначе экран молча показал бы этап «Документы».
+  const limitFailed = limit.isError && (app.data?.client_status === 'approved' || app.data?.client_status === 'first_purchase');
+  if (app.isError || set.isError || limitFailed) {
+    const retry = app.isError ? app.refetch : set.isError ? set.refetch : limit.refetch;
+    return <LoadError onRetry={() => void retry()} support={<SupportBar context="error" />} />;
   }
-  if (!data || !set.data) {
+  if (!data || !set.data || limit.isPending) {
     return (
       <div className="flex flex-col gap-3" aria-busy="true">
         <Skeleton className="h-8 w-48" />
@@ -103,43 +198,88 @@ export function ClientDocuments({ focusKey }: { focusKey?: string | undefined })
   const reviewed = set.data.round > 1 || set.data.documents.some((d) => d.rejected_file_hashes.length > 0);
   const crStage = editable && !reviewed;
 
-  const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: null });
+  const stage = applicationStage(data.client_status, limit.data);
+  const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: limit.data ?? null });
+  const sentAt = set.data.submitted_at ?? data.created_at;
+  const lim = limit.data;
+
+  // «Лимит одобрен» — без подзаголовка (Кирилл 2026-11-11): статус уже в карточке.
+  const subtitle =
+    stage === 'documents' ? (editable ? t('documents.subtitle') : t('documents.subtitle_locked')) : stage === 'approved' ? null : t(SUBTITLE[stage]);
 
   return (
     <div className="flex flex-1 flex-col gap-4">
       {/* Заголовок — над обеими колонками: панель шагов справа начинается вровень с первой карточкой. */}
       <CabinetPageHeader>
-        <header className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold">{t('documents.title')}</h1>
-          <p className="text-sm text-muted-foreground">{editable ? t('documents.subtitle') : t('documents.subtitle_locked')}</p>
+        {/* Заголовок страницы крупнее (Кирилл 2026-11-11): 24 px, отступ до подзаголовка и до контента — пропорционально. */}
+        <header className="flex flex-col gap-1.5">
+          <h1 className="text-2xl font-semibold">{stage === 'approved' && details ? t('application.details.title') : t('documents.title')}</h1>
+          {subtitle ? <p className="text-base text-muted-foreground">{subtitle}</p> : null}
         </header>
       </CabinetPageHeader>
 
-      {timeline.hidden ? null : (
+      {/* «Лимит одобрен» — шкала шагов не нужна, путь пройден (Кирилл 2026-11-11). */}
+      {timeline.hidden || stage === 'approved' ? null : (
         <>
           <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
-            <StepsPanel steps={timeline.steps} app={data} />
+            <div className="sticky top-4 flex w-1/2 max-w-full min-w-56 flex-col gap-4">
+              <div ref={stepsRef}>
+                <StepsPanel steps={timeline.steps} app={data} />
+              </div>
+            </div>
           </CabinetAside>
         </>
       )}
 
-      <DocumentList
-        set={set.data}
-        editable={editable}
-        focusKey={focusKey}
-        header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
-        crReady={!crStage || isValidCr(company.data?.cr_number)}
-        onCrMissing={() => setCrAttention((n) => n + 1)}
-      />
-
-      {!editable ? (
-        <Card className="rounded-xl">
-          <CardHeader>
-            <CardTitle className="text-base">{t('documents.locked.title')}</CardTitle>
-            <CardDescription>{t('documents.locked.body')}</CardDescription>
-          </CardHeader>
-        </Card>
+      {stage === 'documents' ? (
+        <>
+          <DocumentList
+            set={set.data}
+            editable={editable}
+            focusKey={focusKey}
+            header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
+            crReady={!crStage || isValidCr(company.data?.cr_number)}
+            onCrMissing={() => setCrAttention((n) => n + 1)}
+          />
+          {!editable ? (
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-base">{t('documents.locked.title')}</CardTitle>
+                <CardDescription>{t('documents.locked.body')}</CardDescription>
+              </CardHeader>
+            </Card>
+          ) : null}
+        </>
+      ) : stage === 'approved' && lim ? (
+        details ? (
+          <>
+            <Card className="rounded-xl">
+              <CardContent>
+                <ApplicationFacts sentAt={sentAt} limit={lim} />
+              </CardContent>
+            </Card>
+            <h2 className="text-base font-semibold">{t('application.details.documents')}</h2>
+            <DocumentList set={set.data} editable={false} crReady onCrMissing={() => undefined} />
+          </>
+        ) : (
+          <ApplicationSummaryCard sentAt={sentAt} limit={lim} onOpen={() => onOpenDetails?.()} />
+        )
+      ) : lim ? (
+        <>
+          {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
+              на телефоне папка — под шагами подписания. */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" style={stepsHeight > 0 ? { minHeight: stepsHeight } : undefined}>
+            {stage === 'cancelled' ? <CancelledLimitCard applyUrl={landingUrl} /> : <LimitCard limit={lim} />}
+            <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
+          </div>
+          {stage === 'cancelled' ? null : (
+            /* Отступ от карточек до заголовка подписей больше обычного (Кирилл 2026-11-11). */
+            <SigningSteps className="mt-4" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
+          )}
+          <DocumentsFolder className="sm:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
+          <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} />
+        </>
       ) : null}
     </div>
   );

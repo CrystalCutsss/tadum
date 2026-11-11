@@ -49,10 +49,13 @@ function DrawerContent({
   className,
   children,
   dir,
+  customWidth = false,
   ...props
 }: Omit<React.ComponentProps<typeof DrawerPrimitive.Content>, "dir"> & {
   /** Направление, если отличается от Direction.Provider. Портал вне дерева с dir — задаём явно. */
   dir?: "ltr" | "rtl"
+  /** Проектное: ширину боковой панели задаёт className (SideDrawer), ширина пресета не применяется. */
+  customWidth?: boolean
 }) {
   const direction = Direction.useDirection(dir)
   return (
@@ -64,9 +67,12 @@ function DrawerContent({
         className={cn(
           // vaul-drawer-direction — физическая сторона экрана, поэтому left-0/right-0 здесь осознанно физические.
           // eslint-disable-next-line rtl-friendly/no-physical-properties
-          "group/drawer-content fixed z-50 flex h-auto flex-col bg-transparent p-4 text-sm text-popover-foreground before:absolute before:inset-2 before:-z-10 before:rounded-xl before:border before:border-border before:bg-popover data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm",
+          "group/drawer-content fixed z-50 flex h-auto flex-col bg-transparent p-4 text-sm text-popover-foreground before:absolute before:inset-2 before:-z-10 before:rounded-xl before:border before:border-border before:bg-popover data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh]",
           // Проектное (Кирилл 2026-11-09): data-size="tall" — нижний Drawer почти на всю высоту окна: от верхнего края
           // (safe-area или 1rem) до низа, вместо mt-24/max-h-80vh пресета. Задаёт ResponsiveDialogContent size="tall".
+          // Ширина боковой панели по пресету (w-3/4, sm:max-w-sm) — если её не задаёт className (customWidth).
+          !customWidth &&
+            "data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=right]:sm:max-w-sm",
           "data-[size=tall]:data-[vaul-drawer-direction=bottom]:top-[max(calc(var(--spacing)*4),env(safe-area-inset-top))] data-[size=tall]:data-[vaul-drawer-direction=bottom]:mt-0 data-[size=tall]:data-[vaul-drawer-direction=bottom]:max-h-none",
           className
         )}
@@ -133,7 +139,7 @@ function DrawerDescription({
 
 export {
   // DrawerPortal и DrawerOverlay — только внутри DrawerContent: Drawer подключается лениво из
-  // responsive-dialog, наружу через баррель не экспортируется (knip, бюджет первого чанка).
+  // lazy-drawer (ResponsiveDialog, SideDrawer), наружу через баррель не экспортируется (knip, бюджет первого чанка).
   Drawer,
   DrawerTrigger,
   DrawerClose,

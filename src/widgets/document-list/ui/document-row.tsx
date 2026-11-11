@@ -39,10 +39,12 @@ export interface DocumentRowProps {
   editable: boolean;
   /** Подсветка после попытки отправить с незагруженными документами (решение 2026-11-09). */
   highlighted?: boolean;
+  /** Архив принятых документов: без бейджа статуса и без видео, примера и ссылок на сервисы. */
+  archive?: boolean;
   onUploadingChange?: (portalKey: string, uploading: boolean) => void;
 }
 
-export function DocumentRow({ doc, editable, highlighted = false, onUploadingChange }: DocumentRowProps) {
+export function DocumentRow({ doc, editable, highlighted = false, archive = false, onUploadingChange }: DocumentRowProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
   const online = useOnline();
@@ -105,7 +107,7 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
                 ) : null}
               </ItemTitle>
               <ItemDescription className="line-clamp-none">{hint}</ItemDescription>
-              {action ? null : (
+              {action || archive ? null : (
                 <div className="mt-1 sm:hidden">
                   <StatusBadge kind="document" status={doc.status} />
                 </div>
@@ -123,7 +125,7 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
                 >
                   {mode === 'reupload' ? t('documents.row.reupload') : t('documents.row.upload')}
                 </Button>
-              ) : (
+              ) : archive ? null : (
                 <span className="hidden sm:inline-flex">
                   <StatusBadge kind="document" status={doc.status} />
                 </span>
@@ -179,25 +181,27 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
               ) : null}
             </div>
           ) : null}
-          <DocumentResources
-            doc={doc}
-            title={title}
-            leading={
-              canAddMore ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="shrink-0 hover:bg-card dark:hover:bg-card"
-                  disabled={!online || upload.busy}
-                  onClick={() => setPicker({})}
-                >
-                  <Icon icon={RiAddLine} data-icon="inline-start" className="size-3.5" />
-                  {t('documents.row.add_file')}
-                </Button>
-              ) : null
-            }
-          />
+          {archive ? null : (
+            <DocumentResources
+              doc={doc}
+              title={title}
+              leading={
+                canAddMore ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="shrink-0 hover:bg-card dark:hover:bg-card"
+                    disabled={!online || upload.busy}
+                    onClick={() => setPicker({})}
+                  >
+                    <Icon icon={RiAddLine} data-icon="inline-start" className="size-3.5" />
+                    {t('documents.row.add_file')}
+                  </Button>
+                ) : null
+              }
+            />
+          )}
         </div>
       </div>
 

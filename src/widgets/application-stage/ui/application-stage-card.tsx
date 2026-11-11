@@ -1,0 +1,122 @@
+// Этапы «Решение» и «Подписание» на экране «Заявка» (решения Кирилла 2026-11-11, A-063). Раскладка экрана прежняя;
+// над шагами подписания — синяя карточка лимита: сумма крупно сверху, под ней пояснение с иконкой info. Шаги подписания —
+// отдельный блок под своим заголовком, в виде карточек документов. «Есть вопрос?» внутри этапов нет — поддержка в сайдбаре.
+// Лимит cancelled / rejected: нейтральная карточка без причины (SC-06 A7).
+import { RiInformationLine } from '@remixicon/react';
+import { cn } from 'cn';
+import { useEffect, useId, type ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import type { Limit } from '@/entities/limit';
+import { track } from '@/shared/analytics';
+import { formatMoney, isLanguage } from '@/shared/i18n';
+import { Button, Icon, Ltr, MetalCard } from '@/shared/ui';
+
+import { OnboardingChecklistView } from './onboarding-checklist';
+
+const NBSP = '\u00a0';
+
+/**
+ * Поверхность карточки лимита — «металлическая» карточка с глубиной и бликом за указателем (MetalCard, Кирилл 2026-11-11);
+ * общая для этапов и «Лимит одобрен». Мелкий текст на ней — только primary-foreground без прозрачности (AA под бликом).
+ */
+export function LimitSurface({ className, ...props }: ComponentProps<'section'>) {
+  return <MetalCard as="section" className={cn('flex flex-col gap-6 p-6 md:p-7', className)} {...props} />;
+}
+
+
+/**
+ * Сумма лимита: валюта втрое мельче суммы (48 / 14 px) и выровнена по верхней линии цифр, а не по строке (Кирилл 2026-11-11).
+ * У обеих частей leading-none, поэтому разница — верхний свес строки над цифрами; компенсируем отступом валюты сверху
+ * (6 px — подобрано по скриншоту). Порядок частей — из formatMoney (EN: SAR 150,000, AR: 150,000 ر.س).
+ */
+export function LimitAmount({ value }: { value: Limit['approved'] }) {
+  const { i18n } = useTranslation();
+  const lang = isLanguage(i18n.language) ? i18n.language : 'en';
+  const parts = formatMoney(value.amount_minor / 100, lang).split(NBSP);
+  return (
+    <span className="flex items-start gap-1 font-normal tabular-nums">
+      {parts.map((part) =>
+        /\d/.test(part) ? (
+          <span key={part} className="text-5xl leading-none">
+            <Ltr>{part}</Ltr>
+          </span>
+        ) : (
+          <span key={part} className="mt-1.5 text-sm leading-none">
+            {part}
+          </span>
+        ),
+      )}
+    </span>
+  );
+}
+
+export interface LimitCardProps {
+  limit: Pick<Limit, 'status' | 'approved'>;
+}
+
+/**
+ * Карточка лимита — вертикальная (Кирилл 2026-11-11): «Limit» и сумма сверху, пояснение прижато к низу — большой отступ
+ * от суммы; высоту выравнивает сетка с папкой документов справа.
+ */
+export function LimitCard({ limit, className }: LimitCardProps & { className?: string }) {
+  const { t } = useTranslation();
+  const hasAmount = limit.approved.amount_minor > 0;
+  const info = limit.status === 'pending' ? t('application.decision.body') : t('application.signing.info');
+  return (
+    <LimitSurface aria-live="polite" className={cn('min-h-64 justify-between gap-8', className)}>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm text-primary-foreground">{t('application.limit_label')}</span>
+        {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}
+      </div>
+      <p className="flex items-start gap-2 text-sm text-primary-foreground">
+        <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
+        <span>{info}</span>
+      </p>
+    </LimitSurface>
+  );
+}
+
+export interface SigningStepsProps {
+  limit: Pick<Limit, 'status' | 'checklist'>;
+  /** Время последнего ответа сервера по лимиту (TanStack Query dataUpdatedAt). */
+  limitUpdatedAt: number;
+  className?: string;
+}
+
+/** Три подписи под общим заголовком; до согласования условий — неактивны. */
+export function SigningSteps({ limit, limitUpdatedAt, className }: SigningStepsProps) {
+  const { t } = useTranslation();
+  const locked = limit.status === 'pending';
+  const titleId = useId();
+  return (
+    <section className={cn('flex flex-col gap-3', className)} aria-labelledby={titleId}>
+      <header className="flex flex-col gap-1">
+        <h2 id={titleId} className="text-base font-semibold">
+          {t('checklist.title')}
+        </h2>
+        <p className="text-sm text-muted-foreground">{locked ? t('checklist.locked_hint') : t('application.signing.body')}</p>
+      </header>
+      <OnboardingChecklistView items={limit.checklist.items} locked={locked} dataUpdatedAt={limitUpdatedAt} />
+    </section>
+  );
+}
+
+/** Лимит отменён: нейтральный текст без причины и «Подать новую заявку» (Кирилл 2026-11-11) — на лендинг, как в SC-08. */
+export function CancelledLimitCard({ applyUrl }: { applyUrl: string }) {
+  const { t } = useTranslation();
+  useEffect(() => track('limit_cancelled_viewed', {}), []);
+  return (
+    <section className="flex flex-col items-start gap-4 rounded-xl border bg-card p-4 text-card-foreground md:p-5">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold">{t('application.cancelled.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('application.cancelled.body')}</p>
+      </div>
+      <Button asChild className="min-h-11">
+        <a href={applyUrl} rel="noopener">
+          {t('application.cancelled.apply')}
+        </a>
+      </Button>
+    </section>
+  );
+}

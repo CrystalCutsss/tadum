@@ -16,73 +16,14 @@ import {
   DialogTrigger,
 } from "@/shared/ui/dialog"
 import { Icon } from "@/shared/ui/icon/icon"
+import { type DrawerModule, useDrawerModule } from "@/shared/ui/lazy-drawer"
 
 // Проектный примитив по образцу shadcn drawer-dialog: на мобильных (useIsMobile, < md) — Drawer снизу,
 // иначе — Dialog. Режим выбирает корень и передаёт частям через контекст.
-// Drawer (vaul) грузится лениво: у vaul побочный эффект при импорте (вставка CSS), статический импорт
-// затянул бы его в первый чанк (бюджет 200 kB, D-054). Модуль запрашивается при первом монтировании
+// Drawer (vaul) грузится лениво (lazy-drawer.ts, бюджет первого чанка D-054) при первом монтировании
 // корня на телефоне; пока он грузится, корень — закрытый Dialog: триггер виден, окно не мигает и
 // открывается уже как Drawer (defaultOpen/open применяются к Drawer после загрузки).
 // Чанк не загрузился (офлайн без кэша) — откат на Dialog, окно остаётся рабочим.
-type DrawerModule = Pick<
-  typeof import("@/shared/ui/drawer"),
-  | "Drawer"
-  | "DrawerClose"
-  | "DrawerContent"
-  | "DrawerDescription"
-  | "DrawerFooter"
-  | "DrawerHeader"
-  | "DrawerTitle"
-  | "DrawerTrigger"
->
-
-let drawerModule: DrawerModule | null = null
-let drawerRequest: Promise<DrawerModule | "failed"> | null = null
-
-function loadDrawer() {
-  drawerRequest ??= import("@/shared/ui/drawer").then(
-    ({
-      Drawer,
-      DrawerClose,
-      DrawerContent,
-      DrawerDescription,
-      DrawerFooter,
-      DrawerHeader,
-      DrawerTitle,
-      DrawerTrigger,
-    }) =>
-      (drawerModule = {
-        Drawer,
-        DrawerClose,
-        DrawerContent,
-        DrawerDescription,
-        DrawerFooter,
-        DrawerHeader,
-        DrawerTitle,
-        DrawerTrigger,
-      }),
-    () => {
-      drawerRequest = null // следующая попытка — при следующем монтировании
-      return "failed" as const
-    }
-  )
-  return drawerRequest
-}
-
-function useDrawerModule(enabled: boolean): DrawerModule | "pending" | "failed" {
-  const [mod, setMod] = React.useState<DrawerModule | "failed" | null>(drawerModule)
-  React.useEffect(() => {
-    if (!enabled || mod) return
-    let active = true
-    void loadDrawer().then((m) => {
-      if (active) setMod(m)
-    })
-    return () => {
-      active = false
-    }
-  }, [enabled, mod])
-  return mod ?? "pending"
-}
 
 // Режим частей: null — Dialog; модуль Drawer — Drawer; "pending" — телефон, Drawer ещё грузится.
 type Mode = DrawerModule | "pending" | null

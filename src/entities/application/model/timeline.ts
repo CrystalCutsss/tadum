@@ -1,5 +1,5 @@
 // Шкала прогресса клиента (01-cabinet-structure.md §5, таблица истинности 01-statuses.md §8).
-// Шкала никогда не откатывается назад (D-008). Дозапрос (решения Кирилла 2026-11-09): «Документы» — пройдены,
+// Шкала никогда не откатывается назад (D-008). Этап «Решение» — текущий шаг, пока условия согласуются (A-063). Дозапрос (решения Кирилла 2026-11-09): «Документы» — пройдены,
 // «Проверка» — текущий шаг, без предупреждающей метки (раньше метка needs_attention стояла на «Документах»).
 
 import type { ClientStatus, Limit } from '@/shared/api';
@@ -34,8 +34,11 @@ export function computeClientTimeline({ client_status: status, round, limit }: C
     case 'under_review':
       return row('done', 'current', 'upcoming', 'upcoming', 'upcoming');
     case 'approved':
-      return limit?.status === 'active' && limit.checklist.completed
-        ? row('done', 'done', 'done', 'done', 'current')
+      if (limit?.status === 'active' && limit.checklist.completed) return row('done', 'done', 'done', 'done', 'current');
+      // Решение Кирилла 2026-11-11 (A-063): пока условия согласуются (лимита ещё нет или он pending) — текущий шаг
+      // «Решение»; «Подписание» становится текущим, когда открылось подписание (лимит ready). Расходится с §8 до правки Drive.
+      return !limit || limit.status === 'pending'
+        ? row('done', 'done', 'current', 'upcoming', 'upcoming')
         : row('done', 'done', 'done', 'current', 'upcoming');
     case 'first_purchase':
       return row('done', 'done', 'done', 'done', 'done');

@@ -29,10 +29,15 @@ export function clientNextStep(input: ClientNextStepInput): NextStep {
       // Offer confirmation: условия согласует менеджер по телефону (SC-06).
       return { owner: 'tadum', text_key: 'next_step.offer_confirmation' };
     }
+    if (limit.status === 'cancelled' || limit.status === 'rejected') {
+      // Лимит отменён (SC-06 A7): подписывать нечего — как у закрытой заявки, путь к новой заявке (A-063; в §6 строки нет).
+      return { owner: 'none', text_key: 'next_step.closed', cta: { label_key: 'next_step.cta.apply', external_url: input.landing_url } };
+    }
     if (limit.status === 'active' && limit.checklist.completed) {
       return { owner: 'user', text_key: 'next_step.how_to_buy', cta: { label_key: 'next_step.cta.how_to_buy', route: '/c/home#how-to-buy' } };
     }
-    return { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/home#limit' } };
+    // Подписание — на экране «Заявка» (A-063), а не в блоке #limit главной.
+    return { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/documents' } };
   }
   if (status === 'under_review') {
     return input.review_eta_hours !== undefined

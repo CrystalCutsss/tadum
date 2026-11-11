@@ -11,13 +11,14 @@ import { CLIENT_TIMELINE_STEPS, computeClientTimeline } from './timeline';
 const ALL_LIMITS: LimitStatus[] = ['pending', 'ready', 'active', 'cancelled', 'rejected'];
 
 const rounds = (cell: string) => (cell === '1' ? [1] : cell === '≥2' ? [2, 3] : [1, 2]);
+// «— / pending» — лимита ещё нет или он pending (D-081).
 const limits = (cell: string): (LimitStatus | null)[] =>
-  cell === '—' ? [null] : cell === 'any' ? [null, ...ALL_LIMITS] : (cell.split('/').map((s) => s.trim()) as LimitStatus[]);
+  cell === 'any' ? [null, ...ALL_LIMITS] : cell.split('/').map((s) => (s.trim() === '—' ? null : (s.trim() as LimitStatus)));
 const checklists = (cell: string) => (cell === 'true' ? [true] : cell === 'false' || cell === '—' ? [false] : [true, false]);
 
 describe('01-statuses.md §8 — таблица истинности, каждая строка и каждая комбинация', () => {
   const rows = tableWithHeader(section(readProductDoc('01-statuses.md'), '8.'), 'client_status').rows;
-  it('в таблице 7 строк', () => expect(rows).toHaveLength(7));
+  it('в таблице 8 строк', () => expect(rows).toHaveLength(8));
   it.each(rows)('%s | round %s | limit %s | checklist %s', (status, round, lim, check, ...states) => {
     for (const r of rounds(round))
       for (const l of limits(lim))
@@ -38,7 +39,8 @@ const cabinetInputs: Record<string, Parameters<typeof computeClientTimeline>[0]>
   'docs_required (первый комплект)': { client_status: 'docs_required', round: 1, limit: null },
   'docs_required (дозапрос, round > 1)': { client_status: 'docs_required', round: 2, limit: null },
   under_review: { client_status: 'under_review', round: 1, limit: null },
-  'approved (до подписания)': { client_status: 'approved', round: 1, limit: limit('ready', false) },
+  'approved (лимита нет или pending)': { client_status: 'approved', round: 1, limit: limit('pending', false) },
+  'approved (лимит ready, чек-лист не завершён)': { client_status: 'approved', round: 1, limit: limit('ready', false) },
   'approved (всё подписано, лимит active)': { client_status: 'approved', round: 1, limit: limit('active', true) },
   first_purchase: { client_status: 'first_purchase', round: 1, limit: limit('active', true) },
   closed: { client_status: 'closed', round: 1, limit: null },
@@ -56,6 +58,12 @@ describe('01-cabinet-structure.md §5 — состояния шагов, каж�
       return;
     }
     expect(out).toEqual({ hidden: false, steps: Object.fromEntries(CLIENT_TIMELINE_STEPS.map((s, i) => [s, states[i]])) });
+  });
+
+  it('D-081: лимита ещё нет — «Решение» текущий; открылось подписание — «Подписание» текущий', () => {
+    expect(computeClientTimeline({ client_status: 'approved', round: 1, limit: null }).steps?.decision).toBe('current');
+    const ready = computeClientTimeline({ client_status: 'approved', round: 1, limit: limit('ready', false) }).steps;
+    expect([ready?.decision, ready?.signing]).toEqual(['done', 'current']);
   });
 
   it('шкала не откатывается при дозапросе: «Документы» пройдены, «Проверка» — текущий шаг (D-008, решение 2026-11-09)', () => {

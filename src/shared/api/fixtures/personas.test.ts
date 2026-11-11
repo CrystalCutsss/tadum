@@ -40,7 +40,7 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('01-entities.md §6 — персоны, каждая строка', () => {
-  it('реестр совпадает с таблицей (14)', () => {
+  it('реестр совпадает с таблицей', () => {
     expect(rows.map((r) => id(r[0]!))).toEqual([...PERSONA_IDS]);
   });
 

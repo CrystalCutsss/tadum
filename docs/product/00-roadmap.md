@@ -1,4 +1,4 @@
-<!-- source: Drive 1_jmG1pJcMmq3mzFqDvlRPkvqUaVBw_IH, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1QkG3ehxEDksB-GAe2-E1letri2u0-ojP, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # Roadmap прототипа — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** порядок версий утверждён планом (§2.2); вопросы закрыты (D-060, D-061); состав каждой версии уточняется брифами фич.
@@ -62,9 +62,9 @@
 | Реферальная ссылка: копирование, WhatsApp (текст на языке интерфейса, D-046), QR без логотипа (D-045), режим IAB, печать | SP-02 | `/s/referral` |
 | Документы поставщика: ключи `sup_*` без ассетов, статус из комплекта, частичное отклонение (D-047), изменение состава из Odoo (D-048) | SP-03 | `/s/documents`, `/s/documents/:portalKey` |
 | Приведённые клиенты: проекция `ReferredClient`, фильтр и сортировка в URL, только сумма оборота (D-049), оборот у `closed` (D-050), подгрузка порциями | SP-04 | `/s/clients` |
-| Мок: `supplier_new`, `supplier_active`, `dual_active`; `uwApproveSupplierSet`, `uwRejectSupplierDocument`, `odooRequireDocument` | — | — |
+| Мок: `supplier_new`, `supplier_active`; `uwApproveSupplierSet`, `uwRejectSupplierDocument`, `odooRequireDocument` | — | — |
 
-**Готово, когда:** `supplier_new` → документы → `active`; `supplier_active` → 14 клиентов, фильтры, счётчики сходятся; QR декодируется в `referral_url`; `dual_active` переключается туда-обратно без потери языка и темы.
+**Готово, когда:** `supplier_new` → документы → `active`; `supplier_active` → 14 клиентов, фильтры, счётчики сходятся; QR декодируется в `referral_url`.
 
 ### v4 — после одобрения
 
