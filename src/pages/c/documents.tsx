@@ -40,7 +40,6 @@ function DocumentsRoute() {
       focusKey={doc}
       details={view === 'details'}
       onOpenDetails={() => void navigate({ search: { view: 'details' } })}
-      onCloseDetails={() => void navigate({ search: {} })}
     />
   );
 }

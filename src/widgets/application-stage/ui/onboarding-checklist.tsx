@@ -1,7 +1,17 @@
 // Чек-лист подключения лимита (SC-06): три пункта в фиксированном порядке, у каждого — либо кнопка «Открыть», либо
-// статус текстом и иконкой (бенчмарк 2026-11-11, приём № 03 из прошлого бенчмарка: статус или действие, не оба).
+// статус текстом и иконкой (приём № 03 из бенчмарка 2026-11-06: статус или действие, не оба). Вид пункта — как карточка
+// документа на экране заявки (Кирилл 2026-11-11): белая карточка с иконкой, названием и пояснением, под ней серая панель —
+// только когда есть что сказать (ждём подтверждения, 24 ч, не получилось, инструкция Nafith).
 // Акцент — на первом незавершённом пункте. До согласования условий (лимит pending) пункты видны, но неактивны.
-import { RiCheckboxCircleLine, RiErrorWarningLine, RiLockLine, RiTimeLine, type RemixiconComponentType } from '@remixicon/react';
+import {
+  RiCheckboxCircleLine,
+  RiErrorWarningLine,
+  RiFileShield2Line,
+  RiLockLine,
+  RiQuillPenLine,
+  RiTimeLine,
+  type RemixiconComponentType,
+} from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +59,12 @@ function StatusPill({ view }: { view: Exclude<View, 'pending'> }) {
   );
 }
 
+const ITEM_ICON: Record<ChecklistItem['key'], RemixiconComponentType> = {
+  spa_sadq: RiQuillPenLine,
+  pn_company_nafith: RiFileShield2Line,
+  pn_owner_nafith: RiFileShield2Line,
+};
+
 const TITLE_KEY = {
   spa_sadq: 'checklist.spa_sadq',
   pn_company_nafith: 'checklist.pn_company_nafith',
@@ -76,7 +92,7 @@ export function OnboardingChecklistView({ items, locked = false, dataUpdatedAt }
   const focus = locked ? null : checklistFocusKey(items);
 
   return (
-    <ol className="flex flex-col gap-2" aria-label={t('checklist.title')}>
+    <ol className="flex flex-col gap-3" aria-label={t('checklist.title')}>
       {items.map((item, index) => {
         const view: View = locked ? 'locked' : checklistItemView(item, checklistOpenedAt(item.key), dataUpdatedAt, now);
         const canOpen = !locked && view === 'pending' && item.external_url;
@@ -149,30 +165,36 @@ function ChecklistRow({
           ? t('checklist.nafith_instruction')
           : null;
 
+  const tray = note !== null || again !== null;
   return (
-    <Item
-      size="sm"
-      className={cn('flex-nowrap items-center border-0 bg-card', focused && 'ring-2 ring-primary/30')}
-      aria-current={focused ? 'step' : undefined}
-    >
-      <ItemMedia
-        variant="icon"
+    <div className="flex flex-col rounded-xl bg-secondary">
+      <div
         className={cn(
-          'size-10 rounded-lg text-sm font-semibold',
-          view === 'done' ? 'bg-status-approved-muted text-status-approved' : 'bg-muted text-muted-foreground',
+          'flex flex-col gap-3 rounded-xl border bg-card p-3 text-card-foreground transition-shadow duration-base ease-standard md:p-4',
+          focused && 'border-primary ring-2 ring-primary/30',
         )}
+        aria-current={focused ? 'step' : undefined}
       >
-        {view === 'done' ? <Icon icon={RiCheckboxCircleLine} className="size-5" /> : <span aria-hidden="true">{index + 1}</span>}
-      </ItemMedia>
-      <ItemContent className="min-w-0 gap-1">
-        <ItemTitle className="flex-wrap">{t(TITLE_KEY[item.key])}</ItemTitle>
-        <ItemDescription className="line-clamp-none">{t(WHERE_KEY[item.key])}</ItemDescription>
-        {note ? <p className="text-sm text-muted-foreground">{note}</p> : null}
-        {again}
-      </ItemContent>
-      <ItemActions className="ms-auto shrink-0">
-        {action ?? (view === 'pending' ? null : <StatusPill view={view} />)}
-      </ItemActions>
-    </Item>
+        <Item className="flex-nowrap items-center rounded-none border-0 p-0">
+          <ItemMedia variant="icon" className={cn('hidden sm:flex', view === 'done' && 'text-status-approved')}>
+            <Icon icon={view === 'done' ? RiCheckboxCircleLine : ITEM_ICON[item.key]} />
+          </ItemMedia>
+          <ItemContent className="min-w-0 gap-1">
+            <ItemTitle className="flex-wrap">
+              <span className="sr-only">{`${index + 1}. `}</span>
+              {t(TITLE_KEY[item.key])}
+            </ItemTitle>
+            <ItemDescription className="line-clamp-none">{t(WHERE_KEY[item.key])}</ItemDescription>
+          </ItemContent>
+          <ItemActions className="ms-auto shrink-0">{action ?? (view === 'pending' ? null : <StatusPill view={view} />)}</ItemActions>
+        </Item>
+      </div>
+      {tray ? (
+        <div className="flex flex-col gap-1 px-3 py-2 md:px-4">
+          {note ? <p className="text-sm text-muted-foreground">{note}</p> : null}
+          {again}
+        </div>
+      ) : null}
+    </div>
   );
 }

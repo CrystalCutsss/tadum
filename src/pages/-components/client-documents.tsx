@@ -2,7 +2,6 @@
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
 // После одобрения раскладка та же (A-063): над списком — карточка этапа («Решение», «Подписание»), принятые документы
 // свёрнуты; на этапе «Лимит одобрен» — только готовая карточка заявки, а даты, лимит и документы — внутри (?view=details).
-import { RiArrowLeftLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
@@ -14,26 +13,32 @@ import { limitQuery, type Limit } from '@/entities/limit';
 import { CompanyCrCard } from '@/features/edit-company-cr';
 import { amountBucket, track } from '@/shared/analytics';
 import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
+import { useIsMobile } from '@/shared/lib';
 import {
-  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-  Icon,
-  RiArrowDownSLine,
+  ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   Skeleton,
   toast,
 } from '@/shared/ui';
-import { ApplicationFacts, ApplicationStageCard, ApplicationSummaryCard } from '@/widgets/application-stage';
+import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, SigningSteps } from '@/widgets/application-stage';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
-import { SupportBar, SupportInline } from '@/widgets/support-bar';
+import { SupportBar } from '@/widgets/support-bar';
 
 /**
  * Панель шагов — фон как у нижней панели карточки документа, secondary (решение Кирилла 2026-11-10).
@@ -62,7 +67,7 @@ function StepsPanel({ steps, app }: { steps: Steps; app: Application }) {
   return (
     // Компактно — в половину колонки, без обводки (2026-11-09); фон как у нижней панели карточки,
     // отступы сверху и снизу 20 px вместо 24 px (2026-11-10).
-    <Card className={cn('sticky top-4 w-1/2 max-w-full min-w-56 gap-4 rounded-xl py-5 bg-secondary text-secondary-foreground ring-0', PANEL_MUTED)}>
+    <Card className={cn('gap-4 rounded-xl py-5 bg-secondary text-secondary-foreground ring-0', PANEL_MUTED)}>
       <CardHeader>
         <CardTitle>{t('documents.review.title')}</CardTitle>
       </CardHeader>
@@ -126,25 +131,39 @@ function useLimitChangeNotice(limit: Limit | null | undefined) {
   }, [limit, t]);
 }
 
-/** Принятые документы свёрнуты под карточкой этапа: раскрываются по кнопке, только чтение. */
-function AcceptedDocuments({ set }: { set: DocumentSet }) {
-  const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+/**
+ * Принятые документы — в выдвижной панели по клику на папку (Кирилл 2026-11-11): на компьютере — боковая панель
+ * с края экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
+ */
+function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { t, i18n } = useTranslation();
+  const isMobile = useIsMobile();
+  const title = t('application.folder.title');
+  const description = t('application.documents_accepted', { count: set.documents.length });
+  const list = <DocumentList set={set} editable={false} crReady onCrMissing={() => undefined} />;
+  if (isMobile) {
+    return (
+      <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
+        <ResponsiveDialogContent size="tall" closeLabel={t('common.close')}>
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>{title}</ResponsiveDialogTitle>
+            <ResponsiveDialogDescription>{description}</ResponsiveDialogDescription>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>{list}</ResponsiveDialogBody>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
+    );
+  }
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-card p-3 md:p-4">
-        <p className="text-sm font-medium">{t('application.documents_accepted', { count: set.documents.length })}</p>
-        <CollapsibleTrigger asChild>
-          <Button type="button" variant="secondary" className="min-h-11">
-            {open ? t('application.documents_hide') : t('application.documents_show')}
-            <Icon icon={RiArrowDownSLine} data-icon="inline-end" className={cn('size-4 transition-transform', open && 'rotate-180')} />
-          </Button>
-        </CollapsibleTrigger>
-      </div>
-      <CollapsibleContent>
-        <DocumentList set={set} editable={false} crReady onCrMissing={() => undefined} />
-      </CollapsibleContent>
-    </Collapsible>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side={i18n.dir() === 'rtl' ? 'left' : 'right'} className="w-full gap-0 sm:max-w-xl!">
+        <SheetHeader>
+          <SheetTitle>{title}</SheetTitle>
+          <SheetDescription>{description}</SheetDescription>
+        </SheetHeader>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">{list}</div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -153,10 +172,9 @@ export interface ClientDocumentsProps {
   /** Подробности заявки на этапе «Лимит одобрен» (?view=details). */
   details?: boolean;
   onOpenDetails?: () => void;
-  onCloseDetails?: () => void;
 }
 
-export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCloseDetails }: ClientDocumentsProps) {
+export function ClientDocuments({ focusKey, details = false, onOpenDetails }: ClientDocumentsProps) {
   const { t } = useTranslation();
   const app = useStatusPolling(applicationQuery);
   const owner = { kind: 'application' as const, id: app.data?.id ?? '' };
@@ -165,6 +183,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCl
   const limit = useStatusPolling(limitQuery);
   // Попытка отправить без номера CR — поле показывает ошибку и получает фокус.
   const [crAttention, setCrAttention] = useState(0);
+  const [docsOpen, setDocsOpen] = useState(false);
   useLimitChangeNotice(limit.data);
 
   const data = app.data;
@@ -200,6 +219,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCl
   const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: limit.data ?? null });
   const sentAt = set.data.submitted_at ?? data.created_at;
   const lim = limit.data;
+  const folder = stage === 'decision' || stage === 'signing' || stage === 'cancelled';
 
   const subtitle =
     stage === 'documents' ? (editable ? t('documents.subtitle') : t('documents.subtitle_locked')) : t(SUBTITLE[stage]);
@@ -208,17 +228,10 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCl
     <div className="flex flex-1 flex-col gap-4">
       {/* Заголовок — над обеими колонками: панель шагов справа начинается вровень с первой карточкой. */}
       <CabinetPageHeader>
-        <header className="flex flex-col gap-1">
-          {stage === 'approved' && details ? (
-            <div>
-              <Button type="button" variant="ghost" size="sm" className="-ms-2 min-h-11" onClick={onCloseDetails}>
-                <Icon icon={RiArrowLeftLine} data-icon="inline-start" className="size-4" />
-                {t('application.details.back')}
-              </Button>
-            </div>
-          ) : null}
-          <h1 className="text-xl font-semibold">{stage === 'approved' && details ? t('application.details.title') : t('documents.title')}</h1>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        {/* Заголовок страницы крупнее (Кирилл 2026-11-11): 24 px, отступ до подзаголовка и до контента — пропорционально. */}
+        <header className="flex flex-col gap-1.5">
+          <h1 className="text-2xl font-semibold">{stage === 'approved' && details ? t('application.details.title') : t('documents.title')}</h1>
+          <p className="text-base text-muted-foreground">{subtitle}</p>
         </header>
       </CabinetPageHeader>
 
@@ -226,7 +239,10 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCl
         <>
           <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
-            <StepsPanel steps={timeline.steps} app={data} />
+            <div className="sticky top-4 flex w-1/2 max-w-full min-w-56 flex-col gap-4">
+              <StepsPanel steps={timeline.steps} app={data} />
+              {folder ? <DocumentsFolder count={set.data.documents.length} onOpen={() => setDocsOpen(true)} /> : null}
+            </div>
           </CabinetAside>
         </>
       )}
@@ -266,12 +282,17 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails, onCl
         )
       ) : lim ? (
         <>
-          <ApplicationStageCard
-            limit={lim}
-            limitUpdatedAt={limit.dataUpdatedAt}
-            support={stage === 'decision' || stage === 'cancelled' ? <SupportInline status={data.client_status} /> : null}
-          />
-          <AcceptedDocuments set={set.data} />
+          {stage === 'cancelled' ? (
+            <CancelledLimitCard />
+          ) : (
+            <>
+              <LimitCard limit={lim} />
+              <SigningSteps limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
+            </>
+          )}
+          {/* Телефон: папка — под шагами подписания; на компьютере она в третьей колонке под шагами заявки. */}
+          <DocumentsFolder className="lg:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
+          <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} />
         </>
       ) : null}
     </div>

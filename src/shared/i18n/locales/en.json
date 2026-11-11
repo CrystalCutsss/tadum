@@ -1,37 +1,37 @@
 {
   "application": {
-    "amount_label": "Approved limit",
     "cancelled": {
       "body": "Our team can tell you more",
       "title": "This limit is no longer active"
     },
     "decision": {
       "body": "Nothing is needed from you right now. Our team will call you to confirm the terms",
-      "no_amount": "The limit amount will appear here after we confirm the terms",
-      "title": "Your application is approved"
+      "no_amount": "The limit amount will appear here after we confirm the terms"
     },
     "details": {
-      "back": "Back",
       "documents": "Documents",
       "title": "Application details"
     },
     "documents_accepted_one": "{count} document accepted",
     "documents_accepted_other": "{count} documents accepted",
-    "documents_hide": "Hide documents",
-    "documents_show": "Show documents",
+    "folder": {
+      "open": "Open your documents",
+      "title": "Your documents"
+    },
+    "limit_label": "Limit",
     "signing": {
       "body": "Each step opens on the partner's website or in their app. When you're done, come back here — we'll update the status",
-      "title": "Sign to activate your limit"
+      "info": "Sign the documents below to activate your limit"
     },
     "subtitle": {
       "approved": "Your limit is approved",
-      "cancelled": "Your application is approved",
-      "decision": "Your application is approved",
+      "cancelled": "Your limit has changed",
+      "decision": "We've calculated your limit",
       "signing": "One last step — sign the documents"
     },
     "summary": {
       "approved_at": "Limit approved",
-      "limit": "Approved limit",
+      "limit": "Limit",
       "no_action": "Nothing is needed from you",
       "open": "Open application",
       "sent": "Sent for review",
@@ -98,7 +98,7 @@
       "locked": "Not available yet",
       "pending": "To do"
     },
-    "title": "Steps to activate",
+    "title": "Documents to sign",
     "where": {
       "pn_company_nafith": "In the Nafith app",
       "pn_owner_nafith": "In the Nafith app",

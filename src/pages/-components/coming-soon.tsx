@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 export function ComingSoon() {
   const { t } = useTranslation();
   return (
-    <section className="flex flex-col gap-2 text-start">
-      <h1 className="text-xl font-semibold">{t('stub.coming_soon.title')}</h1>
-      <p className="text-sm text-muted-foreground">{t('stub.coming_soon.body')}</p>
+    <section className="flex flex-col gap-1.5 text-start">
+      <h1 className="text-2xl font-semibold">{t('stub.coming_soon.title')}</h1>
+      <p className="text-base text-muted-foreground">{t('stub.coming_soon.body')}</p>
     </section>
   );
 }

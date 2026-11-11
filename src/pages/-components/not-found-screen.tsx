@@ -16,7 +16,7 @@ export function NotFoundScreen() {
   }, [pathname]);
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-4 px-4 text-center">
-      <h1 className="text-xl font-semibold">{t('notfound.title')}</h1>
+      <h1 className="text-2xl font-semibold">{t('notfound.title')}</h1>
       <Button asChild>
         <Link to="/">{t('notfound.home')}</Link>
       </Button>
