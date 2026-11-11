@@ -17,7 +17,7 @@ export const clientSigningPartial: PersonaFixture = (now) => {
         odoo_stage: 'Signing SPA & PN',
         client_status: 'approved',
         permission_state: 'active',
-        next_step: { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/home#limit' } },
+        next_step: { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/documents' } },
         current_document_set_id: SET,
         limit_id: 'lim_csp',
         created_at: ago(now, { days: 8 }),

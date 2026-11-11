@@ -21,6 +21,7 @@ export {
   type ClientPermission,
 } from './model/permissions';
 export { clientNextStep, type ClientNextStepInput } from './model/next-step';
+export { applicationStage, type ApplicationStage } from './model/stage';
 export {
   CLIENT_TIMELINE_STEPS,
   computeClientTimeline,

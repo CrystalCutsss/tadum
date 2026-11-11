@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { applicationQuery, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
+import { applicationQuery, applicationStage, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
 import { limitQuery, type Limit } from '@/entities/limit';
 import { CompanyCrCard } from '@/features/edit-company-cr';
@@ -86,24 +86,6 @@ function StepsTopPanel({ steps, app }: { steps: Steps; app: Application }) {
       <ReviewNotes app={app} />
     </div>
   );
-}
-
-type Stage = 'documents' | 'decision' | 'signing' | 'cancelled' | 'approved';
-
-/** Этап экрана — только из клиентского статуса и статуса лимита (odoo_stage сюда не доходит). */
-function stageOf(app: Application, limit: Limit | null | undefined): Stage {
-  if ((app.client_status !== 'approved' && app.client_status !== 'first_purchase') || !limit) return 'documents';
-  switch (limit.status) {
-    case 'pending':
-      return 'decision';
-    case 'ready':
-      return 'signing';
-    case 'active':
-      return 'approved';
-    case 'cancelled':
-    case 'rejected':
-      return 'cancelled';
-  }
 }
 
 const SUBTITLE = {
@@ -214,7 +196,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
   const reviewed = set.data.round > 1 || set.data.documents.some((d) => d.rejected_file_hashes.length > 0);
   const crStage = editable && !reviewed;
 
-  const stage = stageOf(data, limit.data);
+  const stage = applicationStage(data.client_status, limit.data);
   const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: limit.data ?? null });
   const sentAt = set.data.submitted_at ?? data.created_at;
   const lim = limit.data;

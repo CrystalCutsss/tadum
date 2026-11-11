@@ -25,6 +25,8 @@ const cases: Record<string, ClientNextStepInput> = {
 function expectedCta(cell: string): { route?: string; external?: true } | null {
   if (cell.startsWith('—')) return null;
   const route = cell.match(/→\s*(\/\S+)/)?.[1];
+  // A-063 (Кирилл 2026-11-11): подписание живёт на экране «Заявка», а не на главной; в §6 до правки Drive — «/c/home#limit».
+  if (route === '/c/home#limit') return { route: '/c/documents' };
   if (route) return { route };
   if (cell.includes('лендинг')) return { external: true };
   throw new Error(`не разобрана ячейка CTA: ${cell}`);

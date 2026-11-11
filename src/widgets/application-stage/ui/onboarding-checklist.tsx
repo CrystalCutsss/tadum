@@ -94,7 +94,8 @@ export function OnboardingChecklistView({ items, locked = false, dataUpdatedAt }
   return (
     <ol className="flex flex-col gap-3" aria-label={t('checklist.title')}>
       {items.map((item, index) => {
-        const view: View = locked ? 'locked' : checklistItemView(item, checklistOpenedAt(item.key), dataUpdatedAt, now);
+        const openedAt = checklistOpenedAt(item.key);
+        const view: View = locked ? 'locked' : checklistItemView(item, openedAt, dataUpdatedAt, now);
         const canOpen = !locked && view === 'pending' && item.external_url;
         return (
           <li key={item.key} className="list-none">
@@ -102,6 +103,7 @@ export function OnboardingChecklistView({ items, locked = false, dataUpdatedAt }
               item={item}
               index={index}
               view={view}
+              staleHours={view === 'stale' && openedAt !== null ? Math.floor((now - openedAt) / 3_600_000) : 0}
               focused={focus === item.key}
               action={
                 canOpen && item.external_url ? (
@@ -125,12 +127,15 @@ function ChecklistRow({
   item,
   index,
   view,
+  staleHours,
   focused,
   action,
 }: {
   item: ChecklistItem;
   index: number;
   view: View;
+  /** Сколько часов прошло после клика «Открыть» — для checklist_item_stale (SC-06 A4). */
+  staleHours: number;
   focused: boolean;
   action: React.ReactNode;
 }) {
@@ -138,6 +143,7 @@ function ChecklistRow({
 
   useEffect(() => {
     if (view === 'failed') track('checklist_item_failed_viewed', { item: item.key });
+    if (view === 'stale') track('checklist_item_stale', { item: item.key, hours: staleHours });
     // Один раз на показ состояния.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);

@@ -32,7 +32,8 @@ export function clientNextStep(input: ClientNextStepInput): NextStep {
     if (limit.status === 'active' && limit.checklist.completed) {
       return { owner: 'user', text_key: 'next_step.how_to_buy', cta: { label_key: 'next_step.cta.how_to_buy', route: '/c/home#how-to-buy' } };
     }
-    return { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/home#limit' } };
+    // Подписание — на экране «Заявка» (A-063), а не в блоке #limit главной.
+    return { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/documents' } };
   }
   if (status === 'under_review') {
     return input.review_eta_hours !== undefined
