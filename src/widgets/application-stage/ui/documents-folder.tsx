@@ -11,13 +11,13 @@ import { useTranslation } from 'react-i18next';
 
 const MOTION = 'transition-transform duration-base ease-standard motion-reduce:transition-none';
 
-/** Лист 80×104 с загнутым верхним уголком 18 px; две строки текста. */
+/** Лист 80×144 с загнутым верхним уголком 18 px; две строки текста; низ — почти у нижнего края папки. */
 const PAPER_SHAPE = { clipPath: 'polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%)' };
 const FOLD_SHAPE = { clipPath: 'polygon(0 0, 100% 100%, 0 100%)' };
 
 function Paper({ className }: { className: string }) {
   return (
-    <div className={cn('absolute top-0 h-26 w-20 drop-shadow-md', MOTION, className)}>
+    <div className={cn('absolute top-0 h-36 w-20 drop-shadow-md', MOTION, className)}>
       <div className="flex size-full flex-col gap-2.5 rounded-md bg-card p-3 pt-7" style={PAPER_SHAPE}>
         <span className="h-1.5 w-3/4 rounded-full bg-muted-foreground/30" />
         <span className="h-1.5 w-1/2 rounded-full bg-muted-foreground/20" />
@@ -28,14 +28,32 @@ function Paper({ className }: { className: string }) {
 }
 
 /**
- * Стенки папки в координатах 208×176. Задняя: прямоугольник 168×124 со скруглением 18, без выреза.
- * Передняя: от y=72 (левая часть) и y=58 (правая, после плавной ступеньки) до низа; верхние углы шире задней стенки
- * (x 4…204 против 20…188) — край отогнут вперёд, низ сужается к ширине задней стенки.
+ * Стенки папки в координатах 208×176 (1 единица = 1 px). Задняя: 168×128 со скруглением 18, без выреза.
+ * Передняя: верх от y=72 (левая часть) и y=58 (правая, после плавной ступеньки); верхние углы шире задней стенки
+ * (x 4…204 против 20…188) — край отогнут вперёд; нижние углы совпадают с углами задней стенки.
  */
-const BACK = 'M38 40 H170 Q188 40 188 58 V146 Q188 164 170 164 H38 Q20 164 20 146 V58 Q20 40 38 40 Z';
-const FRONT =
-  'M20 72 H86 C98 72 100 58 114 58 H188 Q204 58 202 74 L190 150 Q187 168 170 168 H38 Q21 168 18 150 L6 88 Q4 72 20 72 Z';
-const FRONT_EDGE = 'M8 84 Q8 72 20 72 H86 C98 72 100 58 114 58 H188 Q202 58 202 70';
+const BACK = 'M38 40 H170 Q188 40 188 58 V150 Q188 168 170 168 H38 Q20 168 20 150 V58 Q20 40 38 40 Z';
+const FRONT = 'M20 72 H86 C98 72 100 58 114 58 H188 Q204 58 202 74 L188 150 Q188 168 170 168 H38 Q20 168 20 150 L6 88 Q4 72 20 72 Z';
+/** Верхний край передней стенки — тот же контур, что в FRONT; блик обрезан формой, поэтому лежит точно по краю. */
+const FRONT_EDGE = 'M6 88 Q4 72 20 72 H86 C98 72 100 58 114 58 H188 Q204 58 202 74';
+/**
+ * Форма передней стенки для HTML-слоёв (размытие, шум) — маской, а не clip-path: clip-path в Chrome не обрезает
+ * backdrop-filter, и размытие вылезало прямоугольником.
+ */
+const FRONT_SVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 208 176'><path d='${FRONT}'/></svg>`;
+const FRONT_MASK = {
+  maskImage: `url("data:image/svg+xml,${encodeURIComponent(FRONT_SVG)}")`,
+  maskSize: '100% 100%',
+  maskRepeat: 'no-repeat',
+  WebkitMaskImage: `url("data:image/svg+xml,${encodeURIComponent(FRONT_SVG)}")`,
+  WebkitMaskSize: '100% 100%',
+  WebkitMaskRepeat: 'no-repeat',
+};
+/** Шум стекла — фрактальный шум SVG, очень слабый. */
+const NOISE = {
+  backgroundImage:
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E\")",
+};
 
 export interface DocumentsFolderProps {
   count: number;
@@ -64,22 +82,31 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
         {/* Листы — крупные, выступают над задней стенкой; на наведение расходятся. */}
         <Paper className="start-12 -rotate-6 group-hover:-translate-x-2 group-hover:-rotate-12 rtl:group-hover:translate-x-2" />
         <Paper className="end-12 top-1 rotate-6 group-hover:translate-x-2 group-hover:rotate-12 rtl:group-hover:-translate-x-2" />
-        {/* Передняя стенка — прозрачное светлое стекло с вырезом и бликом по верхнему краю. */}
+        {/* Передняя стенка — матовое стекло: размытие листов под ним, шум, светлая подложка и синий градиент. */}
+        <div className="absolute inset-0 backdrop-blur-lg" style={FRONT_MASK} />
+        <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ ...FRONT_MASK, ...NOISE }} />
         <svg viewBox="0 0 208 176" className="absolute inset-0 size-full drop-shadow-lg">
           <defs>
-            <linearGradient id={glass} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={`${glass}-fill`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="var(--primary)" stopOpacity="0.3" />
               <stop offset="1" stopColor="var(--primary)" stopOpacity="0.62" />
             </linearGradient>
+            <clipPath id={`${glass}-clip`}>
+              <path d={FRONT} />
+            </clipPath>
           </defs>
-          {/* Матовое стекло: светлая подложка прячет листы, поверх — синий градиент. */}
-          <path d={FRONT} className="fill-primary-foreground/70" />
-          <path d={FRONT} fill={`url(#${glass})`} />
-          <path d={FRONT_EDGE} fill="none" className="stroke-primary-foreground/70" strokeWidth="1.5" strokeLinecap="round" />
+          <path d={FRONT} className="fill-primary-foreground/45" />
+          <path d={FRONT} fill={`url(#${glass}-fill)`} />
+          {/* Блик по верхнему краю: линия вдвое толще и обрезана формой — внутри остаётся ровно по краю. */}
+          <path
+            d={FRONT_EDGE}
+            fill="none"
+            clipPath={`url(#${glass}-clip)`}
+            className="stroke-primary-foreground/80"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
         </svg>
-        <span className="absolute end-7 bottom-5 rounded-full bg-primary-foreground/35 px-2.5 py-0.5 text-xs font-medium text-primary-foreground tabular-nums">
-          {count}
-        </span>
       </div>
       <span className="flex flex-col items-center gap-0.5 text-center">
         <span className="text-base font-medium">{t('application.folder.title')}</span>
