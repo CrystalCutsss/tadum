@@ -1,13 +1,17 @@
 // WebGL2-рендерер поверхности MetalCard. Порт из React Bits «Reflective Card»
 // (https://reactbits.dev, https://github.com/DavidHDev/react-bits, автор David Haz; лицензия MIT + Commons Clause —
 // по репозиторию проекта, проверено по LICENSE.md на дату порта не удалось: сеть песочницы закрыта, см. отчёт).
-// Взято: шейдер PLATE — фаска (chamfer) с бликом, рябь (warp), шлифовка (brushed grain), софтбоксы (ключевая
-// полоса, верхняя и боковая), двойной экспоненциальный блик у указателя, матрица наклона. Убрано: видео, камера,
-// проходы CAPTURE и BLUR (capture = 0 — отражается только процедурная «комната»).
-// Изменено под Tadum: основа — синий металл из токенов (--metal-deep → --metal-mid → --metal-steel, градиент 330°
-// как у CSS-слоёв), блики — светлая лазурь --metal-gl-highlight; кромка — светлая сверху слева и тёмная снизу
-// справа; блики ложатся экранным смешением (чистый свет, не серое сжатие), их непрозрачность мягко
-// ограничена потолком uCap — без локальных затемнений, белый текст ≥ 4.5:1 в любой точке. Числа в шейдере — математика освещения, не дизайн-значения; цвета и силы приходят из токенов.
+// Взято: шейдер PLATE — скруглённая плита с фаской (chamfer), отражение через матрицу наклона, полосы с мягким
+// краем (band/strip через erf), шлифовка (brushed grain). Убрано: видео, камера, проходы CAPTURE и BLUR.
+// Изменено под Tadum (ревью Кирилла 2026-11-11: «блик — хаотичное пятно»): один ключевой свет сверху слева,
+// неподвижный в пространстве комнаты. Он даёт (а) одну чистую диагональную полосу отражения софтбокса под −35°
+// и (б) широкий мягкий ореол вокруг этой полосы (тот же источник). Обе части считаются по отражённому
+// лучу, поэтому при наклоне карточки полоса скользит по плите — как отражение неподвижной лампы, а не пятно за
+// курсором. Убраны блик за указателем, рябь (warp), вторичные полосы и «комната». Основа — синий металл из
+// токенов (--metal-deep → --metal-mid → --metal-steel, градиент 330° как у CSS-слоёв); блики — экранное
+// смешение к --metal-gl-highlight, их непрозрачность мягко ограничена потолком uCap (белый текст ≥ 4.5:1 в
+// любой точке, без локальных затемнений); фаска согласована с тем же светом — светлая сверху слева, тёмная
+// снизу справа. Числа в шейдере — геометрия и математика освещения; цвета и силы приходят из токенов.
 // Здесь же пружина наклона, указатель и чтение токенов (mountMetal): модуль грузится динамическим import() из
 // metal-card.tsx и в первый чанк не попадает. Без WebGL2 mountMetal всё равно ведёт наклон CSS-слоёв.
 
@@ -30,53 +34,33 @@ uniform float uScale;
 uniform mat3 uRotate;
 uniform float uView;
 uniform float uRough;
-uniform float uWarp;
 uniform float uShine;
+uniform float uHalo;
+uniform float uHotspot;
 uniform float uBevel;
 uniform float uRim;
-uniform float uGlare;
-uniform float uGlareSize;
-uniform vec2 uPointer;
 uniform vec3 uDeep;
 uniform vec3 uMid;
 uniform vec3 uSteel;
 uniform vec3 uLight;
 uniform float uCap;
 
-const float BLUR = 6.0;
-
 const vec3 LUMA = vec3(0.2126, 0.7152, 0.0722);
-const vec2 SWEEP = vec2(0.5, 0.86);
+// Ключевой свет: направление «сверху слева» (y вниз) и полоса софтбокса под −35° (идёт снизу слева вверх
+// вправо), её центр в покое — чуть выше и левее центра плиты, полуширина и мягкость края. Единица — половина
+// короткой стороны плиты: у широкой и высокой карточки полоса одной толщины и одного вида. Ореол — та же
+// полоса, только широкая и слабая (один источник света, не отдельное пятно).
+const vec2 LIGHT_DIR = vec2(-0.7071068, -0.7071068);
+const vec2 STREAK_DIR = vec2(0.819152, -0.573576);
+const vec2 STREAK_AT = vec2(-0.18, -0.22);
+const float STREAK_HALF = 0.07;
+const float STREAK_SOFT = 0.09;
+const float HALO_SOFT = 0.55;
 
 float hash(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
   p3 += dot(p3, p3.yzx + 33.33);
   return fract((p3.x + p3.y) * p3.z);
-}
-
-vec2 hash2(vec2 p) {
-  vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.103, 0.0973));
-  p3 += dot(p3, p3.yzx + 33.33);
-  return fract((p3.xx + p3.yz) * p3.zy) * 2.0 - 1.0;
-}
-
-vec3 gradientNoise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
-  vec2 du = 30.0 * f * f * (f * (f - 2.0) + 1.0);
-  vec2 ga = hash2(i);
-  vec2 gb = hash2(i + vec2(1.0, 0.0));
-  vec2 gc = hash2(i + vec2(0.0, 1.0));
-  vec2 gd = hash2(i + vec2(1.0, 1.0));
-  float va = dot(ga, f);
-  float vb = dot(gb, f - vec2(1.0, 0.0));
-  float vc = dot(gc, f - vec2(0.0, 1.0));
-  float vd = dot(gd, f - vec2(1.0, 1.0));
-  float k = va - vb - vc + vd;
-  float value = va + u.x * (vb - va) + u.y * (vc - va) + u.x * u.y * k;
-  vec2 slope = ga + u.x * (gb - ga) + u.y * (gc - ga) + u.x * u.y * (ga - gb - gc + gd) + du * (u.yx * k + vec2(vb, vc) - va);
-  return vec3(value, slope);
 }
 
 float valueNoise(vec2 p) {
@@ -98,24 +82,6 @@ float erf(float x) {
 float band(float x, float halfWidth, float sigma) {
   float s = 1.4142136 * max(sigma, 0.0001);
   return 0.5 * (erf((x + halfWidth) / s) - erf((x - halfWidth) / s));
-}
-
-float strip(vec2 q, vec2 center, vec2 dir, float halfWidth, vec2 sigma) {
-  vec2 normal = vec2(-dir.y, dir.x);
-  return band(dot(q - center, normal), halfWidth, length(sigma * normal));
-}
-
-float softbox(vec2 q, vec2 sigma) {
-  float key = strip(q, vec2(-0.1, -0.16), normalize(SWEEP), 0.022, sigma + 0.018);
-  float top = band(q.y + 0.6, 0.12, sigma.y + 0.05);
-  float side = band(q.x - 0.46, 0.05, sigma.x + 0.05);
-  return key + top * 0.8 + side * 0.35;
-}
-
-float room(vec2 q, vec2 sigma) {
-  float fall = smoothstep(-0.55, 0.5, q.y);
-  float flag = strip(q, vec2(0.24, -0.02), normalize(SWEEP), 0.09, sigma + 0.08);
-  return mix(0.85, 0.12, fall) * (1.0 - 0.6 * flag);
 }
 
 vec3 toSrgb(vec3 c) {
@@ -147,57 +113,50 @@ void main() {
   float chamfer = chamferWidth > 0.01 ? 1.0 - smoothstep(0.0, chamferWidth, -d) : 0.0;
   vec2 slope = outward * chamfer;
 
-  vec2 wp = p / 220.0;
-  vec3 w1 = gradientNoise(wp);
-  vec3 w2 = gradientNoise(wp * 2.07 + 13.7);
-  vec2 ripple = (w1.yz + w2.yz * 0.5) * uWarp;
-  slope += ripple * 0.008;
+  // Шлифовка: тонкая горизонтальная «щётка», слегка колеблет нормаль.
+  float grain = valueNoise(vec2(p.x * 0.008, p.y * 0.55)) * 0.6 + valueNoise(vec2(p.x * 0.019 + 3.7, p.y * 0.23)) * 0.4;
+  slope.y += (grain - 0.5) * uRough * uRough * 0.004;
 
-  float grain = valueNoise(vec2(p.x * 0.008, p.y * 0.55)) * 0.45 + valueNoise(vec2(p.x * 0.019 + 3.7, p.y * 0.23)) * 0.35 + valueNoise(vec2(p.x * 0.004 + 9.2, p.y * 0.09)) * 0.2;
-  float brush = uRough * uRough;
-  slope.y += (grain - 0.5) * brush * 0.004;
-
+  // Отражённый луч: плоская плита без наклона даёт q = p / uView; наклон сдвигает q (вдвое против угла).
   vec3 normal = uRotate * normalize(vec3(slope, 1.0));
   vec3 position = uRotate * vec3(p, 0.0);
   vec3 view = normalize(position - vec3(0.0, 0.0, uView));
   vec3 bounce = reflect(view, normal);
   vec2 q = bounce.xy / max(bounce.z, 0.2);
+  // В долях половины короткой стороны: геометрия света одинакова у широкой и высокой карточки.
+  float unit = min(halfSize.x, halfSize.y);
+  vec2 n = q * uView / unit;
+  // Центр полосы в покое — от угла: у широкой карточки сдвигается к левому краю вместе с углом.
+  vec2 at = STREAK_AT * vec2(halfSize.x / unit, 1.0);
+  float soft = STREAK_SOFT + length(fwidth(n)) * 0.5;
 
-  vec2 footprint = fwidth(q);
-  vec2 sigma = sqrt(vec2(BLUR / uView) * vec2(BLUR / uView) + footprint * footprint * 0.5);
-  sigma += vec2(0.004, 0.05) * uRough;
+  // (а) Полоса отражения софтбокса.
+  vec2 across = vec2(-STREAK_DIR.y, STREAK_DIR.x);
+  float offset = dot(n - at, across);
+  float streak = band(offset, STREAK_HALF, soft);
+  // (б) Ореол той же полосы: широкий мягкий спад света по обе стороны от неё — один источник.
+  float halo = exp(-offset * offset / (2.0 * HALO_SOFT * HALO_SOFT));
+  // Едва заметное широкое ядро в середине полосы.
+  vec2 along = n - at;
+  float hotspot = exp(-dot(along, along) * 1.5) * streak;
 
-  float scene = room(q, sigma) * (1.0 + (grain - 0.5) * brush * 0.3);
-
-  vec2 toPointer = (uPointer - p) / uGlareSize;
-  vec2 spread = toPointer * vec2(1.0, 1.0 / (1.0 + 2.5 * uRough));
-  float reach = dot(spread, spread);
-  float glint = max(1.0 + 3.0 * dot(slope, toPointer), 0.0);
-  float glare = (exp(-reach * 1.6) + exp(-reach * 0.35) * 0.15) * glint * uGlare * (1.0 + 0.8 * (grain - 0.5) * brush);
-  float highlight = softbox(q, sigma) * uShine + glare;
-
-  // Основа — синий металл: градиент 330° (как CSS-слой), свет сверху слева.
   vec2 dir = vec2(-0.5, -0.8660254);
   float t = clamp(dot(p, dir) / (abs(uSize.x * dir.x) + abs(uSize.y * dir.y)) + 0.5, 0.0, 1.0);
   vec3 base = t < 0.5 ? mix(uDeep, uMid, t * 2.0) : mix(uMid, uSteel, (t - 0.5) * 2.0);
-  // «Комната» отражается в металле: светлее сверху, дымчато-темнее снизу.
-  vec3 metal = base * mix(0.62, 1.3, clamp(scene, 0.0, 1.0));
-  // Не выше потолка и сама основа (страховка: при токенах по умолчанию основа ниже потолка).
+  vec3 metal = base * mix(0.88, 1.1, halo) * (1.0 + (grain - 0.5) * uRough * 0.12);
   metal *= min(1.0, uCap / max(dot(metal, LUMA), 0.00001));
 
-  // Блики — чистый свет поверх синего: экранное смешение (screen) к --metal-gl-highlight, а не серое
-  // сжатие яркости. Яркость screen растёт линейно с непрозрачностью s, поэтому потолок uCap (белый текст ≥ AA
-  // в любой точке) ограничивает именно непрозрачность блика: s мягко (без излома) подходит к sMax.
-  // Цвет при этом не тускнеет — блик просто прозрачнее.
-  float s = highlight * 0.35;
+  // Свет — экранное смешение к --metal-gl-highlight. Яркость screen растёт линейно с непрозрачностью s, поэтому
+  // потолок uCap (белый текст ≥ AA в любой точке) ограничивает непрозрачность: s мягко подходит к sMax.
+  float s = streak * uShine + halo * uHalo + hotspot * uHotspot;
   float gain = max(dot(LUMA, (1.0 - metal) * uLight), 0.0001);
   float sMax = max(uCap - dot(metal, LUMA), 0.0) / gain;
   float knee = sMax * 0.6;
   s = s <= knee ? s : knee + (sMax - knee) * (1.0 - exp(-(s - knee) / max(sMax - knee, 0.00001)));
   vec3 color = 1.0 - (1.0 - metal) * (1.0 - s * uLight);
 
-  // Кромка: фаска светлая сверху слева, тёмная снизу справа.
-  float rim = chamfer * dot(outward, vec2(-0.7071068, -0.7071068));
+  // Фаска — тот же свет: светлая сверху слева, тёмная снизу справа.
+  float rim = chamfer * dot(outward, LIGHT_DIR);
   color += uLight * max(rim, 0.0) * uRim;
   color *= 1.0 - max(-rim, 0.0) * 0.75;
 
@@ -212,9 +171,6 @@ type MetalFrame = {
   height: number
   rotateX: number
   rotateY: number
-  pointerX: number
-  pointerY: number
-  glare: number
 }
 
 /** Материал из токенов: цвета — линейный sRGB, длины — CSS-пиксели. */
@@ -227,12 +183,11 @@ type MetalMaterial = {
   radius: number
   view: number
   shine: number
-  glare: number
-  glareSize: number
+  halo: number
+  hotspot: number
   bevel: number
   rim: number
   rough: number
-  warp: number
 }
 
 type MetalRenderer = {
@@ -323,13 +278,11 @@ function createMetalRenderer(canvas: HTMLCanvasElement): MetalRenderer | null {
     gl.uniformMatrix3fv(u.uRotate!, false, rotation)
     gl.uniform1f(u.uView!, m.view)
     gl.uniform1f(u.uRough!, m.rough)
-    gl.uniform1f(u.uWarp!, m.warp)
     gl.uniform1f(u.uShine!, m.shine)
+    gl.uniform1f(u.uHalo!, m.halo)
+    gl.uniform1f(u.uHotspot!, m.hotspot)
     gl.uniform1f(u.uBevel!, m.bevel)
     gl.uniform1f(u.uRim!, m.rim)
-    gl.uniform1f(u.uGlare!, m.glare * frame.glare)
-    gl.uniform1f(u.uGlareSize!, m.glareSize)
-    gl.uniform2f(u.uPointer!, frame.pointerX, frame.pointerY)
     gl.uniform3fv(u.uDeep!, m.deep)
     gl.uniform3fv(u.uMid!, m.mid)
     gl.uniform3fv(u.uSteel!, m.steel)
@@ -352,10 +305,7 @@ function createMetalRenderer(canvas: HTMLCanvasElement): MetalRenderer | null {
 const STIFFNESS = 120
 const DAMPING = 16
 const STEP = 1 / 120
-// Блик: появление и угасание (с), как в оригинале.
-const LIGHT_IN = 0.18
-const LIGHT_OUT = 0.45
-// Положение блика без указателя: 30 % / 20 % карточки (−1…1 от центра).
+// Положение указателя для CSS-слоёв (запасной вариант) без наведения: 30 % / 20 % карточки (−1…1 от центра).
 const REST_X = -0.4
 const REST_Y = -0.6
 const EPSILON = 0.0005
@@ -415,12 +365,11 @@ function readMaterial(root: HTMLElement, read: (value: string) => number[]): Met
     radius: parseFloat(style.borderTopLeftRadius) || 0,
     view: toPx(token("--metal-perspective"), rootFont),
     shine: num("--metal-gl-shine"),
-    glare: num("--metal-gl-glare"),
-    glareSize: toPx(token("--metal-gl-glare-size"), rootFont),
+    halo: num("--metal-gl-halo"),
+    hotspot: num("--metal-gl-hotspot"),
     bevel: toPx(token("--metal-gl-bevel"), rootFont),
     rim: num("--metal-gl-rim"),
     rough: num("--metal-gl-rough"),
-    warp: num("--metal-gl-warp"),
   }
 }
 
@@ -475,8 +424,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
   const y: Axis = { p: 0, v: 0, target: 0 }
   const px: Axis = { p: REST_X, v: 0, target: REST_X }
   const py: Axis = { p: REST_Y, v: 0, target: REST_Y }
-  const rest = () => parseFloat(getComputedStyle(root).getPropertyValue("--metal-gl-rest-glare")) || 0
-  const light = { p: rest(), target: rest() }
   const size = { width: root.offsetWidth, height: root.offsetHeight }
   let renderer: MetalRenderer | null = null
   let material: MetalMaterial | null = null
@@ -517,9 +464,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
       height: size.height,
       rotateX: clamp(y.p, -1, 1) * tilt.ax,
       rotateY: -clamp(x.p, -1, 1) * tilt.ay,
-      pointerX: px.p * size.width * 0.5,
-      pointerY: py.p * size.height * 0.5,
-      glare: light.p,
     }
     renderer.render(frame, material)
   }
@@ -531,15 +475,12 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     const steps = Math.max(1, Math.ceil(dt / STEP))
     const h = dt / steps
     for (let i = 0; i < steps; i++) for (const axis of [x, y, px, py]) stepAxis(axis, h)
-    const tau = light.target > light.p ? LIGHT_IN : LIGHT_OUT
-    light.p += (light.target - light.p) * (1 - Math.exp(-dt / tau))
-    const moving = ![x, y, px, py].every(settled) || Math.abs(light.target - light.p) > 0.002
+    const moving = ![x, y, px, py].every(settled)
     if (!moving) {
       for (const axis of [x, y, px, py]) {
         axis.p = axis.target
         axis.v = 0
       }
-      light.p = light.target
     }
     write()
     draw()
@@ -574,7 +515,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     y.target = ny
     px.target = nx
     py.target = ny
-    light.target = 1
     wake()
   }
   const release = (event: PointerEvent) => {
@@ -583,7 +523,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     y.target = 0
     px.target = REST_X
     py.target = REST_Y
-    light.target = rest()
     wake()
   }
   if (tracking) {
@@ -600,7 +539,6 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
   const themeObserver = new MutationObserver(() => {
     if (!read) return
     material = readMaterial(root, read)
-    light.target = light.target === 1 ? 1 : rest()
     draw()
   })
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style", "data-theme"] })
