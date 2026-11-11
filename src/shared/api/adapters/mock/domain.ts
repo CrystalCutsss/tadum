@@ -4,6 +4,7 @@
 import type {
   ClientStatus,
   Deal,
+  Document,
   DocumentHint,
   DocumentSet,
   DocumentSetStatus,
@@ -58,6 +59,8 @@ export interface MockDomain {
     event: MockDocumentEvent,
     ctx: { set_status: DocumentSetStatus; rejected_file_hashes: readonly string[] },
   ): MockDocumentTransition;
+  settleDocumentStatus(doc: Pick<Document, 'files' | 'reject_reason_key' | 'reject_reason_text' | 'reason_kind'>): DocumentStatus;
+  isSameFile(doc: Pick<Document, 'files' | 'rejected_file_hashes'>, sha256: string): boolean;
   resolveRoles(
     phone: string,
     lookups: {

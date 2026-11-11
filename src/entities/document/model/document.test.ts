@@ -1,12 +1,12 @@
 // Документ: машина состояний — каждая строка 01-statuses.md §5; сортировка и причина отклонения — правила §5.
 import { describe, expect, it } from 'vitest';
 
-import type { DocumentSetStatus, DocumentStatus } from '@/shared/api';
+import type { DocumentSetStatus, DocumentStatus, FileAsset } from '@/shared/api';
 import { doc } from '@/test-utils/fixtures';
 import { readProductDoc, section, tableWithHeader } from '@/test-utils/markdown';
 
 import { DOCUMENT_CATALOG, hintFor } from './catalog';
-import { rejectReason, sortDocuments, transitionDocument, type DocumentEvent } from './status';
+import { fileIssueReason, hasDocumentIssue, isSameFile, rejectReason, settleDocumentStatus, sortDocuments, transitionDocument, type DocumentEvent } from './status';
 
 const s5 = section(readProductDoc('01-statuses.md'), '5.');
 
@@ -109,5 +109,32 @@ describe('01-entities.md §3 — каталог типов документов'
   });
   it('каталог открыт: неизвестный ключ получает подсказку по шаблону i18n', () => {
     expect(hintFor('new_doc')).toEqual({ title_key: 'document.new_doc.title', hint_key: 'document.new_doc.hint' });
+  });
+});
+
+describe('несколько файлов и замечания (решение Кирилла 2026-11-10)', () => {
+  const f = (id: string, issue?: FileAsset['issue']) => ({ ...doc('received').files[0]!, id, sha256: `h_${id}`, ...(issue ? { issue } : {}) });
+  it('settleDocumentStatus: нет файлов → pending (или rejected при ошибке на документе), замечание → rejected, иначе received', () => {
+    expect(settleDocumentStatus(doc('pending'))).toBe('pending');
+    expect(settleDocumentStatus(doc('pending', { reject_reason_key: 'x' }))).toBe('rejected');
+    expect(settleDocumentStatus(doc('pending', { reject_reason_key: 'x', reason_kind: 'request' }))).toBe('pending');
+    expect(settleDocumentStatus(doc('received', { files: [f('a'), f('b')] }))).toBe('received');
+    expect(settleDocumentStatus(doc('received', { files: [f('a'), f('b', { kind: 'request' })] }))).toBe('rejected');
+    expect(settleDocumentStatus(doc('received', { files: [f('a')], reject_reason_key: 'x' }))).toBe('rejected');
+  });
+  it('isSameFile: файл уже в документе или раньше не подошёл', () => {
+    const d = doc('received', { files: [f('a')], rejected_file_hashes: ['old'] });
+    expect(isSameFile(d, 'h_a')).toBe(true);
+    expect(isSameFile(d, 'old')).toBe(true);
+    expect(isSameFile(d, 'new')).toBe(false);
+  });
+  it('hasDocumentIssue и текст замечания к файлу', () => {
+    expect(hasDocumentIssue(doc('rejected'))).toBe(false);
+    expect(hasDocumentIssue(doc('rejected', { reject_reason_text: { ar: 'نص' } }))).toBe(true);
+    expect(fileIssueReason({ kind: 'error', reason_text: { ar: 'نص', en: 'Text' } }, 'en')).toEqual({ kind: 'text', text: 'Text' });
+    expect(fileIssueReason({ kind: 'error' }, 'en')).toEqual({ kind: 'key', key: 'document.rejected.generic' });
+  });
+  it('из «Нужен новый файл» можно удалить файл с замечанием', () => {
+    expect(transitionDocument('rejected', { type: 'delete' }, { set_status: 'draft', rejected_file_hashes: [] })).toEqual({ ok: true, to: 'rejected' });
   });
 });

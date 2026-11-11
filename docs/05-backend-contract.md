@@ -31,6 +31,7 @@
 |---|---|---|---|
 | `getCurrent` | `getCurrent(): Promise<Application>` | `01-entities.md` §2.3 | — |
 | `getCompany` | `getCompany(): Promise<Company>` | `01-entities.md` §2.2 | Компания текущей заявки: название в шапке кабинета (01-cabinet-structure.md §4). |
+| `setCrNumber` | `setCrNumber(crNumber: string): Promise<Company>` | `01-entities.md` §2.2 | Номер CR компании: 10 цифр; неверный — DomainError `company.cr_invalid`. |
 | `createApplication` | `createApplication(): Promise<Application>` | `01-entities.md` §2.3 | Только из `closed` (D-038): новая заявка, старая остаётся закрытой. |
 
 ### `documents` — `DocumentsPort`
@@ -143,7 +144,7 @@ const REFERRED_CLIENTS_PAGE_SIZE = 20;
 | `DomainError` | `domain` | предложение: 409 / 422 с телом `{ "code": DomainErrorCode, "details"?: Record<string, number> }` | Бизнес-отказ (4xx с кодом). `details` — числа для текста (попытки, секунды). |
 
 Коды бизнес-отказов (`DomainError.code`) — ключи ошибок из сценариев и `01-roles.md` §3:
-`otp_invalid`, `otp_expired`, `otp_too_many_attempts`, `otp_rate_limited`, `otp_resend_too_early`, `phone_unknown`, `document_set_locked`, `document.same_file_rejected`, `upload.error.too_large`, `upload.error.unsupported_type`, `documents.submit_incomplete`, `application_not_closed`, `limit_exceeded`, `not_allowed`.
+`otp_invalid`, `otp_expired`, `otp_too_many_attempts`, `otp_rate_limited`, `otp_resend_too_early`, `phone_unknown`, `document_set_locked`, `document.same_file_rejected`, `upload.error.too_large`, `upload.error.unsupported_type`, `upload.error.too_many`, `company.cr_invalid`, `documents.submit_incomplete`, `application_not_closed`, `limit_exceeded`, `not_allowed`.
 
 ## 4. Вход и сессия
 
@@ -156,7 +157,7 @@ const REFERRED_CLIENTS_PAGE_SIZE = 20;
 
 - Состав комплекта и обязательность задаёт Odoo; каталог типов открыт (`01-entities.md` §3) — новый `portal_key` не требует правок фронтенда, кроме текстов.
 - Статусы документа `pending / received / rejected / approved` — все четыре обязательны в ответе, включая `rejected` (SP-03 A10, SFL-489). Если Odoo не различает `approved`, после `completed` все не-`rejected` отдаются как `approved` (S-2).
-- После `submit` комплект блокируется **сразу** (`locked = true`), любые правки файлов — `document_set_locked` (`01-statuses.md` §4). Автополнота — 10 минут после последней загрузки (`completion_grace_until`).
+- После `submit` комплект блокируется **сразу** (`locked = true`), любые правки файлов — `document_set_locked` (`01-statuses.md` §4). Автополноты в прототипе нет (A-061): комплект уходит на проверку только по `submit`; поле `completion_grace_until` зарезервировано.
 - Дозапрос создаёт новый комплект с `round + 1`, в нём только запрошенные документы (D-031); прежние комплекты нужны для истории (SC-04: в данных заявки или отдельным методом — решает бэкенд).
 - `upload` возвращает результат предвалидации; при `failed` файл не сохраняется. Повторная загрузка файла, который уже отклоняли, — `document.same_file_rejected` (по SHA-256, TADUM-536).
 - Скачивание — прямой URL с `Content-Disposition`, не `blob:`: встроенный браузер WhatsApp иначе не скачает файл.

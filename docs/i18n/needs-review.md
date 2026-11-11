@@ -40,3 +40,23 @@
 | `support.cta.title` | ar, en | Have a question? / لديك سؤال؟ | заголовок блока помощи в сайдбаре (первая строка) |
 | `support.cta.subtitle` | ar, en | Message us / راسلنا | подзаголовок блока помощи: вторая строка, мельче, regular, серый |
 | `documents.*`, `document.*.title/.hint`, `upload.*`, `source_picker.*`, `prevalidation.*`, `reject.*`, `timeline.step_of` | ar, en | тексты экрана «Ваши документы»: заголовки, подсказки документов, загрузка и ошибки, выбор источника, панель шагов, тосты отправки | в сценариях SC-02…SC-04 даны не все строки; черновики по TOV и лексикону, A-058 |
+| `common.loading` | ar, en | Loading… / جارٍ التحميل… | подпись спиннера для скринридера: кнопка «Получить код», проверка кода, «Отправить новый код» (SC-01 §3 loading); Кирилл 2026-11-10 |
+| `auth.phone.title` | ar, en | Welcome to Tadum / مرحبًا بك في تدوم | заголовок экрана входа; Кирилл 2026-11-10 (было «Sign in to your Tadum account»), A-059 |
+| `cr.title` | ar, en | Commercial Registration (CR) number / رقم السجل التجاري | блок ввода CR над документами заявки, Кирилл 2026-11-10; в арабском без латинского «CR» — термин «السجل التجاري» общепринят |
+| `cr.hint` | ar, en | You'll find the 10-digit number on your CR certificate / تجد الرقم المكوّن من 10 أرقام في شهادة السجل التجاري | где найти номер; формат 10 цифр — `01-entities.md` (`cr_number`) |
+| `cr.label` | ar, en | CR number / رقم السجل التجاري | подпись поля; значение поля — LTR |
+| `cr.error.required` | ar, en | Enter your CR number / أدخل رقم السجل التجاري | пустое поле: только действие, без «обязательное поле» |
+| `cr.error.length` | ar, en | Enter all 10 digits of your CR number / أدخل رقم السجل التجاري كاملًا من 10 أرقام | не 10 цифр: формулировка через действие, без «неверно» (blame_language) |
+| `cr.error.save` | ar, en | We couldn't save your CR number. Try again / لم نتمكن من حفظ رقم السجل التجاري. حاول مرة أخرى | формула ошибки как у `upload.error.server` |
+| `cr.missing` | ar, en | Add your CR number to send for review / أضف رقم السجل التجاري لإرسال المستندات للمراجعة | тост при «Отправить на проверку» без валидного CR |
+| `upload.error.files_limit` | ar, en | You can add up to {max} files to one document / الحد الأقصى لعدد الملفات في المستند الواحد: {max} | `{max}` — строка, не `count`: в арабском число вынесено в конец, чтобы не согласовывать существительное (ملفات/ملفًا) |
+| `upload.error.same_file` | ar, en | You've already uploaded this file. Choose another one / سبق أن رفعت هذا الملف. اختر ملفًا آخر | было «This is the same file as before. Upload a new one» / «هذا هو الملف نفسه. ارفع ملفًا جديدًا»; теперь покрывает и «уже есть в документе», и «ранее не принят»; согласовано с диалогом `upload.same_file.*` |
+| `upload.same_file.title` | ar, en | You've already uploaded this file / سبق أن رفعت هذا الملف | диалог «тот же файл», Кирилл 2026-11-10 |
+| `upload.same_file.body` | ar, en | We didn't upload {name}: it's already in this document or wasn't accepted earlier. Choose another file / لم نرفع {name} لأنه موجود في هذا المستند أو لم يُقبل سابقًا. اختر ملفًا آخر | что случилось (файл не загружен) + что сделать; оба случая одной фразой |
+| `upload.same_file.choose_another` | ar, en | Choose another file / اختيار ملف آخر | кнопка; в арабском — масдар, как другие кнопки |
+| `upload.same_file.ok` | ar, en | Got it / حسنًا | как `status.changed_banner_dismiss` |
+| `documents.row.add_file` | ar, en | Add another file / إضافة ملف آخر | кнопка в лотке документа: ещё один файл в тот же документ |
+| `document.source.zatca`, `.molim`, `.simah` | ar, en | Get it on ZATCA / استخراج من هيئة الزكاة والضريبة والجمارك; Get it on Molim / استخراج من مُلِم; Get it on SIMAH / استخراج من سمة | Кирилл 2026-11-10: кнопки «Оформить на …»; было «ZATCA portal», «Molim app», «SIMAH reports»; в арабском масдар без местоимения — кнопка ZATCA общая для شهادة (ж. р.) и إقرارات |
+| `nav.application` | ar, en | Application / الطلب | пункт меню клиента; термин из глоссария (`application`); `nav.documents` остаётся у поставщика |
+| `documents.submit.ready_title` | ar, en | Everything is ready / كل شيء جاهز | успех липкой панели, когда всё загружено; без «Congratulations / مبروك» (лексикон `success_filler`) и восклицаний |
+| `documents.submit.ready_body` | ar, en | You've uploaded all the documents. Now send them for review / رفعت جميع المستندات. أرسلها الآن للمراجعة | то же |

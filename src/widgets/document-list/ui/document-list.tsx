@@ -2,7 +2,7 @@
 // нужно действие; дальше порядок не меняется), плавающая карточка отправки с прогрессом «Загружено X из N» (решения Кирилла 2026-11-09).
 // Попытка отправить с незагруженными документами подсвечивает их и прокручивает к верхнему, если он не виден целиком.
 import { RiInformationLine } from '@remixicon/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { sortDocuments } from '@/entities/document';
@@ -19,6 +19,11 @@ export interface DocumentListProps {
   editable: boolean;
   /** Раскрыть строку документа (?doc=portal_key из диплинка). */
   focusKey?: string | undefined;
+  /** Блок над документами (номер CR, решение Кирилла 2026-11-10). */
+  header?: ReactNode;
+  /** Номер CR сохранён — без него комплект не отправить. */
+  crReady: boolean;
+  onCrMissing: () => void;
 }
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -41,7 +46,7 @@ export function stableOrder<T extends DocumentSet['documents'][number]>(docs: re
   return sortDocuments(docs).sort((a, b) => rank(a.portal_key) - rank(b.portal_key));
 }
 
-export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
+export function DocumentList({ set, editable, focusKey, header, crReady, onCrMissing }: DocumentListProps) {
   const { t } = useTranslation();
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [highlight, setHighlight] = useState<readonly string[]>([]);
@@ -74,6 +79,7 @@ export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
 
   return (
     <div className="flex flex-1 flex-col gap-3">
+      {header}
       {moreDocs ? (
         // Светло-жёлтый фон из палитры статусов (тёплый «нужно внимание», не ошибка), решение 2026-11-09.
         <Alert className="border-status-rejected/30 bg-status-rejected-muted">
@@ -96,7 +102,9 @@ export function DocumentList({ set, editable, focusKey }: DocumentListProps) {
         ))}
       </ul>
 
-      {editable ? <SubmitBar set={set} uploading={Object.values(uploading).some(Boolean)} onBlocked={onBlocked} /> : null}
+      {editable ? (
+        <SubmitBar set={set} uploading={Object.values(uploading).some(Boolean)} crReady={crReady} onBlocked={onBlocked} onCrMissing={onCrMissing} />
+      ) : null}
     </div>
   );
 }

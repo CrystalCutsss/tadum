@@ -1,4 +1,4 @@
-// Тема: system | light | dark (D-016, D-025). По умолчанию — системная; ручной выбор только в настройках.
+// Тема: system | light | dark (D-016, D-025). По умолчанию — светлая (Кирилл 2026-11-11, A-062); ручной выбор только в настройках.
 // Выбор хранится через storage('theme'); класс .dark на <html>; <meta name="theme-color"> для обеих тем.
 // Без вспышки при загрузке: index.html до бандла ставит .dark по тому же ключу хранилища.
 // Аналитику (контекст theme) синхронизирует app/providers.tsx: shared/lib не зависит от shared/analytics.
@@ -18,8 +18,8 @@ const THEME_COLOR: Record<ResolvedTheme, string> = { light: '#ffffff', dark: '#0
 
 const isChoice = (v: string | null | undefined): v is ThemeChoice => v === 'light' || v === 'dark' || v === 'system';
 
-/** Тема без сохранённого выбора: системная; на витрине Proto сборка задаёт светлую (A-056). index.html делает то же до бандла. */
-export const initialTheme = (env: string | undefined = import.meta.env.VITE_DEFAULT_THEME): ThemeChoice => (isChoice(env) ? env : 'system');
+/** Тема без сохранённого выбора: светлая, не системная (Кирилл 2026-11-11, A-062); сборка может задать другую. index.html делает то же до бандла. */
+export const initialTheme = (env: string | undefined = import.meta.env.VITE_DEFAULT_THEME): ThemeChoice => (isChoice(env) ? env : 'light');
 
 function readChoice(): ThemeChoice {
   const v = storage.get(STORAGE_KEY);

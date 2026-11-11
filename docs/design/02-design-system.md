@@ -63,16 +63,46 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `--status-*-foreground` | светлые ступени пресета (`--primary-foreground`, `--sidebar`) | `--foreground` светлой темы (0.148) | текст на заливке статуса |
 | `--limit-track` | = `--border` (0.925 0.005 214.3) | = `--muted` тёмной темы | нейтральная ступень пресета |
 | `--limit-fill` | `var(--primary)` | `var(--sidebar-primary)` | синий пресета; в тёмной — более светлый синий пресета, иначе 2.0:1 к дорожке |
-| `--whatsapp` | oklch(0.761 0.201 149.7) | = светлой | фирменный зелёный WhatsApp `#25D366` в oklch; цвет бренда одинаков в обеих темах (решение Кирилла 2026-11-06) |
-| `--whatsapp-foreground` | oklch(1 0 0) — белый | = светлой | белый текст бренда на `#25D366` — 1.98:1 (не AA); Кирилл осознанно принимает исключение (решение 2026-11-06), до этого был тёмный `--foreground` (9.94:1) |
+| `--whatsapp` | oklch(0.65 0.17 149.7) ≈ `#20AA52` | = светлой | зелёный WhatsApp: тон фирменного `#25D366` (oklch 0.761 0.201 149.7), светлота снижена до 0.65 — темнее для контраста с белым текстом, но ещё узнаваемый зелёный бренда (решение Кирилла 2026-11-11, «не слишком тёмный»). Одинаков в обеих темах (2026-11-06) |
+| `--whatsapp-foreground` | oklch(1 0 0) — белый | = светлой | белый текст бренда — 3.01:1 на `--whatsapp` с 2026-11-11 (было 1.98:1 на `#25D366`; не AA); Кирилл осознанно принимает исключение (решение 2026-11-06), до этого был тёмный `--foreground` (9.94:1) |
 | `--elevation-sm/md` | тени с цветом `--foreground` 6 % и 8 % | `none` (в тёмной теме — границы) | §3.3 |
 | `--elevation-inset` | `0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)` | = светлой | значение `shadow-sm` Tailwind/shadcn; тень контейнера контента `SidebarInset`, как в `sidebar-08` (решение Кирилла 2026-11-06). `--elevation-sm` слабее и в тёмной теме `none`, поэтому тени не было видно. Класс — `shadow-inset` |
 | `--motion-fast/base/slow` | 120 / 200 / 320 ms | — | §3.3; при `prefers-reduced-motion` — 0ms |
 | `--ease-standard` | cubic-bezier(0.2, 0, 0, 1) | — | §3.3 |
+| `--motion-bounce` | 480 ms | — | лёгкий отскок (экран документов клиента, решение Кирилла 2026-11-10); при `prefers-reduced-motion` — 0ms, как остальные `--motion-*`. Класс — `duration-bounce` |
+| `--ease-bounce` | cubic-bezier(0.34, 1.56, 0.64, 1) | — | кривая с перелётом ≈ 10 % (2026-11-10). Класс — `ease-bounce` |
+| `--motion-beam` / `--motion-beam-pause` | 2000 / 2000 ms | — | проход блика `BorderBeam` по периметру и пауза с серой обводкой (решение Кирилла 2026-11-11). Доля прохода в цикле (50 %) зашита в `@keyframes border-beam` — меняются вместе. В reduced-motion не обнуляются: анимацию снимает утилита |
+| `--beam-color` | `var(--primary)` | `var(--sidebar-primary)` | цвет дуги и свечения. В тёмной — более светлый синий пресета: `--primary` тёмной темы (0.424) на тёмной карточке почти не виден. В `.dark` переобъявлен обязательно — `var(--primary)` в `:root` вычисляется в `:root` |
+| `--beam-width` | 1px | — | толщина дуги = толщина `border`: дуга перекрашивает обводку, а не рисует вторую |
+| `--beam-arc` | 0.35 | — | полуоси эллипса-маски — доля полупериметра контейнера (дуга с хвостами ≈ 35 % периметра), но не больше 90 % ширины и высоты |
+| `--beam-core` | 15 % | — | насыщенное ядро маски (доля радиуса эллипса), дальше линейный спад к нулю |
+| `--beam-glow-radius` | 2.5rem | — | вынос слоя свечения за контейнер (≥ крайнего blur в `--beam-glow`) |
+| `--beam-glow` | 8 слоёв `box-shadow` (4 inset, 4 наружу; blur 1–36px), `color-mix(--beam-color 45…4 %)` | те же слои, альфа 70…7 % | мягкое свечение у дуги: внутрь — тонкий ореол в несколько px, наружу — слабое. На светлой поверхности сдержанно, на тёмной сильнее. В `.dark` переобъявлен — `color-mix` в `:root` вычислен с цветом светлой темы |
+| `--motion-pulse` / `--motion-pulse-rest` | 1200 / 1000 ms | — | расхождение кольца `PulseDot` и пауза (2026-11-11). Доля пульса (54.5 %) зашита в `@keyframes pulse-ring`. В reduced-motion кольцо скрыто утилитой |
+| `--ease-pulse` | cubic-bezier(0, 0, 0.2, 1) | — | замедление к концу: кольцо быстро отходит от точки и мягко гаснет |
+| `--text-fade-length` | 1.75rem | — | зона затухания `text-fade-end` (2026-11-11) |
+| `--mask-solid` | oklch(0 0 0) | — | непрозрачный цвет для `mask-image` (маска берёт только альфу); нужен, потому что Stylelint запрещает именованные и сырые цвета вне `tokens.css` |
+| `--mask-faint` | oklch(0 0 0 / 10%) | — | слабая альфа маски: подкраска остальной обводки, пока идёт блик |
 
 Сопоставление со статусами: документы `needed`→`pending`, `uploaded`→ зелёная палитра `approved` (решение Кирилла 2026-11-10; от `accepted` отличается иконкой `RiCheckLine`), `needs a new file`→`rejected`, `accepted`→`approved`; шкала и чек-лист: `needs_attention`/`failed` = `rejected`; `supplier_view`: `applied`/`collecting_docs`→`pending`, `under_review`→`received`, `approved`/`first_purchase`→`approved`, `closed` → нейтральный `muted` (не `rejected`). Компонент — `StatusBadge` (иконка + текст + цвет).
 
-Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `shadow-inset`, `duration-base`, `ease-standard`, `font-wordmark` и т. д.
+Классы Tailwind: `bg-whatsapp`, `text-whatsapp-foreground`, `bg-status-pending-muted`, `text-status-received`, `bg-limit-fill`, `shadow-sm`, `shadow-inset`, `duration-base`, `ease-standard`, `duration-bounce`, `ease-bounce`, `animate-pulse-ring`, `text-fade-end`, `font-wordmark` и т. д.
+
+**Бегущий блик обводки `BorderBeam`** (решение Кирилла 2026-11-11; приём по образцу React Bits Border Glow — обводка цвета блика и слои свечения под общей маской, — реализация своя, без пакета и без копирования кода: лицензия оригинала MIT + Commons Clause). Заменил свечение-волну `animate-glow-wave` 2026-11-10 — её `@keyframes`, утилита и токены `--glow-primary*`, `--motion-glow`, `shadow-glow-primary*` удалены.
+
+Вид: обводка контейнера — обычная серая `border` толщиной 1px. По ней с постоянной скоростью проходит длинная синяя дуга той же толщины — насыщенная в середине, с длинными мягкими хвостами до полной прозрачности (≈ 30–35 % периметра); у дуги — мягкое свечение внутрь (несколько px) и слабое наружу. Пока идёт проход, остальная обводка чуть подкрашена. Один круг за `--motion-beam`, затем `--motion-beam-pause` блика нет и обводка серая, и снова, бесконечно. Старт — у верхнего левого угла, обход по часовой в обоих направлениях письма (направление обхода с направлением текста не связано); в начале и конце прохода прозрачность мягко нарастает и гаснет — по ≈ 720 ms (18 % цикла), кривая smoothstep (ease-in-out) ступенями 0 → 0.1 → 0.35 → 0.65 → 0.9 → 1 через каждые 3.6 % цикла; `animation-timing-function` не используется, чтобы `--beam-p` оставался линейным (решение Кирилла 2026-11-11: «начало и затухание мягче»). Полная яркость — с 0.72 до 1.28 s прохода.
+
+Устройство (`@utility border-beam`, `border-beam-edge`, `border-beam-glow`, `@property --beam-p`, `@keyframes border-beam` в `globals.css`): корневой слой `border-beam` — `absolute`, выходит за padding-box контейнера на `--beam-width` (ровно на обводку), `border-radius: inherit`, `container-type: size`. `--beam-p` (зарегистрированное `<number>`) идёт 0 → 1 линейно — доля периметра; из неё в единицах контейнера (`cqw`/`cqh`) считается точка блика на периметре `--beam-x`/`--beam-y` (через `clamp`, без деления длин). `border-beam-edge` — обводка `--beam-color` толщиной `--beam-width`; `border-beam-glow` — слой шире контейнера на `--beam-glow-radius`, его `::before` совпадает с border-box контейнера и несёт `box-shadow: var(--beam-glow)`. Оба под маской `radial-gradient` — эллипс вокруг точки блика: ядро `--beam-core` непрозрачно, дальше спад к краю эллипса; у обводки за эллипсом — `--mask-faint`, у свечения — ноль. Полуоси — `--beam-arc` полупериметра, но не больше 90 % ширины и высоты: на длинной грани широкой панели эллипс не дотягивается до противоположной грани, на коротком торце огибает оба угла. Конус `conic-gradient` из центра, как в оригинале, на широкой панели (≈ 800×120) освещал обе длинные грани сразу и двигался неравномерно — проверено кадрами Playwright, поэтому заменён эллипсом у точки.
+
+При `prefers-reduced-motion: reduce` анимации и свечения нет: вся обводка статично окрашена в `--beam-color`. Раскладку не меняет, `aria-hidden`, `pointer-events: none`; смысл состояния на нём не держится. Свечение выходит за контейнер на `--beam-glow-radius`: у контейнера и ближайших предков не должно быть `overflow: hidden`. История — `shared/ui/Motion/BorderBeam` (широкая карточка `min-h-30`; play: слой совпадает с border-box контейнера и наследует радиус, толщина дуги = толщина обводки, маски — эллипс, свечение шире контейнера, цикл 4 s `linear infinite`, на 1 s `--beam-p` = 0.5 и блик виден, на 3 s — погашен).
+
+**Пульсирующая точка `PulseDot`** (2026-11-11): точка `size-2` цвета статуса и кольцо того же цвета (`animate-pulse-ring`, `@keyframes pulse-ring`): кольцо стартует с прозрачностью 0.45 и масштабом 1, за `--motion-pulse` вырастает до 2.75 и гаснет до 0, затем пауза `--motion-pulse-rest`. При reduced-motion кольца нет. История — `shared/ui/Motion/PulseDot`.
+
+**Затухание строки `text-fade-end`** (`@utility` в `globals.css`, 2026-11-11): `white-space: nowrap; overflow: hidden` и `mask-image` — последние `--text-fade-length` уходят в прозрачность к концу строки: справа в LTR, слева в RTL (`:dir(rtl)`). Заменяет многоточие `truncate` там, где обрезка должна быть мягкой (имя компании в кнопке аккаунта сайдбара). Элементу нужна ширина контейнера (блок, grid-элемент, flex-элемент с `min-w-0`): у элемента шириной по тексту зона затухания ляжет на сам короткий текст. Полный текст — в доступном имени или подсказке, если обрезка скрывает смысл. История — `shared/ui/TextFade/FadeEnd` (play: переполнение без переноса; в EN маска `to right`, в AR — `to left`).
+
+**Исправление 2026-11-10:** утилиты `duration-*` в Tailwind v4 берут значения из пространства `--transition-duration-*`. В `@theme` было `--duration-fast/base/slow`, поэтому `duration-fast`, `duration-base`, `duration-slow` не генерировались, и элементы шли с 150 ms по умолчанию. Теперь сопоставление — `--transition-duration-{fast,base,slow,bounce}: var(--motion-*)`; существующие вызовы получили задуманные длительности.
+
+**Раскрытие по высоте** (`@utility` в `globals.css`, 2026-11-10, липкая панель отправки): `grid-rows-collapsed` (`grid-template-rows: 0fr`), `grid-rows-expanded` (`1fr`), `transition-grid-rows` (`transition-property: grid-template-rows`; длительность и кривая — `--tw-duration`/`--tw-ease` с откатом на значения по умолчанию Tailwind, как у встроенных `transition-*`, поэтому работают `duration-bounce ease-bounce`). Разметка: `grid grid-rows-collapsed|expanded transition-grid-rows duration-bounce ease-bounce` на обёртке, `min-h-0 overflow-hidden` на единственном дочернем элементе. Заменяют произвольные `grid-rows-[0fr]` и `transition-[grid-template-rows]`, запрещённые ESLint. При reduced-motion `--motion-bounce` = 0ms, раскрытие мгновенное.
 
 ## 4. Контраст (WCAG 2.2 AA)
 
@@ -84,9 +114,9 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 | `-foreground` на заливке статуса, мин. | 6.12 | 9.83 |
 | статус на `--background` / `--card`, мин. | 6.40 | 8.66 |
 | `--limit-fill` против `--limit-track` (нужно ≥ 3) | 5.48 | 3.98 |
-| `--whatsapp-foreground` на `--whatsapp` (с 2026-11-06; белый) | 1.98 | 1.98 |
+| `--whatsapp-foreground` на `--whatsapp` (белый; с 2026-11-11 зелёный темнее, было 1.98) | 3.01 | 3.01 |
 
-Пара WhatsApp не проходит AA (нужно 4.5) и **принята как исключение** решением Кирилла 2026-11-06: белый текст — фирменный вид кнопки WhatsApp. Это осознанное отступление от A-019 только для этой пары; другие пары правило по-прежнему не ослабляют. Сама заливка против светлого фона — 1.9:1: граница кнопки не несёт смысла (у кнопки есть текст и иконка), 1.4.11 не требуется.
+Пара WhatsApp не проходит AA (нужно 4.5) и **принята как исключение** решением Кирилла 2026-11-06: белый текст — фирменный вид кнопки WhatsApp. Это осознанное отступление от A-019 только для этой пары; другие пары правило по-прежнему не ослабляют. Зелёный 2026-11-11 — баланс по просьбе Кирилла «темнее, но не слишком»: 3.0:1 при узнаваемом зелёном бренда. Сама заливка против светлого фона — 3.01:1, против тёмного фона и карточки — 6.54 и 5.76:1: граница кнопки не несёт смысла (у кнопки есть текст и иконка), 1.4.11 не требуется.
 
 Дополнительно истории Storybook проверяются axe (`@storybook/addon-a11y`, режим `error`) в тестах `pnpm test:stories`.
 
@@ -121,7 +151,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 **Breadcrumb** (`breadcrumb.tsx`): `aria-label` у `Breadcrumb` обязателен (строка из i18n); разделитель-шеврон — через `Icon` (зеркалится в RTL); у `BreadcrumbEllipsis` убран `sr-only` «More» (элемент `aria-hidden`, доступное имя даёт кнопка-обёртка).
 
-**Button** — вариант `whatsapp` (`bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90`), фокус и размеры — общие пресета. Текст белый, контраст 1.98:1 — исключение из AA по решению Кирилла 2026-11-06 (§4). Использование: `<Button variant="whatsapp" asChild><a …><Icon icon={RiWhatsappFill} />…</a></Button>`. Повторный `shadcn add button` покажет этот вариант как отличие — не перезаписывать.
+**Button** — вариант `whatsapp` (`bg-whatsapp text-whatsapp-foreground hover:bg-whatsapp/90`), фокус и размеры — общие пресета. Текст белый, контраст 3.01:1 (с 2026-11-11) — исключение из AA по решению Кирилла 2026-11-06 (§4). Использование: `<Button variant="whatsapp" asChild><a …><Icon icon={RiWhatsappFill} />…</a></Button>`. Повторный `shadcn add button` покажет этот вариант как отличие — не перезаписывать.
 
 **Wordmark** — вариант `variant="dot"` (решение Кирилла 2026-11-06, логотип сайдбара): «tadum» строчными, Geist bold (700), в конце точка `text-primary dark:text-muted-foreground`. Строчные — через CSS `lowercase`, поэтому доступный текст остаётся «Tadum»; точка `aria-hidden`. Вид по умолчанию (D-052, экраны входа) не изменён. Цвет точки в тёмной теме (решение Кирилла 2026-11-06): `--primary` на `--sidebar` давал 1.96:1 — точка почти не видна, поэтому в `.dark` она светло-серая, существующий токен пресета `--muted-foreground` (новый токен не вводился): ≈7.1:1 к `--sidebar` и 8.07:1 к `--background` (`pnpm run check:contrast`). `--sidebar-foreground` не выбран — он почти белый, как само слово, и точка не читалась бы отдельным акцентом. Точка декоративная, AA для неё не требуется, но запас есть.
 
@@ -164,6 +194,22 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 Истории: `Item`, `Collapsible`, `Empty`, `Field`, `Label`, `Spinner`, `Progress` — в матрице AR/EN × light/dark; `Drawer`, `AlertDialog`, `ResponsiveDialog` — порталы, как `Dialog`/`Sheet`, одна копия по глобалам тулбара, play проверяет `dir` контента.
 
+### Экран документов клиента (2026-11-10)
+
+Решения Кирилла 2026-11-10. Новые токены движения и свечения — §3. Контраст не менялся (A-019).
+
+**Input** — размер через `cva` (`inputVariants`), проп `size`: `"default"` — прежний `h-9 px-3 py-1 text-base md:text-sm` (существующие вызовы не меняются), `"lg"` — 48 px: `h-12 px-4 py-2 text-base` (отступ и кегль как у `Button size="lg"`). Нативный атрибут `size` (ширина в символах) исключён из пропсов — как у `Button`; в проекте он не использовался. На элементе — `data-size`. Повторный `shadcn add input` покажет это как отличие — не перезаписывать. Истории `Input/Large`, `Input/Sizes`; истории `Input` переведены в матрицу AR/EN × light/dark.
+
+**SpeechBubble** — удалён 2026-11-11: облачка подсказок Кирилл заменил; в строках документов с ошибкой вместо иконки предупреждения — `PulseDot` (§3).
+
+### Обводка панели отправки, точка ошибки, затухание строки (2026-11-11)
+
+Решения Кирилла 2026-11-11. Токены — §3, контраст пресета не менялся (A-019).
+
+**BorderBeam** (`border-beam.tsx`, проектный): пропсы `active?: boolean` (по умолчанию `true`; `false` — ничего не рендерит), `className?`. Ставится последним дочерним элементом в позиционированный контейнер (`relative`, `sticky`, `absolute`) со скруглением `rounded-xl` и обычным `border`: `<div className="relative rounded-xl border …">…<BorderBeam active={ready} /></div>`. Цвет обводки контейнера не меняется (`border-primary` не нужен); скругление контейнера любое — слой его наследует. Свечение выходит за контейнер на `--beam-glow-radius` (2.5rem): `overflow: hidden` у контейнера и ближайших предков его обрежет.
+
+**PulseDot** (`pulse-dot.tsx`, проектный): пропсы `tone?: "rejected"` (единственный, по умолчанию; `bg-status-rejected`), `className?`. Обёртка `relative inline-flex size-2` — размером с точку, кольцо `absolute inset-0` растёт за её пределы (до ≈ 22 px), обёртка его не обрезает. Центрирует потребитель: `flex items-center justify-center` в колонке иконки (`ItemMedia variant="icon"` — без фиксированного размера, по содержимому) или в колонке `size-10` под плиткой файла; предки не должны иметь `overflow: hidden` ближе ≈ 7 px от точки. Декоративная (`aria-hidden`): статус ошибки несёт текст строки.
+
 ## 5. Шрифты
 
 Латиница — Geist из пресета (совпадает с D-004), арабский — всегда IBM Plex Sans Arabic. Фактические имена семейств пакетов: `"Geist Variable"` и `"IBM Plex Sans Arabic"` (A-016). `:lang(ar)` — интерлиньяж тела 1.625, заголовков 1.3. Словесный знак `Wordmark` — всегда Geist латиницей: по умолчанию 600 «Tadum» (D-052), в сайдбаре — `variant="dot"`, 700 «tadum.» (§4a). Тест истории `shared/ui/Typography/Fonts` проверяет `document.fonts.check` для обоих семейств и что арабский текст не падает в системный шрифт.
@@ -174,7 +220,7 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 ## 7. Тема
 
-`src/app/theme.tsx`: `system | light | dark`, по умолчанию `system` (D-025), хранение — `storage('theme')`, класс `.dark` на `<html>`, `<meta name="theme-color">` для обеих тем (`#ffffff` / `#090b0c` = `--background` пресета). Вспышки нет: `index.html` ставит `.dark` до загрузки бандла.
+`src/shared/lib/theme.tsx`: `system | light | dark`, по умолчанию `light` — всегда светлая, даже при тёмной теме системы (Кирилл 2026-11-11, A-062; раньше `system` по D-025), хранение — `storage('theme')`, класс `.dark` на `<html>`, `<meta name="theme-color">` для обеих тем (`#ffffff` / `#090b0c` = `--background` пресета). Вспышки нет: `index.html` ставит `.dark` до загрузки бандла.
 
 Кнопка темы в шапке кабинета (Кирилл 2026-11-06): `ThemeToggle` (`widgets/theme-switch`) — ghost-кнопка с `ThemeToggleIcon`, как ModeSwitcher на ui.shadcn.com: светлая ↔ тёмная от видимой темы; стоит в конце шапки после переключателя языка, через вертикальный `Separator`. Выбор «Как в системе» — в настройках (`ThemeSwitch`). Кнопки блока помощи «Have a question?» (`SupportCard`) — `rounded-lg`; с 2026-11-09 это радиус всех кнопок (§4a, «Скругления»).
 

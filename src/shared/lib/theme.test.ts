@@ -1,12 +1,13 @@
-// Тема по умолчанию сборки (A-056): системная; витрина Proto задаёт светлую.
+// Тема по умолчанию (A-062): светлая, даже если в системе тёмная; сборка может задать другую.
 import { describe, expect, it } from 'vitest';
 
 import { initialTheme } from './theme';
 
 describe('initialTheme', () => {
-  it('без переменной — системная; витрина задаёт светлую; мусор игнорируется', () => {
-    expect(initialTheme(undefined)).toBe('system');
-    expect(initialTheme('light')).toBe('light');
-    expect(initialTheme('%VITE_DEFAULT_THEME%')).toBe('system');
+  it('без переменной — светлая; сборка может задать другую; мусор игнорируется', () => {
+    expect(initialTheme(undefined)).toBe('light');
+    expect(initialTheme('dark')).toBe('dark');
+    expect(initialTheme('system')).toBe('system');
+    expect(initialTheme('%VITE_DEFAULT_THEME%')).toBe('light');
   });
 });

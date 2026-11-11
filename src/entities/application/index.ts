@@ -31,3 +31,4 @@ export {
 } from './model/timeline';
 export { applicationQuery, companyQuery } from './api/queries';
 export { statusMemory, statusNoticeOnEnter, transitionKey, type StatusMemory, type StatusNotice } from './model/status-notice';
+export { CR_LENGTH, crDigits, crError, isValidCr, type CrError } from './model/cr';

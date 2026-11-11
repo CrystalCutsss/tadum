@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { CHECKLIST_KEYS, MAX_FILE_SIZE_BYTES, ODOO_STAGES } from './constants';
 
-export { CHECKLIST_KEYS, KNOWN_PORTAL_KEYS, MAX_FILE_SIZE_BYTES, ODOO_STAGES } from './constants';
+export { CHECKLIST_KEYS, KNOWN_PORTAL_KEYS, MAX_FILE_SIZE_BYTES, MAX_FILES_PER_DOCUMENT, ODOO_STAGES } from './constants';
 
 // ---------- Общие ----------
 
@@ -121,6 +121,14 @@ export const FileAssetSchema = z.object({
   uploaded_at: DateTimeSchema,
   download_url: z.string(),
   prevalidation: PrevalidationResultSchema,
+  /** Замечание проверяющего к этому файлу: ошибка или дозапрос (решение Кирилла 2026-11-10). */
+  issue: z
+    .object({
+      kind: z.enum(['error', 'request']),
+      reason_key: z.string().optional(),
+      reason_text: z.object({ ar: z.string(), en: z.string().optional() }).optional(),
+    })
+    .optional(),
 });
 
 /** Только клиентское состояние загрузки, не хранится. */
@@ -148,6 +156,8 @@ export const DocumentSchema = z.object({
   required: z.boolean(),
   reject_reason_key: z.string().optional(),
   reject_reason_text: z.object({ ar: z.string(), en: z.string().optional() }).optional(),
+  /** Вид причины на весь документ: `error` (по умолчанию) или `request` — дозапрос. */
+  reason_kind: z.enum(['error', 'request']).optional(),
   rejected_file_hashes: z.array(z.string()),
   files: z.array(FileAssetSchema),
   hint: DocumentHintSchema,

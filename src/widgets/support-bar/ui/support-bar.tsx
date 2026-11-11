@@ -55,12 +55,12 @@ export function SupportBar(props: SupportBarProps) {
   );
 }
 
-/** Блок помощи в нижней части сайдбара (решения Кирилла 2026-11-06): Card, заголовок и серый подзаголовок, WhatsApp в фирменном цвете и «Email». */
+/** Блок помощи в нижней части сайдбара (решения Кирилла 2026-11-06; без обводки — 2026-11-11): Card, заголовок и серый подзаголовок, WhatsApp в фирменном цвете и «Email». */
 export function SupportCard(props: SupportBarProps) {
   const { t } = useTranslation();
   const links = useSupportLinks(props);
   return (
-    <Card size="sm" role="complementary" aria-label={t('support.cta.question')}>
+    <Card size="sm" role="complementary" className="ring-0" aria-label={t('support.cta.question')}>
       <CardContent className="flex flex-col gap-3">
         <p className="flex flex-col gap-0.5">
           <span className="text-sm font-medium">{t('support.cta.title')}</span>

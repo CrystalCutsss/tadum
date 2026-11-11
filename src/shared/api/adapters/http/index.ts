@@ -44,6 +44,9 @@ const application: ApplicationPort = {
   async getCompany() {
     return todo('application', 'getCompany');
   },
+  async setCrNumber(_crNumber: string) {
+    return todo('application', 'setCrNumber');
+  },
   async createApplication() {
     return todo('application', 'createApplication');
   },

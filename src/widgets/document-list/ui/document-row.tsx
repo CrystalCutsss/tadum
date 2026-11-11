@@ -1,15 +1,18 @@
 // Карточка документа (решения Кирилла 2026-11-09/10): отдельного экрана нет — всё здесь, без сворачивания.
-// Основная карточка: название, описание и справа статус либо «Загрузить».
-// Нижняя серая панель: загруженный файл (белая карточка), под ним ошибки, затем видео и пример слева, ссылки на сервисы справа.
-// Перетаскивания нет — загрузка только кнопкой в карточке.
+// Основная карточка: название, описание и справа статус либо «Загрузить»; под описанием — замечание ко всему документу.
+// Нижняя серая панель: загруженные файлы (белые карточки, у файла с замечанием — точка с пульсом и текст), под ними ошибки загрузки,
+// затем «Добавить файл», видео, пример и ссылки на сервисы. Перетаскивания нет — загрузка только кнопкой.
+// В документе несколько файлов, до MAX_FILES_PER_DOCUMENT; тот же файл не загружается — окно-предупреждение.
+import { RiAddLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
-import { documentRowMode, rejectReason } from '@/entities/document';
-import { SourcePicker, useDocumentUpload, type UploadSource } from '@/features/upload-document';
-import type { Document } from '@/shared/api';
+import { documentRowMode, hasDocumentIssue, rejectReason } from '@/entities/document';
+import { SameFileDialog, SourcePicker, useDocumentUpload, type UploadSource } from '@/features/upload-document';
+import { MAX_FILES_PER_DOCUMENT, type Document } from '@/shared/api';
+import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
 import {
   Badge,
@@ -21,15 +24,8 @@ import {
   ItemDescription,
   ItemMedia,
   ItemTitle,
+  PulseDot,
   StatusBadge,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   toast,
   RiFileTextLine,
 } from '@/shared/ui';
@@ -48,35 +44,26 @@ export interface DocumentRowProps {
 
 export function DocumentRow({ doc, editable, highlighted = false, onUploadingChange }: DocumentRowProps) {
   const { t, i18n } = useTranslation();
+  const lang = i18n.language === 'ar' ? 'ar' : 'en';
   const online = useOnline();
   const [picker, setPicker] = useState<{ replaceFileId?: string } | null>(null);
-  const upload = useDocumentUpload(doc);
+  const [sameFiles, setSameFiles] = useState<string[]>([]);
+  const upload = useDocumentUpload(doc, {
+    onSameFile: (names) => setSameFiles(names),
+    onTooMany: (max) => toast(t('upload.error.files_limit', { max: formatNumber(max) }), { position: 'top-center' }),
+  });
   const mode = documentRowMode(doc, editable);
   const title: string = t(doc.hint.title_key as ParseKeys);
   const hint: string = t(doc.hint.hint_key as ParseKeys);
-  const reason = doc.status === 'rejected' ? rejectReason(doc, i18n.language === 'ar' ? 'ar' : 'en') : null;
+  // Замечание ко всему документу: причина с сервера; «Нужен новый файл» без причины и без замечаний к файлам — общий текст.
+  const blockIssue = hasDocumentIssue(doc) || (doc.status === 'rejected' && !doc.files.some((f) => f.issue));
+  const reason = blockIssue ? rejectReason(doc, lang) : null;
   const reasonText = reason ? (reason.kind === 'text' ? reason.text : String(t(reason.key as ParseKeys))) : null;
   const reasonId = `reason-${doc.id}`;
   // Готовые задачи исчезают: файл уже пришёл в doc.files после обновления комплекта.
   const tasks = upload.tasks.filter((task) => task.state !== 'done');
 
-  // Один файл на документ (решение Кирилла 2026-11-09): несколько сразу — тост; уже есть файл — спросить про замену.
-  const [confirmReplace, setConfirmReplace] = useState<{ file: File; source: UploadSource } | null>(null);
-  const accept = (files: File[], source: UploadSource, replaceFileId?: string) => {
-    const [file] = files;
-    if (!file) return;
-    if (files.length > 1) {
-      toast(t('upload.error.one_file'), { position: 'top-center' });
-      return;
-    }
-    const existing = doc.files[0];
-    if (!replaceFileId && existing) {
-      setConfirmReplace({ file, source });
-      return;
-    }
-    upload.start([file], source, replaceFileId);
-  };
-  const pick = (files: File[], source: UploadSource) => accept(files, source, picker?.replaceFileId);
+  const pick = (files: File[], source: UploadSource) => void upload.start(files, source, picker?.replaceFileId);
   const action = mode === 'upload' || mode === 'reupload';
   const busy = upload.busy;
   useEffect(() => onUploadingChange?.(doc.portal_key, busy), [busy, doc.portal_key, onUploadingChange]);
@@ -86,8 +73,10 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
   );
   const messages = tasks.filter((task) => task.state === 'failed' || task.state === 'cancelled');
   const activeTasks = tasks.filter((task) => task.state !== 'failed' && task.state !== 'cancelled');
-  const hasNotices = Boolean(reasonText) || warnings.length > 0 || messages.length > 0;
+  const hasNotices = warnings.length > 0 || messages.length > 0;
   const hasFiles = doc.files.length > 0 || activeTasks.length > 0;
+  // Догрузить ещё файл, когда кнопки «Загрузить» в карточке нет (документ уже загружен).
+  const canAddMore = editable && !action && doc.files.length + activeTasks.length < MAX_FILES_PER_DOCUMENT;
 
   return (
     <li id={`doc-${doc.portal_key}`} className="list-none scroll-mt-4">
@@ -140,6 +129,18 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
               )}
             </ItemActions>
           </Item>
+          {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11): оранжевая точка с пульсом и оранжевый текст;
+              точка — в колонке иконки документа, по центру первой строки, текст — в колонке названия. */}
+          {reasonText ? (
+            <Item id={reasonId} className="flex-nowrap items-start rounded-none border-0 p-0 text-status-rejected">
+              <span className="flex h-5 w-4 shrink-0 items-center justify-center">
+                <PulseDot />
+              </span>
+              <ItemContent className="min-w-0">
+                <ItemDescription className="line-clamp-none text-status-rejected">{reasonText}</ItemDescription>
+              </ItemContent>
+            </Item>
+          ) : null}
         </div>
 
         {/* Отступ до кнопок сверху равен нижнему отступу панели (решение Кирилла 2026-11-10). */}
@@ -160,14 +161,9 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
                   ))}
                 </ul>
               ) : null}
-              {/* Ошибки и «нужен новый файл» — под загруженным файлом, в том же виде, что и файл (решение 2026-11-10). */}
+              {/* Ошибки загрузки и предупреждения проверки — под файлами, в том же виде, что и файл (решение 2026-11-10). */}
               {hasNotices ? (
                 <ul className="flex flex-col gap-2">
-                  {reasonText ? (
-                    <li>
-                      <ErrorNotice id={reasonId} title={t('documents.row.reason_title')} text={reasonText} />
-                    </li>
-                  ) : null}
                   {warnings.map((warning) => (
                     <li key={warning.id}>
                       <ErrorNotice text={t(warning.key as ParseKeys)} />
@@ -182,42 +178,30 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
               ) : null}
             </div>
           ) : null}
-          <DocumentResources doc={doc} title={title} />
+          <DocumentResources
+            doc={doc}
+            title={title}
+            leading={
+              canAddMore ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 hover:bg-card dark:hover:bg-card"
+                  disabled={!online || upload.busy}
+                  onClick={() => setPicker({})}
+                >
+                  <Icon icon={RiAddLine} data-icon="inline-start" className="size-3.5" />
+                  {t('documents.row.add_file')}
+                </Button>
+              ) : null
+            }
+          />
         </div>
       </div>
 
-      <SourcePicker
-        open={picker !== null}
-        onOpenChange={(next) => !next && setPicker(null)}
-        title={title}
-        hint={hint}
-        multiple={false}
-        onPick={pick}
-      />
-
-      <AlertDialog open={confirmReplace !== null} onOpenChange={(next) => !next && setConfirmReplace(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('documents.file.replace_title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('documents.file.replace_body', { name: doc.files[0]?.name ?? '' })}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                const pending = confirmReplace;
-                const existing = doc.files[0];
-                setConfirmReplace(null);
-                if (pending && existing) {
-                  upload.start([pending.file], pending.source, existing.id);
-                }
-              }}
-            >
-              {t('documents.file.replace_confirm')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <SourcePicker open={picker !== null} onOpenChange={(next) => !next && setPicker(null)} title={title} hint={hint} multiple={!picker?.replaceFileId} onPick={pick} />
+      <SameFileDialog names={sameFiles} onClose={() => setSameFiles([])} onPickOther={() => setPicker({})} />
     </li>
   );
 }

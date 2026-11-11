@@ -11,8 +11,9 @@ const FILL: Record<TimelineStepState, string> = {
   done: 'bg-status-approved',
   current: 'bg-primary',
   needs_attention: 'bg-status-rejected',
-  upcoming: 'bg-muted',
-  closed: 'bg-muted',
+  // Непройденные шаги — белые: шкала лежит на серой панели, bg-muted с ней сливался (Кирилл 2026-11-11).
+  upcoming: 'bg-card',
+  closed: 'bg-card',
 };
 
 export function StatusStepBar({ steps }: { steps: Record<ClientTimelineStep, TimelineStepState> }) {

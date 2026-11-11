@@ -12,5 +12,12 @@ export {
   type SourceLink,
 } from './model/catalog';
 export { documentRowMode, documentsProgress, type DocumentRowMode, type DocumentsProgress } from './model/progress';
-export { rejectReason, sortDocuments, transitionDocument, type DocumentEvent, type DocumentTransition } from './model/status';
+export {
+  fileIssueReason,
+  hasDocumentIssue,
+  isSameFile,
+  rejectReason,
+  settleDocumentStatus,
+  sortDocuments,
+  transitionDocument, type DocumentEvent, type DocumentTransition } from './model/status';
 export { documentSetQuery } from './api/queries';

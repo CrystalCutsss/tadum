@@ -1,9 +1,9 @@
 // Помощь по документу в нижней панели карточки (решения Кирилла 2026-11-09): видео (только на арабском, D-026),
-// ссылки на сервисы, где получить документ, и пример — картинкой в модальном окне с крестиком (без просмотрщика PDF).
+// ссылки на сервисы, где получить документ (в общем ряду слева), и пример — картинкой в модальном окне с крестиком (без просмотрщика PDF).
 // Нет ассетов — блок не показывается (A10).
 import { RiFileLine } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { exampleImageFor, hintFor, sourceLinksFor } from '@/entities/document';
@@ -42,7 +42,7 @@ function DrivePlayer({ src, title, playLabel }: { src: string; title: string; pl
 /** Видео из Google Drive открывается их встроенным плеером, свои файлы — тегом video. */
 const isDrivePreview = (url: string) => url.startsWith('https://drive.google.com/');
 
-export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string }) {
+export function DocumentResources({ doc, title, leading }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string; leading?: ReactNode }) {
   const { t } = useTranslation();
   const [view, setView] = useState<'example' | 'video' | null>(null);
   // Ассеты из каталога, если бэкенд их не прислал (A-058).
@@ -50,7 +50,7 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
   const examplePdf = doc.hint.example_pdf_url ?? hintFor(doc.portal_key).example_pdf_url;
   const video = doc.hint.video_url?.ar ?? hintFor(doc.portal_key).video_url?.ar;
   const links = sourceLinksFor(doc.portal_key);
-  if (!image && !examplePdf && !video && links.length === 0) return null;
+  if (!leading && !image && !examplePdf && !video && links.length === 0) return null;
 
   const openExample = () => {
     track('document_example_opened', { owner: 'client', portal_key: doc.portal_key });
@@ -60,9 +60,10 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
   // Кнопки в нижней панели: фон панели, наведение — белый (решение Кирилла 2026-11-10).
   // Размер sm дизайн-системы (h-8, px-3; с иконкой в начале — ps-2) без увеличения до 44 px, иконки 14 px (решение 2026-11-10).
   const panelButton = 'shrink-0 hover:bg-card dark:hover:bg-card';
-  // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10).
+  // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10); зазор 4 px (2026-11-11).
   return (
-    <div className="-mx-3 flex flex-nowrap items-center gap-2 overflow-x-auto px-3 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+    <div className="-mx-3 flex flex-nowrap items-center gap-1 overflow-x-auto px-3 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+      {leading}
       {video ? (
         <Button
           type="button"
@@ -92,19 +93,15 @@ export function DocumentResources({ doc, title }: { doc: Pick<Document, 'portal_
           </a>
         </Button>
       ) : null}
-      {links.length > 0 ? (
-        // Ссылки на внешние сервисы — у правого края панели (в RTL — у левого).
-        <div className="ms-auto flex shrink-0 flex-nowrap justify-end gap-2 md:flex-wrap">
-          {links.map((link) => (
-            <Button key={link.url} asChild variant="ghost" size="sm" className={panelButton}>
-              <a href={link.url} target="_blank" rel="noopener noreferrer">
-                <Icon icon={RiExternalLinkLine} data-icon="inline-start" className="size-3.5" />
-                {t(link.label_key as ParseKeys)}
-              </a>
-            </Button>
-          ))}
-        </div>
-      ) : null}
+      {/* Ссылки на сервисы — в общем ряду после видео и примера, подпись «Оформить на …» (решение Кирилла 2026-11-10). */}
+      {links.map((link) => (
+        <Button key={link.url} asChild variant="ghost" size="sm" className={panelButton}>
+          <a href={link.url} target="_blank" rel="noopener noreferrer">
+            <Icon icon={RiExternalLinkLine} data-icon="inline-start" className="size-3.5" />
+            {t(link.label_key as ParseKeys)}
+          </a>
+        </Button>
+      ))}
 
       <ResponsiveDialog open={view !== null} onOpenChange={(open) => !open && setView(null)}>
         {/* Пример — окно почти на всю высоту, чтобы документ помещался (Кирилл 2026-11-09); видео — обычный размер. */}

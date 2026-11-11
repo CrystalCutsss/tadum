@@ -1,6 +1,6 @@
 // Машина состояний документа (01-statuses.md §5) и порядок в списке.
 
-import type { Document, DocumentSetStatus, DocumentStatus, PrevalidationResult } from '@/shared/api';
+import type { Document, DocumentSetStatus, FileAsset, DocumentStatus, PrevalidationResult } from '@/shared/api';
 
 import { catalogIndex } from './catalog';
 
@@ -40,6 +40,8 @@ export function transitionDocument(from: DocumentStatus, event: DocumentEvent, c
       if (event.type === 'uw_reject') return { ok: true, to: 'rejected' };
       return { ok: false, error: 'not_allowed' };
     case 'rejected':
+      // Файл с замечанием можно удалить; итоговый статус считает settleDocumentStatus.
+      if (event.type === 'delete') return { ok: true, to: 'rejected' };
       if (event.type === 'reupload') {
         return ctx.rejected_file_hashes.includes(event.sha256) ? { ok: false, error: 'document.same_file_rejected' } : { ok: true, to: 'received' };
       }
@@ -59,11 +61,39 @@ export function sortDocuments<T extends Pick<Document, 'status' | 'portal_key'>>
 
 /** Причина отклонения: текст тега на языке интерфейса; нет текста или нет EN — нейтральный generic. */
 export function rejectReason(
-  doc: Pick<Document, 'reject_reason_key' | 'reject_reason_text'>,
+  doc: { reject_reason_key?: string | undefined; reject_reason_text?: Document['reject_reason_text'] },
   lang: 'ar' | 'en',
 ): { kind: 'text'; text: string } | { kind: 'key'; key: string } {
   const text = lang === 'ar' ? doc.reject_reason_text?.ar : doc.reject_reason_text?.en;
   if (text) return { kind: 'text', text };
   if (doc.reject_reason_key) return { kind: 'key', key: doc.reject_reason_key };
   return { kind: 'key', key: 'document.rejected.generic' };
+}
+
+type IssueSource = Pick<Document, 'reject_reason_key' | 'reject_reason_text' | 'reason_kind'>;
+
+/** Есть ли причина на весь документ (ошибка или дозапрос). */
+export function hasDocumentIssue(doc: IssueSource): boolean {
+  return Boolean(doc.reject_reason_key || doc.reject_reason_text);
+}
+
+/**
+ * Статус документа после правки файлов клиентом в draft (решение Кирилла 2026-11-10: несколько файлов,
+ * замечания на файл и на весь документ). Нет файлов — «Нужен» (или «Нужен новый файл», если на документе ошибка);
+ * есть файл с замечанием или ошибка на документе — «Нужен новый файл»; иначе — «Загружен».
+ */
+export function settleDocumentStatus(doc: IssueSource & Pick<Document, 'files'>): DocumentStatus {
+  const blockError = hasDocumentIssue(doc) && doc.reason_kind !== 'request';
+  if (doc.files.length === 0) return blockError ? 'rejected' : 'pending';
+  return blockError || doc.files.some((f) => f.issue) ? 'rejected' : 'received';
+}
+
+/** Тот же файл: уже есть в документе или раньше не подошёл. */
+export function isSameFile(doc: Pick<Document, 'files' | 'rejected_file_hashes'>, sha256: string): boolean {
+  return doc.rejected_file_hashes.includes(sha256) || doc.files.some((f) => f.sha256 === sha256);
+}
+
+/** Текст замечания к файлу — по тем же правилам, что и причина документа. */
+export function fileIssueReason(issue: NonNullable<FileAsset['issue']>, lang: 'ar' | 'en') {
+  return rejectReason({ reject_reason_key: issue.reason_key, reject_reason_text: issue.reason_text }, lang);
 }

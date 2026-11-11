@@ -11,7 +11,7 @@ if (entries.length === 0) {
   process.exit(1);
 }
 // Маркеры: строки, которые есть только в коде мока и фикстурах (id персон не годятся — их список публичный).
-const MARKERS = ['mock:active', 'Rimal Al Sharq Trading', 'Bayt Al Khayr Wholesale'];
+const MARKERS = ['mock:active', 'Rimal Al Sharq General Trading', 'Bayt Al Khayr Wholesale'];
 let failed = false;
 for (const src of entries) {
   const file = join(dist, src.replace(/^.*\/assets\//, 'assets/'));

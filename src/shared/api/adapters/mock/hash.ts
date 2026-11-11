@@ -13,8 +13,5 @@ export function hashRange(input: string, min: number, max: number): number {
   return min + (hash(input) % (max - min + 1));
 }
 
-/** SHA-256 содержимого файла (hex). */
-export async function sha256Hex(data: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
+/** SHA-256 содержимого файла (hex) — тот же, что считает клиент. */
+export { sha256Hex } from '@/shared/lib';

@@ -40,9 +40,10 @@ interface FileSpec {
   mime?: FileAsset['mime'];
   size_bytes?: number;
   prevalidation?: PrevalidationResult;
+  issue?: FileAsset['issue'];
 }
 
-const file = (f: FileSpec): FileAsset => ({
+export const file = (f: FileSpec): FileAsset => ({
   id: f.id,
   name: f.name,
   mime: f.mime ?? 'application/pdf',
@@ -51,6 +52,7 @@ const file = (f: FileSpec): FileAsset => ({
   uploaded_at: f.uploaded_at,
   download_url: `/mock-files/${f.id}`,
   prevalidation: f.prevalidation ?? { state: 'passed', rule_keys: [] },
+  ...(f.issue ? { issue: f.issue } : {}),
 });
 
 export interface DocSpec {
@@ -60,6 +62,7 @@ export interface DocSpec {
   files?: FileAsset[];
   reject_reason_key?: string;
   reject_reason_text?: Document['reject_reason_text'];
+  reason_kind?: Document['reason_kind'];
   rejected_file_hashes?: string[];
 }
 
@@ -71,6 +74,7 @@ export const document = (setId: string, key: PortalKey, d: DocSpec): Document =>
   required: d.required ?? true,
   ...(d.reject_reason_key ? { reject_reason_key: d.reject_reason_key } : {}),
   ...(d.reject_reason_text ? { reject_reason_text: d.reject_reason_text } : {}),
+  ...(d.reason_kind ? { reason_kind: d.reason_kind } : {}),
   rejected_file_hashes: d.rejected_file_hashes ?? [],
   files: d.files ?? [],
   hint: { title_key: `document.${key}.title`, hint_key: `document.${key}.hint` },

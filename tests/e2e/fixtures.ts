@@ -83,11 +83,20 @@ export async function openAccountMenu(page: Page, lang: Lang, { dismissHint = fa
 /** axe без нарушений; правила WCAG 2.2 AA (01-nfr-locale-brand.md). */
 export async function expectNoA11yViolations(page: Page) {
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-  // Принятое исключение (Кирилл 2026-11-06, A-057): белый текст кнопки WhatsApp на #25D366 — 1.98:1. Убирается только
+  // Принятое исключение (Кирилл 2026-11-06, A-057): белый текст кнопки WhatsApp — 3.01:1 (с 2026-11-11, был 1.98:1). Убирается только
   // color-contrast у узлов этой кнопки; остальные правила и узлы проверяются как раньше.
   const accepted = (id: string, html: string) => id === 'color-contrast' && html.includes('data-variant="whatsapp"');
   const violations = result.violations
     .map((v) => ({ ...v, nodes: v.nodes.filter((n) => !accepted(v.id, n.html)) }))
     .filter((v) => v.nodes.length > 0);
   expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+}
+
+/**
+ * Тема на весь тест: по умолчанию приложение светлое и системную тему не слушает (A-062),
+ * поэтому тёмную ставим выбором в хранилище (ключ storage('theme'), BASE_URL e2e — «/»), а системную — эмуляцией для согласия.
+ */
+export async function setColorTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
+  await page.emulateMedia({ colorScheme: theme });
+  await page.addInitScript((value) => window.localStorage.setItem('tadum:/:theme', value), theme);
 }

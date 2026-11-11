@@ -2,7 +2,7 @@
 // Состояние — в памяти и в storage('mock:<persona>') со schemaVersion; при несовпадении — сброс к фикстуре.
 // Время — только clock.now(); задержки и канал OTP детерминированы от hash(persona_id).
 
-import { MOCK_COMPLETION_GRACE_MS, MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
+import { MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
 import { now as clockNow, storage, toDate } from '@/shared/lib';
 
 import { CLIENT_BASE_KEYS } from '../../fixtures/build';
@@ -23,6 +23,7 @@ import {
 import {
   AcceptedMimeSchema,
   MAX_FILE_SIZE_BYTES,
+  MAX_FILES_PER_DOCUMENT,
   type Application,
   type Document,
   type DocumentSet,
@@ -38,8 +39,12 @@ import { normalize, referredClients } from './derive';
 import type { MockDocumentEvent, MockDomain } from './domain';
 import { hash, hashRange, sha256Hex } from './hash';
 
-/** Меняется при несовместимом изменении формы состояния — сохранённое состояние сбрасывается к фикстуре. */
-export const MOCK_SCHEMA_VERSION = 1;
+/**
+ * Меняется при несовместимом изменении формы состояния или фикстур персон — сохранённое в браузере состояние
+ * сбрасывается к фикстуре. 2 — замечания к файлам, номер CR, новые фикстуры client_new и других (2026-11-11):
+ * без сброса браузер показывал старое состояние персоны (уже отправленный комплект).
+ */
+export const MOCK_SCHEMA_VERSION = 3;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
@@ -172,14 +177,14 @@ export function createMockApi(options: MockApiOptions): Api {
     }
   }
 
-  /** Автополнота и задержка проверки — по часам, при каждом чтении. */
+  /** Задержка проверки — по часам, при каждом чтении. */
   function settle(g: PersonaGraph): boolean {
     const t = clockNow();
     let changed = false;
     for (const set of g.document_sets) {
-      if (set.status === 'draft' && set.completion_grace_until && ms(set.completion_grace_until) <= t) {
-        if (isSetComplete(set) && editable(g, set)) submitSet(set, set.completion_grace_until);
-        else delete set.completion_grace_until;
+      // Автополноты нет (решение Кирилла 2026-11-11, A-061): комплект уходит на проверку только по кнопке Send.
+      if (set.status === 'draft' && set.completion_grace_until) {
+        delete set.completion_grace_until;
         changed = true;
       }
       if (set.status === 'submitted' && set.submitted_at && ms(set.submitted_at) + MOCK_REVIEW_DELAY_MS <= t) {
@@ -245,7 +250,7 @@ export function createMockApi(options: MockApiOptions): Api {
       roles,
       active_role,
       language: 'ar',
-      theme: 'system',
+      theme: 'light',
       issued_at: s.issued_at,
       expires_at: s.expires_at,
       ...(app && roles.some((r) => r !== 'supplier') ? { client_context: { application_id: app.id, company_id: app.company_id } } : {}),
@@ -331,11 +336,6 @@ export function createMockApi(options: MockApiOptions): Api {
     throw new NotFound('document');
   }
 
-  function updateGrace(set: DocumentSet) {
-    if (set.status === 'draft' && isSetComplete(set)) set.completion_grace_until = iso(clockNow() + MOCK_COMPLETION_GRACE_MS);
-    else delete set.completion_grace_until;
-  }
-
   function apply(g: PersonaGraph, set: DocumentSet, doc: Document, event: MockDocumentEvent) {
     if (!editable(g, set) && (event.type === 'upload' || event.type === 'replace' || event.type === 'delete' || event.type === 'reupload')) {
       throw new DomainError('document_set_locked');
@@ -393,6 +393,44 @@ export function createMockApi(options: MockApiOptions): Api {
   function clearRejection(doc: Document) {
     delete doc.reject_reason_key;
     delete doc.reject_reason_text;
+    delete doc.reason_kind;
+  }
+
+  /** Статус по файлам и замечаниям — правило из entities (settleDocumentStatus). */
+  function settleDoc(doc: Document, at: string) {
+    doc.status = d.settleDocumentStatus(doc);
+    doc.updated_at = at;
+  }
+
+  /**
+   * Загрузка или замена файла: проверки формата, перехода и «тот же файл», затем `plan` кладёт файл в документ;
+   * причина на документ снимается, статус пересчитывается по файлам (settleDocumentStatus).
+   */
+  function storeFile(
+    method: string,
+    documentId: string,
+    file: UploadFile,
+    opts: UploadOptions | undefined,
+    plan: (doc: Document, received: Awaited<ReturnType<typeof receiveFile>>) => { event: MockDocumentEvent; place: (asset: FileAsset) => void },
+  ): Promise<UploadResult> {
+    return io(method, async () => {
+      const { state, roles } = authed();
+      locateDocument(state.graph, roles, documentId);
+      const received = await receiveFile(state, file, documentId, opts);
+      const result = commit(state, (g): UploadResult => {
+        const { set, doc } = locateDocument(g, roles, documentId);
+        const { event, place } = plan(doc, received);
+        apply(g, set, doc, event);
+        if (d.isSameFile(doc, received.sha256)) throw new DomainError('document.same_file_rejected');
+        if (received.prevalidation.state === 'failed') return { document: structuredClone(doc), prevalidation: received.prevalidation };
+        const asset = received.asset(nextId(state, 'file'));
+        place(asset);
+        clearRejection(doc);
+        settleDoc(doc, asset.uploaded_at);
+        return { document: structuredClone(doc), prevalidation: received.prevalidation };
+      });
+      return finish(opts, result);
+    });
   }
 
   // ---------- Порты ----------
@@ -461,6 +499,16 @@ export function createMockApi(options: MockApiOptions): Api {
           if (!company) throw new NotFound('company');
           return company;
         }),
+      setCrNumber: (crNumber) =>
+        io('application.setCrNumber', () => {
+          const { state } = asClient();
+          if (!/^\d{10}$/.test(crNumber)) throw new DomainError('company.cr_invalid');
+          return commit(state, (g) => {
+            if (!g.company) throw new NotFound('company');
+            g.company.cr_number = crNumber;
+            return structuredClone(g.company);
+          });
+        }),
       createApplication: () =>
         io('application.createApplication', () => {
           const { state } = asClient();
@@ -482,59 +530,28 @@ export function createMockApi(options: MockApiOptions): Api {
           return supplierSet(g);
         }),
       upload: (documentId, file, opts) =>
-        io('documents.upload', async () => {
-          const { state, roles } = authed();
-          locateDocument(state.graph, roles, documentId);
-          const received = await receiveFile(state, file, documentId, opts);
-          const result = commit(state, (g): UploadResult => {
-            const { set, doc } = locateDocument(g, roles, documentId);
-            const event: MockDocumentEvent =
-              doc.status === 'rejected'
-                ? { type: 'reupload', sha256: received.sha256 }
-                : doc.status === 'received'
-                  ? { type: 'replace' }
-                  : { type: 'upload', prevalidation: received.prevalidation.state };
-            const t = apply(g, set, doc, event);
-            if (received.prevalidation.state === 'failed') return { document: structuredClone(doc), prevalidation: received.prevalidation };
-            const asset = received.asset(nextId(state, 'file'));
-            if (doc.status === 'rejected') {
-              doc.files = [asset];
-              clearRejection(doc);
-            } else {
-              doc.files.push(asset);
-            }
-            doc.status = t.to;
-            doc.updated_at = asset.uploaded_at;
-            updateGrace(set);
-            return { document: structuredClone(doc), prevalidation: received.prevalidation };
-          });
-          return finish(opts, result);
+        storeFile('documents.upload', documentId, file, opts, (doc, received) => {
+          if (doc.files.length >= MAX_FILES_PER_DOCUMENT) throw new DomainError('upload.error.too_many', { max: MAX_FILES_PER_DOCUMENT });
+          const event: MockDocumentEvent =
+            doc.status === 'rejected'
+              ? { type: 'reupload', sha256: received.sha256 }
+              : doc.status === 'received'
+                ? { type: 'replace' }
+                : { type: 'upload', prevalidation: received.prevalidation.state };
+          // Несколько файлов в документе (решение Кирилла 2026-11-10): новый файл добавляется.
+          return { event, place: (asset) => doc.files.push(asset) };
         }),
       replace: (documentId, fileId, file, opts) =>
-        io('documents.replace', async () => {
-          const { state, roles } = authed();
-          locateDocument(state.graph, roles, documentId);
-          const received = await receiveFile(state, file, documentId, opts);
-          const result = commit(state, (g): UploadResult => {
-            const { set, doc } = locateDocument(g, roles, documentId);
-            const index = doc.files.findIndex((f) => f.id === fileId);
-            if (index === -1) throw new NotFound('file');
-            const event: MockDocumentEvent = doc.status === 'rejected' ? { type: 'reupload', sha256: received.sha256 } : { type: 'replace' };
-            const t = apply(g, set, doc, event);
-            if (received.prevalidation.state === 'failed') return { document: structuredClone(doc), prevalidation: received.prevalidation };
-            const asset = received.asset(nextId(state, 'file'));
-            if (doc.status === 'rejected') {
-              doc.files = [asset];
-              clearRejection(doc);
-            } else {
+        storeFile('documents.replace', documentId, file, opts, (doc, received) => {
+          const index = doc.files.findIndex((f) => f.id === fileId);
+          if (index === -1) throw new NotFound('file');
+          const event: MockDocumentEvent = doc.status === 'rejected' ? { type: 'reupload', sha256: received.sha256 } : { type: 'replace' };
+          return {
+            event,
+            place: (asset) => {
               doc.files[index] = asset;
-            }
-            doc.status = t.to;
-            doc.updated_at = asset.uploaded_at;
-            updateGrace(set);
-            return { document: structuredClone(doc), prevalidation: received.prevalidation };
-          });
-          return finish(opts, result);
+            },
+          };
         }),
       delete: (documentId, fileId) =>
         io('documents.delete', () => {
@@ -543,11 +560,9 @@ export function createMockApi(options: MockApiOptions): Api {
             const { set, doc } = locateDocument(g, roles, documentId);
             const index = doc.files.findIndex((f) => f.id === fileId);
             if (index === -1) throw new NotFound('file');
-            const t = apply(g, set, doc, doc.files.length > 1 ? { type: 'replace' } : { type: 'delete' });
+            apply(g, set, doc, doc.files.length > 1 && doc.status !== 'rejected' ? { type: 'replace' } : { type: 'delete' });
             doc.files.splice(index, 1);
-            doc.status = t.to;
-            doc.updated_at = iso(clockNow());
-            updateGrace(set);
+            settleDoc(doc, iso(clockNow()));
             return structuredClone(doc);
           });
         }),
@@ -558,6 +573,8 @@ export function createMockApi(options: MockApiOptions): Api {
             const set = setById(g, setId);
             const allowed = set.owner.kind === 'supplier' ? roles.includes('supplier') : roles.some((r) => r !== 'supplier');
             if (!allowed) throw new Forbidden();
+            // Без номера CR комплект клиента не отправить (решение Кирилла 2026-11-10).
+            if (set.owner.kind === 'application' && !g.company?.cr_number) throw new DomainError('documents.submit_incomplete');
             submitIn(g, set);
             return structuredClone(set);
           });
@@ -908,7 +925,6 @@ export function createMockApi(options: MockApiOptions): Api {
         else set.documents.push(pendingDocument(set.id, portalKey, t, []));
         set.status = 'draft';
         set.locked = false;
-        updateGrace(set);
       }),
     cancelLimit: () =>
       act((g) => {

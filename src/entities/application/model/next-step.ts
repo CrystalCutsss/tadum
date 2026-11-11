@@ -44,11 +44,12 @@ export function clientNextStep(input: ClientNextStepInput): NextStep {
   const docs = input.document_set?.documents ?? [];
   const round = input.document_set?.round ?? 1;
   const cta = { label_key: 'next_step.cta.documents', route: '/c/documents' };
-  const rejected = docs.filter((d) => d.status === 'rejected').length;
+  const rejected = docs.filter((d) => d.status === 'rejected' && !requestOnly(d)).length;
   if (rejected > 0) {
     return { owner: 'user', text_key: 'next_step.reupload_rejected', cta, meta: { count: rejected } };
   }
-  const nothingUploadedYet = docs.every((d) => d.status === 'pending' && d.files.length === 0);
+  // Дозапрос: ни один документ раунда ещё не загружен (дозапросы к файлам — тоже «ещё нужно», решение 2026-11-10).
+  const nothingUploadedYet = docs.every((d) => !isDone(d.status));
   if (round > 1 && nothingUploadedYet) {
     return { owner: 'user', text_key: 'next_step.more_docs_requested', cta, meta: { count: docs.length } };
   }
@@ -57,4 +58,11 @@ export function clientNextStep(input: ClientNextStepInput): NextStep {
     return { owner: 'user', text_key: 'next_step.submit_ready', cta };
   }
   return { owner: 'user', text_key: 'next_step.upload_documents', cta, meta: { count: remaining } };
+}
+
+/** «Нужен новый файл» только из-за дозапросов (к документу или к файлам), без ошибок — это дозапрос, а не исправление. */
+function requestOnly(d: { reject_reason_key?: string | undefined; reject_reason_text?: unknown; reason_kind?: string | undefined; files: readonly { issue?: { kind: string } | undefined }[] }): boolean {
+  const blockError = Boolean(d.reject_reason_key || d.reject_reason_text) && d.reason_kind !== 'request';
+  const issues = d.files.flatMap((f) => (f?.issue ? [f.issue.kind] : []));
+  return !blockError && issues.length > 0 && issues.every((k) => k === 'request');
 }

@@ -100,8 +100,9 @@ export function NavAccount({ family, name, nameLoading, phone, dual, hint }: Nav
                   {/* Доступное имя: «Аккаунт» + видимые название и роль (видимый текст должен входить в имя). */}
                   <span className="sr-only">{t('nav.account')}</span>
                   <div className="grid min-w-0 flex-1 text-start leading-tight">
+                    {/* Длинное название не обрезается многоточием, а уходит в фейд к концу строки (Кирилл 2026-11-11). */}
                     {name ? (
-                      <span className="truncate text-sm font-medium">{name}</span>
+                      <span className="text-fade-end text-sm font-medium">{name}</span>
                     ) : nameLoading ? (
                       <Skeleton className="h-4 w-28" />
                     ) : (
