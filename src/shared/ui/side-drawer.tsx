@@ -60,6 +60,23 @@ function SideDrawer({
 
   const contentClass = cn("w-full sm:max-w-xl", className)
   const describedBy = description ? {} : { "aria-describedby": undefined }
+  // Возврат фокуса. Панель открывают внешней кнопкой, а не Dialog.Trigger: у модального Radix Dialog
+  // onCloseAutoFocus гасит возврат FocusScope и фокусирует пустой triggerRef — фокус падал на body.
+  // Запоминаем элемент с фокусом в момент открытия (до автофокуса) и возвращаем на него при закрытии.
+  const returnFocusRef = React.useRef<HTMLElement | null>(null)
+  const focusProps = {
+    onOpenAutoFocus: () => {
+      const active = document.activeElement
+      returnFocusRef.current = active instanceof HTMLElement && active !== document.body ? active : null
+    },
+    onCloseAutoFocus: (event: Event) => {
+      const target = returnFocusRef.current
+      returnFocusRef.current = null
+      if (!target?.isConnected) return
+      event.preventDefault()
+      target.focus()
+    },
+  }
   const close = (Close: typeof SheetClose, inDrawer: boolean) => (
     <Close asChild>
       <Button
@@ -77,13 +94,17 @@ function SideDrawer({
     const { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } =
       drawer
     return (
-      <Drawer open={open} onOpenChange={onOpenChange} direction={side}>
+      // autoFocus: vaul 1.1.x по умолчанию (autoFocus=false) гасит onOpenAutoFocus Radix Dialog — фокус
+      // оставался на кнопке под оверлеем, первый Tab уходил в страницу. С ним фокус входит в панель
+      // (первый фокусируемый элемент, иначе крестик), ловушка держится, при закрытии — возврат на кнопку.
+      <Drawer open={open} onOpenChange={onOpenChange} direction={side} autoFocus>
         <DrawerContent
           data-slot="side-drawer-content"
           data-mode="drawer"
           dir={direction}
           customWidth
           className={contentClass}
+          {...focusProps}
           {...describedBy}
         >
           <DrawerHeader className="pe-12">
@@ -108,6 +129,7 @@ function SideDrawer({
         showCloseButton={false}
         customWidth
         className={contentClass}
+        {...focusProps}
         {...describedBy}
       >
         <SheetHeader className="pe-12">

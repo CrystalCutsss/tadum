@@ -85,10 +85,19 @@ export const OpensAsDrawer: Story = {
     await import('./drawer');
     // Даём эффекту useDrawerModule применить загруженный модуль.
     await waitFor(() => new Promise((resolve) => requestAnimationFrame(resolve)));
-    await userEvent.click(within(canvasElement).getByRole('button'));
+    const trigger = within(canvasElement).getByRole('button');
+    await userEvent.click(trigger);
     const panel = await findPanel();
     await expect(panel).toHaveAttribute('data-mode', 'drawer');
     await expect(panel).toHaveAttribute('data-vaul-drawer-direction', en ? 'right' : 'left');
     await checkPanel(en, panel);
+    // Фокус: при открытии — внутри панели (не на кнопке под оверлеем), Tab не выходит из панели,
+    // Escape закрывает и возвращает фокус на кнопку открытия.
+    await waitFor(() => expect(panel.contains(document.activeElement)).toBe(true));
+    await userEvent.tab();
+    await expect(panel.contains(document.activeElement)).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(document.querySelector('[data-slot="side-drawer-content"]')).toBeNull(), { timeout: 5000 });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
   },
 };
