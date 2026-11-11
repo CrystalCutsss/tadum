@@ -170,11 +170,11 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
           </Button>
         ) : null}
         {retryable && submitted ? (
-          <Button type="button" variant="outline" size="lg" className="h-12 w-full text-base" onClick={() => submit(submitted)}>
+          <Button type="button" variant="secondary" size="lg" className="h-12 w-full text-base" onClick={() => submit(submitted)}>
             {t('common.retry')}
           </Button>
         ) : null}
-        <Button type="button" variant="ghost" className="min-h-11 w-full" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
+        <Button type="button" variant="ghost" size="lg" className="h-12 w-full text-base" disabled={!resendEnabled || resend.isPending} onClick={() => resend.mutate()}>
           {resend.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
           {resendEnabled ? t('auth.otp.resend') : t('auth.otp.resend_in', { seconds: secondsLeft })}
         </Button>

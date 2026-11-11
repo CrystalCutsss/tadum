@@ -102,7 +102,7 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
         </Field>
         <Field>
           {retryable ? (
-            <Button type="submit" variant="outline" size="lg" className="h-12 w-full text-base" disabled={!phone || request.isPending}>
+            <Button type="submit" variant="secondary" size="lg" className="h-12 w-full text-base" disabled={!phone || request.isPending}>
               {t('common.retry')}
             </Button>
           ) : (
