@@ -35,7 +35,7 @@ function captureEvents(root: HTMLElement): { events: CapturedEvent[]; restore: (
 
 export const Opens: Story = {
   name: 'Открыть — checklist_link_opened {item, position}',
-  args: { item, position: 1, primary: true, onOpened: fn(), inAppBrowser: () => false },
+  args: { item, position: 1, onOpened: fn(), inAppBrowser: () => false },
   play: async ({ canvasElement, args }) => {
     const { events, restore } = captureEvents(canvasElement);
     try {
@@ -50,7 +50,7 @@ export const Opens: Story = {
 
 export const InAppBrowser: Story = {
   name: 'Встроенный браузер — «Скопировать ссылку», external_link_blocked только с хостом',
-  args: { item, position: 1, primary: true, onOpened: fn(), inAppBrowser: () => true },
+  args: { item, position: 1, onOpened: fn(), inAppBrowser: () => true },
   play: async ({ canvasElement, args }) => {
     const { events, restore } = captureEvents(canvasElement);
     try {

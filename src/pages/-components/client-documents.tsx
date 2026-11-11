@@ -1,10 +1,10 @@
 // /c/documents (SC-02…SC-06, решения Кирилла 2026-11-09 и 2026-11-11): экран «Заявка» — список документов
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
 // После одобрения раскладка та же (A-063): над списком — карточка этапа («Решение», «Подписание»), принятые документы
-// свёрнуты; на этапе «Лимит одобрен» — только готовая карточка заявки, а даты, лимит и документы — внутри (?view=details).
+// свёрнуты в папку; на этапе «Лимит одобрен» — только готовая карточка, подробности заявки — в выдвижной панели.
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { applicationQuery, applicationStage, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
@@ -113,12 +113,28 @@ function useLimitChangeNotice(limit: Limit | null | undefined) {
  * Принятые документы — в выдвижной панели по клику на папку (Кирилл 2026-11-11): на компьютере — боковой Drawer
  * (SideDrawer) с края экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
  */
-function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: boolean; onOpenChange: (open: boolean) => void }) {
+function DocumentsPanel({
+  set,
+  open,
+  onOpenChange,
+  facts,
+}: {
+  set: DocumentSet;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** «Лимит одобрен»: та же панель — подробности заявки (даты и лимит над документами; Кирилл 2026-11-11). */
+  facts?: ReactNode;
+}) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  const title = t('application.folder.title');
+  const title = facts ? t('application.details.title') : t('application.folder.title');
   const description = t('application.documents_accepted', { count: set.documents.length });
-  const list = <DocumentList set={set} editable={false} archive crReady onCrMissing={() => undefined} />;
+  const list = (
+    <div className="flex flex-col gap-6">
+      {facts}
+      <DocumentList set={set} editable={false} archive crReady onCrMissing={() => undefined} />
+    </div>
+  );
   if (isMobile) {
     return (
       <ResponsiveDialog open={open} onOpenChange={onOpenChange}>
@@ -141,12 +157,9 @@ function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: b
 
 export interface ClientDocumentsProps {
   focusKey?: string | undefined;
-  /** Подробности заявки на этапе «Лимит одобрен» (?view=details). */
-  details?: boolean;
-  onOpenDetails?: () => void;
 }
 
-export function ClientDocuments({ focusKey, details = false, onOpenDetails }: ClientDocumentsProps) {
+export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
   const { t } = useTranslation();
   const app = useStatusPolling(applicationQuery);
   const owner = { kind: 'application' as const, id: app.data?.id ?? '' };
@@ -213,7 +226,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
       <CabinetPageHeader>
         {/* Заголовок страницы крупнее (Кирилл 2026-11-11): 24 px, отступ до подзаголовка и до контента — пропорционально. */}
         <header className="flex flex-col gap-1.5">
-          <h1 className="text-2xl font-semibold">{stage === 'approved' && details ? t('application.details.title') : t('documents.title')}</h1>
+          <h1 className="text-2xl font-semibold">{t('documents.title')}</h1>
           {subtitle ? <p className="text-base text-muted-foreground">{subtitle}</p> : null}
         </header>
       </CabinetPageHeader>
@@ -252,19 +265,10 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
           ) : null}
         </>
       ) : stage === 'approved' && lim ? (
-        details ? (
-          <>
-            <Card className="rounded-xl">
-              <CardContent>
-                <ApplicationFacts sentAt={sentAt} limit={lim} />
-              </CardContent>
-            </Card>
-            <h2 className="text-base font-semibold">{t('application.details.documents')}</h2>
-            <DocumentList set={set.data} editable={false} crReady onCrMissing={() => undefined} />
-          </>
-        ) : (
-          <ApplicationSummaryCard sentAt={sentAt} limit={lim} onOpen={() => onOpenDetails?.()} />
-        )
+        <>
+          <ApplicationSummaryCard sentAt={sentAt} limit={lim} onOpen={() => setDocsOpen(true)} />
+          <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} facts={<ApplicationFacts sentAt={sentAt} limit={lim} />} />
+        </>
       ) : lim ? (
         <>
           {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
@@ -275,7 +279,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
           </div>
           {stage === 'cancelled' ? null : (
             /* Отступ от карточек до заголовка подписей больше обычного (Кирилл 2026-11-11). */
-            <SigningSteps className="mt-4" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
+            <SigningSteps className="mt-8" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
           )}
           <DocumentsFolder className="sm:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} />

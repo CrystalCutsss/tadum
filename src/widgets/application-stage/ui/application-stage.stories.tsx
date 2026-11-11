@@ -128,7 +128,8 @@ export const SigningAllPending: Story = {
       await expect(links).toHaveLength(3);
       for (const link of links) {
         await expect(link.getAttribute('href')).toContain('/demo/sign?item=');
-        await expect(link).toHaveAttribute('target', '_blank');
+        // Демо-страница внутри прототипа — в той же вкладке (баг 2026-11-11).
+        await expect(link).not.toHaveAttribute('target');
       }
       // Акцент — на первом незавершённом пункте.
       const current = el.querySelectorAll('[aria-current="step"]');
@@ -269,7 +270,7 @@ export const Summary: Story = {
 };
 
 export const Facts: Story = {
-  name: 'ApplicationFacts — даты и сумма (?view=details)',
+  name: 'ApplicationFacts — даты и сумма (панель подробностей)',
   render: () => <ApplicationFacts sentAt="2026-10-29T12:00:00+03:00" limit={approvedLimit} />,
   play: async ({ canvasElement }) => {
     for (const { el, t } of panels(canvasElement)) {

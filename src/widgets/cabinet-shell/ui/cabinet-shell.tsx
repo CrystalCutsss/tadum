@@ -42,7 +42,6 @@ const displayPhone = (phone: string) => `+966 ${formatNationalInput(nationalDigi
 export function CabinetShell({ family, children, languageSwitch, themeToggle, support }: CabinetShellProps) {
   const { i18n } = useTranslation();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const search = useRouterState({ select: (s) => s.location.searchStr });
   const session = useQuery(sessionQuery);
   const families = familiesOf(session.data?.roles ?? []);
   // dual: названия обеих ролей грузятся сразу, чтобы после переключения роли аккаунт не мигал.
@@ -81,7 +80,7 @@ export function CabinetShell({ family, children, languageSwitch, themeToggle, su
         account={<NavAccount family={family} name={contextName} nameLoading={nameLoading} phone={phone} dual={dual} hint={{ pending: hintPending, dismiss: () => setHintPending(false) }} />}
       />
       <SidebarInset className="min-w-0 text-foreground md:overflow-y-auto">
-        <AppHeader crumbs={crumbsFor(family, pathname, search)} languageSwitch={languageSwitch} themeToggle={themeToggle} />
+        <AppHeader crumbs={crumbsFor(family, pathname)} languageSwitch={languageSwitch} themeToggle={themeToggle} />
         {/* Отступ контента 16 px со всех сторон; safe-area iOS — отдельно снизу (раньше pb-safe-bottom обнулял нижний
             отступ). Колонки растянуты на высоту окна: плавающая панель экрана (sticky + mt-auto) стоит внизу окна
             даже при коротком контенте (решение Кирилла 2026-11-09). */}
