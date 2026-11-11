@@ -140,10 +140,11 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
             </ItemActions>
           </Item>
           {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11): оранжевая точка с пульсом и оранжевый текст;
-              точка — в колонке иконки документа, по центру первой строки, текст — в колонке названия. */}
+              точка — в колонке иконки документа (на ≥640 px — по центру квадрата 40 px), по центру первой строки; текст —
+              в колонке названия, по его левому краю (Кирилл 2026-11-11). */}
           {reasonText ? (
             <Item id={reasonId} className="flex-nowrap items-start rounded-none border-0 p-0 text-status-rejected">
-              <span className="flex h-5 w-4 shrink-0 items-center justify-center">
+              <span className="flex h-5 w-4 shrink-0 items-center justify-center sm:w-10">
                 <PulseDot />
               </span>
               <ItemContent className="min-w-0">
