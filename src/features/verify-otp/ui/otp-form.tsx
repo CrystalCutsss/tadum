@@ -1,16 +1,17 @@
-// Экран auth.otp (SC-01 §1, A3–A10, A13): одно поле на 4 цифры с автоотправкой, повтор через 40 с, 5 попыток.
+// Экран auth.otp (SC-01 §1, A3–A10, A13): 4 ячейки CodeSlots с анимацией (Кирилл 2026-11-11) и автоотправкой,
+// повтор через 40 с, 5 попыток. Неверный код — ячейки «осушаются», верный — заливка с галочкой, затем переход.
 // Разметка — блок shadcn login-05: шапка по центру, FieldGroup → Field → кнопки во всю ширину.
 import { useMutation } from '@tanstack/react-query';
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { authMemory, loginFlow, type PendingLogin } from '@/entities/session';
 import { track } from '@/shared/analytics';
 import { getApi, type OtpChallenge, type Session } from '@/shared/api';
-import { OTP } from '@/shared/config';
+import { OTP, OTP_SUCCESS_HOLD_MS } from '@/shared/config';
 import { maskPhone } from '@/shared/i18n';
 import { now, toDate, useNow } from '@/shared/lib';
-import { Button, Field, FieldDescription, FieldError, FieldGroup, Input, Spinner, toast } from '@/shared/ui';
+import { Button, CodeSlots, Field, FieldDescription, FieldError, FieldGroup, Spinner, toast, type CodeSlotsStatus } from '@/shared/ui';
 
 import { canResend, inputLocked, otpErrorFrom, otpErrorMessage, otpFailReason, type OtpFormError } from '../model/errors';
 
@@ -18,13 +19,7 @@ import { canResend, inputLocked, otpErrorFrom, otpErrorMessage, otpFailReason, t
 const ltrIsolate = (text: string) => `\u2066${text}\u2069`;
 const isOnline = () => typeof navigator === 'undefined' || navigator.onLine !== false;
 const ms = (iso: string) => toDate(iso).getTime();
-/** Только цифры кода: арабско-индийские (٠–٩, ۰–۹) приводим к западным, прочее отбрасываем. */
-const codeDigits = (raw: string) =>
-  raw
-    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
-    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
-    .replace(/\D/g, '')
-    .slice(0, OTP.length);
+const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 
 export interface OtpFormProps {
   pending: PendingLogin;
@@ -44,6 +39,10 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
   const [value, setValue] = useState('');
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [error, setError] = useState<OtpFormError | null>(null);
+  // Верный код: сначала анимация успеха в ячейках, затем переход (OTP_SUCCESS_HOLD_MS).
+  const [verified, setVerified] = useState(false);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(leaveTimer.current), []);
   const tick = useNow(1000);
 
   // A4: код истёк по часам — то же состояние, что и ответ otp_expired.
@@ -58,7 +57,8 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
     mutationFn: async (code: string) => (await getApi()).auth.verifyOtp(pending.phone, code),
     onSuccess: (session) => {
       loginFlow.finish();
-      onVerified(session);
+      setVerified(true);
+      leaveTimer.current = setTimeout(() => onVerified(session), reducedMotion() ? 0 : OTP_SUCCESS_HOLD_MS);
     },
     onError: (e) => {
       const next = otpErrorFrom(e, now(), isOnline());
@@ -73,8 +73,7 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
       }
       setError(next);
       if (next.kind === 'invalid') {
-        // A3: поле очищается, фокус в поле.
-        setValue('');
+        // A3: ячейки очищает сама анимация «осушения» (status='error'), фокус — на первую ячейку.
         inputRef.current?.focus();
       }
     },
@@ -108,9 +107,10 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
   };
 
   const message = shown ? otpErrorMessage(shown, tick) : null;
+  const slotsStatus: CodeSlotsStatus = verified ? 'success' : shown?.kind === 'invalid' || shown?.kind === 'too_many_attempts' ? 'error' : 'idle';
   const retryable = shown?.kind === 'offline' || shown?.kind === 'server';
   // Кнопка «Подтвердить» — только если автоотправка не сработала (вставка, экранная клавиатура без событий).
-  const needsConfirm = value.length === OTP.length && value !== submitted && !verify.isPending && !locked;
+  const needsConfirm = value.length === OTP.length && value !== submitted && !verify.isPending && !locked && !verified;
   const channel = t(challenge.channel === 'sms' ? 'auth.channel.sms' : 'auth.channel.whatsapp');
 
   return (
@@ -128,28 +128,26 @@ export function OtpForm({ pending, onVerified, onUnknown, onChangePhone, support
       </div>
 
       <Field>
-        <Input
-          ref={inputRef}
-          dir="ltr"
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          autoComplete="one-time-code"
-          className="h-12 rounded-lg text-center text-lg tracking-widest tabular-nums md:text-lg"
-          value={value}
-          onChange={(e) => {
-            const next = codeDigits(e.target.value);
-            setValue(next);
-            if (shown?.kind === 'invalid') setError(null);
+        <div className="flex justify-center">
+          <CodeSlots
+            ref={inputRef}
+            length={OTP.length}
+            value={value}
+            status={slotsStatus}
+            onChange={(next) => {
+              setValue(next);
+              // Пустое значение приходит в конце «осушения» после A3 — ошибку при этом не снимаем.
+              if (next && shown?.kind === 'invalid') setError(null);
+            }}
             // Автоотправка после 4-й цифры — и при наборе, и при вставке целиком.
-            if (next.length === OTP.length && next !== value) submit(next);
-          }}
-          disabled={verify.isPending || locked}
-          aria-labelledby={ids.title}
-          aria-describedby={message ? ids.error : undefined}
-          aria-invalid={shown !== null && shown.kind !== 'offline'}
-          aria-busy={verify.isPending}
-        />
+            onComplete={submit}
+            disabled={verify.isPending || locked}
+            aria-labelledby={ids.title}
+            aria-describedby={message ? ids.error : undefined}
+            aria-invalid={shown !== null && shown.kind !== 'offline'}
+            aria-busy={verify.isPending}
+          />
+        </div>
         {/* Под полем — текст ошибки (A3–A10) или индикатор проверки (SC-01 §3, loading); на время проверки ошибка сброшена. */}
         {message ? (
           <FieldError id={ids.error} aria-live="assertive" className="text-center">
