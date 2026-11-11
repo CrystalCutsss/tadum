@@ -419,6 +419,48 @@ function readMaterial(root: HTMLElement, read: (value: string) => number[]): Met
   }
 }
 
+/** Наибольший выход края карточки за исходный прямоугольник (px) при наклоне rotateX(ax) rotateY(ay) с
+ *  перспективой p (как у CSS: сначала rotateY, затем rotateX, проекция из центра). */
+function overshoot(hx: number, hy: number, ax: number, ay: number, p: number): number {
+  let worst = 0
+  for (const sx of [-1, 1]) {
+    for (const sy of [-1, 1]) {
+      const x1 = sx * hx * Math.cos(ay)
+      const z1 = -sx * hx * Math.sin(ay)
+      const y2 = sy * hy * Math.cos(ax) - z1 * Math.sin(ax)
+      const z2 = sy * hy * Math.sin(ax) + z1 * Math.cos(ax)
+      const k = p / Math.max(1, p - z2)
+      worst = Math.max(worst, Math.abs(x1 * k) - hx, Math.abs(y2 * k) - hy)
+    }
+  }
+  return worst
+}
+
+/** Наибольшее t ∈ [0, 1], при котором fits(t) истинно (fits монотонна), бисекцией. */
+function largest(fits: (t: number) => boolean): number {
+  if (fits(1)) return 1
+  let lo = 0
+  let hi = 1
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2
+    if (fits(mid)) lo = mid
+    else hi = mid
+  }
+  return lo
+}
+
+/** Углы наклона по осям (рад): край выходит за прямоугольник не дальше budget px, каждый ≤ max. Сначала предел
+ *  каждой оси отдельно (широкая карточка — меньше rotateY), затем общий множитель для угла (обе оси сразу). */
+function tiltLimits(width: number, height: number, p: number, max: number, budget: number) {
+  const hx = width / 2
+  const hy = height / 2
+  if (!hx || !hy || !p || !max) return { ax: 0, ay: 0 }
+  const ax = max * largest((t) => overshoot(hx, hy, max * t, 0, p) <= budget)
+  const ay = max * largest((t) => overshoot(hx, hy, 0, max * t, p) <= budget)
+  const k = largest((t) => overshoot(hx, hy, ax * t, ay * t, p) <= budget)
+  return { ax: ax * k, ay: ay * k }
+}
+
 /** Подключает пружину наклона, блик и WebGL-поверхность к корню; возвращает отписку. */
 export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => void {
   const tracking =
@@ -438,25 +480,38 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
   let last = 0
   let disposed = false
 
-  const tiltMax = () => (parseFloat(getComputedStyle(root).getPropertyValue("--metal-tilt-max")) || 0) * (Math.PI / 180)
+  // Пределы наклона по осям (рад) от текущего размера: край не выходит за ячейку дальше --metal-tilt-overshoot.
+  const tilt = { ax: 0, ay: 0 }
+  const updateTilt = () => {
+    if (!tracking) return
+    const style = getComputedStyle(root)
+    const rootFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+    const max = (parseFloat(style.getPropertyValue("--metal-tilt-max")) || 0) * (Math.PI / 180)
+    const p = toPx(style.getPropertyValue("--metal-perspective").trim(), rootFont)
+    const budget = toPx(style.getPropertyValue("--metal-tilt-overshoot").trim(), rootFont)
+    Object.assign(tilt, tiltLimits(size.width, size.height, p, max, budget))
+    // Те же углы — CSS-наклону слоёв и содержимого (rotateX ← --metal-tilt-x, rotateY ← --metal-tilt-y).
+    root.style.setProperty("--metal-tilt-x", `${((tilt.ax * 180) / Math.PI).toFixed(3)}deg`)
+    root.style.setProperty("--metal-tilt-y", `${((tilt.ay * 180) / Math.PI).toFixed(3)}deg`)
+  }
 
   const write = () => {
     if (!tracking) return
     const style = root.style
-    style.setProperty("--metal-rx", x.p.toFixed(4))
-    style.setProperty("--metal-ry", y.p.toFixed(4))
+    // Перелёт пружины за ±1 не пускаем в наклон — иначе край на миг выйдет за предел.
+    style.setProperty("--metal-rx", clamp(x.p, -1, 1).toFixed(4))
+    style.setProperty("--metal-ry", clamp(y.p, -1, 1).toFixed(4))
     style.setProperty("--metal-x", `${((px.p + 1) * 50).toFixed(2)}%`)
     style.setProperty("--metal-y", `${((py.p + 1) * 50).toFixed(2)}%`)
   }
 
   const draw = () => {
     if (!renderer || !material) return
-    const angle = tracking ? tiltMax() : 0
     const frame: MetalFrame = {
       width: size.width,
       height: size.height,
-      rotateX: y.p * angle,
-      rotateY: -x.p * angle,
+      rotateX: clamp(y.p, -1, 1) * tilt.ax,
+      rotateY: -clamp(x.p, -1, 1) * tilt.ay,
       pointerX: px.p * size.width * 0.5,
       pointerY: py.p * size.height * 0.5,
       glare: light.p,
@@ -499,6 +554,7 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     canvas.width = Math.max(1, Math.round(size.width * scale))
     canvas.height = Math.max(1, Math.round(size.height * scale))
     if (read) material = readMaterial(root, read)
+    updateTilt()
     draw()
   }
 
@@ -531,6 +587,7 @@ export function mountMetal(root: HTMLElement, canvas: HTMLCanvasElement): () => 
     root.addEventListener("pointerleave", release)
   }
 
+  updateTilt()
   const resizeObserver = new ResizeObserver(resize)
   resizeObserver.observe(root)
 
