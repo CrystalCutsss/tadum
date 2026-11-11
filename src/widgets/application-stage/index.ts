@@ -3,3 +3,4 @@
 export { CancelledLimitCard, LimitCard, SigningSteps } from './ui/application-stage-card';
 export { ApplicationSummaryCard, ApplicationFacts, type ApplicationFactsProps } from './ui/application-summary';
 export { DocumentsFolder } from './ui/documents-folder';
+export { trackLimitTransition } from './model/limit-events';

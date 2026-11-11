@@ -30,7 +30,7 @@ import {
   Skeleton,
   toast,
 } from '@/shared/ui';
-import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, SigningSteps } from '@/widgets/application-stage';
+import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, SigningSteps, trackLimitTransition } from '@/widgets/application-stage';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
@@ -102,8 +102,7 @@ function useLimitChangeNotice(limit: Limit | null | undefined) {
     if (limit === undefined) return;
     const status = limit?.status ?? null;
     if (prev.current !== undefined && prev.current !== status) {
-      // limit_activated — после правки 04-metrics-and-events.md: days_since_approved станет необязательным (даты
-      // одобрения у лимита нет; решение Кирилла 2026-11-11 — без поля), до этого событие не шлём, чтобы не отправлять 0.
+      trackLimitTransition(prev.current, limit);
       toast(t('status.updated'));
     }
     prev.current = status;

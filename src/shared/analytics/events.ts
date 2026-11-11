@@ -135,7 +135,7 @@ export type AnalyticsEvent =
   | { name: 'checklist_item_failed_viewed'; props: { item: ChecklistItemKey } }
   | { name: 'checklist_item_stale'; props: { item: ChecklistItemKey; hours: number } }
   | { name: 'external_link_blocked'; props: { item?: string; href_host: string } }
-  | { name: 'limit_activated'; props: { days_since_approved: number; amount_bucket: AmountBucket } }
+  | { name: 'limit_activated'; props: { days_since_approved?: number; amount_bucket: AmountBucket } }
   | { name: 'limit_cancelled_viewed'; props: Record<string, never> }
   | { name: 'limit_fully_used_viewed'; props: Record<string, never> }
   | { name: 'how_to_buy_viewed'; props: Record<string, never> }
