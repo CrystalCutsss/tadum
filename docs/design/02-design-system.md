@@ -210,6 +210,18 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 
 **PulseDot** (`pulse-dot.tsx`, проектный): пропсы `tone?: "rejected"` (единственный, по умолчанию; `bg-status-rejected`), `className?`. Обёртка `relative inline-flex size-2` — размером с точку, кольцо `absolute inset-0` растёт за её пределы (до ≈ 22 px), обёртка его не обрезает. Центрирует потребитель: `flex items-center justify-center` в колонке иконки (`ItemMedia variant="icon"` — без фиксированного размера, по содержимому) или в колонке `size-10` под плиткой файла; предки не должны иметь `overflow: hidden` ближе ≈ 7 px от точки. Декоративная (`aria-hidden`): статус ошибки несёт текст строки.
 
+### Ввод кода ячейками CodeSlots (2026-11-11)
+
+Решение Кирилла 2026-11-11: код OTP — 4 отдельные ячейки с анимацией по компоненту «Code Slots» (https://reactbits.dev/micro/code-slots); механика — из исходника, вид — токены shadcn. Новых токенов нет, A-019 не затронут. Зависимость — `motion` (только чанк экрана кода).
+
+**CodeSlots** (`code-slots.tsx`, проектный): пропсы `length` (4), `value`, `defaultValue`, `onChange`, `onComplete` (один раз, когда ряд заполнен), `status` (`idle` | `error` | `success`), `disabled`, `autoFocus`, `className`, a11y скрытого поля `id`, `aria-labelledby`, `aria-describedby`, `aria-invalid` (по умолчанию `status === 'error'`), `aria-busy`, `ref` на скрытое поле; параметры движения `bounce`, `settle`, `rise`, `cascade`, а также `mask`, `caret`.
+
+- Вид: ячейка `size-14 rounded-lg border border-input bg-input/30`, зазор `gap-3`; активная — `border-ring ring-3 ring-ring/50`; error — `border-destructive ring-destructive/20` (тёмная — `/50` и `/40`, как у `Input`); заливка заполненной ячейки — `bg-primary/10`, при error — `bg-destructive/15`; цифра `text-2xl font-semibold text-foreground tabular-nums`; каретка `bg-foreground` (`animate-caret-blink`); success — заливка ряда `bg-primary text-primary-foreground` и галочка `RiCheckLine`.
+- Сдвиги каретки, подъёма цифры и галочки — в шагах `--spacing` и %, без px; пружины и задержки `motion` — константы в секундах.
+- Скрытое поле: `type="text"`, `inputMode="numeric"`, `autoComplete="one-time-code"`, `pattern="[0-9]*"`, без `maxLength`; ряд всегда `dir="ltr"`. Цифры `٠–٩` и `۰–۹` приводятся к западным, вставка берёт только цифры.
+- `status="error"` — «осушение» ячеек справа налево, затем компонент сам вызывает `onChange('')`; `status="success"` — заливка ряда и галочка, ввод не принимается. reduced-motion — без анимации.
+- Тексты (подпись, ошибки) — в форме (`features/verify-otp`), компонент строк не содержит. Истории — `shared/ui/CodeSlots`: Empty, Typing, Keyboard, Paste, ArabicDigits, ErrorClears, Invalid, Success, Success (static), Disabled.
+
 ## 5. Шрифты
 
 Латиница — Geist из пресета (совпадает с D-004), арабский — всегда IBM Plex Sans Arabic. Фактические имена семейств пакетов: `"Geist Variable"` и `"IBM Plex Sans Arabic"` (A-016). `:lang(ar)` — интерлиньяж тела 1.625, заголовков 1.3. Словесный знак `Wordmark` — всегда Geist латиницей: по умолчанию 600 «Tadum» (D-052), в сайдбаре — `variant="dot"`, 700 «tadum.» (§4a). Тест истории `shared/ui/Typography/Fonts` проверяет `document.fonts.check` для обоих семейств и что арабский текст не падает в системный шрифт.
