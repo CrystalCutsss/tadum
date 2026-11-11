@@ -30,12 +30,15 @@ function Paper({ className }: { className: string }) {
 /**
  * Стенки папки в координатах 208×176 (1 единица = 1 px). Задняя: 168×128 со скруглением 18, без выреза.
  * Передняя: верх от y=72 (левая часть) и y=58 (правая, после плавной ступеньки); верхние углы шире задней стенки
- * (x 4…204 против 20…188) — край отогнут вперёд; нижние углы совпадают с углами задней стенки.
+ * (x 4…204 против 20…188) — край отогнут вперёд. Боковые края переходят в нижние углы плавной кривой (без излома)
+ * и чуть шире задней стенки — её углы целиком под стеклом.
  */
 const BACK = 'M38 40 H170 Q188 40 188 58 V150 Q188 168 170 168 H38 Q20 168 20 150 V58 Q20 40 38 40 Z';
-const FRONT = 'M20 72 H86 C98 72 100 58 114 58 H188 Q204 58 202 74 L188 150 Q188 168 170 168 H38 Q20 168 20 150 L6 88 Q4 72 20 72 Z';
+const FRONT =
+  'M20 72 H86 C98 72 100 58 114 58 H188 Q204 58 202 74 L190 140 C187.5 160 186 168 170 168 H38 C22 168 20.5 160 18 140 L6 88 Q4 72 20 72 Z';
 /** Верхний край передней стенки — тот же контур, что в FRONT; блик обрезан формой, поэтому лежит точно по краю. */
 const FRONT_EDGE = 'M6 88 Q4 72 20 72 H86 C98 72 100 58 114 58 H188 Q204 58 202 74';
+
 /**
  * Форма передней стенки для HTML-слоёв (размытие, шум) — маской, а не clip-path: clip-path в Chrome не обрезает
  * backdrop-filter, и размытие вылезало прямоугольником.
@@ -83,7 +86,7 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
         <Paper className="start-12 -rotate-6 group-hover:-translate-x-2 group-hover:-rotate-12 rtl:group-hover:translate-x-2" />
         <Paper className="end-12 top-1 rotate-6 group-hover:translate-x-2 group-hover:rotate-12 rtl:group-hover:-translate-x-2" />
         {/* Передняя стенка — матовое стекло: размытие листов под ним, шум, светлая подложка и синий градиент. */}
-        <div className="absolute inset-0 backdrop-blur-lg" style={FRONT_MASK} />
+        <div className="absolute inset-0 backdrop-blur-sm" style={FRONT_MASK} />
         <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ ...FRONT_MASK, ...NOISE }} />
         <svg viewBox="0 0 208 176" className="absolute inset-0 size-full drop-shadow-lg">
           <defs>
@@ -91,20 +94,26 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
               <stop offset="0" stopColor="var(--primary)" stopOpacity="0.3" />
               <stop offset="1" stopColor="var(--primary)" stopOpacity="0.62" />
             </linearGradient>
+            {/* Блик гаснет к углам: без обрыва линии на концах. */}
+            <linearGradient id={`${glass}-edge`} x1="4" y1="0" x2="204" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="var(--primary-foreground)" stopOpacity="0" />
+              <stop offset="0.12" stopColor="var(--primary-foreground)" stopOpacity="0.8" />
+              <stop offset="0.88" stopColor="var(--primary-foreground)" stopOpacity="0.8" />
+              <stop offset="1" stopColor="var(--primary-foreground)" stopOpacity="0" />
+            </linearGradient>
             <clipPath id={`${glass}-clip`}>
               <path d={FRONT} />
             </clipPath>
           </defs>
-          <path d={FRONT} className="fill-primary-foreground/45" />
+          <path d={FRONT} className="fill-primary-foreground/30" />
           <path d={FRONT} fill={`url(#${glass}-fill)`} />
           {/* Блик по верхнему краю: линия вдвое толще и обрезана формой — внутри остаётся ровно по краю. */}
           <path
             d={FRONT_EDGE}
             fill="none"
             clipPath={`url(#${glass}-clip)`}
-            className="stroke-primary-foreground/80"
+            stroke={`url(#${glass}-edge)`}
             strokeWidth="3"
-            strokeLinecap="round"
           />
         </svg>
       </div>
