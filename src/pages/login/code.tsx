@@ -55,7 +55,7 @@ function CodePage() {
           loginFlow.changePhone();
           void navigate({ to: '/login' });
         }}
-        supportSlot={<SupportLink context="error" variant="outline" />}
+        supportSlot={<SupportLink context="error" />}
       />
     </AuthLayout>
   );

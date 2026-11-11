@@ -14,12 +14,12 @@ function NotFoundPage() {
   return (
     <AuthLayout title={t('auth.not_found.title')} subtitle={t('auth.not_found.body')}>
       <div className="flex flex-col gap-3">
-        <Button asChild>
+        <Button asChild size="lg" className="h-12 w-full text-base">
           <a href={landing} rel="noopener">
             {t('auth.not_found.apply')}
           </a>
         </Button>
-        <SupportLink context="auth" variant="outline" />
+        <SupportLink context="auth" />
       </div>
     </AuthLayout>
   );

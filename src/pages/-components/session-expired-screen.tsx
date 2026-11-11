@@ -18,7 +18,7 @@ export function SessionExpiredScreen() {
   }, []);
   return (
     <AuthLayout title={t('auth.expired.title')} subtitle={t('auth.expired.body')}>
-      <Button asChild>
+      <Button asChild size="lg" className="h-12 w-full text-base">
         <Link to="/login">{t('auth.expired.login')}</Link>
       </Button>
     </AuthLayout>

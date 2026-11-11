@@ -6,10 +6,11 @@ import { Button } from '@/shared/ui';
 
 const whatsapp = `https://wa.me/${import.meta.env.VITE_SUPPORT_WHATSAPP ?? ''}`;
 
-export function SupportLink({ context, variant = 'ghost' }: { context: 'auth' | 'error'; variant?: 'ghost' | 'outline' }) {
+export function SupportLink({ context }: { context: 'auth' | 'error' }) {
   const { t } = useTranslation();
   return (
-    <Button asChild variant={variant}>
+    // Серая кнопка без обводки той же высоты, что основные кнопки экранов входа (Кирилл 2026-11-11).
+    <Button asChild variant="secondary" size="lg" className="h-12 w-full text-base">
       <a href={whatsapp} target="_blank" rel="noopener noreferrer" onClick={() => track('support_contact_clicked', { channel: 'whatsapp', context })}>
         {t('auth.not_found.support')}
       </a>

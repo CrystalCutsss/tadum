@@ -21,7 +21,7 @@ function LoginPage() {
   const navigate = useNavigate();
   return (
     <AuthLayout title={t('auth.phone.title')} subtitle={t('auth.phone.subtitle')}>
-      <PhoneForm onRequested={() => void navigate({ to: '/login/code' })} supportSlot={<SupportLink context="error" variant="outline" />} />
+      <PhoneForm onRequested={() => void navigate({ to: '/login/code' })} supportSlot={<SupportLink context="error" />} />
     </AuthLayout>
   );
 }
