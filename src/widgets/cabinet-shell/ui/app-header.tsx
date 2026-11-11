@@ -32,7 +32,7 @@ export function AppHeader({ crumbs, languageSwitch, themeToggle }: AppHeaderProp
                   <BreadcrumbItem className="min-w-0">
                     {c.to && i < crumbs.length - 1 ? (
                       <BreadcrumbLink asChild>
-                        <Link to={c.to}>{t(c.labelKey)}</Link>
+                        <Link to={c.to} activeOptions={{ exact: true, includeSearch: true }}>{t(c.labelKey)}</Link>
                       </BreadcrumbLink>
                     ) : (
                       <BreadcrumbPage className="truncate font-medium">{t(c.labelKey)}</BreadcrumbPage>

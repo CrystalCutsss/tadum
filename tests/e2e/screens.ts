@@ -63,6 +63,14 @@ export const SCREENS: readonly Screen[] = [
   // /c/home до проработки разделов — заглушка (Кирилл 2026-11-06, A-055); состояния главной — в историях ClientHome.
   persona('client.home', 'client_new', '/', heading('stub.coming_soon.title')),
   persona('client.documents', 'client_new', '/c/documents', heading('documents.title')),
+  // Этапы «Заявки» после одобрения (A-063): «Решение», «Подписание», «Лимит одобрен» и подробности заявки.
+  persona('client.application.decision', 'client_offer_pending', '/c/documents', heading('checklist.title')),
+  persona('client.application.signing', 'client_signing_partial', '/c/documents', heading('checklist.title')),
+  persona('client.application.approved', 'client_active', '/c/documents', heading('application.summary.title')),
+  persona('client.application.details', 'client_active', '/c/documents', async (page, lang) => {
+    await page.getByRole('button', { name: tr(lang, 'application.summary.open') }).click();
+    await expect(page.getByRole('heading', { level: 1, name: tr(lang, 'application.details.title') })).toBeVisible();
+  }),
   persona('client.help', 'client_active', '/c/help', heading('help.title')),
   persona('supplier.home', 'supplier_active', '/s/home', heading('stub.coming_soon.title')),
   persona('supplier.help', 'supplier_active', '/s/help', heading('help.title')),

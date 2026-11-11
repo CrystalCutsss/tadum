@@ -28,7 +28,7 @@ const TONE: Record<Tone, string> = {
   received: 'bg-status-received-muted text-status-received',
   approved: 'bg-status-approved-muted text-status-approved',
   rejected: 'bg-status-rejected-muted text-status-rejected',
-  neutral: 'bg-muted text-muted-foreground',
+  neutral: 'bg-muted text-foreground',
 };
 
 type View = ChecklistItemView | 'locked';

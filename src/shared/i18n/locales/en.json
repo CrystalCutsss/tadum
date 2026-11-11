@@ -16,7 +16,6 @@
     "documents_accepted_one": "{count} document accepted",
     "documents_accepted_other": "{count} documents accepted",
     "folder": {
-      "open": "Open your documents",
       "title": "Your documents"
     },
     "limit_label": "Limit",

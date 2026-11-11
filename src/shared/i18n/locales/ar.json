@@ -20,7 +20,6 @@
     "documents_accepted_many": "تم قبول {count} مستندًا",
     "documents_accepted_other": "تم قبول {count} مستند",
     "folder": {
-      "open": "فتح مستنداتك",
       "title": "مستنداتك"
     },
     "limit_label": "الحد",

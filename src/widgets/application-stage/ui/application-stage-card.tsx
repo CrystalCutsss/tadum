@@ -4,7 +4,7 @@
 // Лимит cancelled / rejected: нейтральная карточка без причины (SC-06 A7).
 import { RiInformationLine } from '@remixicon/react';
 import { cn } from 'cn';
-import { useEffect, type ComponentProps } from 'react';
+import { useEffect, useId, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Limit } from '@/entities/limit';
@@ -88,10 +88,11 @@ export interface SigningStepsProps {
 export function SigningSteps({ limit, limitUpdatedAt, className }: SigningStepsProps) {
   const { t } = useTranslation();
   const locked = limit.status === 'pending';
+  const titleId = useId();
   return (
-    <section className={cn('flex flex-col gap-3', className)} aria-labelledby="signing-steps-title">
+    <section className={cn('flex flex-col gap-3', className)} aria-labelledby={titleId}>
       <header className="flex flex-col gap-1">
-        <h2 id="signing-steps-title" className="text-base font-semibold">
+        <h2 id={titleId} className="text-base font-semibold">
           {t('checklist.title')}
         </h2>
         <p className="text-sm text-muted-foreground">{locked ? t('checklist.locked_hint') : t('application.signing.body')}</p>

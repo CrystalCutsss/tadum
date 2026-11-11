@@ -103,7 +103,6 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
       ref={trigger}
       type="button"
       onClick={onOpen}
-      aria-label={`${t('application.folder.open')}. ${t('application.documents_accepted', { count })}`}
       className={cn(
         'group flex w-full cursor-pointer flex-col items-center justify-center gap-5 rounded-2xl bg-secondary px-6 pt-8 pb-6 text-secondary-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
         className,
@@ -151,7 +150,7 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
       </div>
       <span className="flex flex-col items-center gap-0.5 text-center">
         <span className="text-base font-medium">{t('application.folder.title')}</span>
-        <span className="text-sm text-muted-foreground">{t('application.documents_accepted', { count })}</span>
+        <span className="text-sm text-secondary-foreground/65">{t('application.documents_accepted', { count })}</span>
       </span>
     </button>
   );
