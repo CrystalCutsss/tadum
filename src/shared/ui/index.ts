@@ -22,6 +22,7 @@ export * from './pulse-dot';
 export * from './responsive-dialog';
 export * from './separator';
 export * from './sheet';
+export * from './side-drawer';
 export * from './sidebar';
 export * from './skeleton';
 export * from './spinner';

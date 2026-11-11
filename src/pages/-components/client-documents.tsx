@@ -26,11 +26,7 @@ import {
   ResponsiveDialogDescription,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
+  SideDrawer,
   Skeleton,
   toast,
 } from '@/shared/ui';
@@ -131,11 +127,11 @@ function useLimitChangeNotice(limit: Limit | null | undefined) {
 }
 
 /**
- * Принятые документы — в выдвижной панели по клику на папку (Кирилл 2026-11-11): на компьютере — боковая панель
- * с края экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
+ * Принятые документы — в выдвижной панели по клику на папку (Кирилл 2026-11-11): на компьютере — боковой Drawer
+ * (SideDrawer) с края экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
  */
 function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: boolean; onOpenChange: (open: boolean) => void }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const title = t('application.folder.title');
   const description = t('application.documents_accepted', { count: set.documents.length });
@@ -154,15 +150,9 @@ function DocumentsPanel({ set, open, onOpenChange }: { set: DocumentSet; open: b
     );
   }
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side={i18n.dir() === 'rtl' ? 'left' : 'right'} className="w-full gap-0 sm:max-w-xl!">
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-          <SheetDescription>{description}</SheetDescription>
-        </SheetHeader>
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">{list}</div>
-      </SheetContent>
-    </Sheet>
+    <SideDrawer open={open} onOpenChange={onOpenChange} title={title} description={description} closeLabel={t('common.close')}>
+      {list}
+    </SideDrawer>
   );
 }
 
