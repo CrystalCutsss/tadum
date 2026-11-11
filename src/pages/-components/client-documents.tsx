@@ -234,7 +234,8 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
         </header>
       </CabinetPageHeader>
 
-      {timeline.hidden ? null : (
+      {/* «Лимит одобрен» — шкала шагов не нужна, путь пройден (Кирилл 2026-11-11). */}
+      {timeline.hidden || stage === 'approved' ? null : (
         <>
           <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
