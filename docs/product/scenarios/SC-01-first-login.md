@@ -1,4 +1,4 @@
-<!-- source: Drive 1NxAbX6gcsJ91K5mqqI4DTxTdR5bHDTVc, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1PNXh2CjAh20FIxOBnyheoiFENlBA0JWe, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # SC-01 · Первый вход
 
 | Поле | Значение |
@@ -11,7 +11,7 @@
 | **Цель** | Клиент без пароля и регистрации попадает в кабинет за два экрана и сразу видит статус заявки |
 | **Метрика** | Доля начатых входов, дошедших до `home` (`auth_login_succeeded / auth_otp_requested`); доля входов из WhatsApp |
 | **Версия прототипа** | v1 |
-| **Персоны мока** | `client_new`, `dual_active`, `unknown_phone` |
+| **Персоны мока** | `client_new`, `unknown_phone` |
 | **Связанные документы** | `01-roles.md` §1–3 (D-020, D-021), `01-cabinet-structure.md` §1, §8 |
 | **Статус** | черновик — живой каркас (вопросы закрыты) |
 

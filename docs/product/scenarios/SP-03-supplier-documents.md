@@ -1,4 +1,4 @@
-<!-- source: Drive 1IZgzfWwFu60_c_zm78THwIOCP8xTQc4D, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1NBLaNpq6aEGSc9jcoCC6izLbA85C5bBT, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # SP-03 · Документы поставщика
 
 | Поле | Значение |
@@ -138,7 +138,7 @@
 
 ## 7. Заметки для реализации
 
-- Порт `DocumentsPort` общий; выбор комплекта — по `owner: {kind: 'supplier', id: supplier_id}`. Мок хранит комплекты клиента и поставщика раздельно (важно для `dual_active`).
+- Порт `DocumentsPort` общий; выбор комплекта — по `owner: {kind: 'supplier', id: supplier_id}`. Мок хранит комплекты клиента и поставщика раздельно (важно для пользователя `dual`).
 - Мок-действия демо-панели: `uwApproveSupplierSet()`, `uwRejectSupplierDocument(portal_key, reason_tag)`, `odooRequireDocument('sup_cr')` — добавить в `01-statuses.md` §10 при следующей правке.
 - Вычисление `supplier_status` — чистая функция `deriveSupplierStatus(documentSet)` в `entities/supplier/model`; покрыть unit-тестами на всех переходах, включая A1 и A2.
 - Подсказки `document.sup_*.hint` — предложение; точные формулировки (сроки, источники) согласует Ops.

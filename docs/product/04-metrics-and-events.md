@@ -1,4 +1,4 @@
-<!-- source: Drive 1GbdRrWcAa_vqZi20FHLMACGHKIDtATKF, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1hNrIpW0SrBtYCkJhWs24zwKJI1Oky1c0, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # Метрики и словарь событий — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** все вопросы закрыты (D-057…D-059).
@@ -179,7 +179,7 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 | `checklist_item_failed_viewed` | показан `failed` | `{ item }` | SC-06 | v4 |
 | `checklist_item_stale` | `in_progress` > 24 ч | `{ item, hours: number }` | SC-06 | v4 |
 | `external_link_blocked` | внешняя ссылка не открылась в IAB | `{ item?: string, href_host: string }` | SC-06 | v4 |
-| `limit_activated` | лимит стал `active` | `{ days_since_approved: number, amount_bucket }` | SC-06 | v4 |
+| `limit_activated` | лимит стал `active` | `{ days_since_approved?: number, amount_bucket }` | SC-06 | v4 |
 | `limit_cancelled_viewed` | показан `cancelled` | `{}` | SC-06, SC-07 | v4 |
 | `limit_fully_used_viewed` | доступный = 0 | `{}` | SC-07 | v4 |
 | `how_to_buy_viewed` | блок в области видимости | `{}` | SC-07 | v4 |
