@@ -39,8 +39,12 @@ import { normalize, referredClients } from './derive';
 import type { MockDocumentEvent, MockDomain } from './domain';
 import { hash, hashRange, sha256Hex } from './hash';
 
-/** Меняется при несовместимом изменении формы состояния — сохранённое состояние сбрасывается к фикстуре. */
-export const MOCK_SCHEMA_VERSION = 1;
+/**
+ * Меняется при несовместимом изменении формы состояния или фикстур персон — сохранённое в браузере состояние
+ * сбрасывается к фикстуре. 2 — замечания к файлам, номер CR, новые фикстуры client_new и других (2026-11-11):
+ * без сброса браузер показывал старое состояние персоны (уже отправленный комплект).
+ */
+export const MOCK_SCHEMA_VERSION = 2;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
