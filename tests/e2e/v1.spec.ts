@@ -61,7 +61,12 @@ test('@smoke истёкшая сессия → /session-expired → вход →
   await asPersona(page, 'client_active');
   await expect(page).toHaveURL(/\/c\/home/);
   // Демо-панели нет (Кирилл 2026-11-06): истекаем сессию прямо в состоянии мока и перезагружаем страницу.
-  await page.evaluate(() => {
+  // Правка состояния — скриптом до запуска приложения при перезагрузке, один раз: если менять его на открытой странице,
+  // запрос, ещё идущий после входа, получает 401 и мок обнуляет сессию — после перезагрузки вместо /session-expired
+  // открывается /login (плавающее падение, 2026-11-11).
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('e2e:session-expired')) return;
+    sessionStorage.setItem('e2e:session-expired', '1');
     const key = Object.keys(localStorage).find((k) => k.endsWith(':mock:active'));
     if (!key) throw new Error('no mock state');
     const state = JSON.parse(localStorage.getItem(key)!) as { session: { expired: boolean } };
