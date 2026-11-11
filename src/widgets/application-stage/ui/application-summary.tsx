@@ -18,19 +18,21 @@ export interface ApplicationFactsProps {
 export function ApplicationFacts({ sentAt, limit }: ApplicationFactsProps) {
   const { t, i18n } = useTranslation();
   const lang = isLanguage(i18n.language) ? i18n.language : 'en';
-  const rows: [string, string][] = [
-    ...(sentAt ? [[t('application.summary.sent'), formatDateLong(sentAt, lang)] as [string, string]] : []),
-    ...(limit.activated_at ? [[t('application.summary.approved_at'), formatDateLong(limit.activated_at, lang)] as [string, string]] : []),
-    [t('application.summary.limit'), formatMoney(limit.approved.amount_minor / 100, lang)],
+  // Третий элемент — «изолировать как LTR»: только сумма; дата с арабским месяцем идёт в направлении текста,
+  // иначе в AR части даты переставлялись («نوفمبر 2026 1»).
+  const rows: [string, string, boolean][] = [
+    ...(sentAt ? [[t('application.summary.sent'), formatDateLong(sentAt, lang), false] as [string, string, boolean]] : []),
+    ...(limit.activated_at
+      ? [[t('application.summary.approved_at'), formatDateLong(limit.activated_at, lang), false] as [string, string, boolean]]
+      : []),
+    [t('application.summary.limit'), formatMoney(limit.approved.amount_minor / 100, lang), true],
   ];
   return (
     <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-3">
-      {rows.map(([label, value]) => (
+      {rows.map(([label, value, ltr]) => (
         <div key={label} className="flex flex-col gap-0.5">
           <dt className="text-sm text-muted-foreground">{label}</dt>
-          <dd className="font-medium tabular-nums">
-            <Ltr>{value}</Ltr>
-          </dd>
+          <dd className="font-medium tabular-nums">{ltr ? <Ltr>{value}</Ltr> : <bdi>{value}</bdi>}</dd>
         </div>
       ))}
     </dl>
@@ -55,8 +57,9 @@ export function ApplicationSummaryCard({ sentAt, limit, onOpen }: ApplicationFac
         {rows.map(([label, value]) => (
           <div key={label} className="flex flex-col gap-0.5">
             <dt className="text-sm text-primary-foreground">{label}</dt>
+            {/* Дата с арабским месяцем — в направлении текста, без принудительного LTR. */}
             <dd className="tabular-nums">
-              <Ltr>{value}</Ltr>
+              <bdi>{value}</bdi>
             </dd>
           </div>
         ))}

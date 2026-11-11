@@ -25,7 +25,6 @@
       "info": "Sign the documents below to activate your limit"
     },
     "subtitle": {
-      "approved": "Your limit is approved",
       "cancelled": "Your limit has changed",
       "decision": "We've calculated your limit",
       "signing": "One last step — sign the documents"
@@ -35,7 +34,7 @@
       "limit": "Limit",
       "open": "Open application",
       "sent": "Sent for review",
-      "title": "Your limit is approved"
+      "title": "Your limit"
     }
   },
   "auth": {

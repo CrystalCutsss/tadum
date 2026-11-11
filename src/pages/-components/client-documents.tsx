@@ -110,7 +110,6 @@ const SUBTITLE = {
   decision: 'application.subtitle.decision',
   signing: 'application.subtitle.signing',
   cancelled: 'application.subtitle.cancelled',
-  approved: 'application.subtitle.approved',
 } as const;
 
 /** Смена статуса лимита при открытом экране: тост (D-034). */
@@ -220,8 +219,9 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
   const sentAt = set.data.submitted_at ?? data.created_at;
   const lim = limit.data;
 
+  // «Лимит одобрен» — без подзаголовка (Кирилл 2026-11-11): статус уже в карточке.
   const subtitle =
-    stage === 'documents' ? (editable ? t('documents.subtitle') : t('documents.subtitle_locked')) : t(SUBTITLE[stage]);
+    stage === 'documents' ? (editable ? t('documents.subtitle') : t('documents.subtitle_locked')) : stage === 'approved' ? null : t(SUBTITLE[stage]);
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -230,7 +230,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
         {/* Заголовок страницы крупнее (Кирилл 2026-11-11): 24 px, отступ до подзаголовка и до контента — пропорционально. */}
         <header className="flex flex-col gap-1.5">
           <h1 className="text-2xl font-semibold">{stage === 'approved' && details ? t('application.details.title') : t('documents.title')}</h1>
-          <p className="text-base text-muted-foreground">{subtitle}</p>
+          {subtitle ? <p className="text-base text-muted-foreground">{subtitle}</p> : null}
         </header>
       </CabinetPageHeader>
 
