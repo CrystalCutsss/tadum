@@ -1,12 +1,16 @@
 import type { HTMLAttributes, PointerEvent } from "react"
 import { cn } from "cn"
 
-// Tadum (решение Кирилла 2026-11-11; по мотивам React Bits Reflective Card, реализация своя): карточка
-// «глубокий синий металл». Отражение камеры заменено градиентами — камера в песочнице просмотрщика запрещена.
-// Блик и полоса отлива следуют за указателем, карточка слегка наклоняется к нему; на уходе возвращается.
-// Слои и токены — @utility metal-card в globals.css, --metal-* в tokens.css. Текст внутри — белый
-// (--primary-foreground) без прозрачности; прозрачность (/80) — только у крупного текста.
-// Отступ по умолчанию p-6, переопределяется className. Наклон — по физической позиции указателя (RTL не важен).
+// Tadum (решение Кирилла 2026-11-11, доработка по его ревью того же дня; по мотивам React Bits Reflective Card,
+// реализация своя): карточка «глубокий синий металл». Отражение камеры заменено градиентами — камера в
+// песочнице просмотрщика запрещена.
+// Корень — статичная обёртка: держит раскладку и содержимое, слушает указатель и сам не трансформируется.
+// Наклоняются только декоративные слои ::before (поверхность с бликами) и ::after (кольцо-обводка) —
+// область наведения не двигается, поэтому у углов нет дрожания и «потери» карточки.
+// Угол под указателем выходит к зрителю. Слои и токены — @utility metal-card в globals.css, --metal-* в
+// tokens.css. Текст внутри — белый (--primary-foreground) без прозрачности; прозрачность (/80) — только у
+// крупного текста. Отступ по умолчанию p-6, переопределяется className. Наклон — по физической позиции
+// указателя (RTL не важен).
 
 type MetalCardTag = "div" | "section" | "article" | "aside" | "li"
 
@@ -15,28 +19,46 @@ type MetalCardProps = HTMLAttributes<HTMLElement> & {
   as?: MetalCardTag
 }
 
+// Мёртвая зона у центра и насыщение у краёв (доли полуоси): у центра карточка не шевелится от мелких
+// движений, у углов наклон упирается в максимум раньше края — без рывков на границе.
+const DEAD_ZONE = 0.12
+const SATURATE = 0.85
+
+const TRACKED = ["--metal-x", "--metal-y", "--metal-rx", "--metal-ry"] as const
+
 // Наклон и подвижный блик — только мышь (на сенсорных экранах нет наведения) и без reduced-motion.
 function canTrack(event: PointerEvent<HTMLElement>): boolean {
   return event.pointerType === "mouse" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
 }
 
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
+const round = (value: number) => Math.round(value * 1000) / 1000
+
+/** Позиция 0…1 → наклон −1…1 с мёртвой зоной и насыщением. */
+function tilt(position: number): number {
+  const offset = position * 2 - 1
+  const magnitude = (Math.abs(offset) - DEAD_ZONE) / (SATURATE - DEAD_ZONE)
+  return round(Math.sign(offset) * clamp01(magnitude))
+}
+
 function follow(event: PointerEvent<HTMLElement>) {
   if (!canTrack(event)) return
+  // currentTarget — статичная обёртка: её прямоугольник не меняется от наклона слоёв.
   const el = event.currentTarget
   const rect = el.getBoundingClientRect()
   if (rect.width === 0 || rect.height === 0) return
-  const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
-  const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height))
-  el.style.setProperty("--metal-x", `${x * 100}%`)
-  el.style.setProperty("--metal-y", `${y * 100}%`)
-  el.style.setProperty("--metal-rx", `${x * 2 - 1}`)
-  el.style.setProperty("--metal-ry", `${y * 2 - 1}`)
+  const x = clamp01((event.clientX - rect.left) / rect.width)
+  const y = clamp01((event.clientY - rect.top) / rect.height)
+  el.style.setProperty("--metal-x", `${round(x * 100)}%`)
+  el.style.setProperty("--metal-y", `${round(y * 100)}%`)
+  el.style.setProperty("--metal-rx", `${tilt(x)}`)
+  el.style.setProperty("--metal-ry", `${tilt(y)}`)
 }
 
 // Снятие свойств возвращает исходные значения @property — переход плавный.
 function reset(event: PointerEvent<HTMLElement>) {
   const { style } = event.currentTarget
-  for (const name of ["--metal-x", "--metal-y", "--metal-rx", "--metal-ry"]) style.removeProperty(name)
+  for (const name of TRACKED) style.removeProperty(name)
 }
 
 function MetalCard({ as: Tag = "div", className, onPointerMove, onPointerLeave, ...props }: MetalCardProps) {

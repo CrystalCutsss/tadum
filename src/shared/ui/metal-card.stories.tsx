@@ -38,7 +38,10 @@ export const Limit: Story = {
     const cards = canvasElement.querySelectorAll<HTMLElement>('[data-slot="metal-card"]');
     await expect(cards).toHaveLength(4);
     const card = cards[0]!;
-    await expect(getComputedStyle(card).backgroundImage).toContain('linear-gradient');
+    // Сам корень — статичная обёртка без фона и трансформации; металл и кольцо — в ::before / ::after.
+    await expect(getComputedStyle(card).transform).toBe('none');
+    await expect(getComputedStyle(card, '::before').backgroundImage).toContain('linear-gradient');
+    await expect(getComputedStyle(card, '::after').backgroundImage).toContain('linear-gradient');
     // Без указателя наклона нет: исходные значения @property.
     await expect(getComputedStyle(card).getPropertyValue('--metal-rx').trim()).toBe('0');
   },
@@ -55,5 +58,34 @@ export const AsSection: Story = {
   ),
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('section[data-slot="metal-card"]')).not.toBeNull();
+  },
+};
+
+/** Вертикальная карточка ≈ 1:1.2 рядом с другим блоком: высоту задаёт соседний блок, карточку растягивает CSS-сетка. */
+export const Tall: Story = {
+  render: () => (
+    <div className="grid max-w-xl grid-cols-2 items-stretch gap-4">
+      <MetalCard className="flex flex-col justify-between">
+        <p className="text-sm font-medium">
+          <T k="application.limit_label" />
+        </p>
+        <div className="flex flex-col gap-2">
+          <p className="text-2xl font-semibold">
+            <Amount />
+          </p>
+          <p className="text-sm">
+            <T k="application.signing.info" />
+          </p>
+        </div>
+      </MetalCard>
+      <div className="aspect-5/6 self-start rounded-2xl border bg-card p-6 text-sm text-card-foreground">
+        <T k="application.signing.info" />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector<HTMLElement>('[data-slot="metal-card"]')!;
+    const rect = card.getBoundingClientRect();
+    await expect(rect.height).toBeGreaterThan(rect.width);
   },
 };
