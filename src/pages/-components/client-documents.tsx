@@ -11,7 +11,7 @@ import { applicationQuery, canEditFiles, companyQuery, computeClientTimeline, is
 import { documentSetQuery } from '@/entities/document';
 import { limitQuery, type Limit } from '@/entities/limit';
 import { CompanyCrCard } from '@/features/edit-company-cr';
-import { amountBucket, track } from '@/shared/analytics';
+import { track } from '@/shared/analytics';
 import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
 import { useIsMobile } from '@/shared/lib';
 import {
@@ -114,7 +114,7 @@ const SUBTITLE = {
   approved: 'application.subtitle.approved',
 } as const;
 
-/** Смена статуса лимита при открытом экране: тост (D-034) и limit_activated при переходе в active. */
+/** Смена статуса лимита при открытом экране: тост (D-034). */
 function useLimitChangeNotice(limit: Limit | null | undefined) {
   const { t } = useTranslation();
   const prev = useRef<Limit['status'] | null | undefined>(undefined);
@@ -122,10 +122,9 @@ function useLimitChangeNotice(limit: Limit | null | undefined) {
     if (limit === undefined) return;
     const status = limit?.status ?? null;
     if (prev.current !== undefined && prev.current !== status) {
+      // limit_activated — после правки 04-metrics-and-events.md: days_since_approved станет необязательным (даты
+      // одобрения у лимита нет; решение Кирилла 2026-11-11 — без поля), до этого событие не шлём, чтобы не отправлять 0.
       toast(t('status.updated'));
-      if (status === 'active' && limit) {
-        track('limit_activated', { days_since_approved: 0, amount_bucket: amountBucket(limit.approved) });
-      }
     }
     prev.current = status;
   }, [limit, t]);
