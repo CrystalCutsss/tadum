@@ -313,13 +313,11 @@ describe('документы (01-statuses.md §4–5, SC-02, SC-03)', () => {
     const pending = (await clientSet(api)).documents.find((d) => d.status === 'pending')!;
     expect(await code(api.documents.upload(pending.id, pdf()))).toBe('document_set_locked');
   });
-  it('автополнота: через 10 с после последней загрузки комплект отправляется сам (§4)', async () => {
+  it('автополноты нет: полный комплект остаётся черновиком до кнопки Send (A-061)', async () => {
     const api = as('client_new');
     await fillAll(api, await clientSet(api));
-    advance(9_000);
+    advance(24 * 60 * 60 * 1000);
     expect((await clientSet(api)).status).toBe('draft');
-    advance(1_000);
-    expect((await clientSet(api)).status).toBe('submitted');
   });
   it('download — прямая ссылка на файл', async () => {
     const api = as('client_partial');

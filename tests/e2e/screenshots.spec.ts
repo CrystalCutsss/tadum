@@ -1,6 +1,6 @@
 // Скриншоты (D-074): 360/768/1280 × ar/en × light/dark — артефакты (tests/screenshots/, в .gitignore), не эталоны.
 // Визуальная регрессия toHaveScreenshot — только с эталонами из docker-образа Playwright (не здесь).
-import { test } from './fixtures';
+import { setColorTheme, test } from './fixtures';
 import { SCREENS } from './screens';
 
 const VIEWPORTS = [
@@ -15,7 +15,7 @@ test.describe('@screenshot', () => {
     for (const lang of ['ar', 'en'] as const) {
       for (const theme of ['light', 'dark'] as const) {
         test(`${screen.id} · ${lang} · ${theme}`, async ({ page }) => {
-          await page.emulateMedia({ colorScheme: theme });
+          await setColorTheme(page, theme);
           for (const vp of VIEWPORTS) {
             await page.setViewportSize({ width: vp.width, height: vp.height });
             await screen.open(page, lang);

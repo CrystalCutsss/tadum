@@ -91,3 +91,12 @@ export async function expectNoA11yViolations(page: Page) {
     .filter((v) => v.nodes.length > 0);
   expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
 }
+
+/**
+ * Тема на весь тест: по умолчанию приложение светлое и системную тему не слушает (A-062),
+ * поэтому тёмную ставим выбором в хранилище (ключ storage('theme'), BASE_URL e2e — «/»), а системную — эмуляцией для согласия.
+ */
+export async function setColorTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
+  await page.emulateMedia({ colorScheme: theme });
+  await page.addInitScript((value) => window.localStorage.setItem('tadum:/:theme', value), theme);
+}

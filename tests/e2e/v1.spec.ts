@@ -2,7 +2,7 @@
 // @smoke — входят в test:e2e:smoke (android-chrome, в verify).
 import type { Page } from '@playwright/test';
 
-import { asPersona, enterCode, expect, openAccountMenu, openSidebar, signIn, test, tr } from './fixtures';
+import { asPersona, enterCode, expect, openAccountMenu, openSidebar, setColorTheme, signIn, test, tr } from './fixtures';
 
 // /c/home до проработки разделов показывает заглушку (Кирилл 2026-11-06, A-055): персона проверяется по названию
 // компании в аккаунте сайдбара, шкала и «следующий шаг» — в историях ClientHome и unit-тестах.
@@ -35,7 +35,7 @@ for (const p of personas) {
 }
 
 test('@smoke dual_active → /c/home → переключатель → /s/home без потери языка и темы', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'dark' });
+  await setColorTheme(page, 'dark');
   await asPersona(page, 'dual_active', 'en');
   await expect(page).toHaveURL(/\/c\/home/);
   // Переключение ролей — в меню аккаунта внизу сайдбара; подсказка dual показывается один раз — закрываем.

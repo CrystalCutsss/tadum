@@ -2,7 +2,7 @@
 // Состояние — в памяти и в storage('mock:<persona>') со schemaVersion; при несовпадении — сброс к фикстуре.
 // Время — только clock.now(); задержки и канал OTP детерминированы от hash(persona_id).
 
-import { MOCK_COMPLETION_GRACE_MS, MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
+import { MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
 import { now as clockNow, storage, toDate } from '@/shared/lib';
 
 import { CLIENT_BASE_KEYS } from '../../fixtures/build';
@@ -44,7 +44,7 @@ import { hash, hashRange, sha256Hex } from './hash';
  * сбрасывается к фикстуре. 2 — замечания к файлам, номер CR, новые фикстуры client_new и других (2026-11-11):
  * без сброса браузер показывал старое состояние персоны (уже отправленный комплект).
  */
-export const MOCK_SCHEMA_VERSION = 2;
+export const MOCK_SCHEMA_VERSION = 3;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
@@ -177,14 +177,14 @@ export function createMockApi(options: MockApiOptions): Api {
     }
   }
 
-  /** Автополнота и задержка проверки — по часам, при каждом чтении. */
+  /** Задержка проверки — по часам, при каждом чтении. */
   function settle(g: PersonaGraph): boolean {
     const t = clockNow();
     let changed = false;
     for (const set of g.document_sets) {
-      if (set.status === 'draft' && set.completion_grace_until && ms(set.completion_grace_until) <= t) {
-        if (isSetComplete(set) && editable(g, set)) submitSet(set, set.completion_grace_until);
-        else delete set.completion_grace_until;
+      // Автополноты нет (решение Кирилла 2026-11-11, A-061): комплект уходит на проверку только по кнопке Send.
+      if (set.status === 'draft' && set.completion_grace_until) {
+        delete set.completion_grace_until;
         changed = true;
       }
       if (set.status === 'submitted' && set.submitted_at && ms(set.submitted_at) + MOCK_REVIEW_DELAY_MS <= t) {
@@ -250,7 +250,7 @@ export function createMockApi(options: MockApiOptions): Api {
       roles,
       active_role,
       language: 'ar',
-      theme: 'system',
+      theme: 'light',
       issued_at: s.issued_at,
       expires_at: s.expires_at,
       ...(app && roles.some((r) => r !== 'supplier') ? { client_context: { application_id: app.id, company_id: app.company_id } } : {}),
@@ -334,11 +334,6 @@ export function createMockApi(options: MockApiOptions): Api {
       return { set, doc };
     }
     throw new NotFound('document');
-  }
-
-  function updateGrace(set: DocumentSet) {
-    if (set.status === 'draft' && isSetComplete(set)) set.completion_grace_until = iso(clockNow() + MOCK_COMPLETION_GRACE_MS);
-    else delete set.completion_grace_until;
   }
 
   function apply(g: PersonaGraph, set: DocumentSet, doc: Document, event: MockDocumentEvent) {
@@ -432,7 +427,6 @@ export function createMockApi(options: MockApiOptions): Api {
         place(asset);
         clearRejection(doc);
         settleDoc(doc, asset.uploaded_at);
-        updateGrace(set);
         return { document: structuredClone(doc), prevalidation: received.prevalidation };
       });
       return finish(opts, result);
@@ -569,7 +563,6 @@ export function createMockApi(options: MockApiOptions): Api {
             apply(g, set, doc, doc.files.length > 1 && doc.status !== 'rejected' ? { type: 'replace' } : { type: 'delete' });
             doc.files.splice(index, 1);
             settleDoc(doc, iso(clockNow()));
-            updateGrace(set);
             return structuredClone(doc);
           });
         }),
@@ -932,7 +925,6 @@ export function createMockApi(options: MockApiOptions): Api {
         else set.documents.push(pendingDocument(set.id, portalKey, t, []));
         set.status = 'draft';
         set.locked = false;
-        updateGrace(set);
       }),
     cancelLimit: () =>
       act((g) => {

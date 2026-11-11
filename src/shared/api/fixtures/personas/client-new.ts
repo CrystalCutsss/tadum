@@ -8,7 +8,7 @@ const SET = 'set_cn_1';
 export const clientNew: PersonaFixture = (now) => ({
   persona_id: 'client_new',
   phone: phone(1),
-  company: { id: 'cmp_cn', name: 'Rimal Al Sharq Trading', name_ar: 'رمال الشرق للتجارة' },
+  company: { id: 'cmp_cn', name: 'Rimal Al Sharq General Trading and Contracting Company', name_ar: 'شركة رمال الشرق للتجارة العامة والمقاولات المحدودة' },
   applications: [
     {
       id: 'app_cn',

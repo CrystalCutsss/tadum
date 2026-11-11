@@ -60,9 +60,9 @@ export function DocumentResources({ doc, title, leading }: { doc: Pick<Document,
   // Кнопки в нижней панели: фон панели, наведение — белый (решение Кирилла 2026-11-10).
   // Размер sm дизайн-системы (h-8, px-3; с иконкой в начале — ps-2) без увеличения до 44 px, иконки 14 px (решение 2026-11-10).
   const panelButton = 'shrink-0 hover:bg-card dark:hover:bg-card';
-  // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10).
+  // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10); зазор 4 px (2026-11-11).
   return (
-    <div className="-mx-3 flex flex-nowrap items-center gap-2 overflow-x-auto px-3 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+    <div className="-mx-3 flex flex-nowrap items-center gap-1 overflow-x-auto px-3 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
       {leading}
       {video ? (
         <Button
