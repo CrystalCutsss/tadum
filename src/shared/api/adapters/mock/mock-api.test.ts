@@ -171,13 +171,6 @@ describe('сессия и сеть', () => {
     expect((await as('client_active').application.getCompany()).name).toBe('Ufuq Office Furniture');
     await expect(as('supplier_new').application.getCompany()).rejects.toBeInstanceOf(Forbidden);
   });
-  it('dual: комплекты клиента и поставщика раздельные (SP-03 §7)', async () => {
-    const api = as('dual_active');
-    const supplier = await api.supplier.get();
-    const own = await api.documents.getSet({ kind: 'supplier', id: supplier.id });
-    expect(own.documents.every((d) => d.portal_key.startsWith('sup_'))).toBe(true);
-    expect((await clientSet(api)).documents.some((d) => d.portal_key.startsWith('sup_'))).toBe(false);
-  });
 });
 
 describe('хранилище (D-072)', () => {

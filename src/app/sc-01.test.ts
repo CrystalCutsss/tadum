@@ -82,9 +82,7 @@ describe('SC-01 §1 — основной сценарий', () => {
     expect(destinationAfterLogin(session, authMemory.returnTo(), familyMemory.last())).toEqual({ to: '/c/home', returned: false });
     expect((await open('/')).pathname).toBe('/c/home');
   });
-  it('dual после входа → /c/home (D-020); одна роль supplier → /s/home', async () => {
-    api.demo!.setPersona('dual_active');
-    expect((await open('/')).pathname).toBe('/c/home');
+  it('одна роль supplier → /s/home', async () => {
     api.demo!.setPersona('supplier_active');
     expect((await open('/')).pathname).toBe('/s/home');
   });
@@ -236,13 +234,6 @@ describe('SC-01 §6 — критерии приёмки маршрутов', () 
   it('клиент открыл /s/home → /c/home', async () => {
     api.demo!.setPersona('client_active');
     expect((await open('/s/home')).pathname).toBe('/c/home');
-  });
-  it('dual открывает обе семьи; активная — семья последнего маршрута', async () => {
-    api.demo!.setPersona('dual_active');
-    expect((await open('/s/home')).pathname).toBe('/s/home');
-    expect(familyMemory.last()).toBe('supplier');
-    expect((await open('/')).pathname).toBe('/s/home');
-    expect((await open('/c/home')).pathname).toBe('/c/home');
   });
   it('внешний returnTo с лендинга игнорируется, внутренний — принимается (D-039)', async () => {
     await open('/login?returnTo=https%3A%2F%2Fevil.example%2Fc%2Fhome');

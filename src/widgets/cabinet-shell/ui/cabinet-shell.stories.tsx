@@ -54,24 +54,6 @@ export const Supplier: Story = {
   },
 };
 
-export const DualAccountMenu: Story = {
-  name: 'dual — переключение ролей в меню аккаунта',
-  loaders: [async () => ({ api: await signedIn('dual_active') })],
-  play: async ({ canvasElement }) => {
-    const body = within(canvasElement.ownerDocument.body);
-    // Подсказка dual показывается один раз — закрываем.
-    const dismiss = await body.findByRole('button', { name: tr('role.hint_dismiss') });
-    await userEvent.click(dismiss);
-    await userEvent.click(await account(canvasElement));
-    await expect(await body.findByRole('menuitemradio', { name: tr('role.client') })).toHaveAttribute('aria-checked', 'true');
-    // Меню появляется с анимацией (в начале прозрачность 0) — видимость ждём, а не проверяем сразу.
-    await waitFor(() => expect(body.getByRole('menuitemradio', { name: tr('role.supplier') })).toBeVisible());
-    await waitFor(() => expect(body.getByRole('menuitem', { name: tr('nav.settings') })).toBeVisible());
-    await userEvent.keyboard('{Escape}');
-    await waitFor(() => expect(body.queryByRole('menu')).toBeNull());
-  },
-};
-
 export const LogoutFromMenu: Story = {
   name: 'Аккаунт → «Выйти» — диалог подтверждения',
   play: async ({ canvasElement }) => {

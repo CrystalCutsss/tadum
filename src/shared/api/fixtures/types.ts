@@ -18,7 +18,6 @@ export const PERSONA_IDS = [
   'client_closed_lost',
   'supplier_new',
   'supplier_active',
-  'dual_active',
   'unknown_phone',
 ] as const;
 

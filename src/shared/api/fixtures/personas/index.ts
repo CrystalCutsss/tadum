@@ -15,7 +15,6 @@ import { clientPartial } from './client-partial';
 import { clientRejected } from './client-rejected';
 import { clientSigningPartial } from './client-signing-partial';
 import { clientSubmitted } from './client-submitted';
-import { dualActive } from './dual-active';
 import { supplierActive } from './supplier-active';
 import { supplierNew } from './supplier-new';
 import { unknownPhone } from './unknown-phone';
@@ -36,6 +35,5 @@ export const PERSONAS: Readonly<Record<PersonaId, PersonaFixture>> = {
   client_closed_lost: clientClosedLost,
   supplier_new: supplierNew,
   supplier_active: supplierActive,
-  dual_active: dualActive,
   unknown_phone: unknownPhone,
 };

@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { createMemoryHistory, createRouter } from '@tanstack/react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { authMemory, familyMemory, sessionQuery } from '@/entities/session';
+import { authMemory, sessionQuery } from '@/entities/session';
 import { performLogout } from '@/features/logout';
 import { setAnalyticsProviders, type CapturedEvent } from '@/shared/analytics';
 import { configureApi, getApi, type Api } from '@/shared/api';
@@ -102,23 +102,6 @@ describe('SC-10 §1.3–1.4 — сессия', () => {
     api.demo!.expireSession();
     expect(await open('/c/help')).toBe('/session-expired');
     expect(authMemory.returnTo()).toBe('/c/help');
-  });
-});
-
-describe('01-cabinet-structure.md §4 — роли dual (SP-01)', () => {
-  it('переключение не сбрасывает язык и тему; последняя роль — при следующем входе', async () => {
-    api.demo!.setPersona('dual_active');
-    storage.set('lang', 'en');
-    storage.set('theme', 'dark');
-    expect(await open('/s/home')).toBe('/s/home');
-    expect(familyMemory.last()).toBe('supplier');
-    expect([storage.get('lang'), storage.get('theme')]).toEqual(['en', 'dark']);
-    expect(await open('/')).toBe('/s/home');
-  });
-  it('dual: клиентская заявка closed — кабинет поставщика работает (SP-01 A6)', async () => {
-    api.demo!.setPersona('dual_active');
-    api.demo!.uwReject();
-    expect(await open('/s/help')).toBe('/s/help');
   });
 });
 

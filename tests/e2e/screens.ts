@@ -1,7 +1,7 @@
 // Экраны v1 для axe и скриншотов: как открыть каждый в нужном языке.
 import type { Page } from '@playwright/test';
 
-import { asPersona, expect, openAccountMenu, tr, type Lang } from './fixtures';
+import { asPersona, expect, tr, type Lang } from './fixtures';
 
 export interface Screen {
   id: string;
@@ -74,12 +74,4 @@ export const SCREENS: readonly Screen[] = [
   persona('client.help', 'client_active', '/c/help', heading('help.title')),
   persona('supplier.home', 'supplier_active', '/s/home', heading('stub.coming_soon.title')),
   persona('supplier.help', 'supplier_active', '/s/help', heading('help.title')),
-  persona('dual.home', 'dual_active', '/', async (page, lang) => {
-    await heading('stub.coming_soon.title')(page, lang);
-    await openAccountMenu(page, lang, { dismissHint: true });
-    await expect(page.getByRole('menuitemradio', { name: tr(lang, 'role.supplier') })).toBeVisible();
-    // Закрыть меню и (на телефоне) шторку — на скриншоте экран без оверлеев.
-    await page.keyboard.press('Escape');
-    await page.keyboard.press('Escape');
-  }),
 ];
