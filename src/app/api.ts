@@ -43,8 +43,11 @@ async function applyPersonaFromUrl(): Promise<void> {
   const persona = personaFromParam(new URL(window.location.href).searchParams.get('persona'));
   if (!persona || !(PERSONA_IDS as readonly string[]).includes(persona)) return;
   setAnalyticsContext({ persona });
-  if (demoPersona.get() === persona) return;
   const api = await getApi();
+  // Та же персона уже выбрана — состояние не трогаем (перезагрузка ссылки не теряет загрузки). Но если сохранённое
+  // состояние мока сброшено (новая версия схемы, 2026-11-11) и сессии нет — входим заново, иначе ссылка ведёт на /login.
+  // Истёкшая сессия бросает ошибку — её оставляем: экран «Сессия истекла» (SC-10).
+  if (demoPersona.get() === persona && (await api.auth.getSession().catch(() => 'expired' as const)) !== null) return;
   api.demo?.setPersona(persona);
   demoPersona.set(persona);
 }
