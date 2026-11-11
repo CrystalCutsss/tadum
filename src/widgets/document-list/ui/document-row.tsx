@@ -91,7 +91,8 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
         >
           {/* Кнопка — по центру блока «заголовок + описание», у правого края (решение 2026-11-10). */}
           <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-            <ItemMedia variant="icon" className="hidden sm:flex">
+            {/* Есть замечание к документу или к его файлу — иконка документа оранжевая (Кирилл 2026-11-11). */}
+            <ItemMedia variant="icon" className={cn('hidden sm:flex', (reasonText || doc.files.some((f) => f.issue)) && 'text-status-rejected')}>
               <Icon icon={RiFileTextLine} />
             </ItemMedia>
             <ItemContent className="min-w-0 gap-1">
