@@ -1,4 +1,4 @@
-<!-- source: Drive 1ScVDC_O_NsCRb1HIlfRMARXQCatWkWgu, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1HD80cuXlQFZ3nvvxvH7FNXWUHO8cu8Vf, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # SP-01 · Вход поставщика, главная и переключение роли
 
 | Поле | Значение |
@@ -11,7 +11,7 @@
 | **Цель** | Поставщик за два экрана попадает в свой кабинет и сразу видит, на каком он шаге, что делать дальше и сколько клиентов он привёл |
 | **Метрика** | Доля поставщиков, заходящих в кабинет хотя бы раз в месяц (`auth_login_succeeded {active_role: supplier}` по уникальным `supplier_id`); доля входов, где за сессию сделано хотя бы одно действие с ссылкой (SP-02) |
 | **Версия прототипа** | v3 |
-| **Персоны мока** | `supplier_new` (`docs_required`, 0 клиентов), `supplier_active` (`active`, 14 клиентов), `dual_active` (клиент `approved` + поставщик `active`) |
+| **Персоны мока** | `supplier_new` (`docs_required`, 0 клиентов), `supplier_active` (`active`, 14 клиентов) |
 | **Связанные документы** | `SC-01` (вход), `SC-10` (язык, тема, выход, сессия); `01-roles.md` §2–3, §5 (D-020, D-022); `01-cabinet-structure.md` §1, §4–6; `01-entities.md` §2.10; `01-statuses.md` §3 |
 | **Статус** | черновик — живой каркас |
 
@@ -45,7 +45,7 @@
        счётчики: «Приведено 14 · На проверке 3 · Одобрено 6», каждый — ссылка на /s/clients с предустановленным
        фильтром; реферальная карточка; событие screen_viewed {…, referred_bucket: '11-25'}
 
-Дано:  пользователь dual (персона dual_active)
+Дано:  пользователь dual
 Когда: входит впервые
 Тогда: редирект на /c/home (D-020); в шапке переключатель «Клиент | Поставщик»; один раз — подсказка
        «У вас есть и кабинет поставщика — переключайтесь здесь» (хранится флаг hint_role_switch_seen)
@@ -149,7 +149,7 @@
 - [ ] Текст срока проверки показывается только при `meta.hours`.
 - [ ] Тексты в `ar` и `en`; axe без нарушений; переключатель ролей — кнопки с подписями, доступен с клавиатуры.
 - [ ] Storybook: `SupplierHome` docs_required / rejected / under_review / active / empty-counters / loading × AR/EN × light/dark; `RoleSwitcher` client / supplier.
-- [ ] Playwright: `supplier_new` → вход → `/s/home` → CTA → `/s/documents`; `dual_active` → вход → `/c/home` → переключение → `/s/home` → выход → вход → `/s/home`.
+- [ ] Playwright: `supplier_new` → вход → `/s/home` → CTA → `/s/documents`.
 
 ---
 

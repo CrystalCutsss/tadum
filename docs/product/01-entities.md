@@ -1,4 +1,4 @@
-<!-- source: Drive 1F2l3jNAUlHjM6JZJgfRqXRjdIWdR58ER, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1_AzNT4yf-H-GRqfBEMLWUoXpSi1-1uY4, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -306,14 +306,16 @@ DocumentHint:                      # то, что реально показыв�
 | `client_rejected` | client_owner | `docs_required`, 2 документа `rejected` (один с текстом причины AR+EN, один с причиной только AR, один без причины), один файл уже отклонялся | SC-03 |
 | `client_submitted` | client_contact | `under_review`, комплект `locked`, `review_eta_hours = 24` | SC-05 |
 | `client_more_docs` | client_contact | `docs_required`, раунд 2, новый комплект из 2 документов, старый `superseded` | SC-04 |
-| `client_approved_unsigned` | client_owner | `approved`, лимит `ready`, чек-лист: SPA `in_progress`, PN `pending` | SC-06 |
-| `client_active` | client_owner | `approved`, лимит `active` 150 000 SAR, использовано 42 500 | SC-07 |
-| `client_first_purchase` | client_owner | `first_purchase`, одна сделка `payment_done` | SC-07 |
+| `client_approved_unsigned` | client_owner | `approved`, лимит `ready`, чек-лист: все пункты `pending` | SC-06 |
+| `client_offer_pending` | client_owner | `approved`, лимит `pending` (Offer confirmation), чек-лист неактивен | SC-06 |
+| `client_signing_partial` | client_owner | `approved`, лимит `ready`, SPA `done`, вексель компании `in_progress`, вексель владельца `pending` | SC-06 |
+| `client_limit_cancelled` | client_owner | `approved`, лимит `cancelled` | SC-06 A7 |
+| `client_active` | client_owner | `approved`, лимит `active` 150 000 SAR, использовано 42 500 | SC-06, SC-07 |
+| `client_first_purchase` | client_owner | `first_purchase`, одна сделка `payment_done` | SC-06, SC-07 |
 | `client_closed_rejected` | client_contact | `closed` (Rejected by UW), лимит `rejected` | SC-08 |
 | `client_closed_lost` | client_contact | `closed` (Lost) | SC-08 |
 | `supplier_new` | supplier | `docs_required`, 0 клиентов | SP-01, SP-03 |
 | `supplier_active` | supplier | `active`, 14 приведённых клиентов во всех статусах, обороты | SP-02, SP-04, SP-05 |
-| `dual_active` | client_owner + supplier | клиент `approved/active` + поставщик `active` | переключение ролей, SC-10 |
 | `unknown_phone` | — | номер без заявки | SC-01 (ошибка) |
 
 Правила генерации: `faker` с фиксированным `seed` на персону; названия компаний — вымышленные, арабские и английские варианты; телефоны только вида `+966 5X XXX XXXX` из диапазона, не принадлежащего реальным номерам (`+966 50 000 0XXX`); суммы кратны 500 SAR; даты относительно «сегодня», чтобы персоны не устаревали.

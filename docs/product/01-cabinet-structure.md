@@ -1,4 +1,4 @@
-<!-- source: Drive 1_0bcm-HrZQpB7HiTmoCval16Xl_8REmf, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1LZBLqWzzINHvww-UR9LZwEB-G7YMUJsV, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # 01 · Структура кабинета
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.6 · **Дата:** 2026-11-06 · **Статус:** согласовано как базовый каркас (C-1…C-3 закрыты); раздел 2 «Оболочка» — по решению Кирилла 2026-11-06 (сайдбар `sidebar-08`)
@@ -18,8 +18,8 @@
 | `/login` | `auth.phone` | все | нет сессии | Ввод телефона (канал кода выбирает бэкенд, D-027) | P0 | v1 |
 | `/login/code` | `auth.otp` | все | телефон введён | Ввод кода, повтор через таймер, ошибки | P0 | v1 |
 | `/not-found` | `auth.not_found` | `unknown` | — | «Заявка не найдена»: «Подать заявку», «Связаться с поддержкой» | P1 | v1 (D-067; SC-01 A8) |
-| `/c/home` | `client.home` | client | — | Статус заявки, шкала прогресса, карточка следующего шага, сводка документов; после одобрения здесь же блоки `#limit` (лимит, чек-лист SPA/PN) и `#how-to-buy` (D-023) | P0 | v1 (блоки лимита — v4) |
-| `/c/documents` | `client.documents` | client | — | Комплект документов: список, статусы, причины, загрузка, отправка | P0 | v2 (в v1 — заглушка «появится в v2», D-067) |
+| `/c/home` | `client.home` | client | — | Статус заявки, шкала прогресса, карточка следующего шага, сводка документов; при лимите `active` — блоки `#limit` (лимит) и `#how-to-buy` (D-023); чек-лист SPA/PN — в «Заявке» (D-081) | P0 | v1 (блоки лимита — v4) |
+| `/c/documents` | `client.documents` | client | — | Комплект документов: список, статусы, причины, загрузка, отправка. После одобрения здесь же этапы «Решение» (карточка лимита, подписи неактивны) и «Подписание» (лимит и чек-лист SPA/PN); при `limit.status = active` — только карточка «Лимит одобрен» и «Открыть заявку» → `?view=details` (даты, лимит, документы для чтения) (D-081) | P0 | v2 (в v1 — заглушка «появится в v2», D-067) |
 | `/c/documents/:portalKey` | `client.document` | client | документ есть в комплекте | Карточка документа: подсказка, пример PDF, видео, файлы, загрузка/замена | P0 | v2 |
 | `/c/closed` | `client.closed` | client | `client_status == closed` | Нейтральный текст, путь к новой заявке, поддержка | P1 | v4 |
 | `/c/reapply` | `client.reapply` | client | `client_status == closed` | Повторная заявка (D-038): в v1 заглушка с текстом и кнопкой «Создать заявку»; создаёт новую заявку, старая остаётся закрытой | P1 | v4 |
@@ -150,10 +150,13 @@ SupplierTimeline:
 | `docs_required` (первый комплект) | current | upcoming | upcoming | upcoming | upcoming | |
 | `docs_required` (дозапрос, `round > 1`) | done | current | upcoming | upcoming | upcoming | Шаг «Проверка» остаётся текущим, «Документы» — пройдены. О дозапросе говорит баннер на экране документов (D-008, D-078) |
 | `under_review` | done | current | upcoming | upcoming | upcoming | |
-| `approved` (до подписания) | done | done | done | current | upcoming | |
-| `approved` (всё подписано, лимит `active`) | done | done | done | done | current | |
+| `approved` (лимита нет или `pending`) | done | done | current | upcoming | upcoming | Условия согласуются (D-081) |
+| `approved` (лимит `ready`, чек-лист не завершён) | done | done | done | current | upcoming | |
+| `approved` (всё подписано, лимит `active`) | done | done | done | done | current | На экране «Заявка» шкала скрыта (D-081) |
 | `first_purchase` | done | done | done | done | done | Шкала полностью пройдена; `home` показывает лимит и инструкцию |
 | `closed` | — | — | closed | — | — | Шкала заменяется нейтральной карточкой «Заявка закрыта» |
+
+Подпись шага `limit_active` — «Limit approved» / «تم اعتماد الحد» (D-081); ключ и статус в коде прежние.
 
 Визуальные правила: в RTL шкала зеркальна (первый шаг справа); стрелки/шевроны зеркалятся, галочки — нет; `needs_attention` — цвет статуса `rejected`, не «ошибка системы»; у каждого шага доступное текстовое состояние (`aria-current`, `aria-label` с состоянием).
 
@@ -180,7 +183,7 @@ NextStep:
 | `docs_required`, нет отправленного комплекта | user | `next_step.upload_documents` (count оставшихся) | → `/c/documents` |
 | `docs_required`, `round > 1`, новых загрузок нет | user | `next_step.more_docs_requested` | → `/c/documents` |
 | `under_review` | tadum | `next_step.under_review` | — (SupportBar виден) |
-| `approved`, чек-лист не завершён | user | `next_step.sign_documents` | → `/c/home#limit` (внутри — внешние ссылки Sadq/Nafith) |
+| `approved`, чек-лист не завершён | user | `next_step.sign_documents` | → `/c/documents` (внутри — внешние ссылки Sadq/Nafith, D-081) |
 | `approved`, чек-лист завершён, лимит `active` | user | `next_step.how_to_buy` | → `/c/home#how-to-buy` |
 | `first_purchase` | none | `next_step.first_purchase_done` | — |
 | `closed` | none | `next_step.closed` | → лендинг «Подать заявку» |
