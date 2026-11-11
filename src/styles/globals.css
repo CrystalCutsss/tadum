@@ -40,8 +40,6 @@
     --transition-duration-bounce: var(--motion-bounce);
     --ease-standard: var(--ease-standard);
     --ease-bounce: var(--ease-bounce);
-    --shadow-glow-primary: var(--glow-primary);
-    --shadow-glow-primary-faint: var(--glow-primary-faint);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -121,28 +119,133 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Свечение-волна (2026-11-10): мягко нарастает от нуля до --glow-primary и гаснет, по кругу.
-   Анимация перекрывает box-shadow элемента (в том числе ring), поэтому при :focus-visible она снимается —
-   кольцо фокуса остаётся видимым. При prefers-reduced-motion — без анимации, слабое статичное свечение. */
-@keyframes glow-wave {
-  0%,
-  100% {
-    box-shadow: var(--glow-primary-none);
+/* Бегущий блик обводки (компонент BorderBeam, решение Кирилла 2026-11-11; приём по образцу React Bits
+   Border Glow, реализация своя, без пакета). Слой border-beam — absolute поверх border-box родителя
+   (выходит за padding-box на --beam-width), наследует скругление, не ловит указатель. Внутри:
+   - border-beam-edge — обводка цвета --beam-color той же толщины, видна только в конической маске
+     (сплошной конус ±--beam-cone, мягкий спад на --beam-cone-falloff, остальная обводка — альфа --mask-faint);
+   - border-beam-glow — слой шире контейнера на --beam-glow-radius, его ::before совпадает с border-box
+     контейнера и даёт box-shadow --beam-glow (внутрь и наружу); маска — тот же конус без подкраски.
+   Движение: --beam-p (0 → 1 за --motion-beam, линейно) — доля периметра. Точка блика (--beam-x, --beam-y)
+   идёт по периметру с постоянной скоростью; центр конуса (--beam-cx, --beam-cy) скользит по средней линии
+   и держится на половине меньшей стороны от точки — поэтому на широкой панели конус освещает одну дугу,
+   а не обе длинные грани сразу, как конус из центра. Угол конуса — atan2 от центра к точке. Размеры —
+   единицы контейнера (cqw/cqh): border-beam — container-type: size. Затем --motion-beam-pause блика нет,
+   обводка серая. При prefers-reduced-motion — без анимации и свечения, статичная обводка --beam-color. */
+@property --beam-p {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@keyframes border-beam {
+  0% {
+    --beam-p: 0;
+    opacity: 0;
   }
-  50% {
-    box-shadow: var(--glow-primary);
+  8%,
+  42% {
+    opacity: 1;
+  }
+  /* 50 % = --motion-beam / (--motion-beam + --motion-beam-pause): при смене токенов менять вместе. */
+  50%,
+  100% {
+    --beam-p: 1;
+    opacity: 0;
   }
 }
-@utility animate-glow-wave {
-  animation: glow-wave var(--motion-glow) ease-in-out infinite;
-  &:focus-visible {
-    animation: none;
-  }
+@utility border-beam {
+  position: absolute;
+  inset: calc(var(--beam-width) * -1);
+  border-radius: inherit;
+  pointer-events: none;
+  container-type: size;
+  opacity: 0;
+  animation: border-beam calc(var(--motion-beam) + var(--motion-beam-pause)) linear infinite;
+  /* Ниже — подстановки для дочерних слоёв: cqw/cqh разрешаются в них, относительно этого контейнера. */
+  --beam-d: calc(var(--beam-p) * (200cqw + 200cqh));
+  --beam-x: calc(clamp(0cqw, var(--beam-d), 100cqw) - clamp(0cqw, var(--beam-d) - 100cqw - 100cqh, 100cqw));
+  --beam-y: calc(clamp(0cqh, var(--beam-d) - 100cqw, 100cqh) - clamp(0cqh, var(--beam-d) - 200cqw - 100cqh, 100cqh));
+  --beam-r: min(50cqw, 50cqh);
+  --beam-cx: clamp(var(--beam-r), var(--beam-x), 100cqw - var(--beam-r));
+  --beam-cy: clamp(var(--beam-r), var(--beam-y), 100cqh - var(--beam-r));
+  --beam-dir: atan2(calc(var(--beam-x) - var(--beam-cx)), calc(var(--beam-cy) - var(--beam-y)));
   @media (prefers-reduced-motion: reduce) {
     animation: none;
-    &:not(:focus-visible) {
-      box-shadow: var(--glow-primary-faint);
-    }
+    opacity: 1;
+  }
+}
+@utility border-beam-edge {
+  position: absolute;
+  inset: 0;
+  border: var(--beam-width) solid var(--beam-color);
+  border-radius: inherit;
+  mask-image: conic-gradient(
+    from var(--beam-dir) at var(--beam-cx) var(--beam-cy),
+    var(--mask-solid) var(--beam-cone),
+    var(--mask-faint) calc(var(--beam-cone) + var(--beam-cone-falloff)),
+    var(--mask-faint) calc(100% - var(--beam-cone) - var(--beam-cone-falloff)),
+    var(--mask-solid) calc(100% - var(--beam-cone))
+  );
+  @media (prefers-reduced-motion: reduce) {
+    mask-image: none;
+  }
+}
+@utility border-beam-glow {
+  position: absolute;
+  inset: calc(var(--beam-glow-radius) * -1);
+  border-radius: inherit;
+  mask-image: conic-gradient(
+    from var(--beam-dir) at calc(var(--beam-cx) + var(--beam-glow-radius)) calc(var(--beam-cy) + var(--beam-glow-radius)),
+    var(--mask-solid) var(--beam-cone),
+    transparent calc(var(--beam-cone) + var(--beam-cone-falloff)),
+    transparent calc(100% - var(--beam-cone) - var(--beam-cone-falloff)),
+    var(--mask-solid) calc(100% - var(--beam-cone))
+  );
+  &::before {
+    content: '';
+    position: absolute;
+    inset: var(--beam-glow-radius);
+    border-radius: inherit;
+    box-shadow: var(--beam-glow);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+/* Пульсирующая точка (компонент PulseDot, 2026-11-11): кольцо того же цвета, что точка, расходится из неё
+   и гаснет до нуля, затем пауза. Цикл — --motion-pulse + --motion-pulse-rest. Кольцо — absolute поверх
+   точки, обёртка размером с точку и без overflow: hidden, поэтому кольцо не обрезается. При
+   prefers-reduced-motion кольца нет, остаётся точка. */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  /* 54.5 % = --motion-pulse / (--motion-pulse + --motion-pulse-rest): при смене токенов менять вместе. */
+  54.5%,
+  100% {
+    transform: scale(2.75);
+    opacity: 0;
+  }
+}
+@utility animate-pulse-ring {
+  animation: pulse-ring calc(var(--motion-pulse) + var(--motion-pulse-rest)) var(--ease-pulse) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+/* Затухание однострочного текста к концу строки (2026-11-11, имя компании в кнопке аккаунта сайдбара):
+   вместо многоточия truncate последние --text-fade-length плавно уходят в прозрачность. Конец строки —
+   справа в LTR и слева в RTL (:dir(rtl)). Элементу нужна ширина контейнера (блок, grid- или flex-элемент
+   с min-w-0): у элемента по ширине текста зона затухания легла бы на сам короткий текст. */
+@utility text-fade-end {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, var(--mask-solid) calc(100% - var(--text-fade-length)), transparent);
+  &:dir(rtl) {
+    mask-image: linear-gradient(to left, var(--mask-solid) calc(100% - var(--text-fade-length)), transparent);
   }
 }
 

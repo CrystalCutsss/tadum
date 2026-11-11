@@ -66,7 +66,7 @@ export const Disabled: Story = {
     </Button>
   ),
 };
-// Принятое исключение, Кирилл 2026-11-06: белый текст кнопки WhatsApp на #25D366 — 1.98:1.
+// Принятое исключение, Кирилл 2026-11-06: белый текст кнопки WhatsApp — 3.01:1 на --whatsapp с 2026-11-11 (было 1.98:1 на #25D366).
 // Отключено только правило axe color-contrast; правила матрицы (landmark) сохранены — массив rules при слиянии parameters заменяется целиком.
 const whatsappA11y = {
   ...matrix.parameters,
@@ -76,7 +76,7 @@ const whatsappA11y = {
   },
 };
 
-// Кнопка WhatsApp (токены --whatsapp / --whatsapp-foreground, белый текст 1.98:1) — ссылкой через asChild, в матрице AR/EN × light/dark.
+// Кнопка WhatsApp (токены --whatsapp / --whatsapp-foreground, белый текст 3.01:1) — ссылкой через asChild, в матрице AR/EN × light/dark.
 export const Whatsapp: Story = {
   ...matrix,
   parameters: whatsappA11y,

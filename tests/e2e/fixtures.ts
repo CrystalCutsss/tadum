@@ -83,7 +83,7 @@ export async function openAccountMenu(page: Page, lang: Lang, { dismissHint = fa
 /** axe без нарушений; правила WCAG 2.2 AA (01-nfr-locale-brand.md). */
 export async function expectNoA11yViolations(page: Page) {
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-  // Принятое исключение (Кирилл 2026-11-06, A-057): белый текст кнопки WhatsApp на #25D366 — 1.98:1. Убирается только
+  // Принятое исключение (Кирилл 2026-11-06, A-057): белый текст кнопки WhatsApp — 3.01:1 (с 2026-11-11, был 1.98:1). Убирается только
   // color-contrast у узлов этой кнопки; остальные правила и узлы проверяются как раньше.
   const accepted = (id: string, html: string) => id === 'color-contrast' && html.includes('data-variant="whatsapp"');
   const violations = result.violations

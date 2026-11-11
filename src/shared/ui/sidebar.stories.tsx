@@ -27,7 +27,7 @@ import {
 } from './sidebar';
 import { Wordmark } from './wordmark';
 
-// Принятое исключение, Кирилл 2026-11-06: белый текст кнопки WhatsApp на #25D366 — 1.98:1.
+// Принятое исключение, Кирилл 2026-11-06: белый текст кнопки WhatsApp — 3.01:1 на --whatsapp с 2026-11-11 (было 1.98:1 на #25D366).
 // Отключено только правило axe color-contrast; правила матрицы (landmark) сохранены — массив rules при слиянии parameters заменяется целиком.
 const whatsappA11y = {
   ...matrix.parameters,

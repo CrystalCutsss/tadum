@@ -102,10 +102,11 @@
   --limit-track: oklch(0.925 0.005 214.3);
   --limit-fill: var(--primary);
 
-  /* Кнопка WhatsApp (кабинет, решение Кирилла 2026-11-06): фирменный зелёный WhatsApp #25D366 в oklch.
-     Текст белый, как у бренда: контраст 1.98:1 (не AA) — Кирилл осознанно принимает исключение (2026-11-06).
-     Цвет бренда и текста одинаков в обеих темах. */
-  --whatsapp: oklch(0.761 0.201 149.7);
+  /* Кнопка WhatsApp (кабинет, решение Кирилла 2026-11-06): зелёный WhatsApp, текст белый, как у бренда.
+     2026-11-11 (Кирилл: темнее для контраста, «не слишком тёмный»): тон и насыщенность фирменного #25D366
+     (oklch 0.761 0.201 149.7), светлота снижена до 0.65 — ≈ #20AA52, белый текст 3.01:1 вместо 1.98:1.
+     Ниже AA (4.5) — принятое Кириллом исключение. Цвет бренда и текста одинаков в обеих темах. */
+  --whatsapp: oklch(0.65 0.17 149.7);
   --whatsapp-foreground: oklch(1 0 0);
 
   /* Тени: минимум; в тёмной теме заменяются границами. */
@@ -124,15 +125,49 @@
   --motion-bounce: 480ms;
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Свечение-волна (2026-11-10): цвет — --primary с прозрачностью через color-mix.
-     В отличие от --elevation-*, в тёмной теме не none: там берётся более светлый синий пресета.
-     Три ступени одинаковой формы (blur, spread) — чтобы box-shadow интерполировался в @keyframes. */
-  --glow-primary-color: color-mix(in oklch, var(--primary) 35%, transparent);
-  --glow-primary: 0 0 8px 6px var(--glow-primary-color);
-  --glow-primary-faint: 0 0 4px 2px var(--glow-primary-color);
-  --glow-primary-none: 0 0 0 0 var(--glow-primary-color);
-  /* Период волны; при prefers-reduced-motion анимация выключается утилитой, остаётся слабое статичное свечение. */
-  --motion-glow: 2400ms;
+  /* Бегущий блик обводки BorderBeam (решение Кирилла 2026-11-11; приём по образцу React Bits Border Glow,
+     своя реализация): синяя дуга обводки с мягким свечением обходит контейнер за --motion-beam (угол
+     конической маски 0 → 360deg), затем пауза --motion-beam-pause с обычной серой обводкой. Доля прохода
+     в цикле (50 % при 2000 + 2000 ms) зашита в @keyframes border-beam в globals.css — меняются вместе.
+     В reduced-motion длительности не обнуляются: анимацию снимает сама утилита (статичная обводка --beam-color). */
+  --motion-beam: 2000ms;
+  --motion-beam-pause: 2000ms;
+  /* Цвет блика — синий пресета; в тёмной теме — более светлый синий пресета. */
+  --beam-color: var(--primary);
+  /* Толщина дуги = толщина обводки border (1px): дуга перекрашивает обводку, а не рисует вторую. */
+  --beam-width: 1px;
+  /* Коническая маска (доли полного угла от направления блика в каждую сторону): сплошная часть
+     --beam-cone, затем мягкий спад до нуля на --beam-cone-falloff. Остальная обводка во время прохода
+     чуть подкрашена — альфа маски --mask-faint. */
+  --beam-cone: 4%;
+  --beam-cone-falloff: 18%;
+  /* Свечение: слои box-shadow внутрь и наружу с убывающей альфой, той же конической маской.
+     На светлой поверхности — сдержанно; --beam-glow-radius — вынос слоя свечения за контейнер (≥ крайнего blur). */
+  --beam-glow-radius: 2.5rem;
+  --beam-glow:
+    inset 0 0 1px 0 color-mix(in oklch, var(--beam-color) 45%, transparent),
+    inset 0 0 4px 0 color-mix(in oklch, var(--beam-color) 25%, transparent),
+    inset 0 0 12px 0 color-mix(in oklch, var(--beam-color) 12%, transparent),
+    inset 0 0 28px 2px color-mix(in oklch, var(--beam-color) 6%, transparent),
+    0 0 2px 0 color-mix(in oklch, var(--beam-color) 35%, transparent),
+    0 0 8px 0 color-mix(in oklch, var(--beam-color) 18%, transparent),
+    0 0 20px 0 color-mix(in oklch, var(--beam-color) 9%, transparent),
+    0 0 36px 2px color-mix(in oklch, var(--beam-color) 4%, transparent);
+
+  /* Пульсирующая точка PulseDot (2026-11-11): кольцо расходится за --motion-pulse, затем пауза
+     --motion-pulse-rest. Доля пульса в цикле (54.5 % при 1200 + 1000 ms) зашита в @keyframes pulse-ring. */
+  --motion-pulse: 1200ms;
+  --motion-pulse-rest: 1000ms;
+  /* Замедление к концу: кольцо быстро отходит от точки и мягко гаснет. */
+  --ease-pulse: cubic-bezier(0, 0, 0.2, 1);
+
+  /* Затухание однострочного текста к концу строки (text-fade-end, 2026-11-11): длина зоны затухания. */
+  --text-fade-length: 1.75rem;
+
+  /* Непрозрачный цвет для mask-image: маска берёт только альфу, сам цвет не виден. */
+  --mask-solid: oklch(0 0 0);
+  /* Полупрозрачный цвет маски: подкраска остальной обводки во время прохода блика. */
+  --mask-faint: oklch(0 0 0 / 10%);
 }
 
 .dark {
@@ -158,11 +193,20 @@
   --elevation-sm: none;
   --elevation-md: none;
 
-  /* Переобъявление обязательно: var(--primary) в :root вычисляется в :root и не видит .dark. */
-  --glow-primary-color: color-mix(in oklch, var(--sidebar-primary) 50%, transparent);
-  --glow-primary: 0 0 8px 6px var(--glow-primary-color);
-  --glow-primary-faint: 0 0 4px 2px var(--glow-primary-color);
-  --glow-primary-none: 0 0 0 0 var(--glow-primary-color);
+  /* Переобъявление обязательно: var(--primary) в :root вычисляется в :root и не видит .dark.
+     --primary тёмной темы (0.424) на тёмной карточке почти не виден — берётся --sidebar-primary (0.623). */
+  --beam-color: var(--sidebar-primary);
+  /* На тёмной поверхности свечение сильнее; переобъявление обязательно — color-mix в :root
+     вычислен с --beam-color светлой темы. */
+  --beam-glow:
+    inset 0 0 1px 0 color-mix(in oklch, var(--beam-color) 70%, transparent),
+    inset 0 0 4px 0 color-mix(in oklch, var(--beam-color) 40%, transparent),
+    inset 0 0 12px 0 color-mix(in oklch, var(--beam-color) 22%, transparent),
+    inset 0 0 28px 2px color-mix(in oklch, var(--beam-color) 10%, transparent),
+    0 0 2px 0 color-mix(in oklch, var(--beam-color) 55%, transparent),
+    0 0 8px 0 color-mix(in oklch, var(--beam-color) 30%, transparent),
+    0 0 20px 0 color-mix(in oklch, var(--beam-color) 15%, transparent),
+    0 0 36px 2px color-mix(in oklch, var(--beam-color) 7%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

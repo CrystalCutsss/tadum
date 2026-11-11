@@ -17,7 +17,7 @@ import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
 import { cn } from 'cn';
 
-import { Button, Progress, Spinner, toast } from '@/shared/ui';
+import { BorderBeam, Button, Progress, Spinner, toast } from '@/shared/ui';
 
 import { submitErrorKey, useSubmitDocuments } from '../model/use-submit-documents';
 
@@ -77,9 +77,10 @@ export function SubmitBar({ set, uploading, crReady, onBlocked, onCrMissing }: S
       data-ready={ready}
       className={cn(
         'sticky bottom-4 z-10 mt-auto flex flex-col rounded-xl border bg-card p-3 text-card-foreground shadow-md transition duration-slow ease-standard md:bottom-6 md:p-4',
-        ready && 'animate-glow-wave border-primary',
       )}
     >
+      {/* Всё готово: по серой обводке бежит синяя подсветка, затем пауза 2 с (Кирилл 2026-11-11). */}
+      <BorderBeam active={ready} />
       {/* Высота текста растёт от нуля с лёгким перелётом (ease-bounce) и так же схлопывается. */}
       <div className={cn('grid transition-grid-rows duration-bounce ease-bounce', ready ? 'grid-rows-expanded' : 'grid-rows-collapsed')} aria-hidden={!ready}>
         <div className="min-h-0 overflow-hidden">

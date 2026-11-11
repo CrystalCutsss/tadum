@@ -1,4 +1,4 @@
-// Файлы документа: загруженные (с замечанием проверяющего — бабл под файлом) и загружающиеся сейчас
+// Файлы документа: загруженные (с замечанием проверяющего — точка с пульсом и текст под файлом) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
 import { RiCloseLine, RiErrorWarningLine, RiFileLine } from '@remixicon/react';
 import { cn } from 'cn';
@@ -11,7 +11,7 @@ import type { FileTask } from '@/features/upload-document';
 import type { Document, FileAsset } from '@/shared/api';
 import { formatFileSize, formatNumber } from '@/shared/i18n';
 import { fileIssueReason } from '@/entities/document';
-import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemMedia, ItemTitle, Progress, SpeechBubble, Spinner } from '@/shared/ui';
+import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemMedia, ItemTitle, Progress, PulseDot, Spinner } from '@/shared/ui';
 
 // Иконка файла — в сером квадрате по центру строки, иконка документа как в сайдбаре (решение Кирилла 2026-11-10).
 const FILE_MEDIA =
@@ -33,12 +33,12 @@ export function UploadedFileRow({
   const reason = issue ? fileIssueReason(issue, i18n.language === 'ar' ? 'ar' : 'en') : null;
   const reasonText = reason ? (reason.kind === 'text' ? reason.text : String(t(reason.key as ParseKeys))) : null;
   const reasonId = `issue-${file.id}`;
-  // Замечание к файлу (решение Кирилла 2026-11-10): вместо иконки файла — восклицательный знак в оранжевом квадрате,
-  // под именем и весом — оранжевый бабл с хвостиком в центр квадрата иконки.
+  // Замечание к файлу (решение Кирилла 2026-11-11): как у всего документа — оранжевая точка с пульсом и оранжевый текст
+  // под строкой файла; точка — по центру колонки квадрата иконки, текст — в колонке имени. Иконка файла обычная.
   return (
-    <Item size="sm" className={cn('items-center border-0 bg-card', issue ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
-      <ItemMedia variant="icon" className={cn(FILE_MEDIA, issue && 'bg-status-rejected-muted text-status-rejected')}>
-        <Icon icon={issue ? RiErrorWarningLine : RiFileLine} />
+    <Item size="sm" className={cn('items-center border-0 bg-card', reasonText ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
+      <ItemMedia variant="icon" className={FILE_MEDIA}>
+        <Icon icon={RiFileLine} />
       </ItemMedia>
       <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0">
@@ -51,11 +51,12 @@ export function UploadedFileRow({
         <FileActions documentId={doc.id} portalKey={doc.portal_key} status={doc.status} file={file} editable={editable} onReplace={onReplace} />
       </ItemActions>
       {reasonText ? (
-        <ItemFooter>
-          {/* Центр квадрата иконки: половина его ширины (size-10) от начала бабла. */}
-          <SpeechBubble id={reasonId} tailOffset="calc(var(--spacing) * 5)" className="w-full">
-            {reasonText}
-          </SpeechBubble>
+        <ItemFooter id={reasonId} className="items-start justify-start gap-3.5 text-sm text-status-rejected">
+          {/* Колонка шириной с квадрат иконки (size-10), зазор — как у Item size="sm" (gap-3.5). */}
+          <span className="flex h-5 w-10 shrink-0 items-center justify-center">
+            <PulseDot />
+          </span>
+          <span className="min-w-0">{reasonText}</span>
         </ItemFooter>
       ) : null}
     </Item>

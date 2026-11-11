@@ -3,30 +3,99 @@ import { expect } from 'storybook/test';
 
 import { matrix } from '../../../.storybook/decorators';
 import { T } from '../../../.storybook/t';
+import { BorderBeam } from './border-beam';
 import { Button } from './button';
+import { PulseDot } from './pulse-dot';
 
-// Токены движения 2026-11-10: свечение-волна (animate-glow-wave, shadow-glow-primary) и отскок (ease-bounce, duration-bounce).
+// Движение: бегущий фрагмент обводки BorderBeam (2026-11-11), пульсирующая точка PulseDot (2026-11-11),
+// отскок (ease-bounce, duration-bounce) и раскрытие по высоте (2026-11-10).
 const meta = { title: 'shared/ui/Motion', ...matrix } satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const GlowWave: Story = {
+// Липкая панель отправки в состоянии «всё готово»: широкая карточка, серая обводка, по ней ходит синий блик.
+export const BorderBeamTrace: Story = {
+  name: 'BorderBeam',
   render: () => (
-    <div className="flex flex-wrap gap-4 p-2">
-      <Button className="animate-glow-wave">
+    <div className="flex flex-col gap-4 p-4">
+      <div data-testid="beam-host" className="relative flex min-h-30 items-center justify-between gap-4 rounded-xl border bg-card p-6 text-card-foreground">
+        <p className="text-base font-semibold">
+          <T k="documents.submit.ready_title" />
+        </p>
+        <Button>
+          <T k="documents.submit.cta" />
+        </Button>
+        <BorderBeam />
+      </div>
+      <div data-testid="beam-off" className="relative rounded-xl border bg-card p-4 text-card-foreground">
         <T k="documents.submit.cta" />
-      </Button>
-      <Button variant="outline" className="shadow-glow-primary">
-        <T k="documents.row.upload" />
-      </Button>
+        <BorderBeam active={false} />
+      </div>
     </div>
   ),
   play: async ({ canvasElement }) => {
-    const button = canvasElement.querySelector<HTMLElement>('.animate-glow-wave')!;
-    const style = getComputedStyle(button);
-    // Без prefers-reduced-motion — бесконечная анимация glow-wave.
-    await expect(style.animationName).toBe('glow-wave');
-    await expect(style.animationIterationCount).toBe('infinite');
+    const host = canvasElement.querySelector<HTMLElement>('[data-testid="beam-host"]')!;
+    const beam = host.querySelector<HTMLElement>('[data-slot="border-beam"]')!;
+    const edge = beam.querySelector<HTMLElement>('[data-slot="border-beam-edge"]')!;
+    const glow = beam.querySelector<HTMLElement>('[data-slot="border-beam-glow"]')!;
+    await expect(beam.getAttribute('aria-hidden')).toBe('true');
+    const beamStyle = getComputedStyle(beam);
+    await expect(beamStyle.position).toBe('absolute');
+    await expect(beamStyle.pointerEvents).toBe('none');
+    // Слой совпадает с border-box контейнера и наследует его скругление; дуга — толщиной обводки.
+    const hostBox = host.getBoundingClientRect();
+    const beamBox = beam.getBoundingClientRect();
+    await expect(beamBox.width).toBeCloseTo(hostBox.width, 0);
+    await expect(beamBox.height).toBeCloseTo(hostBox.height, 0);
+    await expect(beamStyle.borderTopLeftRadius).toBe(getComputedStyle(host).borderTopLeftRadius);
+    await expect(getComputedStyle(edge).borderTopWidth).toBe(getComputedStyle(host).borderTopWidth);
+    // Дуга и свечение — в конической маске от угла --beam-angle.
+    await expect(getComputedStyle(edge).maskImage).toContain('conic-gradient');
+    await expect(getComputedStyle(glow).maskImage).toContain('conic-gradient');
+    // Без prefers-reduced-motion — бесконечный цикл: проход 2 s + пауза 2 s.
+    await expect(beamStyle.animationName).toBe('border-beam');
+    await expect(beamStyle.animationIterationCount).toBe('infinite');
+    await expect(beamStyle.animationDuration).toBe('4s');
+    await expect(beamStyle.animationTimingFunction).toBe('linear');
+    // Угол обходит полный круг за проход, в паузе блик погашен.
+    // Перемотка идущей анимации: вычисленный стиль сразу отражает новое время.
+    const [cycle] = beam.getAnimations();
+    cycle!.currentTime = 1000;
+    await expect(getComputedStyle(beam).getPropertyValue('--beam-angle')).toBe('180deg');
+    await expect(getComputedStyle(beam).opacity).toBe('1');
+    cycle!.currentTime = 3000;
+    await expect(getComputedStyle(beam).opacity).toBe('0');
+    // active={false} — блика нет.
+    await expect(canvasElement.querySelector('[data-testid="beam-off"] [data-slot="border-beam"]')).toBeNull();
+  },
+};
+
+// Точка статуса с расходящимся кольцом — в колонке иконки строки документа (центрирует потребитель).
+export const PulseDotRejected: Story = {
+  name: 'PulseDot',
+  render: () => (
+    <div className="flex items-center gap-3">
+      <div data-testid="dot-box" className="flex size-10 items-center justify-center">
+        <PulseDot />
+      </div>
+      <p className="text-sm text-status-rejected">
+        <T k="documents.submit.ready_title" />
+      </p>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const dot = canvasElement.querySelector<HTMLElement>('[data-slot="pulse-dot"]')!;
+    const ring = dot.querySelector<HTMLElement>('[data-slot="pulse-dot-ring"]')!;
+    await expect(dot.getAttribute('aria-hidden')).toBe('true');
+    // Обёртка — размер точки и не обрезает кольцо.
+    const box = dot.getBoundingClientRect();
+    await expect(box.width).toBe(box.height);
+    await expect(getComputedStyle(dot).overflow).toBe('visible');
+    const ringStyle = getComputedStyle(ring);
+    await expect(ringStyle.position).toBe('absolute');
+    await expect(ringStyle.animationName).toBe('pulse-ring');
+    await expect(ringStyle.animationDuration).toBe('2.2s');
+    await expect(ringStyle.animationIterationCount).toBe('infinite');
   },
 };
 

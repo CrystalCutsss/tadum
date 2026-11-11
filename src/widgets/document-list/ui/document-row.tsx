@@ -1,9 +1,9 @@
 // Карточка документа (решения Кирилла 2026-11-09/10): отдельного экрана нет — всё здесь, без сворачивания.
 // Основная карточка: название, описание и справа статус либо «Загрузить»; под описанием — замечание ко всему документу.
-// Нижняя серая панель: загруженные файлы (белые карточки, у файла с замечанием — бабл), под ними ошибки загрузки,
+// Нижняя серая панель: загруженные файлы (белые карточки, у файла с замечанием — точка с пульсом и текст), под ними ошибки загрузки,
 // затем «Добавить файл», видео, пример и ссылки на сервисы. Перетаскивания нет — загрузка только кнопкой.
 // В документе несколько файлов, до MAX_FILES_PER_DOCUMENT; тот же файл не загружается — окно-предупреждение.
-import { RiAddLine, RiErrorWarningLine } from '@remixicon/react';
+import { RiAddLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
@@ -24,6 +24,7 @@ import {
   ItemDescription,
   ItemMedia,
   ItemTitle,
+  PulseDot,
   StatusBadge,
   toast,
   RiFileTextLine,
@@ -128,13 +129,13 @@ export function DocumentRow({ doc, editable, highlighted = false, onUploadingCha
               )}
             </ItemActions>
           </Item>
-          {/* Замечание ко всему документу (решение Кирилла 2026-11-10): иконка без подложки и текст, всё оранжевое;
-              иконка — в колонке иконки документа, текст — в колонке названия. */}
+          {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11): оранжевая точка с пульсом и оранжевый текст;
+              точка — в колонке иконки документа, по центру первой строки, текст — в колонке названия. */}
           {reasonText ? (
-            <Item id={reasonId} className="flex-nowrap rounded-none border-0 p-0 text-status-rejected">
-              <ItemMedia variant="icon">
-                <Icon icon={RiErrorWarningLine} />
-              </ItemMedia>
+            <Item id={reasonId} className="flex-nowrap items-start rounded-none border-0 p-0 text-status-rejected">
+              <span className="flex h-5 w-4 shrink-0 items-center justify-center">
+                <PulseDot />
+              </span>
               <ItemContent className="min-w-0">
                 <ItemDescription className="line-clamp-none text-status-rejected">{reasonText}</ItemDescription>
               </ItemContent>
