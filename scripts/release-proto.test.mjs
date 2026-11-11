@@ -52,7 +52,7 @@ describe('parseReleaseNotes', () => {
 
 describe('метаданные Proto', () => {
   it('ось «Сценарии и роли» в рамках Proto: ≤ 12 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
-    // Схема Proto расширена с 6 до 12 пунктов оси (Кирилл 2026-11-11, A-063).
+    // Схема Proto: до 12 пунктов оси (Кирилл 2026-11-11, A-063; CrystalCutsss/proto#65 — merge до выпуска v15).
     expect(PERSONA_ITEMS.length).toBeLessThanOrEqual(12);
     expect(PERSONA_ITEMS[0].id).toBe('login');
     for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
