@@ -15,6 +15,16 @@ const limits = (cell: string): (LimitStatus | null)[] =>
   cell === '—' ? [null] : cell === 'any' ? [null, ...ALL_LIMITS] : (cell.split('/').map((s) => s.trim()) as LimitStatus[]);
 const checklists = (cell: string) => (cell === 'true' ? [true] : cell === 'false' || cell === '—' ? [false] : [true, false]);
 
+/**
+ * Решение Кирилла 2026-11-11 (A-063): пока условия согласуются (approved, лимита нет или он pending), текущий шаг —
+ * «Решение», «Подписание» — следующий. В §8 и §5 строка «approved | pending / ready» ещё общая — до правки Drive
+ * для pending ожидаем это значение. Убрать после синхронизации документов.
+ */
+const decisionOverride = (status: string, lim: LimitStatus | null): Record<string, string> | null =>
+  status === 'approved' && (lim === null || lim === 'pending')
+    ? { documents: 'done', review: 'done', decision: 'current', signing: 'upcoming', limit_active: 'upcoming' }
+    : null;
+
 describe('01-statuses.md §8 — таблица истинности, каждая строка и каждая комбинация', () => {
   const rows = tableWithHeader(section(readProductDoc('01-statuses.md'), '8.'), 'client_status').rows;
   it('в таблице 7 строк', () => expect(rows).toHaveLength(7));
@@ -27,7 +37,7 @@ describe('01-statuses.md §8 — таблица истинности, кажда
             expect(out.hidden).toBe(true);
             continue;
           }
-          const expected = Object.fromEntries(CLIENT_TIMELINE_STEPS.map((s, i) => [s, states[i]]));
+          const expected = decisionOverride(status, l) ?? Object.fromEntries(CLIENT_TIMELINE_STEPS.map((s, i) => [s, states[i]]));
           expect(out, `${status}/${r}/${l}/${c}`).toEqual({ hidden: false, steps: expected });
         }
   });
@@ -56,6 +66,13 @@ describe('01-cabinet-structure.md §5 — состояния шагов, каж�
       return;
     }
     expect(out).toEqual({ hidden: false, steps: Object.fromEntries(CLIENT_TIMELINE_STEPS.map((s, i) => [s, states[i]])) });
+  });
+
+  it('A-063: условия согласуются — «Решение» текущий; открылось подписание — «Подписание» текущий', () => {
+    expect(computeClientTimeline({ client_status: 'approved', round: 1, limit: limit('pending', false) }).steps).toEqual(decisionOverride('approved', 'pending'));
+    expect(computeClientTimeline({ client_status: 'approved', round: 1, limit: null }).steps?.decision).toBe('current');
+    const ready = computeClientTimeline({ client_status: 'approved', round: 1, limit: limit('ready', false) }).steps;
+    expect([ready?.decision, ready?.signing]).toEqual(['done', 'current']);
   });
 
   it('шкала не откатывается при дозапросе: «Документы» пройдены, «Проверка» — текущий шаг (D-008, решение 2026-11-09)', () => {
