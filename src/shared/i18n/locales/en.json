@@ -21,11 +21,11 @@
     },
     "limit_label": "Limit",
     "signing": {
-      "body": "Each step opens on the partner's website or in their app. When you're done, come back here — we'll update the status",
+      "body": "Each step opens on the Sadq website or in the Nafith app. When you're done, come back to this page — we'll update the status",
       "info": "Sign the documents below to activate your limit"
     },
     "subtitle": {
-      "cancelled": "Your limit has changed",
+      "cancelled": "Your limit status has changed",
       "decision": "We've calculated your limit",
       "signing": "One last step — sign the documents"
     },
@@ -135,11 +135,11 @@
   },
   "demo_sign": {
     "back": "Back to application",
-    "badge": "Demo: signing with a partner",
-    "body": "In the real product this step happens on the partner's website or in their app. Here you can mark it as signed",
+    "badge": "Demo — not a real signature",
+    "body": "In the real service, this step takes place on the Sadq website or in the Nafith app. Here you can only simulate signing",
     "sign": "Sign",
     "signed": "Signed. You can go back to the Tadum tab",
-    "unknown": "This step isn't available"
+    "unknown": "This step isn't available here. Go back to your application"
   },
   "document": {
     "aoa": {
