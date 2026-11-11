@@ -12,6 +12,8 @@ import { track } from '@/shared/analytics';
 import { formatMoney, isLanguage } from '@/shared/i18n';
 import { Button, Icon, Ltr, MetalCard } from '@/shared/ui';
 
+import { OnboardingChecklistView } from './onboarding-checklist';
+
 const NBSP = '\u00a0';
 
 /**
@@ -22,26 +24,25 @@ export function LimitSurface({ className, ...props }: ComponentProps<'section'>)
   return <MetalCard as="section" className={cn('flex flex-col gap-6 p-6 md:p-7', className)} {...props} />;
 }
 
-import { OnboardingChecklistView } from './onboarding-checklist';
 
 /**
- * Сумма лимита: валюта вдвое мельче суммы и выровнена по верхней линии цифр, а не по строке (Кирилл 2026-11-11).
- * У обеих частей leading-none, поэтому разница — верхний свес строки над цифрами: для кегля 48/24 это ~2–4 px,
- * компенсируем отступом валюты сверху (2 px — подобрано по скриншоту). Порядок частей — из formatMoney (EN: SAR 150,000, AR: 150,000 ر.س).
+ * Сумма лимита: валюта втрое мельче суммы (48 / 14 px) и выровнена по верхней линии цифр, а не по строке (Кирилл 2026-11-11).
+ * У обеих частей leading-none, поэтому разница — верхний свес строки над цифрами; компенсируем отступом валюты сверху
+ * (6 px — подобрано по скриншоту). Порядок частей — из formatMoney (EN: SAR 150,000, AR: 150,000 ر.س).
  */
 export function LimitAmount({ value }: { value: Limit['approved'] }) {
   const { i18n } = useTranslation();
   const lang = isLanguage(i18n.language) ? i18n.language : 'en';
   const parts = formatMoney(value.amount_minor / 100, lang).split(NBSP);
   return (
-    <span className="flex items-start gap-1.5 font-normal tabular-nums">
+    <span className="flex items-start gap-1 font-normal tabular-nums">
       {parts.map((part) =>
         /\d/.test(part) ? (
           <span key={part} className="text-5xl leading-none">
             <Ltr>{part}</Ltr>
           </span>
         ) : (
-          <span key={part} className="mt-0.5 text-2xl leading-none">
+          <span key={part} className="mt-1.5 text-sm leading-none">
             {part}
           </span>
         ),
@@ -54,13 +55,16 @@ export interface LimitCardProps {
   limit: Pick<Limit, 'status' | 'approved'>;
 }
 
-/** Карточка лимита: «Limit», сумма сверху, под ней — что сейчас происходит. */
-export function LimitCard({ limit }: LimitCardProps) {
+/**
+ * Карточка лимита — вертикальная (Кирилл 2026-11-11): «Limit» и сумма сверху, пояснение прижато к низу — большой отступ
+ * от суммы; высоту выравнивает сетка с папкой документов справа.
+ */
+export function LimitCard({ limit, className }: LimitCardProps & { className?: string }) {
   const { t } = useTranslation();
   const hasAmount = limit.approved.amount_minor > 0;
   const info = limit.status === 'pending' ? t('application.decision.body') : t('application.signing.info');
   return (
-    <LimitSurface aria-live="polite">
+    <LimitSurface aria-live="polite" className={cn('min-h-72 justify-between gap-12', className)}>
       <div className="flex flex-col gap-2">
         <span className="text-sm text-primary-foreground">{t('application.limit_label')}</span>
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}

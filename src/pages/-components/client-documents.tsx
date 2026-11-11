@@ -211,7 +211,6 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
   const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data.round, limit: limit.data ?? null });
   const sentAt = set.data.submitted_at ?? data.created_at;
   const lim = limit.data;
-  const folder = stage === 'decision' || stage === 'signing' || stage === 'cancelled';
 
   const subtitle =
     stage === 'documents' ? (editable ? t('documents.subtitle') : t('documents.subtitle_locked')) : t(SUBTITLE[stage]);
@@ -233,7 +232,6 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
           <CabinetAside>
             <div className="sticky top-4 flex w-1/2 max-w-full min-w-56 flex-col gap-4">
               <StepsPanel steps={timeline.steps} app={data} />
-              {folder ? <DocumentsFolder count={set.data.documents.length} onOpen={() => setDocsOpen(true)} /> : null}
             </div>
           </CabinetAside>
         </>
@@ -274,17 +272,17 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
         )
       ) : lim ? (
         <>
-          {stage === 'cancelled' ? (
-            <CancelledLimitCard applyUrl={landingUrl} />
-          ) : (
-            <>
-              <LimitCard limit={lim} />
-              {/* Отступ от карточки лимита до заголовка подписей больше обычного (Кирилл 2026-11-11). */}
-              <SigningSteps className="mt-4" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
-            </>
+          {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
+              на телефоне папка — под шагами подписания. */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {stage === 'cancelled' ? <CancelledLimitCard applyUrl={landingUrl} /> : <LimitCard limit={lim} />}
+            <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
+          </div>
+          {stage === 'cancelled' ? null : (
+            /* Отступ от карточек до заголовка подписей больше обычного (Кирилл 2026-11-11). */
+            <SigningSteps className="mt-4" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
           )}
-          {/* Телефон: папка — под шагами подписания; на компьютере она в третьей колонке под шагами заявки. */}
-          <DocumentsFolder className="lg:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
+          <DocumentsFolder className="sm:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} />
         </>
       ) : null}
