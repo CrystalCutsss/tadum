@@ -1,4 +1,4 @@
-<!-- source: Drive 1bHiZEuDuVDpXqeW7ZeKjAYXS8Fem_I4s, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1GThmMYZlec5oVF4CiS0GUrlq1VLZ1yBE, synced: 2026-11-11. Не редактировать — источник в Drive. -->
 # SC-02 · Сбор документов
 
 | Поле | Значение |
@@ -53,7 +53,7 @@
        событие document_set_submitted {documents_count, duration_from_first_upload}
 ```
 
-Автополнота (правило из `01-statuses.md` §4): если клиент загрузил все обязательные документы и не нажал «Отправить» в течение 10 минут после последней загрузки, комплект переходит в `submitted` сам; клиент при следующем открытии видит баннер `documents.auto_submitted_banner`. В демо-режиме грейс 10 секунд.
+Автополноты нет (D-080, `01-statuses.md` §4): комплект уходит на проверку только по нажатию «Отправить», сколько бы времени ни прошло после последней загрузки.
 
 ---
 
@@ -111,7 +111,6 @@
 | `documents.submit_hint_remaining` | {count} documents left to upload | تبقّى {count} مستندات للرفع | формы множ. числа |
 | `documents.submit_note` | After sending, files can't be changed until the review is done | بعد الإرسال لا يمكن تعديل الملفات حتى انتهاء المراجعة | подпись под кнопкой вместо диалога (D-029) |
 | `documents.submitted_banner` | Thank you. Your documents are with our team | شكرًا لك. مستنداتك الآن لدى فريقنا | без сроков |
-| `documents.auto_submitted_banner` | Your documents were sent for review automatically | تم إرسال مستنداتك للمراجعة تلقائيًا | |
 | `documents.locked_toast` | Documents are under review and can't be changed right now | المستندات قيد المراجعة ولا يمكن تعديلها حاليًا | |
 | `documents.empty_waiting` | We're preparing your document list. It will appear here shortly | نُجهّز قائمة مستنداتك وستظهر هنا قريبًا | «shortly» без конкретного срока — проверить TOV |
 | `document.status.pending` | Needed | مطلوب | бейдж |
@@ -183,7 +182,7 @@
 - [ ] Все тексты раздела 4 в `ar` и `en`; формы множественного числа для `{count}` заданы.
 - [ ] axe без нарушений; зона загрузки доступна с клавиатуры; прогресс и смена статуса объявляются через `aria-live`.
 - [ ] Storybook: `DocumentCard` во всех статусах × AR/EN × light/dark; `UploadDropzone` в idle/uploading/validating/failed; `client.documents` в empty/partial/complete/locked.
-- [ ] Playwright: счастливый путь (загрузка 3 документов → отправка → `under_review`), A1, A3, A5, A7, A12, автополнота — в `android-chrome` и `iphone-safari`.
+- [ ] Playwright: счастливый путь (загрузка 3 документов → отправка → `under_review`), A1, A3, A5, A7, A12, полный комплект не уходит на проверку сам (D-080) — в `android-chrome` и `iphone-safari`.
 
 ---
 
