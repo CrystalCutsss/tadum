@@ -64,7 +64,7 @@ export function LimitCard({ limit, className }: LimitCardProps & { className?: s
   const hasAmount = limit.approved.amount_minor > 0;
   const info = limit.status === 'pending' ? t('application.decision.body') : t('application.signing.info');
   return (
-    <LimitSurface aria-live="polite" className={cn('min-h-72 justify-between gap-12', className)}>
+    <LimitSurface aria-live="polite" className={cn('min-h-64 justify-between gap-8', className)}>
       <div className="flex flex-col gap-2">
         <span className="text-sm text-primary-foreground">{t('application.limit_label')}</span>
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}

@@ -4,7 +4,7 @@
 // свёрнуты; на этапе «Лимит одобрен» — только готовая карточка заявки, а даты, лимит и документы — внутри (?view=details).
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { applicationQuery, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
@@ -176,6 +176,14 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
   // Попытка отправить без номера CR — поле показывает ошибку и получает фокус.
   const [crAttention, setCrAttention] = useState(0);
   const [docsOpen, setDocsOpen] = useState(false);
+  // Высота блока Steps (третья колонка, ≥1024 px) — карточка лимита и папка той же высоты (Кирилл 2026-11-11).
+  const [stepsHeight, setStepsHeight] = useState(0);
+  const stepsRef = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return undefined;
+    const observer = new ResizeObserver(([entry]) => setStepsHeight(Math.round(entry?.borderBoxSize[0]?.blockSize ?? 0)));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   useLimitChangeNotice(limit.data);
 
   const data = app.data;
@@ -231,7 +239,9 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
           <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
             <div className="sticky top-4 flex w-1/2 max-w-full min-w-56 flex-col gap-4">
-              <StepsPanel steps={timeline.steps} app={data} />
+              <div ref={stepsRef}>
+                <StepsPanel steps={timeline.steps} app={data} />
+              </div>
             </div>
           </CabinetAside>
         </>
@@ -274,7 +284,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
         <>
           {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
               на телефоне папка — под шагами подписания. */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" style={stepsHeight > 0 ? { height: stepsHeight } : undefined}>
             {stage === 'cancelled' ? <CancelledLimitCard applyUrl={landingUrl} /> : <LimitCard limit={lim} />}
             <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           </div>

@@ -77,7 +77,7 @@ export function DocumentsFolder({ count, onOpen, className }: DocumentsFolderPro
         className,
       )}
     >
-      <div className={cn('relative h-44 w-52 group-hover:scale-105', MOTION)} aria-hidden="true">
+      <div className={cn('relative h-44 w-52 transform-gpu will-change-transform group-hover:scale-105', MOTION)} aria-hidden="true">
         {/* Задняя стенка — сплошная, темнее. */}
         <svg viewBox="0 0 208 176" className="absolute inset-0 size-full">
           <path d={BACK} className="fill-primary brightness-75" />
