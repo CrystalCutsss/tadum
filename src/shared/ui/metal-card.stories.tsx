@@ -52,9 +52,9 @@ export const Limit: Story = {
     }
     // Без указателя наклона нет: исходные значения @property.
     await expect(getComputedStyle(card).getPropertyValue('--metal-rx').trim()).toBe('0');
-    // Кольцо — 1px в обеих темах (панели матрицы: ar/en light, затем ar/en dark).
-    await expect(getComputedStyle(card, '::after').paddingTop).toBe('1px');
-    await expect(getComputedStyle(cards[2]!, '::after').paddingTop).toBe('1px');
+    // Кольцо — 1.5px в обеих темах (панели матрицы: ar/en light, затем ar/en dark).
+    await expect(getComputedStyle(card, '::after').paddingTop).toBe('1.5px');
+    await expect(getComputedStyle(cards[2]!, '::after').paddingTop).toBe('1.5px');
   },
 };
 

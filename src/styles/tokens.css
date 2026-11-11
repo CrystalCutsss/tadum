@@ -229,7 +229,7 @@
   --metal-blob-b-shift: -0.25;
   --metal-smoke-shift: -0.15;
   /* Кромка-кольцо: толщина, градиент (свет сверху слева → тень снизу справа) и искра у указателя. */
-  --metal-rim-width: 1px;
+  --metal-rim-width: 1.5px;
   --metal-rim-light: oklch(0.95 0.03 236 / 95%);
   --metal-rim-mid: oklch(0.72 0.08 245 / 30%);
   --metal-rim-dark: oklch(0.12 0.06 268 / 80%);
@@ -260,7 +260,7 @@
   --metal-gl-shine: 0.45;
   --metal-gl-halo: 0.12;
   --metal-gl-hotspot: 0.15;
-  --metal-gl-bevel: 0.1875rem;
+  --metal-gl-bevel: 0.28125rem;
   --metal-gl-rim: 0.9;
   --metal-gl-rough: 0.15;
   --metal-gl-contrast: 4.75;
