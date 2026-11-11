@@ -64,6 +64,10 @@ export const BorderBeamTrace: Story = {
     cycle!.currentTime = 1000;
     await expect(getComputedStyle(beam).getPropertyValue('--beam-p')).toBe('0.5');
     await expect(getComputedStyle(beam).opacity).toBe('1');
+    // Мягкое нарастание: на 360 ms (9 % цикла) — середина рампы, а --beam-p идёт линейно.
+    cycle!.currentTime = 360;
+    await expect(Number(getComputedStyle(beam).opacity)).toBeCloseTo(0.5, 1);
+    await expect(Number(getComputedStyle(beam).getPropertyValue('--beam-p'))).toBeCloseTo(0.18, 2);
     cycle!.currentTime = 3000;
     await expect(getComputedStyle(beam).opacity).toBe('0');
     // active={false} — блика нет.
