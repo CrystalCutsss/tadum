@@ -175,8 +175,11 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editable, set.data?.round]);
 
-  if (app.isError || set.isError) {
-    return <LoadError onRetry={() => void (app.isError ? app.refetch() : set.refetch())} support={<SupportBar context="error" />} />;
+  // Лимит не загрузился у одобренной заявки — иначе экран молча показал бы этап «Документы».
+  const limitFailed = limit.isError && (app.data?.client_status === 'approved' || app.data?.client_status === 'first_purchase');
+  if (app.isError || set.isError || limitFailed) {
+    const retry = app.isError ? app.refetch : set.isError ? set.refetch : limit.refetch;
+    return <LoadError onRetry={() => void retry()} support={<SupportBar context="error" />} />;
   }
   if (!data || !set.data || limit.isPending) {
     return (
@@ -266,7 +269,7 @@ export function ClientDocuments({ focusKey, details = false, onOpenDetails }: Cl
         <>
           {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
               на телефоне папка — под шагами подписания. */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" style={stepsHeight > 0 ? { height: stepsHeight } : undefined}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" style={stepsHeight > 0 ? { minHeight: stepsHeight } : undefined}>
             {stage === 'cancelled' ? <CancelledLimitCard applyUrl={landingUrl} /> : <LimitCard limit={lim} />}
             <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           </div>

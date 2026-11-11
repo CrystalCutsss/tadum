@@ -1,5 +1,5 @@
 // client_limit_cancelled — client_owner; лимит отменён на этапе подписания, заявка не закрыта (SC-06 A7).
-import { CLIENT_BASE_KEYS, ZERO, ago, checklist, documentSet, phone, sar, uploaded } from '../build';
+import { CLIENT_BASE_KEYS, ZERO, ago, checklist, documentSet, landingUrl, phone, sar, uploaded } from '../build';
 import type { PersonaFixture } from '../types';
 
 const SET = 'set_clc_1';
@@ -17,7 +17,7 @@ export const clientLimitCancelled: PersonaFixture = (now) => {
         odoo_stage: 'Signing SPA & PN',
         client_status: 'approved',
         permission_state: 'active',
-        next_step: { owner: 'user', text_key: 'next_step.sign_documents', cta: { label_key: 'next_step.cta.sign', route: '/c/documents' } },
+        next_step: { owner: 'none', text_key: 'next_step.closed', cta: { label_key: 'next_step.cta.apply', external_url: landingUrl() } },
         current_document_set_id: SET,
         limit_id: 'lim_clc',
         created_at: ago(now, { days: 8 }),

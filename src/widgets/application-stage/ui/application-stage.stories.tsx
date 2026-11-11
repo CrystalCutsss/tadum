@@ -9,6 +9,7 @@ import { matrix } from '../../../../.storybook/decorators';
 import type { ChecklistItem, Limit } from '@/entities/limit';
 import { markChecklistOpened } from '@/entities/limit';
 import { createI18n } from '@/shared/i18n';
+import { setAnalyticsProviders, type CapturedEvent } from '@/shared/analytics';
 import { now, setClock } from '@/shared/lib';
 
 import { CancelledLimitCard, LimitCard, SigningSteps } from './application-stage-card';
@@ -27,6 +28,15 @@ function panels(canvasElement: HTMLElement) {
     return { el, c: within(el), t: (key: ParseKeys, values?: Record<string, unknown>): string => i18n.t(key, values ?? {}) };
   });
 }
+
+/** События, отправленные при показе (до первой отрисовки — из loader); restore — в конце play. */
+function eventsLoader() {
+  const events: CapturedEvent[] = [];
+  const restore = setAnalyticsProviders([{ capture: (e) => events.push(e) }]);
+  return { events, restore };
+}
+type Captured = { events: CapturedEvent[]; restore: () => void };
+const propsOf = (events: CapturedEvent[], name: string) => events.filter((e) => e.name === name).map((e) => e.props);
 
 const sar = (amount: number) => ({ amount_minor: amount * 100, currency: 'SAR' as const });
 const url = (key: ChecklistItem['key']) => `/demo/sign?item=${key}`;
@@ -154,7 +164,7 @@ export const SigningStale: Story = {
       const restore = setClock(() => FIXED);
       // Ссылку открыли 25 ч назад, после последнего ответа сервера (26 ч назад).
       markChecklistOpened('pn_company_nafith', FIXED - 25 * HOUR);
-      return { restore };
+      return { restore, captured: eventsLoader() };
     },
   ],
   render: () => <SigningSteps limit={limit('ready', items('done', 'in_progress', 'pending'))} limitUpdatedAt={FIXED - 26 * HOUR} />,
@@ -165,21 +175,32 @@ export const SigningStale: Story = {
         await expect(row).toHaveTextContent(t('checklist.status.in_progress'));
         await expect(within(row).getByText(t('checklist.stale_hint'))).toBeVisible();
       }
+      // checklist_item_stale — по разу на панель, часы с момента клика «Открыть».
+      const { events } = (loaded as { captured: Captured }).captured;
+      await expect(propsOf(events, 'checklist_item_stale')).toEqual(Array(4).fill({ item: 'pn_company_nafith', hours: 25 }));
     } finally {
-      (loaded as { restore: () => void }).restore();
+      (loaded as { restore: () => void; captured: Captured }).restore();
+      (loaded as { captured: Captured }).captured.restore();
     }
   },
 };
 
 export const SigningFailed: Story = {
   name: 'SigningSteps — шаг не получилось подтвердить',
+  loaders: [() => ({ captured: eventsLoader() })],
   render: () => <SigningSteps limit={limit('ready', items('done', 'failed', 'pending'))} limitUpdatedAt={now()} />,
-  play: async ({ canvasElement }) => {
-    for (const { el, t } of panels(canvasElement)) {
-      const row = el.querySelectorAll('li')[1]!;
-      await expect(row).toHaveTextContent(t('checklist.status.failed'));
-      await expect(within(row).getByText(t('checklist.item_failed'))).toBeVisible();
-      await expect(within(row).queryByRole('link')).toBeNull();
+  play: async ({ canvasElement, loaded }) => {
+    const { events, restore } = (loaded as { captured: Captured }).captured;
+    try {
+      for (const { el, t } of panels(canvasElement)) {
+        const row = el.querySelectorAll('li')[1]!;
+        await expect(row).toHaveTextContent(t('checklist.status.failed'));
+        await expect(within(row).getByText(t('checklist.item_failed'))).toBeVisible();
+        await expect(within(row).queryByRole('link')).toBeNull();
+      }
+      await expect(propsOf(events, 'checklist_item_failed_viewed')).toEqual(Array(4).fill({ item: 'pn_company_nafith' }));
+    } finally {
+      restore();
     }
   },
 };
@@ -208,11 +229,18 @@ export const SigningNafithWithoutLink: Story = {
 
 export const Cancelled: Story = {
   name: 'CancelledLimitCard — «Подать новую заявку» на лендинг',
+  loaders: [() => ({ captured: eventsLoader() })],
   render: () => <CancelledLimitCard applyUrl="https://tadum.sa" />,
-  play: async ({ canvasElement }) => {
-    for (const { c, t } of panels(canvasElement)) {
-      await expect(c.getByRole('heading', { name: t('application.cancelled.title') })).toBeVisible();
-      await expect(c.getByRole('link', { name: t('application.cancelled.apply') })).toHaveAttribute('href', 'https://tadum.sa');
+  play: async ({ canvasElement, loaded }) => {
+    const { events, restore } = (loaded as { captured: Captured }).captured;
+    try {
+      for (const { c, t } of panels(canvasElement)) {
+        await expect(c.getByRole('heading', { name: t('application.cancelled.title') })).toBeVisible();
+        await expect(c.getByRole('link', { name: t('application.cancelled.apply') })).toHaveAttribute('href', 'https://tadum.sa');
+      }
+      await expect(propsOf(events, 'limit_cancelled_viewed')).toEqual(Array(4).fill({}));
+    } finally {
+      restore();
     }
   },
 };

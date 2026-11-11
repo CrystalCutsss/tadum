@@ -21,11 +21,14 @@ const FOLD_SHAPE = { clipPath: 'polygon(0 0, 100% 100%, 0 100%)' };
 function Paper({ className, ref }: { className: string; ref: Ref<HTMLDivElement> }) {
   return (
     <div ref={ref} className={cn('absolute top-0 h-36 w-20 transform-gpu drop-shadow-md', className)}>
-      <div className="flex size-full flex-col gap-2.5 rounded-md bg-card p-3 pt-7" style={PAPER_SHAPE}>
-        <span className="h-1.5 w-3/4 rounded-full bg-muted-foreground/30" />
-        <span className="h-1.5 w-1/2 rounded-full bg-muted-foreground/20" />
+      {/* Срез уголка и загиб нарисованы в LTR-координатах (clip-path физический); в RTL лист зеркалится целиком. */}
+      <div dir="ltr" className="relative size-full rtl:-scale-x-100">
+        <div className="flex size-full flex-col gap-2.5 rounded-md bg-card p-3 pt-7" style={PAPER_SHAPE}>
+          <span className="h-1.5 w-3/4 rounded-full bg-muted-foreground/30" />
+          <span className="h-1.5 w-1/2 rounded-full bg-muted-foreground/20" />
+        </div>
+        <span className="absolute end-0 top-0 size-4.5 rounded-es-md bg-muted" style={FOLD_SHAPE} />
       </div>
-      <span className="absolute end-0 top-0 size-4.5 rounded-es-md bg-muted" style={FOLD_SHAPE} />
     </div>
   );
 }

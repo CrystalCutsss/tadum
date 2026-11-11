@@ -18,6 +18,8 @@ export interface ChecklistLinkButtonProps {
   primary: boolean;
   /** Клиент открыл ссылку — экран сразу показывает «ждём подтверждения». */
   onOpened: () => void;
+  /** Встроенный браузер (WhatsApp и т. п.); по умолчанию — по userAgent. Задаётся в историях. */
+  inAppBrowser?: () => boolean;
 }
 
 const hostOf = (url: string) => {
@@ -28,7 +30,7 @@ const hostOf = (url: string) => {
   }
 };
 
-export function ChecklistLinkButton({ item, position, primary, onOpened }: ChecklistLinkButtonProps) {
+export function ChecklistLinkButton({ item, position, primary, onOpened, inAppBrowser = isInAppBrowser }: ChecklistLinkButtonProps) {
   const { t } = useTranslation();
   const [blocked, setBlocked] = useState(false);
   const variant = primary ? 'default' : 'secondary';
@@ -61,7 +63,7 @@ export function ChecklistLinkButton({ item, position, primary, onOpened }: Check
         target="_blank"
         rel="noopener"
         onClick={(e) => {
-          if (isInAppBrowser()) {
+          if (inAppBrowser()) {
             e.preventDefault();
             setBlocked(true);
             track('external_link_blocked', { item: item.key, href_host: hostOf(item.external_url) });
