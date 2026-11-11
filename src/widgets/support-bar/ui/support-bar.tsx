@@ -10,8 +10,12 @@ import { Button, Card, CardContent, Icon } from '@/shared/ui';
 const WHATSAPP = import.meta.env.VITE_SUPPORT_WHATSAPP ?? '966579768881';
 const EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? 'info@tadum.sa';
 
-/** Белая кнопка на бледно-синем блоке помощи: фон страницы, тёмный текст, без обводки. */
-const WHITE_BUTTON = 'min-h-11 border-transparent bg-background text-foreground hover:bg-background/80';
+/**
+ * Кнопка блока помощи: в светлой теме белая с тёмным текстом; в тёмной — светло-серая полупрозрачная (foreground/15)
+ * с белым текстом, а не чёрная (Кирилл 2026-11-11). Без обводки.
+ */
+const WHITE_BUTTON =
+  'min-h-11 border-transparent bg-background text-foreground hover:bg-background/80 dark:border-transparent dark:bg-foreground/15 dark:text-foreground dark:hover:bg-foreground/25';
 
 export type SupportPrefill = 'under_review' | 'closed' | 'quotation';
 
