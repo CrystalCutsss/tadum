@@ -72,7 +72,8 @@ export function SourcePicker({ open, onOpenChange, title, hint, multiple = true,
             <Button
               key={tile.source}
               type="button"
-              variant="outline"
+              // Плитки без обводки — серые, как вторичные кнопки (Кирилл 2026-11-12).
+              variant="secondary"
               className="h-auto min-h-24 flex-col gap-2 py-4 whitespace-normal"
               onClick={() => inputs.current[tile.source]?.click()}
             >

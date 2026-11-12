@@ -133,11 +133,11 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               </ItemTitle>
               <ItemDescription className="line-clamp-none">{hint}</ItemDescription>
             </ItemContent>
-            {/* Справа на уровне заголовка: круглая «Help» и, с 640 px, «Upload» (или статус после отправки) — Кирилл 2026-11-12. */}
+            {/* Справа на уровне заголовка: круглая «Help» и «Upload» (или статус после отправки), и на телефоне — Кирилл 2026-11-12. */}
             {help || actionRow ? (
               <ItemActions className="ms-auto shrink-0 gap-2 self-center">
                 {help ? <DocumentHelp doc={doc} title={title} /> : null}
-                {actionRow ? <span className="hidden sm:inline-flex">{actionRow}</span> : null}
+                {actionRow}
               </ItemActions>
             ) : null}
           </Item>
@@ -155,8 +155,6 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               ))}
             </ul>
           ) : null}
-          {/* Телефон: «Загрузить» — под текстом, на всю ширину карточки (Кирилл 2026-11-12). */}
-          {actionRow ? <div className="flex flex-col sm:hidden">{actionRow}</div> : null}
         </div>
 
         {/* Отступ до файлов сверху равен нижнему отступу панели (решение Кирилла 2026-11-10). */}
