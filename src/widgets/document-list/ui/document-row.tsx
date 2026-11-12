@@ -81,8 +81,9 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   const actionRow = editable ? (
     <Button
       type="button"
-      // Синяя, пока в документе нет ни одного файла; после первой загрузки — серая (Кирилл 2026-11-12).
-      variant={doc.files.length === 0 ? 'default' : 'secondary'}
+      // Синяя по умолчанию; серая — после первой успешной загрузки: документ «Загружен» или «Принят»
+      // (Кирилл 2026-11-12). Файл с замечанием или «Нужен новый файл» — снова синяя.
+      variant={doc.status === 'received' || doc.status === 'approved' ? 'secondary' : 'default'}
       className="min-h-11"
       disabled={!online || upload.busy || full}
       aria-describedby={issues.length > 0 ? issues.map((i) => i.id).join(' ') : undefined}
