@@ -1,11 +1,11 @@
-<!-- source: Drive 10W4gPvl-k6YbznAa5sBPlyaNGURHgfm3, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1vvB1EXQGTV6vluA_dSUEf4-xICyOhkIV, synced: 2026-11-12. Не редактировать — источник в Drive. -->
 # SC-07 · Лимит одобрен
 
 | Поле | Значение |
 |---|---|
 | **ID** | `SC-07` |
 | **Роли** | `client_contact`, `client_owner` |
-| **Экраны** | `client.home` (блоки `#limit`, `#how-to-buy`), `client.documents` (карточка «Лимит одобрен», `?view=details` — D-081), `client.help` |
+| **Экраны** | `client.home` (блоки `#limit`, `#how-to-buy`), `client.documents` (карточка «Лимит одобрен», подробности заявки в выдвижной панели — D-082), `client.help` |
 | **Предусловие** | Чек-лист завершён (SC-06); `client_status = approved` с лимитом `active`, либо `client_status = first_purchase` |
 | **Статусы** | Odoo: Client Approved → Payment done; лимит `active` |
 | **Цель** | Клиент видит, сколько у него есть и сколько доступно, и понимает, как оформить покупку у поставщика через Tadum |
@@ -19,7 +19,7 @@
 
 ## 1. Основной сценарий
 
-На экране «Заявка» при лимите `active` — карточка «Your limit»: сумма, «Limit approved» с датой, «Sent for review» с датой, «Open application» → подробности заявки (D-081). Блоки главной — отдельной задачей.
+На экране «Заявка» при лимите `active` — карточка «Your limit»: сумма, «Limit approved» с датой, «Sent for review» с датой, «Open application» → выдвижная панель с подробностями заявки (D-082). Блоки главной — отдельной задачей.
 
 ```
 Дано:  лимит active: approved 150 000, used 42 500, available 107 500 (SAR); client_status = approved

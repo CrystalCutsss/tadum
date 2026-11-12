@@ -41,10 +41,10 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `1hvjk7iPI4RS3Ifu4qpRBMrc5K-2cJjlX` | 47499 | 2026-11-11 |
+| `00-decision-log.md` | `1CnD6rkV70EKHKIcBEaf5B94bxjqYUGRX` | 48161 | 2026-11-12 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1QkG3ehxEDksB-GAe2-E1letri2u0-ojP` | 15590 | 2026-11-11 |
-| `01-cabinet-structure.md` | `1LZBLqWzzINHvww-UR9LZwEB-G7YMUJsV` | 24869 | 2026-11-11 |
+| `01-cabinet-structure.md` | `1XNJXQH4ljzZ_LlJyoZgnjC-xKpQEcIgd` | 25218 | 2026-11-12 |
 | `01-entities.md` | `1_AzNT4yf-H-GRqfBEMLWUoXpSi1-1uY4` | 22848 | 2026-11-11 |
 | `01-nfr-locale-brand.md` | `1cO-QYx8-xWFkBQtw5gnzC4_L8cl1qrMk` | 49888 | 2026-11-05 |
 | `01-roles.md` | `1JrpXr6UVuqPt7t85lXSeiOnID03GA_4T` | 18427 | 2026-11-05 |
@@ -58,7 +58,7 @@
 | `scenarios/SC-04-more-docs-requested.md` | `1vYqiAgrrhbuagTwIUxDXiF15_jAovM0A` | 13958 | 2026-11-05 |
 | `scenarios/SC-05-under-review.md` | `1AsDtblK9cnPAZynjX8W180tNx50acj92` | 14120 | 2026-11-05 |
 | `scenarios/SC-06-approval-and-limit-setup.md` | `1NICzXnAFGML9tRvNkmW-mMno83tpM0qR` | 16553 | 2026-11-11 |
-| `scenarios/SC-07-limit-active.md` | `10W4gPvl-k6YbznAa5sBPlyaNGURHgfm3` | 14236 | 2026-11-11 |
+| `scenarios/SC-07-limit-active.md` | `1vvB1EXQGTV6vluA_dSUEf4-xICyOhkIV` | 14330 | 2026-11-12 |
 | `scenarios/SC-08-application-closed.md` | `1KrxQawcS7rbPNlXYx6jIBa9mQy0N68gp` | 13936 | 2026-11-05 |
 | `scenarios/SC-09-returning-client.md` | `1Aa6SK1sG5CNr0oWvQHx8dNSTGjIEnIHF` | 11125 | 2026-11-05 |
 | `scenarios/SC-10-service-scenarios.md` | `12VeurQ1BMCUIRwN7Kq5Lmz8e3vtUgZaa` | 18491 | 2026-11-11 |
