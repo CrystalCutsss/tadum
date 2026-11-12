@@ -253,6 +253,7 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
             focusKey={focusKey}
             header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
             crReady={!crStage || isValidCr(company.data?.cr_number)}
+            crRequired={crStage}
             onCrMissing={() => setCrAttention((n) => n + 1)}
           />
           {!editable ? (

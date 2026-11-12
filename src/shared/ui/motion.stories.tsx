@@ -3,77 +3,13 @@ import { expect } from 'storybook/test';
 
 import { matrix } from '../../../.storybook/decorators';
 import { T } from '../../../.storybook/t';
-import { BorderBeam } from './border-beam';
 import { Button } from './button';
 import { PulseDot } from './pulse-dot';
 
-// Движение: бегущий фрагмент обводки BorderBeam (2026-11-11), пульсирующая точка PulseDot (2026-11-11),
-// отскок (ease-bounce, duration-bounce) и раскрытие по высоте (2026-11-10).
+// Движение: пульсирующая точка PulseDot (2026-11-11), отскок (ease-bounce, duration-bounce) и раскрытие по высоте (2026-11-10).
 const meta = { title: 'shared/ui/Motion', ...matrix } satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-// Липкая панель отправки в состоянии «всё готово»: широкая карточка, серая обводка, по ней ходит синий блик.
-export const BorderBeamTrace: Story = {
-  name: 'BorderBeam',
-  render: () => (
-    <div className="flex flex-col gap-4 p-4">
-      <div data-testid="beam-host" className="relative flex min-h-30 items-center justify-between gap-4 rounded-xl border bg-card p-6 text-card-foreground">
-        <p className="text-base font-semibold">
-          <T k="documents.submit.ready_title" />
-        </p>
-        <Button>
-          <T k="documents.submit.cta" />
-        </Button>
-        <BorderBeam />
-      </div>
-      <div data-testid="beam-off" className="relative rounded-xl border bg-card p-4 text-card-foreground">
-        <T k="documents.submit.cta" />
-        <BorderBeam active={false} />
-      </div>
-    </div>
-  ),
-  play: async ({ canvasElement }) => {
-    const host = canvasElement.querySelector<HTMLElement>('[data-testid="beam-host"]')!;
-    const beam = host.querySelector<HTMLElement>('[data-slot="border-beam"]')!;
-    const edge = beam.querySelector<HTMLElement>('[data-slot="border-beam-edge"]')!;
-    const glow = beam.querySelector<HTMLElement>('[data-slot="border-beam-glow"]')!;
-    await expect(beam.getAttribute('aria-hidden')).toBe('true');
-    const beamStyle = getComputedStyle(beam);
-    await expect(beamStyle.position).toBe('absolute');
-    await expect(beamStyle.pointerEvents).toBe('none');
-    // Слой совпадает с border-box контейнера и наследует его скругление; дуга — толщиной обводки.
-    const hostBox = host.getBoundingClientRect();
-    const beamBox = beam.getBoundingClientRect();
-    await expect(beamBox.width).toBeCloseTo(hostBox.width, 0);
-    await expect(beamBox.height).toBeCloseTo(hostBox.height, 0);
-    await expect(beamStyle.borderTopLeftRadius).toBe(getComputedStyle(host).borderTopLeftRadius);
-    await expect(getComputedStyle(edge).borderTopWidth).toBe(getComputedStyle(host).borderTopWidth);
-    // Дуга и свечение — под маской-эллипсом вокруг точки блика; свечение выходит за контейнер.
-    await expect(getComputedStyle(edge).maskImage).toContain('radial-gradient');
-    await expect(getComputedStyle(glow).maskImage).toContain('radial-gradient');
-    await expect(glow.getBoundingClientRect().width).toBeGreaterThan(hostBox.width);
-    // Без prefers-reduced-motion — бесконечный цикл: проход 2 s + пауза 2 s.
-    await expect(beamStyle.animationName).toBe('border-beam');
-    await expect(beamStyle.animationIterationCount).toBe('infinite');
-    await expect(beamStyle.animationDuration).toBe('4s');
-    await expect(beamStyle.animationTimingFunction).toBe('linear');
-    // Доля периметра --beam-p идёт 0 → 1 за проход; в паузе блик погашен.
-    // Перемотка идущей анимации: вычисленный стиль сразу отражает новое время.
-    const [cycle] = beam.getAnimations();
-    cycle!.currentTime = 1000;
-    await expect(getComputedStyle(beam).getPropertyValue('--beam-p')).toBe('0.5');
-    await expect(getComputedStyle(beam).opacity).toBe('1');
-    // Мягкое нарастание: на 360 ms (9 % цикла) — середина рампы, а --beam-p идёт линейно.
-    cycle!.currentTime = 360;
-    await expect(Number(getComputedStyle(beam).opacity)).toBeCloseTo(0.5, 1);
-    await expect(Number(getComputedStyle(beam).getPropertyValue('--beam-p'))).toBeCloseTo(0.18, 2);
-    cycle!.currentTime = 3000;
-    await expect(getComputedStyle(beam).opacity).toBe('0');
-    // active={false} — блика нет.
-    await expect(canvasElement.querySelector('[data-testid="beam-off"] [data-slot="border-beam"]')).toBeNull();
-  },
-};
 
 // Точка статуса с расходящимся кольцом — в колонке иконки строки документа (центрирует потребитель).
 export const PulseDotRejected: Story = {

@@ -23,6 +23,8 @@ export interface DocumentListProps {
   header?: ReactNode;
   /** Номер CR сохранён — без него комплект не отправить. */
   crReady: boolean;
+  /** Поле CR показано над документами — у него свой сегмент полосы отправки. */
+  crRequired?: boolean;
   onCrMissing: () => void;
   /** Архив принятых документов (панель «Your documents», Кирилл 2026-11-11): только файлы — без бейджей статуса, видео, примеров и ссылок на сервисы. */
   archive?: boolean;
@@ -48,7 +50,7 @@ export function stableOrder<T extends DocumentSet['documents'][number]>(docs: re
   return sortDocuments(docs).sort((a, b) => rank(a.portal_key) - rank(b.portal_key));
 }
 
-export function DocumentList({ set, editable, focusKey, header, crReady, onCrMissing, archive = false }: DocumentListProps) {
+export function DocumentList({ set, editable, focusKey, header, crReady, crRequired = false, onCrMissing, archive = false }: DocumentListProps) {
   const { t } = useTranslation();
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [highlight, setHighlight] = useState<readonly string[]>([]);
@@ -106,7 +108,7 @@ export function DocumentList({ set, editable, focusKey, header, crReady, onCrMis
       </ul>
 
       {editable ? (
-        <SubmitBar set={set} uploading={Object.values(uploading).some(Boolean)} crReady={crReady} onBlocked={onBlocked} onCrMissing={onCrMissing} />
+        <SubmitBar set={set} uploading={Object.values(uploading).some(Boolean)} crReady={crReady} crRequired={crRequired} onBlocked={onBlocked} onCrMissing={onCrMissing} />
       ) : null}
     </div>
   );

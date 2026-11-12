@@ -1,9 +1,10 @@
 // Карточка документа (решения Кирилла 2026-11-09/10): отдельного экрана нет — всё здесь, без сворачивания.
-// Основная карточка: название, описание и справа статус либо «Загрузить»; под описанием — замечание ко всему документу.
-// Нижняя серая панель: загруженные файлы (белые карточки, у файла с замечанием — точка с пульсом и текст), под ними ошибки загрузки,
-// затем «Добавить файл», видео, пример и ссылки на сервисы. Перетаскивания нет — загрузка только кнопкой.
+// Основная карточка (решение Кирилла 2026-11-12): название и описание, справа на их уровне — кнопка помощи (окно с видео,
+// примером и ссылками на сервисы); ниже — замечание ко всему документу, под ним «Загрузить» по левому краю текста.
+// Нижняя серая панель: загруженные файлы одной белой таблицей без иконок (у файла с замечанием — точка с пульсом и текст),
+// ошибки загрузки строками той же таблицы. Перетаскивания нет — загрузка только кнопкой.
 // В документе несколько файлов, до MAX_FILES_PER_DOCUMENT; тот же файл не загружается — окно-предупреждение.
-import { RiAddLine, RiFileLine } from '@remixicon/react';
+import { RiFileLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
@@ -14,22 +15,9 @@ import { SameFileDialog, SourcePicker, useDocumentUpload, type UploadSource } fr
 import { MAX_FILES_PER_DOCUMENT, type Document } from '@/shared/api';
 import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
-import {
-  Badge,
-  Button,
-  Icon,
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-  PulseDot,
-  StatusBadge,
-  toast,
-} from '@/shared/ui';
+import { Badge, Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, PulseDot, StatusBadge, toast } from '@/shared/ui';
 
-import { DocumentResources } from './document-resources';
+import { DocumentHelp, hasDocumentHelp } from './document-resources';
 import { ErrorNotice, UploadTaskMessage, UploadTaskRow, UploadedFileRow } from './file-rows';
 
 export interface DocumentRowProps {
@@ -51,7 +39,10 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   const [sameFiles, setSameFiles] = useState<string[]>([]);
   const upload = useDocumentUpload(doc, {
     onSameFile: (names) => setSameFiles(names),
-    onTooMany: (max) => toast(t('upload.error.files_limit', { max: formatNumber(max) }), { position: 'top-center' }),
+    onTooMany: (max) =>
+      toast(t('upload.error.files_limit', { max: formatNumber(max) }), {
+        position: 'top-center',
+      }),
   });
   const mode = documentRowMode(doc, editable);
   const title: string = t(doc.hint.title_key as ParseKeys);
@@ -76,13 +67,32 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   const activeTasks = tasks.filter((task) => task.state !== 'failed' && task.state !== 'cancelled');
   const hasNotices = warnings.length > 0 || messages.length > 0;
   const hasFiles = doc.files.length > 0 || activeTasks.length > 0;
-  // Догрузить ещё файл, когда кнопки «Загрузить» в карточке нет (документ уже загружен).
-  const canAddMore = editable && !action && doc.files.length + activeTasks.length < MAX_FILES_PER_DOCUMENT;
+
+  const help = !archive && hasDocumentHelp(doc);
+  // Под описанием — всегда «Загрузить» по левому краю текста, пока комплект можно менять (решения Кирилла 2026-11-12):
+  // название не меняется после загрузки, бейджа «Загружен» в карточке нет; «Добавить файл» в панели больше не нужен.
+  // Комплект отправлен — вместо кнопки статус документа (кроме архива принятых).
+  const full = doc.files.length + activeTasks.length >= MAX_FILES_PER_DOCUMENT;
+  const actionRow = editable ? (
+    <Button
+      type="button"
+      variant="secondary"
+      className="min-h-11"
+      disabled={!online || upload.busy || full}
+      aria-describedby={reasonText ? reasonId : undefined}
+      onClick={() => setPicker({})}
+    >
+      {t('documents.row.upload')}
+    </Button>
+  ) : archive || action ? null : (
+    <StatusBadge kind="document" status={doc.status} />
+  );
+  const hasPanel = hasFiles || hasNotices;
 
   return (
     <li id={`doc-${doc.portal_key}`} className="list-none scroll-mt-4">
       {/* Нижняя панель (решение Кирилла 2026-11-10): серый контейнер без обводки и отступов вокруг карточки,
-          скругления те же, что у карточки; в нём — загруженные файлы, видео, пример и ссылки на сервисы. */}
+          скругления те же, что у карточки; в нём — загруженные файлы одной белой таблицей. */}
       <div className="flex flex-col rounded-xl bg-secondary">
         <div
           className={cn(
@@ -90,15 +100,16 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
             highlighted && 'border-primary ring-2 ring-primary/30',
           )}
         >
-          {/* Кнопка — по центру блока «заголовок + описание», у правого края (решение 2026-11-10). */}
           <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-            {/* Иконка документа — в сером квадрате (Кирилл 2026-11-11: подложка у документа, у файлов — без неё); есть
-                замечание к документу или к его файлу — квадрат и иконка оранжевые. */}
+            {/* Иконка документа — синяя на бледно-синей подложке (Кирилл 2026-11-12); есть замечание к документу или
+                к его файлу — квадрат и иконка оранжевые (2026-11-11). */}
             <ItemMedia
               variant="icon"
               className={cn(
-                'hidden size-10 self-center rounded-lg bg-muted sm:flex',
-                (reasonText || doc.files.some((f) => f.issue)) && 'bg-status-rejected-muted text-status-rejected',
+                'hidden size-10 self-center rounded-lg sm:flex',
+                reasonText || doc.files.some((f) => f.issue)
+                  ? 'bg-status-rejected-muted text-status-rejected'
+                  : 'bg-status-received-muted text-status-received',
               )}
             >
               <Icon icon={RiFileLine} />
@@ -114,34 +125,15 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
                 ) : null}
               </ItemTitle>
               <ItemDescription className="line-clamp-none">{hint}</ItemDescription>
-              {action || archive ? null : (
-                <div className="mt-1 sm:hidden">
-                  <StatusBadge kind="document" status={doc.status} />
-                </div>
-              )}
             </ItemContent>
-            <ItemActions className="ms-auto shrink-0">
-              {action ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="min-h-11"
-                  disabled={!online || upload.busy}
-                  aria-describedby={reasonText ? reasonId : undefined}
-                  onClick={() => setPicker({})}
-                >
-                  {mode === 'reupload' ? t('documents.row.reupload') : t('documents.row.upload')}
-                </Button>
-              ) : archive ? null : (
-                <span className="hidden sm:inline-flex">
-                  <StatusBadge kind="document" status={doc.status} />
-                </span>
-              )}
-            </ItemActions>
+            {help ? (
+              <ItemActions className="ms-auto shrink-0 self-center">
+                <DocumentHelp doc={doc} title={title} />
+              </ItemActions>
+            ) : null}
           </Item>
-          {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11): оранжевая точка с пульсом и оранжевый текст;
-              точка — в колонке иконки документа (на ≥640 px — по центру квадрата 40 px), по центру первой строки; текст —
-              в колонке названия, по его левому краю (Кирилл 2026-11-11). */}
+          {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11/12): над кнопкой «Загрузить»; оранжевая точка
+              с пульсом — в колонке иконки документа (на ≥640 px — по центру квадрата 40 px), текст — по левому краю названия. */}
           {reasonText ? (
             <Item id={reasonId} className="flex-nowrap items-start rounded-none border-0 p-0 text-status-rejected">
               <span className="flex h-5 w-4 shrink-0 items-center justify-center sm:w-10">
@@ -152,68 +144,51 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               </ItemContent>
             </Item>
           ) : null}
+          {/* Отступ слева = квадрат иконки 40 px + зазор Item 14 px: кнопка выровнена по тексту, а не по иконке. */}
+          {actionRow ? <div className="flex sm:ps-13.5">{actionRow}</div> : null}
         </div>
 
-        {/* Отступ до кнопок сверху равен нижнему отступу панели (решение Кирилла 2026-11-10). */}
-        <div className="flex flex-col gap-3 p-3 empty:hidden md:gap-4 md:p-4">
-          {hasFiles || hasNotices ? (
-            <div className="flex flex-col gap-2">
-              {hasFiles ? (
-                <ul className="flex flex-col gap-2" aria-label={t('documents.row.files', { title })}>
-                  {doc.files.map((file) => (
-                    <li key={file.id}>
-                      <UploadedFileRow doc={doc} file={file} editable={editable} onReplace={() => setPicker({ replaceFileId: file.id })} />
-                    </li>
-                  ))}
-                  {activeTasks.map((task) => (
-                    <li key={task.key}>
-                      <UploadTaskRow task={task} onCancel={() => upload.cancel(task.key)} onDismiss={() => upload.dismiss(task.key)} />
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {/* Ошибки загрузки и предупреждения проверки — под файлами, в том же виде, что и файл (решение 2026-11-10). */}
-              {hasNotices ? (
-                <ul className="flex flex-col gap-2">
-                  {warnings.map((warning) => (
-                    <li key={warning.id}>
-                      <ErrorNotice text={t(warning.key as ParseKeys)} />
-                    </li>
-                  ))}
-                  {messages.map((task) => (
-                    <li key={task.key}>
-                      <UploadTaskMessage task={task} onDismiss={() => upload.dismiss(task.key)} />
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          ) : null}
-          {archive ? null : (
-            <DocumentResources
-              doc={doc}
-              title={title}
-              leading={
-                canAddMore ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="shrink-0 hover:bg-card dark:hover:bg-card"
-                    disabled={!online || upload.busy}
-                    onClick={() => setPicker({})}
-                  >
-                    <Icon icon={RiAddLine} data-icon="inline-start" className="size-3.5" />
-                    {t('documents.row.add_file')}
-                  </Button>
-                ) : null
-              }
-            />
-          )}
-        </div>
+        {/* Отступ до файлов сверху равен нижнему отступу панели (решение Кирилла 2026-11-10). */}
+        {hasPanel ? (
+          <div className="flex flex-col items-start gap-3 p-3 md:p-4">
+            {hasFiles || hasNotices ? (
+              // Файлы без иконок, все — в одном белом контейнере с разделителями, как таблица (Кирилл 2026-11-12).
+              <ul className="flex w-full flex-col divide-y overflow-hidden rounded-lg bg-card" aria-label={t('documents.row.files', { title })}>
+                {doc.files.map((file) => (
+                  <li key={file.id}>
+                    <UploadedFileRow doc={doc} file={file} editable={editable} onReplace={() => setPicker({ replaceFileId: file.id })} />
+                  </li>
+                ))}
+                {activeTasks.map((task) => (
+                  <li key={task.key}>
+                    <UploadTaskRow task={task} onCancel={() => upload.cancel(task.key)} onDismiss={() => upload.dismiss(task.key)} />
+                  </li>
+                ))}
+                {/* Ошибки загрузки и предупреждения проверки — под файлами, строками той же таблицы (решение 2026-11-10). */}
+                {warnings.map((warning) => (
+                  <li key={warning.id}>
+                    <ErrorNotice text={t(warning.key as ParseKeys)} />
+                  </li>
+                ))}
+                {messages.map((task) => (
+                  <li key={task.key}>
+                    <UploadTaskMessage task={task} onDismiss={() => upload.dismiss(task.key)} />
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
-      <SourcePicker open={picker !== null} onOpenChange={(next) => !next && setPicker(null)} title={title} hint={hint} multiple={!picker?.replaceFileId} onPick={pick} />
+      <SourcePicker
+        open={picker !== null}
+        onOpenChange={(next) => !next && setPicker(null)}
+        title={title}
+        hint={hint}
+        multiple={!picker?.replaceFileId}
+        onPick={pick}
+      />
       <SameFileDialog names={sameFiles} onClose={() => setSameFiles([])} onPickOther={() => setPicker({})} />
     </li>
   );

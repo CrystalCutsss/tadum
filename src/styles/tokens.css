@@ -132,35 +132,6 @@
   --motion-bounce: 480ms;
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Бегущий блик обводки BorderBeam (решение Кирилла 2026-11-11; приём по образцу React Bits Border Glow,
-     своя реализация): синяя дуга обводки с мягким свечением обходит периметр контейнера за --motion-beam
-     с постоянной скоростью, затем пауза --motion-beam-pause с обычной серой обводкой. Доля прохода
-     в цикле (50 % при 2000 + 2000 ms) зашита в @keyframes border-beam в globals.css — меняются вместе.
-     В reduced-motion длительности не обнуляются: анимацию снимает сама утилита (статичная обводка --beam-color). */
-  --motion-beam: 2000ms;
-  --motion-beam-pause: 2000ms;
-  /* Цвет блика — синий пресета; в тёмной теме — более светлый синий пресета. */
-  --beam-color: var(--primary);
-  /* Толщина дуги = толщина обводки border (1px): дуга перекрашивает обводку, а не рисует вторую. */
-  --beam-width: 1px;
-  /* Маска блика — эллипс вокруг точки на обводке: полуоси — доля --beam-arc полупериметра контейнера
-     (0.35 → дуга с хвостами ≈ 35 % периметра), насыщенное ядро — первые --beam-core радиуса эллипса,
-     дальше плавный спад. Остальная обводка во время прохода чуть подкрашена — альфа маски --mask-faint. */
-  --beam-arc: 0.35;
-  --beam-core: 15%;
-  /* Свечение: слои box-shadow внутрь и наружу с убывающей альфой, той же маской.
-     На светлой поверхности — сдержанно; --beam-glow-radius — вынос слоя свечения за контейнер (≥ крайнего blur). */
-  --beam-glow-radius: 2.5rem;
-  --beam-glow:
-    inset 0 0 1px 0 color-mix(in oklch, var(--beam-color) 45%, transparent),
-    inset 0 0 4px 0 color-mix(in oklch, var(--beam-color) 25%, transparent),
-    inset 0 0 12px 0 color-mix(in oklch, var(--beam-color) 12%, transparent),
-    inset 0 0 28px 2px color-mix(in oklch, var(--beam-color) 6%, transparent),
-    0 0 2px 0 color-mix(in oklch, var(--beam-color) 35%, transparent),
-    0 0 8px 0 color-mix(in oklch, var(--beam-color) 18%, transparent),
-    0 0 20px 0 color-mix(in oklch, var(--beam-color) 9%, transparent),
-    0 0 36px 2px color-mix(in oklch, var(--beam-color) 4%, transparent);
-
   /* Пульсирующая точка PulseDot (2026-11-11): кольцо расходится за --motion-pulse, затем пауза
      --motion-pulse-rest. Доля пульса в цикле (54.5 % при 1200 + 1000 ms) зашита в @keyframes pulse-ring. */
   --motion-pulse: 1200ms;
@@ -265,10 +236,17 @@
   --metal-gl-rough: 0.15;
   --metal-gl-contrast: 4.75;
 
+  /* Папка-анимация над кнопкой отправки на активной синей панели (bg-primary), решение Кирилла 2026-11-12.
+     Декоративная (aria-hidden), без текста. Половина папки выступает за верх панели — над фоном страницы,
+     поэтому цвета непрозрачные. Тон — синий пресета (≈ 264), светлота: задняя стенка < передняя < листы.
+     Светлая тема, на --primary: задняя 3.6:1, передняя 5.5:1, листы 6.5:1. На белом фоне страницы задняя
+     ≈ 1.9:1 — силуэт читается за счёт синего тона, а не контраста. */
+  --folder-back: oklch(0.8 0.09 264);
+  --folder-front: oklch(0.93 0.035 264);
+  --folder-paper: oklch(0.985 0.006 264);
+
   /* Непрозрачный цвет для mask-image: маска берёт только альфу, сам цвет не виден. */
   --mask-solid: oklch(0 0 0);
-  /* Полупрозрачный цвет маски: подкраска остальной обводки во время прохода блика. */
-  --mask-faint: oklch(0 0 0 / 10%);
 }
 
 .dark {
@@ -310,23 +288,14 @@
     0 18px 40px -18px oklch(0 0 0 / 70%),
     0 4px 12px -4px oklch(0.17 0.07 268 / 50%);
 
+  /* Папка в тёмной теме: светлее тёмного --primary (0.424) и тёмного фона, листы остаются почти белыми
+     (= --primary-foreground). Задняя на --primary 3.8:1, на фоне страницы 8.5:1; передняя на --primary 6:1. */
+  --folder-back: oklch(0.74 0.11 262);
+  --folder-front: oklch(0.87 0.055 262);
+  --folder-paper: oklch(0.97 0.014 254.604);
+
   --elevation-sm: none;
   --elevation-md: none;
-
-  /* Переобъявление обязательно: var(--primary) в :root вычисляется в :root и не видит .dark.
-     --primary тёмной темы (0.424) на тёмной карточке почти не виден — берётся --sidebar-primary (0.623). */
-  --beam-color: var(--sidebar-primary);
-  /* На тёмной поверхности свечение сильнее; переобъявление обязательно — color-mix в :root
-     вычислен с --beam-color светлой темы. */
-  --beam-glow:
-    inset 0 0 1px 0 color-mix(in oklch, var(--beam-color) 70%, transparent),
-    inset 0 0 4px 0 color-mix(in oklch, var(--beam-color) 40%, transparent),
-    inset 0 0 12px 0 color-mix(in oklch, var(--beam-color) 22%, transparent),
-    inset 0 0 28px 2px color-mix(in oklch, var(--beam-color) 10%, transparent),
-    0 0 2px 0 color-mix(in oklch, var(--beam-color) 55%, transparent),
-    0 0 8px 0 color-mix(in oklch, var(--beam-color) 30%, transparent),
-    0 0 20px 0 color-mix(in oklch, var(--beam-color) 15%, transparent),
-    0 0 36px 2px color-mix(in oklch, var(--beam-color) 7%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

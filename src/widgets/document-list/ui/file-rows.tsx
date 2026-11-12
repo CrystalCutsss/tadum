@@ -1,6 +1,6 @@
 // Файлы документа: загруженные (с замечанием проверяющего — точка с пульсом и текст под файлом) и загружающиеся сейчас
 // (в очереди → загрузка % → «Проверяем файл…» → ошибка с понятным текстом). Имена файлов — в bdi (латиница в арабском).
-import { RiCloseLine, RiErrorWarningLine, RiFileTextLine } from '@remixicon/react';
+import { RiCloseLine } from '@remixicon/react';
 import { cn } from 'cn';
 import type { ParseKeys, TFunction } from 'i18next';
 import type { ReactNode } from 'react';
@@ -11,12 +11,10 @@ import type { FileTask } from '@/features/upload-document';
 import type { Document, FileAsset } from '@/shared/api';
 import { formatFileSize, formatNumber } from '@/shared/i18n';
 import { fileIssueReason } from '@/entities/document';
-import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemMedia, ItemTitle, Progress, PulseDot, Spinner } from '@/shared/ui';
+import { Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle, Progress, PulseDot, Spinner } from '@/shared/ui';
 
-// Иконка файла — без подложки, по центру строки (Кирилл 2026-11-11: подложка теперь у документа); место прежнее,
-// чтобы строки файлов не сдвигались.
-const FILE_MEDIA =
-  'size-10 group-has-data-[slot=item-description]/item:translate-y-0 group-has-data-[slot=item-description]/item:self-center';
+// Строка таблицы файлов (Кирилл 2026-11-12): без иконки и без своего фона — белый контейнер и разделители даёт список.
+const ROW = 'rounded-none border-0';
 
 export function UploadedFileRow({
   doc,
@@ -35,13 +33,9 @@ export function UploadedFileRow({
   const reasonText = reason ? (reason.kind === 'text' ? reason.text : String(t(reason.key as ParseKeys))) : null;
   const reasonId = `issue-${file.id}`;
   // Замечание к файлу (решение Кирилла 2026-11-11): как у всего документа — оранжевая точка с пульсом и оранжевый текст
-  // под строкой файла; точка — по центру колонки квадрата иконки, текст — в колонке имени; иконка и квадрат — оранжевые.
+  // под строкой файла; иконки у файлов нет (2026-11-12).
   return (
-    <Item size="sm" className={cn('items-center border-0 bg-card', reasonText ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
-      {/* Файл с замечанием — иконка и квадрат под ней в оранжевых тонах (Кирилл 2026-11-11). */}
-      <ItemMedia variant="icon" className={cn(FILE_MEDIA, reasonText && 'text-status-rejected')}>
-        <Icon icon={RiFileTextLine} />
-      </ItemMedia>
+    <Item size="sm" className={cn(ROW, 'items-center', reasonText ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
       <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0">
           <bdi className="truncate">{file.name}</bdi>
@@ -53,9 +47,9 @@ export function UploadedFileRow({
         <FileActions documentId={doc.id} portalKey={doc.portal_key} status={doc.status} file={file} editable={editable} onReplace={onReplace} />
       </ItemActions>
       {reasonText ? (
-        <ItemFooter id={reasonId} className="items-start justify-start gap-3.5 text-sm text-status-rejected">
-          {/* Колонка шириной с квадрат иконки (size-10), зазор — как у Item size="sm" (gap-3.5). */}
-          <span className="flex h-5 w-10 shrink-0 items-center justify-center">
+        <ItemFooter id={reasonId} className="items-start justify-start gap-2 text-sm text-status-rejected">
+          {/* Точка — по центру первой строки текста, у левого края имени файла. */}
+          <span className="flex h-5 shrink-0 items-center">
             <PulseDot />
           </span>
           <span className="min-w-0">{reasonText}</span>
@@ -80,15 +74,15 @@ function taskStatus(task: FileTask, t: TFunction): string {
 }
 
 /**
- * Ошибка в нижней панели карточки: под загруженным файлом, в том же виде, что и файл — иконка в квадрате
- * по центру строки; фон белый, квадрат иконки — оранжевый (решение Кирилла 2026-11-10). Тона — «нужно внимание» (status-rejected), не destructive.
+ * Ошибка в нижней панели карточки: строкой таблицы файлов, под загруженными файлами; без иконки, как файл
+ * (Кирилл 2026-11-12), — оранжевая точка с пульсом и текст. Тона — «нужно внимание» (status-rejected), не destructive.
  */
 export function ErrorNotice({ id, title, text, action }: { id?: string; title?: ReactNode; text: ReactNode; action?: ReactNode }) {
   return (
-    <Item id={id} size="sm" className="flex-nowrap items-center border-0 bg-card text-status-rejected">
-      <ItemMedia variant="icon" className={cn(FILE_MEDIA, 'text-status-rejected')}>
-        <Icon icon={RiErrorWarningLine} />
-      </ItemMedia>
+    <Item id={id} size="sm" className={cn(ROW, 'flex-nowrap items-center gap-2 text-status-rejected')}>
+      <span className="flex h-5 shrink-0 items-center self-start">
+        <PulseDot />
+      </span>
       <ItemContent className="min-w-0">
         {title ? <ItemTitle>{title}</ItemTitle> : null}
         <ItemDescription className="line-clamp-none text-status-rejected">{text}</ItemDescription>
@@ -106,7 +100,14 @@ export function UploadTaskMessage({ task, onDismiss }: { task: FileTask; onDismi
       title={<bdi className="truncate">{task.name}</bdi>}
       text={taskStatus(task, t)}
       action={
-        <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11 text-status-rejected" aria-label={t('upload.dismiss', { name: task.name })} onClick={onDismiss}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="min-h-11 min-w-11 text-status-rejected"
+          aria-label={t('upload.dismiss', { name: task.name })}
+          onClick={onDismiss}
+        >
           <Icon icon={RiCloseLine} />
         </Button>
       }
@@ -119,13 +120,11 @@ export function UploadTaskRow({ task, onCancel, onDismiss }: { task: FileTask; o
   const active = task.state === 'queued' || task.state === 'uploading' || task.state === 'validating';
   const status = taskStatus(task, t);
   return (
-    <Item size="sm" className="flex-nowrap items-center border-0 bg-card" aria-live="polite">
-      <ItemMedia variant="icon" className={FILE_MEDIA}>
-        {task.state === 'validating' ? <Spinner aria-label={t('upload.state.validating')} /> : <Icon icon={task.state === 'failed' ? RiErrorWarningLine : RiFileTextLine} />}
-      </ItemMedia>
+    <Item size="sm" className={cn(ROW, 'flex-nowrap items-center')} aria-live="polite">
       <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0">
           <bdi className="truncate">{task.name}</bdi>
+          {task.state === 'validating' ? <Spinner aria-label={t('upload.state.validating')} /> : null}
         </ItemTitle>
         <ItemDescription className={task.state === 'failed' ? 'text-status-rejected' : undefined}>{status}</ItemDescription>
         {task.state === 'uploading' || task.state === 'queued' ? (
