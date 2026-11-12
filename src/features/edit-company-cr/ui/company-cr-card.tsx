@@ -56,7 +56,7 @@ export function CompanyCrCard({ company, editable, attention = 0, onDraftChange 
   return (
     <section id="company-cr" aria-labelledby={ids.title} className="scroll-mt-4 rounded-xl border bg-card p-3 text-card-foreground md:p-4">
       <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-        <ItemMedia variant="icon" className="hidden size-10 self-center rounded-lg bg-status-received-muted text-status-received sm:flex">
+        <ItemMedia variant="icon" className="flex size-10 self-center rounded-lg bg-status-received-muted text-status-received">
           <Icon icon={RiBuildingLine} />
         </ItemMedia>
         <ItemContent className="min-w-0 gap-1">

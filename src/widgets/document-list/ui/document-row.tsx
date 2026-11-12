@@ -108,12 +108,12 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
           )}
         >
           <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-            {/* Иконка документа — синяя на бледно-синей подложке (Кирилл 2026-11-12); есть замечание к документу или
+            {/* Иконка документа — синяя на бледно-синей подложке, и на телефоне тоже (Кирилл 2026-11-12); есть замечание к документу или
                 к его файлу — квадрат и иконка красные (2026-11-11, цвет — 2026-11-12). */}
             <ItemMedia
               variant="icon"
               className={cn(
-                'hidden size-10 self-center rounded-lg sm:flex',
+                'flex size-10 self-center rounded-lg',
                 issues.length > 0 || doc.files.some((f) => f.issue)
                   ? 'bg-destructive/10 text-destructive'
                   : 'bg-status-received-muted text-status-received',
@@ -144,7 +144,7 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
           {/* Замечания ко всему документу и предупреждения проверки файла (решения Кирилла 2026-11-10/11/12): в общей карточке,
               под заголовком. Красная точка с пульсом (Кирилл 2026-11-12: как ошибка у поля) — сразу у текста, вся строка — по левому краю заголовка. */}
           {issues.length > 0 ? (
-            <ul className="flex flex-col gap-1 sm:ps-13.5">
+            <ul className="flex flex-col gap-1 ps-13.5">
               {issues.map((issue) => (
                 <li key={issue.id} id={issue.id} className="flex items-start gap-2 text-sm text-destructive">
                   <span className="flex h-5 shrink-0 items-center">
