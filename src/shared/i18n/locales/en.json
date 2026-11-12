@@ -205,7 +205,7 @@
       "title_one": "Almost there — {count} more document",
       "title_other": "Almost there — {count} more documents"
     },
-    "progress": "{uploaded} of {total} uploaded",
+    "progress": "{done} of {total} done",
     "progress_cr_only": "Only your CR number is left",
     "resources": {
       "dialog_description": "How to get this document and what it looks like",

@@ -2,7 +2,7 @@
 // на сервисы — одна небольшая кнопка на уровне заголовка и описания карточки. Она открывает окно с табами
 // «How to get it» (видео, только на арабском, D-026) и «See an example» (картинка; пример только в PDF — ссылка на файл);
 // под табами — ссылки на внешние сервисы, где получить документ. Нет ассетов — кнопки нет (A10).
-import { RiQuestionLine } from '@remixicon/react';
+import { RiQuestionMark } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -111,7 +111,7 @@ export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Docume
 
   return (
     <>
-      {/* Круглая кнопка с вопросом, высотой с «Upload» — слева от неё. compact — на телефоне: высотой со строку заголовка (24 px), иконка 16 px (решения Кирилла 2026-11-12). */}
+      {/* Круглая кнопка со знаком вопроса без круга (Кирилл 2026-11-12), высотой с «Upload» — слева от неё. compact — на телефоне: высотой со строку заголовка (24 px), иконка 16 px (решения Кирилла 2026-11-12). */}
       <Button
         type="button"
         variant="secondary"
@@ -120,7 +120,7 @@ export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Docume
         aria-label={t('documents.resources.open_label', { title })}
         onClick={openHelp}
       >
-        <Icon icon={RiQuestionLine} className={compact ? 'size-4' : undefined} />
+        <Icon icon={RiQuestionMark} className={compact ? 'size-4' : undefined} />
       </Button>
 
       <ResponsiveDialog open={open} onOpenChange={setOpen}>

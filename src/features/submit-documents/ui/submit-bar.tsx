@@ -54,9 +54,10 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
     required: crRequired,
     ready: crReady,
   });
+  // «Сделано X из Y»: шаги — документы и поле CR, по сегментам полосы (Кирилл 2026-11-12).
   const counts = {
-    uploaded: formatNumber(progress.uploaded),
-    total: formatNumber(progress.total),
+    done: formatNumber(state.segments.filter(Boolean).length),
+    total: formatNumber(state.segments.length),
   };
   const label = state.copy === 'cr_only' ? t('documents.progress_cr_only') : t('documents.progress', counts);
   const timeLeft =
@@ -113,14 +114,15 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
         </p>
         {/* Оба состояния текста — в одной ячейке сетки, прижаты к низу (Кирилл 2026-11-12): при смене состояния панель
               и полоса прогресса не сдвигаются, а нижняя строка пояснения «всё готово» встаёт на место строки
-              «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. */}
+              «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. На телефоне показан только
+              текущий текст: панель подрастает при переходе, отступ сверху тот же (Кирилл 2026-11-12). */}
         <div className="grid w-full items-end *:col-start-1 *:row-start-1">
           {/* Время — на компьютере под «X из N загружено», на телефоне — рядом (Кирилл 2026-11-12); нижние края строк совпадают. */}
           <div
             aria-hidden={ready}
             className={cn(
               'flex flex-wrap items-end gap-x-2 gap-y-0.5 transition-opacity duration-slow ease-standard max-sm:justify-center sm:flex-col sm:items-start',
-              ready ? 'invisible opacity-0' : 'opacity-100',
+              ready ? 'invisible opacity-0 max-sm:hidden' : 'opacity-100',
             )}
           >
             {/* Заголовок панели — тем же кеглем, что у карточек документов (16 px полужирный). */}
@@ -132,7 +134,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
           {/* Всё готово: вместо «7 из 7 загружено» — заголовок (кегль как у подписи) и пояснение (на всех размерах). */}
           <div
             aria-hidden={!ready}
-            className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'invisible opacity-0')}
+            className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'invisible opacity-0 max-sm:hidden')}
           >
             <p className="text-base font-semibold">{t('documents.submit.ready_title')}</p>
             <p className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</p>
