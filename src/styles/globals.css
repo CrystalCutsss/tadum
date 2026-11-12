@@ -176,6 +176,25 @@
   transition-duration: var(--tw-duration, var(--default-transition-duration));
 }
 
+/* Статичная металлическая поверхность (решение Кирилла 2026-11-12): фон панели «Всё готово» — близко к
+   градиенту MetalCard, но без WebGL, указателя и параллакса. Снизу вверх: основа --metal-deep → --metal-mid →
+   --metal-steel под тем же углом, что у карточки (свет сверху слева), тёмная дымка --metal-smoke снизу справа
+   и мягкий блик сверху слева. Блик слабее карточного: пик --metal-glare-soft (8 %) вместо --metal-glare —
+   на панели мелкий текст --primary-foreground/80 (14 px). Худший контраст по сетке точек (4 пропорции
+   панели, без дымки): белый — 6.65 светлая / 7.02 тёмная, белый /80 — 4.85 / 5.11; с бликом --metal-glare /80
+   падал до 4.24. Фон --metal-mid — запасной цвет до отрисовки градиента. Альфы не менять без пересчёта. */
+@utility bg-metal-surface {
+  background-color: var(--metal-mid);
+  background-image:
+    radial-gradient(
+      ellipse var(--metal-glare-size) at var(--metal-glare-x) var(--metal-glare-y),
+      var(--metal-glare-soft) 0%,
+      transparent 100%
+    ),
+    radial-gradient(ellipse 70% 50% at 70% 105%, var(--metal-smoke), transparent),
+    linear-gradient(330deg, var(--metal-deep) 0%, var(--metal-mid) 50%, var(--metal-steel) 100%);
+}
+
 /* Металлическая карточка MetalCard (решение Кирилла 2026-11-11, доработки по его ревью того же дня, раунд 3).
    Основная реализация — WebGL2-поверхность (metal-card-gl.ts, порт React Bits «Reflective Card») в canvas
    [data-slot=metal-card-gl]. Слои ниже — запасной вариант без WebGL2 (и до загрузки шейдера); кольцо ::after,

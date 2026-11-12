@@ -105,12 +105,13 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
   return (
     <>
       {/* Половина папки выступает над панелью: отступ до последней карточки растёт вместе с ней. */}
-      <div aria-hidden="true" className={cn('shrink-0 transition-all duration-bounce ease-bounce', ready ? 'h-10' : 'h-0')} />
+      <div aria-hidden="true" className={cn('shrink-0 transition-all duration-bounce ease-bounce', ready ? 'h-8' : 'h-0')} />
       <div
         data-ready={ready}
         className={cn(
-          'sticky bottom-4 z-10 mt-auto flex items-stretch gap-4 rounded-xl border p-3 shadow-md transition-colors duration-slow ease-standard md:bottom-6 md:p-4',
-          ready ? 'border-primary bg-primary text-primary-foreground' : 'bg-card text-card-foreground',
+          'sticky bottom-4 z-10 mt-auto flex flex-col gap-3 rounded-xl border p-3 shadow-md transition-colors duration-slow ease-standard sm:flex-row sm:items-stretch sm:gap-4 md:bottom-6 md:p-4',
+          // Телефон: папка по центру заходит в панель — текст начинается под ней.
+          ready ? 'border-transparent bg-metal-surface text-primary-foreground max-sm:pt-14' : 'bg-card text-card-foreground',
         )}
       >
         <div className="flex min-w-0 flex-1 flex-col">
@@ -142,16 +143,22 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
             <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
           </div>
         </div>
-        {/* Колонка кнопки — на всю высоту панели: папка встаёт над кнопкой, наполовину выше верхнего края панели. */}
-        <div className="relative flex shrink-0 items-end">
+        {/* Телефон: папка — по центру панели, чуть меньше половины выше верхнего края (Кирилл: «чуть ниже»); кнопка — внизу на всю ширину (Кирилл 2026-11-12). */}
+        {ready ? (
+          <div className="absolute inset-x-0 top-0 flex -translate-y-2/5 justify-center sm:hidden">
+            <SubmitFolder />
+          </div>
+        ) : null}
+        {/* С 640 px колонка кнопки — на всю высоту панели: папка встаёт над кнопкой, наполовину выше верхнего края панели. */}
+        <div className="relative flex shrink-0 flex-col sm:flex-row sm:items-end">
           {ready ? (
-            <div className="absolute inset-x-0 -top-13.5 flex justify-center md:-top-14.5">
+            <div className="absolute inset-x-0 -top-11.5 hidden justify-center sm:flex md:-top-12.5">
               <SubmitFolder />
             </div>
           ) : null}
           <Button
             type="button"
-            className={cn('min-h-11 shrink-0', ready && 'bg-primary-inverse text-primary-inverse-foreground transition-none hover:bg-primary-inverse')}
+            className={cn('min-h-11 w-full shrink-0 sm:w-auto', ready && 'bg-primary-inverse text-primary-inverse-foreground transition-none hover:bg-primary-inverse')}
             aria-busy={submit.isPending}
             onClick={onSend}
           >

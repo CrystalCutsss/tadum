@@ -2,6 +2,7 @@
 // на сервисы — одна небольшая кнопка на уровне заголовка и описания карточки. Она открывает окно с табами
 // «How to get it» (видео, только на арабском, D-026) и «See an example» (картинка; пример только в PDF — ссылка на файл);
 // под табами — ссылки на внешние сервисы, где получить документ. Нет ассетов — кнопки нет (A10).
+import { RiQuestionLine } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -110,9 +111,16 @@ export function DocumentHelp({ doc, title }: { doc: Pick<Document, 'portal_key' 
 
   return (
     <>
-      {/* Размер sm дизайн-системы, как у прежней «How to get it», без иконки (решения Кирилла 2026-11-12). */}
-      <Button type="button" variant="secondary" size="sm" className="shrink-0" aria-label={t('documents.resources.open_label', { title })} onClick={openHelp}>
-        {t('documents.resources.open')}
+      {/* Круглая кнопка с вопросом, высотой с «Upload» — слева от неё (решения Кирилла 2026-11-12). */}
+      <Button
+        type="button"
+        variant="secondary"
+        size="icon"
+        className="size-11 shrink-0 rounded-full"
+        aria-label={t('documents.resources.open_label', { title })}
+        onClick={openHelp}
+      >
+        <Icon icon={RiQuestionLine} />
       </Button>
 
       <ResponsiveDialog open={open} onOpenChange={setOpen}>

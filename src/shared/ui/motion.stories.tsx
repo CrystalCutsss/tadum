@@ -40,6 +40,28 @@ export const PulseDotRejected: Story = {
   },
 };
 
+// Тон destructive (2026-11-12): предупреждение автоматической проверки файла — красное вместе с точкой,
+// как FieldError (text-destructive).
+export const PulseDotDestructive: Story = {
+  name: 'PulseDot destructive',
+  render: () => (
+    <div className="flex items-center gap-3">
+      <div className="flex size-10 items-center justify-center">
+        <PulseDot tone="destructive" />
+      </div>
+      <p className="text-sm text-destructive">
+        <T k="documents.submit.ready_title" />
+      </p>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const dot = canvasElement.querySelector<HTMLElement>('[data-slot="pulse-dot"]')!;
+    await expect(dot.dataset.tone).toBe('destructive');
+    const ring = dot.querySelector<HTMLElement>('[data-slot="pulse-dot-ring"]')!;
+    await expect(ring.className).toContain('bg-destructive');
+  },
+};
+
 export const Bounce: Story = {
   render: () => (
     <Button variant="secondary" className="transition-transform duration-bounce ease-bounce hover:scale-105">
