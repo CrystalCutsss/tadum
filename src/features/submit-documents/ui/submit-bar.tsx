@@ -6,8 +6,8 @@
 // подсвечивает эти документы и прокручивает к верхнему из них (onBlocked). D-029: без диалога.
 // Полоса — по сегменту на документ и на поле CR, рядом — примерное оставшееся время; подпись говорит, что осталось
 // и про поле CR (решение Кирилла 2026-11-12).
-// Всё загружено и номер CR введён (решения Кирилла 2026-11-10/12): панель с лёгким bounce вырастает по высоте, над
-// прогрессом появляется текст «всё готово — отправьте», панель перекрашивается в активный синий (текст белый и светлый,
+// Всё загружено и номер CR введён (решения Кирилла 2026-11-10/12): панель не меняет высоту и не сдвигается — вместо
+// «X из N загружено» появляется «всё готово» с пояснением, панель перекрашивается в активный синий (текст белый и светлый,
 // кнопка белая), над кнопкой появляется папка, в которую падают документы (SubmitFolder). Половина папки выступает над
 // панелью — отступ от последней карточки документа растёт. Удалили файл — всё возвращается к обычному виду.
 import type { ParseKeys } from 'i18next';
@@ -105,57 +105,52 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
   return (
     <>
       {/* Половина папки выступает над панелью: отступ до последней карточки растёт вместе с ней. */}
-      <div aria-hidden="true" className={cn('shrink-0 transition-all duration-bounce ease-bounce', ready ? 'h-8 max-sm:h-14' : 'h-0')} />
+      <div aria-hidden="true" className={cn('shrink-0 transition-all duration-bounce ease-bounce', ready ? 'h-12 max-sm:h-20' : 'h-0')} />
       <div
         data-ready={ready}
         className={cn(
           'sticky bottom-4 z-10 mt-auto flex flex-col gap-5 rounded-xl border p-3 shadow-md transition-colors duration-slow ease-standard sm:flex-row sm:items-stretch sm:gap-4 md:bottom-6 md:p-4',
-          // Телефон: папка по центру заходит в панель — текст начинается под ней.
-          ready ? 'border-transparent bg-metal-deep text-primary-foreground max-sm:pt-10' : 'bg-card text-card-foreground',
+          ready ? 'border-transparent bg-metal-deep text-primary-foreground' : 'bg-card text-card-foreground',
         )}
       >
         {/* Содержимое прижато к низу: нижний край полосы прогресса совпадает с нижним краем кнопки (Кирилл 2026-11-12). */}
-        <div className="flex min-w-0 flex-1 flex-col sm:justify-end">
-          {/* Высота текста растёт от нуля с лёгким перелётом (ease-bounce) и так же схлопывается. */}
-          <div
-            // Телефон: заголовок «всё готово» встаёт на место подписи прогресса — верхний блок не нужен (Кирилл 2026-11-12).
-            className={cn('grid transition-grid-rows duration-bounce ease-bounce max-sm:hidden', ready ? 'grid-rows-expanded' : 'grid-rows-collapsed')}
-            aria-hidden={!ready}
-          >
-            <div className="min-h-0 overflow-hidden">
-              <div className={cn('flex flex-col gap-1 pb-6 transition-opacity duration-slow ease-standard md:pb-8', ready ? 'opacity-100' : 'opacity-0')}>
-                <p className="text-xl font-semibold">{t('documents.submit.ready_title')}</p>
-                <p className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</p>
-              </div>
-            </div>
-          </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-2 max-sm:items-center max-sm:gap-4 max-sm:text-center sm:justify-end">
           <p className="sr-only" aria-live="polite">
             {ready ? `${t('documents.submit.ready_title')}. ${t('documents.submit.ready_body')}` : ''}
           </p>
-          {/* Телефон: всё по центру панели (Кирилл 2026-11-12). */}
-          <div className="flex flex-col gap-2 max-sm:items-center max-sm:text-center">
-            {/* Заголовок панели — тем же кеглем, что у карточек документов (16 px полужирный). */}
-            {/* Время — сразу справа от «X из N загружено» (Кирилл 2026-11-12; в RTL — слева, после подписи). */}
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 max-sm:justify-center">
-              <p id="submit-progress" className={cn('text-base font-semibold', ready && 'hidden')} aria-live="polite">
+          {/* Оба состояния текста — в одной ячейке сетки, прижаты к низу (Кирилл 2026-11-12): при смене состояния панель
+              и полоса прогресса не сдвигаются, а нижняя строка пояснения «всё готово» встаёт на место строки
+              «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. */}
+          <div className="grid w-full items-end *:col-start-1 *:row-start-1">
+            {/* Время — сразу справа от «X из N загружено» (в RTL — слева, после подписи); нижние края строк совпадают. */}
+            <div
+              aria-hidden={ready}
+              className={cn(
+                'flex flex-wrap items-end gap-x-2 gap-y-0.5 transition-opacity duration-slow ease-standard max-sm:justify-center',
+                ready ? 'invisible opacity-0' : 'opacity-100',
+              )}
+            >
+              {/* Заголовок панели — тем же кеглем, что у карточек документов (16 px полужирный). */}
+              <p id="submit-progress" className="text-base font-semibold">
                 {label}
               </p>
-              {/* Телефон, всё готово: вместо «7 из 7 загружено» — крупный заголовок «всё готово» и пояснение под ним. */}
-              {ready ? (
-                <span className="flex flex-col gap-1 pb-3 sm:hidden">
-                  <span className="text-xl font-semibold">{t('documents.submit.ready_title')}</span>
-                  <span className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</span>
-                </span>
-              ) : null}
               {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
             </div>
-            {/* Сегменты ниже, чем у компонента по умолчанию (Кирилл 2026-11-12: «ещё немного уменьши»). */}
-            <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
+            {/* Всё готово: вместо «7 из 7 загружено» — крупный заголовок и пояснение (на всех размерах). */}
+            <div
+              aria-hidden={!ready}
+              className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'invisible opacity-0')}
+            >
+              <p className="text-xl font-semibold">{t('documents.submit.ready_title')}</p>
+              <p className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</p>
+            </div>
           </div>
+          {/* Сегменты ниже, чем у компонента по умолчанию (Кирилл 2026-11-12: «ещё немного уменьши»). */}
+          <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
         </div>
-        {/* Телефон: папка — по центру панели, на две трети выше верхнего края (Кирилл: «подними выше»); кнопка — внизу на всю ширину (Кирилл 2026-11-12). */}
+        {/* Телефон: папка — по центру панели, почти целиком над верхним краем — панель при смене состояния не растёт (Кирилл 2026-11-12); кнопка — внизу на всю ширину (Кирилл 2026-11-12). */}
         {ready ? (
-          <div className="absolute inset-x-0 top-0 flex -translate-y-2/3 justify-center sm:hidden">
+          <div className="absolute inset-x-0 top-0 flex -translate-y-5/6 justify-center sm:hidden">
             {/* На телефоне папка крупнее — 112 px (Кирилл 2026-11-12). */}
             <SubmitFolder className="w-28" />
           </div>
@@ -163,7 +158,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
         {/* С 640 px колонка кнопки — на всю высоту панели: папка встаёт над кнопкой, наполовину выше верхнего края панели. */}
         <div className="relative flex shrink-0 flex-col sm:flex-row sm:items-end">
           {ready ? (
-            <div className="absolute inset-x-0 -top-9.5 hidden justify-center sm:flex md:-top-10.5">
+            <div className="absolute inset-x-0 -top-15.5 hidden justify-center sm:flex md:-top-16.5">
               <SubmitFolder />
             </div>
           ) : null}
