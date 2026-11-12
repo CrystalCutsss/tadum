@@ -59,7 +59,7 @@ export function hasDocumentHelp(doc: Pick<Document, 'portal_key' | 'hint'>): boo
   );
 }
 
-export function DocumentHelp({ doc, title }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string }) {
+export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string; compact?: boolean }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   // Ассеты из каталога, если бэкенд их не прислал (A-058).
@@ -111,16 +111,16 @@ export function DocumentHelp({ doc, title }: { doc: Pick<Document, 'portal_key' 
 
   return (
     <>
-      {/* Круглая кнопка с вопросом, высотой с «Upload» — слева от неё (решения Кирилла 2026-11-12). */}
+      {/* Круглая кнопка с вопросом, высотой с «Upload» — слева от неё. compact — на телефоне: высотой со строку заголовка (24 px), иконка 16 px (решения Кирилла 2026-11-12). */}
       <Button
         type="button"
         variant="secondary"
         size="icon"
-        className="size-11 shrink-0 rounded-full"
+        className={compact ? 'size-6 shrink-0 rounded-full' : 'size-11 shrink-0 rounded-full'}
         aria-label={t('documents.resources.open_label', { title })}
         onClick={openHelp}
       >
-        <Icon icon={RiQuestionLine} />
+        <Icon icon={RiQuestionLine} className={compact ? 'size-4' : undefined} />
       </Button>
 
       <ResponsiveDialog open={open} onOpenChange={setOpen}>

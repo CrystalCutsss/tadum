@@ -115,11 +115,11 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
               и полоса прогресса не сдвигаются, а нижняя строка пояснения «всё готово» встаёт на место строки
               «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. */}
         <div className="grid w-full items-end *:col-start-1 *:row-start-1">
-          {/* Время — сразу справа от «X из N загружено» (в RTL — слева, после подписи); нижние края строк совпадают. */}
+          {/* Время — на компьютере под «X из N загружено», на телефоне — рядом (Кирилл 2026-11-12); нижние края строк совпадают. */}
           <div
             aria-hidden={ready}
             className={cn(
-              'flex flex-wrap items-end gap-x-2 gap-y-0.5 transition-opacity duration-slow ease-standard max-sm:justify-center',
+              'flex flex-wrap items-end gap-x-2 gap-y-0.5 transition-opacity duration-slow ease-standard max-sm:justify-center sm:flex-col sm:items-start',
               ready ? 'invisible opacity-0' : 'opacity-100',
             )}
           >
@@ -129,20 +129,20 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
             </p>
             {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
           </div>
-          {/* Всё готово: вместо «7 из 7 загружено» — крупный заголовок и пояснение (на всех размерах). */}
+          {/* Всё готово: вместо «7 из 7 загружено» — заголовок (кегль как у подписи) и пояснение (на всех размерах). */}
           <div
             aria-hidden={!ready}
             className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'invisible opacity-0')}
           >
-            <p className="text-xl font-semibold">{t('documents.submit.ready_title')}</p>
+            <p className="text-base font-semibold">{t('documents.submit.ready_title')}</p>
             <p className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</p>
           </div>
         </div>
         {/* Сегменты ниже, чем у компонента по умолчанию (Кирилл 2026-11-12: «ещё немного уменьши»). */}
         <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
       </div>
-      {/* С 640 px колонка кнопки — на всю высоту панели, кнопка прижата к низу. */}
-      <div className="relative flex shrink-0 flex-col sm:flex-row sm:items-end">
+      {/* С 640 px кнопка — по центру панели по высоте (Кирилл 2026-11-12). */}
+      <div className="relative flex shrink-0 flex-col sm:flex-row sm:items-center">
         <Button
           type="button"
           // Серая по умолчанию, белая на синей панели «всё готово» (Кирилл 2026-11-12); на телефоне — на всю ширину и крупнее.

@@ -67,7 +67,7 @@ export function CompanyCrCard({ company, editable, attention = 0, onDraftChange 
         </ItemContent>
       </Item>
       {/* Поле выровнено по тексту, а не по иконке (Кирилл 2026-11-12, позже): отступ = квадрат 40 px + зазор Item 14 px. */}
-      <div className="mt-3 sm:ps-13.5">
+      <div className="mt-3 ps-13.5">
         <Field data-invalid={message !== null} className="w-full md:w-1/2">
           <FieldLabel htmlFor={ids.input} className="sr-only">
             {t('cr.label')}

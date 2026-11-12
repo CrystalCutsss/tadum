@@ -123,21 +123,28 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
             </ItemMedia>
             <ItemContent className="min-w-0 gap-1">
               {/* Заголовок документа крупнее заголовков файлов — блоки в длинном списке не сливаются (Кирилл 2026-11-11). */}
-              <ItemTitle className="flex-wrap text-base font-semibold">
-                {title}
+              <ItemTitle className="flex-wrap text-base font-semibold max-sm:w-full max-sm:flex-nowrap max-sm:items-start">
+                <span className="min-w-0">{title}</span>
                 {!doc.required ? (
                   <Badge variant="secondary" className="font-normal">
                     {t('document.optional')}
                   </Badge>
                 ) : null}
+                {/* Телефон: «Help» — в строке заголовка, справа и по верхнему краю, высотой ровно в строку; описание и замечания
+                    под заголовком идут на всю ширину (Кирилл 2026-11-12). */}
+                {help ? (
+                  <span className="ms-auto flex shrink-0 sm:hidden">
+                    <DocumentHelp doc={doc} title={title} compact />
+                  </span>
+                ) : null}
               </ItemTitle>
               <ItemDescription className="line-clamp-none">{hint}</ItemDescription>
             </ItemContent>
-            {/* Справа на уровне заголовка: круглая «Help» и «Upload» (или статус после отправки), и на телефоне — Кирилл 2026-11-12. */}
+            {/* Справа на уровне заголовка: круглая «Help» и, с 640 px, «Upload» (или статус после отправки) — Кирилл 2026-11-12. */}
             {help || actionRow ? (
-              <ItemActions className="ms-auto shrink-0 gap-2 self-center">
+              <ItemActions className="ms-auto shrink-0 gap-2 self-center max-sm:hidden">
                 {help ? <DocumentHelp doc={doc} title={title} /> : null}
-                {actionRow}
+                {actionRow ? <span className="hidden sm:inline-flex">{actionRow}</span> : null}
               </ItemActions>
             ) : null}
           </Item>
@@ -147,7 +154,8 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
             <ul className="flex flex-col gap-1 ps-13.5">
               {issues.map((issue) => (
                 <li key={issue.id} id={issue.id} className="flex items-start gap-2 text-sm text-destructive">
-                  <span className="flex h-5 shrink-0 items-center">
+                  <span className="flex h-5 shrink-0 items-center max-sm:hidden">
+                    {/* Точку на телефоне не показываем (Кирилл 2026-11-12). */}
                     <PulseDot tone="destructive" />
                   </span>
                   <span className="min-w-0">{issue.text}</span>
@@ -155,6 +163,8 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               ))}
             </ul>
           ) : null}
+          {/* Телефон: «Загрузить» — под текстом, по левому краю заголовка, не на всю ширину (Кирилл 2026-11-12). */}
+          {actionRow ? <div className="flex ps-13.5 sm:hidden">{actionRow}</div> : null}
         </div>
 
         {/* Отступ до файлов сверху равен нижнему отступу панели (решение Кирилла 2026-11-10). */}

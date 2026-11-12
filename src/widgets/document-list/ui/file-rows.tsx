@@ -49,7 +49,7 @@ export function UploadedFileRow({
       {reasonText ? (
         <ItemFooter id={reasonId} className="items-start justify-start gap-2 text-sm text-destructive">
           {/* Точка — по центру первой строки текста, у левого края имени файла. */}
-          <span className="flex h-5 shrink-0 items-center">
+          <span className="flex h-5 shrink-0 items-center max-sm:hidden">
             <PulseDot tone="destructive" />
           </span>
           <span className="min-w-0">{reasonText}</span>
@@ -80,7 +80,7 @@ function taskStatus(task: FileTask, t: TFunction): string {
 function ErrorNotice({ id, title, text, action }: { id?: string; title?: ReactNode; text: ReactNode; action?: ReactNode }) {
   return (
     <Item id={id} size="sm" className={cn(ROW, 'flex-nowrap items-center gap-2 text-destructive')}>
-      <span className="flex h-5 shrink-0 items-center self-start">
+      <span className="flex h-5 shrink-0 items-center self-start max-sm:hidden">
         <PulseDot tone="destructive" />
       </span>
       <ItemContent className="min-w-0">
