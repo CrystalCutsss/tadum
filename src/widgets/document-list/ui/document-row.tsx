@@ -4,18 +4,18 @@
 // Нижняя серая панель: загруженные файлы одной белой таблицей без иконок (у файла с замечанием — точка с пульсом и текст),
 // ошибки загрузки строками той же таблицы. Перетаскивания нет — загрузка только кнопкой.
 // В документе несколько файлов, до MAX_FILES_PER_DOCUMENT; тот же файл не загружается — окно-предупреждение.
-import { RiFileLine } from '@remixicon/react';
+import { RiFileLine, RiTimeLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
-import { documentRowMode, hasDocumentIssue, rejectReason } from '@/entities/document';
+import { hasDocumentIssue, rejectReason } from '@/entities/document';
 import { SameFileDialog, SourcePicker, useDocumentUpload, type UploadSource } from '@/features/upload-document';
 import { MAX_FILES_PER_DOCUMENT, type Document } from '@/shared/api';
 import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
-import { Badge, Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, PulseDot, StatusBadge, toast } from '@/shared/ui';
+import { Badge, Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, PulseDot, toast } from '@/shared/ui';
 
 import { DocumentHelp, hasDocumentHelp } from './document-resources';
 import { UploadTaskMessage, UploadTaskRow, UploadedFileRow } from './file-rows';
@@ -44,7 +44,6 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
         position: 'top-center',
       }),
   });
-  const mode = documentRowMode(doc, editable);
   const title: string = t(doc.hint.title_key as ParseKeys);
   const hint: string = t(doc.hint.hint_key as ParseKeys);
   // Замечание ко всему документу: причина с сервера; «Нужен новый файл» без причины и без замечаний к файлам — общий текст.
@@ -56,7 +55,6 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   const tasks = upload.tasks.filter((task) => task.state !== 'done');
 
   const pick = (files: File[], source: UploadSource) => void upload.start(files, source, picker?.replaceFileId);
-  const action = mode === 'upload' || mode === 'reupload';
   const busy = upload.busy;
   useEffect(() => onUploadingChange?.(doc.portal_key, busy), [busy, doc.portal_key, onUploadingChange]);
 
@@ -91,10 +89,11 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
     >
       {t('documents.row.upload')}
     </Button>
-  ) : archive || action ? null : (
-    <StatusBadge kind="document" status={doc.status} />
-  );
+  ) : // Комплект отправлен — бейджей статуса нет, у документа иконка ожидания (Кирилл 2026-11-12).
+  null;
   const hasPanel = hasFiles || hasNotices;
+  // Комплект отправлен и ждёт проверки (не архив принятых).
+  const waiting = !editable && !archive;
 
   return (
     <li id={`doc-${doc.portal_key}`} className="list-none scroll-mt-4">
@@ -114,12 +113,15 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               variant="icon"
               className={cn(
                 'flex size-10 self-center rounded-lg',
-                issues.length > 0 || doc.files.some((f) => f.issue)
-                  ? 'bg-destructive/10 text-destructive'
-                  : 'bg-status-received-muted text-status-received',
+                waiting
+                  ? 'bg-muted text-foreground'
+                  : issues.length > 0 || doc.files.some((f) => f.issue)
+                    ? 'bg-destructive/10 text-destructive'
+                    : 'bg-status-received-muted text-status-received',
               )}
             >
-              <Icon icon={RiFileLine} />
+              {/* Комплект отправлен — ждём проверки: часы, чёрные на серой подложке (Кирилл 2026-11-12). */}
+              <Icon icon={waiting ? RiTimeLine : RiFileLine} />
             </ItemMedia>
             <ItemContent className="min-w-0 gap-1">
               {/* Заголовок документа крупнее заголовков файлов — блоки в длинном списке не сливаются (Кирилл 2026-11-11). */}
