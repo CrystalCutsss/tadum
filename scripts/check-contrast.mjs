@@ -76,11 +76,10 @@ export const REQUIRED = [
   { fg: '--status-done', bg: '--background', min: 3, what: 'галочка шкалы на фоне страницы (1.4.11)' },
   { fg: '--primary-inverse-foreground', bg: '--primary-inverse', min: 4.5, what: 'текст белой кнопки на синей панели' },
   { fg: '--primary-inverse', bg: '--primary', min: 3, what: 'белая кнопка видна на синей панели (1.4.11)' },
-  // Статичная металлическая поверхность bg-metal-surface (2026-11-12): основа градиента; блик и дымка — пересчёт
-  // по сетке точек в docs/design/02-design-system.md (§ bg-metal-surface).
-  ...['--metal-mid', '--metal-steel'].flatMap((bg) => [
-    { fg: '--primary-foreground', bg, min: 4.5, what: 'текст на металлической панели' },
-    { fg: '--primary-inverse', bg, min: 3, what: 'белая кнопка видна на металлической панели (1.4.11)' },
+  // Панель «Всё готово» — сплошной bg-metal-deep без градиента (Кирилл, 2026-11-12).
+  ...['--metal-deep'].flatMap((bg) => [
+    { fg: '--primary-foreground', bg, min: 4.5, what: 'текст на глубоком синем панели' },
+    { fg: '--primary-inverse', bg, min: 3, what: 'белая кнопка видна на глубоком синем панели (1.4.11)' },
   ]),
 ];
 

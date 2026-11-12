@@ -111,7 +111,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
         className={cn(
           'sticky bottom-4 z-10 mt-auto flex flex-col gap-3 rounded-xl border p-3 shadow-md transition-colors duration-slow ease-standard sm:flex-row sm:items-stretch sm:gap-4 md:bottom-6 md:p-4',
           // Телефон: папка по центру заходит в панель — текст начинается под ней.
-          ready ? 'border-transparent bg-metal-surface text-primary-foreground max-sm:pt-14' : 'bg-card text-card-foreground',
+          ready ? 'border-transparent bg-metal-deep text-primary-foreground max-sm:pt-14' : 'bg-card text-card-foreground',
         )}
       >
         <div className="flex min-w-0 flex-1 flex-col">
@@ -132,21 +132,22 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
           </p>
           <div className="flex flex-col gap-2">
             {/* Заголовок панели — тем же кеглем, что у карточек документов (16 px полужирный). */}
-            {/* Время — сразу слева от «X из N загружено» (Кирилл 2026-11-12; в RTL — справа, у начала строки). */}
+            {/* Время — сразу справа от «X из N загружено» (Кирилл 2026-11-12; в RTL — слева, после подписи). */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
               <p id="submit-progress" className="text-base font-semibold" aria-live="polite">
                 {label}
               </p>
+              {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
             </div>
             {/* Сегменты ниже, чем у компонента по умолчанию (Кирилл 2026-11-12: «ещё немного уменьши»). */}
             <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
           </div>
         </div>
-        {/* Телефон: папка — по центру панели, чуть меньше половины выше верхнего края (Кирилл: «чуть ниже»); кнопка — внизу на всю ширину (Кирилл 2026-11-12). */}
+        {/* Телефон: папка — по центру панели, наполовину выше верхнего края; кнопка — внизу на всю ширину (Кирилл 2026-11-12). */}
         {ready ? (
-          <div className="absolute inset-x-0 top-0 flex -translate-y-2/5 justify-center sm:hidden">
-            <SubmitFolder />
+          <div className="absolute inset-x-0 top-0 flex -translate-y-1/2 justify-center sm:hidden">
+            {/* На телефоне папка крупнее — 112 px (Кирилл 2026-11-12). */}
+            <SubmitFolder className="w-28" />
           </div>
         ) : null}
         {/* С 640 px колонка кнопки — на всю высоту панели: папка встаёт над кнопкой, наполовину выше верхнего края панели. */}

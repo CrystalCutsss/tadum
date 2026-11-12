@@ -75,13 +75,15 @@ const FRONT_PEEK = -30;
 const PEEK_REST = 1;
 const PEEK_HOLD = 0.6;
 
+/** В покое листы сидят глубже в папке, чем в образце (Кирилл 2026-11-12: «опусти чуть ниже»), единицы viewBox. */
+const REST_SINK = 12;
 const restPose = (i: number) => {
   const rest = REST[i] ?? REST[0];
-  return { x: rest.x * W, y: -rest.rise * H, rotate: rest.r };
+  return { x: rest.x * W, y: REST_SINK - rest.rise * H, rotate: rest.r };
 };
 const peekPose = (i: number) => {
   const rest = REST[i] ?? REST[0];
-  return { x: rest.x * W * 1.3, y: -(rest.rise + 0.1) * H, rotate: rest.r * 1.6 };
+  return { x: rest.x * W * 1.3, y: REST_SINK - (rest.rise + 0.1) * H, rotate: rest.r * 1.6 };
 };
 /** Поза до падения (introPose образца): выше на 0.8 высоты папки и половину листа, сильнее повёрнут, прозрачный. */
 const introPose = (i: number) => {
