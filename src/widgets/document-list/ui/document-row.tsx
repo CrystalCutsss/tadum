@@ -3,7 +3,7 @@
 // Нижняя серая панель: загруженные файлы (белые карточки, у файла с замечанием — точка с пульсом и текст), под ними ошибки загрузки,
 // затем «Добавить файл», видео, пример и ссылки на сервисы. Перетаскивания нет — загрузка только кнопкой.
 // В документе несколько файлов, до MAX_FILES_PER_DOCUMENT; тот же файл не загружается — окно-предупреждение.
-import { RiAddLine } from '@remixicon/react';
+import { RiAddLine, RiFileLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, useState } from 'react';
 import type { ParseKeys } from 'i18next';
@@ -27,7 +27,6 @@ import {
   PulseDot,
   StatusBadge,
   toast,
-  RiFileTextLine,
 } from '@/shared/ui';
 
 import { DocumentResources } from './document-resources';
@@ -93,12 +92,20 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
         >
           {/* Кнопка — по центру блока «заголовок + описание», у правого края (решение 2026-11-10). */}
           <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-            {/* Есть замечание к документу или к его файлу — иконка документа оранжевая (Кирилл 2026-11-11). */}
-            <ItemMedia variant="icon" className={cn('hidden sm:flex', (reasonText || doc.files.some((f) => f.issue)) && 'text-status-rejected')}>
-              <Icon icon={RiFileTextLine} />
+            {/* Иконка документа — в сером квадрате (Кирилл 2026-11-11: подложка у документа, у файлов — без неё); есть
+                замечание к документу или к его файлу — квадрат и иконка оранжевые. */}
+            <ItemMedia
+              variant="icon"
+              className={cn(
+                'hidden size-10 self-center rounded-lg bg-muted sm:flex',
+                (reasonText || doc.files.some((f) => f.issue)) && 'bg-status-rejected-muted text-status-rejected',
+              )}
+            >
+              <Icon icon={RiFileLine} />
             </ItemMedia>
             <ItemContent className="min-w-0 gap-1">
-              <ItemTitle className="flex-wrap">
+              {/* Заголовок документа крупнее заголовков файлов — блоки в длинном списке не сливаются (Кирилл 2026-11-11). */}
+              <ItemTitle className="flex-wrap text-base font-semibold">
                 {title}
                 {!doc.required ? (
                   <Badge variant="secondary" className="font-normal">
@@ -133,10 +140,11 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
             </ItemActions>
           </Item>
           {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11): оранжевая точка с пульсом и оранжевый текст;
-              точка — в колонке иконки документа, по центру первой строки, текст — в колонке названия. */}
+              точка — в колонке иконки документа (на ≥640 px — по центру квадрата 40 px), по центру первой строки; текст —
+              в колонке названия, по его левому краю (Кирилл 2026-11-11). */}
           {reasonText ? (
             <Item id={reasonId} className="flex-nowrap items-start rounded-none border-0 p-0 text-status-rejected">
-              <span className="flex h-5 w-4 shrink-0 items-center justify-center">
+              <span className="flex h-5 w-4 shrink-0 items-center justify-center sm:w-10">
                 <PulseDot />
               </span>
               <ItemContent className="min-w-0">

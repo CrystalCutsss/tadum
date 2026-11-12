@@ -14,13 +14,23 @@ export interface ChecklistLinkButtonProps {
   item: Pick<ChecklistItem, 'key' | 'external_url'> & { external_url: string };
   /** Позиция пункта в чек-листе, с 1 — для события. */
   position: number;
-  /** Акцентная кнопка — у первого незавершённого пункта, у остальных — вторичная. */
-  primary: boolean;
   /** Клиент открыл ссылку — экран сразу показывает «ждём подтверждения». */
   onOpened: () => void;
   /** Встроенный браузер (WhatsApp и т. п.); по умолчанию — по userAgent. Задаётся в историях. */
   inAppBrowser?: () => boolean;
 }
+
+/**
+ * Ссылка внутри прототипа (демо-страница подписи) открывается в той же вкладке: в новой вкладке у просмотрщика Proto
+ * нет сессии мока, и «Вернуться к заявке» уводила на вход (баг, Кирилл 2026-11-11). Внешние Sadq и Nafith — в новой.
+ */
+const isInternal = (url: string) => {
+  try {
+    return new URL(url, window.location.href).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+};
 
 const hostOf = (url: string) => {
   try {
@@ -30,10 +40,12 @@ const hostOf = (url: string) => {
   }
 };
 
-export function ChecklistLinkButton({ item, position, primary, onOpened, inAppBrowser = isInAppBrowser }: ChecklistLinkButtonProps) {
+export function ChecklistLinkButton({ item, position, onOpened, inAppBrowser = isInAppBrowser }: ChecklistLinkButtonProps) {
   const { t } = useTranslation();
   const [blocked, setBlocked] = useState(false);
-  const variant = primary ? 'default' : 'secondary';
+  // Все кнопки пунктов — основные, синие (Кирилл 2026-11-11).
+  const variant = 'default';
+  const internal = isInternal(item.external_url);
 
   if (blocked) {
     return (
@@ -60,10 +72,10 @@ export function ChecklistLinkButton({ item, position, primary, onOpened, inAppBr
     <Button asChild variant={variant} className="min-h-11">
       <a
         href={item.external_url}
-        target="_blank"
-        rel="noopener"
+        target={internal ? undefined : '_blank'}
+        rel={internal ? undefined : 'noopener'}
         onClick={(e) => {
-          if (inAppBrowser()) {
+          if (!internal && inAppBrowser()) {
             e.preventDefault();
             setBlocked(true);
             track('external_link_blocked', { item: item.key, href_host: hostOf(item.external_url) });

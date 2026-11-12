@@ -10,6 +10,13 @@ import { Button, Card, CardContent, Icon } from '@/shared/ui';
 const WHATSAPP = import.meta.env.VITE_SUPPORT_WHATSAPP ?? '966579768881';
 const EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? 'info@tadum.sa';
 
+/**
+ * Кнопка блока помощи: в светлой теме белая с тёмным текстом; в тёмной — светло-серая полупрозрачная (foreground/15)
+ * с белым текстом, а не чёрная (Кирилл 2026-11-11). Без обводки.
+ */
+const WHITE_BUTTON =
+  'min-h-11 border-transparent bg-background text-foreground hover:bg-background/80 dark:border-transparent dark:bg-foreground/15 dark:text-foreground dark:hover:bg-foreground/25';
+
 export type SupportPrefill = 'under_review' | 'closed' | 'quotation';
 
 export interface SupportBarProps {
@@ -55,25 +62,29 @@ export function SupportBar(props: SupportBarProps) {
   );
 }
 
-/** Блок помощи в нижней части сайдбара (решения Кирилла 2026-11-06; без обводки — 2026-11-11): Card, заголовок и серый подзаголовок, WhatsApp в фирменном цвете и «Email». */
+/**
+ * Блок помощи в нижней части сайдбара (решения Кирилла 2026-11-06; без обводки — 2026-11-11): бледно-синий фон
+ * (primary/10 — отличается от серого сайдбара), заголовок и подзаголовок, обе кнопки белые (фон страницы) с тёмным
+ * текстом, логотип WhatsApp — тем же тёмным цветом, без фирменного зелёного (Кирилл 2026-11-11).
+ */
 export function SupportCard(props: SupportBarProps) {
   const { t } = useTranslation();
   const links = useSupportLinks(props);
   return (
-    <Card size="sm" role="complementary" className="ring-0" aria-label={t('support.cta.question')}>
+    <Card size="sm" role="complementary" className="bg-primary/10 ring-0" aria-label={t('support.cta.question')}>
       <CardContent className="flex flex-col gap-3">
         <p className="flex flex-col gap-0.5">
           <span className="text-sm font-medium">{t('support.cta.title')}</span>
-          <span className="text-xs text-muted-foreground">{t('support.cta.subtitle')}</span>
+          <span className="text-xs text-foreground/75">{t('support.cta.subtitle')}</span>
         </p>
         <div className="flex flex-col gap-2">
-          <Button asChild variant="whatsapp" className="min-h-11">
+          <Button asChild variant="outline" className={WHITE_BUTTON}>
             <a href={links.whatsapp.href} target="_blank" rel="noopener noreferrer" onClick={links.whatsapp.onClick}>
               <Icon icon={RiWhatsappFill} />
               {t('support.whatsapp')}
             </a>
           </Button>
-          <Button asChild variant="secondary" className="min-h-11">
+          <Button asChild variant="outline" className={WHITE_BUTTON}>
             <a href={links.email.href} onClick={links.email.onClick}>
               {t('support.email')}
             </a>

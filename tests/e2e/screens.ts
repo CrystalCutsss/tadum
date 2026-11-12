@@ -69,7 +69,7 @@ export const SCREENS: readonly Screen[] = [
   persona('client.application.approved', 'client_active', '/c/documents', heading('application.summary.title')),
   persona('client.application.details', 'client_active', '/c/documents', async (page, lang) => {
     await page.getByRole('button', { name: tr(lang, 'application.summary.open') }).click();
-    await expect(page.getByRole('heading', { level: 1, name: tr(lang, 'application.details.title') })).toBeVisible();
+    await expect(page.getByRole('dialog', { name: tr(lang, 'application.details.title') })).toBeVisible();
   }),
   persona('client.help', 'client_active', '/c/help', heading('help.title')),
   persona('supplier.home', 'supplier_active', '/s/home', heading('stub.coming_soon.title')),

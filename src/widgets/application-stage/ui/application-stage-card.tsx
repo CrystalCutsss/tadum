@@ -92,7 +92,7 @@ export function SigningSteps({ limit, limitUpdatedAt, className }: SigningStepsP
   return (
     <section className={cn('flex flex-col gap-3', className)} aria-labelledby={titleId}>
       <header className="flex flex-col gap-1">
-        <h2 id={titleId} className="text-base font-semibold">
+        <h2 id={titleId} className="text-lg font-semibold">
           {t('checklist.title')}
         </h2>
         <p className="text-sm text-muted-foreground">{locked ? t('checklist.locked_hint') : t('application.signing.body')}</p>

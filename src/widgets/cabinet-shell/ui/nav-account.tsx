@@ -1,6 +1,6 @@
 // Аккаунт внизу сайдбара (решения Кирилла 2026-11-06): без аватара — название компании клиента или поставщика,
 // под ним текущая роль. Меню по примеру shadcn Dropdown Menu «Complex» (без шорткатов, радиусы пресета): группа «Account»
-// со сменой роли Client / Supplier сверху вниз (только dual), разделитель, группа «Настройки» и выход с подтверждением.
+// со сменой роли Client / Supplier сверху вниз (dual; в демо витрины — у всех персон), разделитель, группа «Настройки» и выход с подтверждением.
 // Пункты меню — курсор pointer при наведении (Кирилл 2026-11-06).
 // Подсказка dual «у вас есть и кабинет поставщика» — один раз: на десктопе поповером у кнопки аккаунта, на телефоне — блоком в шторке.
 import { RiExpandUpDownLine, RiLogoutBoxRLine, RiSettings3Line, RiStore2Line, RiUser3Line } from '@remixicon/react';
@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { LogoutDialog } from '@/features/logout';
-import { roleHint, useSwitchRole } from '@/features/switch-role';
+import { demoRoleSwitch, roleHint, useSwitchRole } from '@/features/switch-role';
 import { track } from '@/shared/analytics';
 import type { Family } from '@/shared/config';
 import {
@@ -52,7 +52,9 @@ export interface NavAccountProps {
 export function NavAccount({ family, name, nameLoading, phone, dual, hint }: NavAccountProps) {
   const { t, i18n } = useTranslation();
   const { isMobile, openMobile } = useSidebar();
-  const switchRole = useSwitchRole(family);
+  // Группа ролей: у dual — всегда; у одной роли — в демо витрины (Кирилл 2026-11-11), сменой персоны мока.
+  const roleMenu = dual || demoRoleSwitch;
+  const switchRole = useSwitchRole(family, { demo: !dual });
   const [logoutOpen, setLogoutOpen] = useState(false);
   // На телефоне кнопка аккаунта видна только в открытой шторке — подсказка ждёт её открытия.
   const hintVisible = dual && hint.pending && (!isMobile || openMobile);
@@ -115,7 +117,7 @@ export function NavAccount({ family, name, nameLoading, phone, dual, hint }: Nav
               </DropdownMenuTrigger>
             </PopoverAnchor>
             <DropdownMenuContent className="min-w-44" side={side} align="end" sideOffset={4}>
-              {dual ? (
+              {roleMenu ? (
                 <>
                   <DropdownMenuGroup>
                     <DropdownMenuLabel>{t('nav.account')}</DropdownMenuLabel>

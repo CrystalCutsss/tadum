@@ -107,9 +107,26 @@ test('SC-10: выход и «Назад» не показывают данные
   await expect(page).toHaveURL(/\/login/);
 });
 
-test('@smoke client_active: компания в аккаунте, без dual — без переключателя ролей', async ({ page }) => {
+test('@smoke client_active: компания в аккаунте; в демо переключатель ролей есть и у одной роли (Кирилл 2026-11-11)', async ({ page }) => {
   await asPersona(page, 'client_active');
   await openAccountMenu(page, 'en');
   await expect(account(page, 'en')).toContainText('Ufuq Office Furniture');
-  await expect(page.getByRole('menuitemradio')).toHaveCount(0);
+  await expect(page.getByRole('menuitemradio')).toHaveCount(2);
+});
+
+// Демо-переключение ролей (Кирилл 2026-11-11): у персоны с одной ролью в меню компании есть Client / Supplier;
+// «Supplier» открывает кабинет поставщика, «Client» возвращает к той же клиентской персоне и её этапу.
+test('client_signing_partial → Supplier → Client: демо-переключение ролей возвращает к заявке персоны', async ({ page }) => {
+  await asPersona(page, 'client_signing_partial', 'en', '/c/documents');
+  await expect(page.getByRole('heading', { name: tr('en', 'checklist.title') })).toBeVisible();
+  await openAccountMenu(page, 'en');
+  await page.getByRole('menuitemradio', { name: tr('en', 'role.supplier') }).click();
+  await expect(page).toHaveURL(/\/s\/home/);
+  await openSidebar(page, 'en');
+  await expect(account(page, 'en')).toContainText('Bayt Al Khayr Wholesale');
+  await openAccountMenu(page, 'en');
+  await page.getByRole('menuitemradio', { name: tr('en', 'role.client') }).click();
+  await expect(page).toHaveURL(/\/c\/home\?persona=client_signing_partial/);
+  await page.goto(page.url().replace(/\/c\/home/, '/c/documents'));
+  await expect(page.getByRole('heading', { name: tr('en', 'checklist.title') })).toBeVisible();
 });

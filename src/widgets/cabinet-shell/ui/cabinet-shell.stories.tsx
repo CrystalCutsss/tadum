@@ -59,9 +59,10 @@ export const LogoutFromMenu: Story = {
   play: async ({ canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(await account(canvasElement));
-    // Не dual — переключателя ролей нет.
+    // В демо витрины переключатель ролей есть и у одной роли (Кирилл 2026-11-11): Client отмечен.
     await waitFor(() => expect(body.getByRole('menuitem', { name: tr('help.logout') })).toBeVisible());
-    await expect(body.queryByRole('menuitemradio')).toBeNull();
+    await expect(body.getAllByRole('menuitemradio')).toHaveLength(2);
+    await expect(body.getByRole('menuitemradio', { name: tr('role.client') })).toHaveAttribute('aria-checked', 'true');
     await userEvent.click(body.getByRole('menuitem', { name: tr('help.logout') }));
     await waitFor(() => expect(body.getByRole('dialog')).toHaveTextContent(tr('help.logout_confirm')));
     await userEvent.click(body.getByRole('button', { name: tr('common.cancel') }));

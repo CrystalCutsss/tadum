@@ -110,7 +110,6 @@ export function OnboardingChecklistView({ items, locked = false, dataUpdatedAt }
                   <ChecklistLinkButton
                     item={{ key: item.key, external_url: item.external_url }}
                     position={index + 1}
-                    primary={focus === item.key}
                     onOpened={() => setOpenedTick((n) => n + 1)}
                   />
                 ) : null
