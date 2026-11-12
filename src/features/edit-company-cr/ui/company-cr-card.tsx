@@ -1,12 +1,15 @@
 // Блок «Номер CR» над документами (решение Кирилла 2026-11-10): карточка как у документа (обводка, та же ширина),
 // поле — половина блока на компьютере и вся ширина на телефоне, высота 48 px. Только цифры, ровно 10;
 // ошибка — assistive text под полем, без ошибки текста под полем нет. Номер сохраняется, как только набраны 10 цифр, и при уходе с поля.
+// Шапка — тем же стилем, что у документа (Кирилл 2026-11-12): иконка в сером квадрате 40 px (на ≥640 px), заголовок
+// 16 px полужирный, пояснение; поле — как раньше, от левого края карточки.
+import { RiBuildingLine } from '@remixicon/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { crDigits, crError, CR_LENGTH } from '@/entities/application';
 import type { Company } from '@/shared/api';
-import { Field, FieldError, FieldLabel, Input, Spinner } from '@/shared/ui';
+import { Field, FieldError, FieldLabel, Icon, Input, Item, ItemContent, ItemDescription, ItemMedia, ItemTitle, Spinner } from '@/shared/ui';
 
 import { useSaveCr } from '../model/use-save-cr';
 
@@ -50,12 +53,18 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
 
   return (
     <section id="company-cr" aria-labelledby={ids.title} className="scroll-mt-4 rounded-xl border bg-card p-3 text-card-foreground md:p-4">
-      <div className="flex flex-col gap-1">
-        <h2 id={ids.title} className="text-sm font-medium">
-          {t('cr.title')}
-        </h2>
-        <p className="text-sm text-muted-foreground">{t('cr.hint')}</p>
-      </div>
+      <Item className="flex-nowrap items-center rounded-none border-0 p-0">
+        <ItemMedia variant="icon" className="hidden size-10 self-center rounded-lg bg-muted sm:flex">
+          <Icon icon={RiBuildingLine} />
+        </ItemMedia>
+        <ItemContent className="min-w-0 gap-1">
+          <ItemTitle className="text-base font-semibold">
+            <h2 id={ids.title}>{t('cr.title')}</h2>
+          </ItemTitle>
+          <ItemDescription className="line-clamp-none">{t('cr.hint')}</ItemDescription>
+        </ItemContent>
+      </Item>
+      {/* Поле — от левого края карточки, без отступа под иконку (Кирилл 2026-11-12). */}
       <Field data-invalid={message !== null} className="mt-3 w-full md:w-1/2">
         <FieldLabel htmlFor={ids.input} className="sr-only">
           {t('cr.label')}
