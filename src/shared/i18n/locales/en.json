@@ -206,7 +206,6 @@
       "title_other": "Almost there — {count} more documents"
     },
     "progress": "{uploaded} of {total} uploaded",
-    "progress_and_cr": "{uploaded} of {total} uploaded, CR number still needed",
     "progress_cr_only": "Only your CR number is left",
     "resources": {
       "dialog_description": "How to get this document and what it looks like",

@@ -6,7 +6,7 @@ describe('submitProgress', () => {
   it('сегмент на каждый документ и на поле CR', () => {
     const p = submitProgress({ uploaded: 2, total: 4, requiredRemaining: 2 }, { required: true, ready: false });
     expect(p.segments).toEqual([true, true, false, false, false]);
-    expect(p.copy).toBe('documents_and_cr');
+    expect(p.copy).toBe('documents');
     expect(p.minutesLeft).toBe(5);
   });
 

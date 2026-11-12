@@ -62,9 +62,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
   const label =
     state.copy === 'cr_only'
       ? t('documents.progress_cr_only')
-      : state.copy === 'documents_and_cr'
-        ? t('documents.progress_and_cr', counts)
-        : t('documents.progress', counts);
+      : t('documents.progress', counts);
   const timeLeft =
     state.minutesLeft > 0
       ? t('documents.time_left', {
@@ -133,11 +131,12 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
           </p>
           <div className="flex flex-col gap-2">
             {/* Заголовок панели — тем же кеглем, что у карточек документов (16 px полужирный). */}
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+            {/* Время — сразу слева от «X из N загружено» (Кирилл 2026-11-12; в RTL — справа, у начала строки). */}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
               <p id="submit-progress" className="text-base font-semibold" aria-live="polite">
                 {label}
               </p>
-              {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
             </div>
             <SegmentedProgress segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
           </div>

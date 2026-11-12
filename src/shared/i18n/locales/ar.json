@@ -222,7 +222,6 @@
       "title_other": "اقتربنا — {count} مستند إضافي"
     },
     "progress": "تم رفع {uploaded} من {total}",
-    "progress_and_cr": "تم رفع {uploaded} من {total}، ويلزم أيضًا رقم السجل التجاري",
     "progress_cr_only": "لم يتبقَّ سوى رقم السجل التجاري",
     "resources": {
       "dialog_description": "كيف تحصل على هذا المستند وكيف يبدو",

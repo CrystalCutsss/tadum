@@ -1,8 +1,8 @@
 // Папка над кнопкой «Отправить на проверку» (решения Кирилла 2026-11-12): вместо бегущей обводки, когда всё готово.
 // Форма, пропорции и движение — из кода «Folder» React Bits (режим flap, вариант solid, ярлык справа; Drive «Код для папки»):
 // задняя стенка 224×176 с ярлыком высотой 20 и плавными «плечами», передняя стенка — нижние 70 % папки, листы — 54 %
-// ширины папки, высота ×1.22, лежат веером по FLAP_REST. Папка крупнее, скругления меньше образца (Кирилл: «сделай
-// больше, уменьши все скругления»).
+// ширины папки, высота ×1.22, лежат веером по FLAP_REST. Папка крупнее образца, скругления чуть меньше (Кирилл
+// 2026-11-12), повёрнута на 6° вокруг правого нижнего угла.
 // Сценарий — intro образца: папка проявляется, передняя стенка откинута на −42°, листы по очереди (нижний — первым)
 // падают сверху и встают на место, стенка закрывается. Потом цикл «подглядывания» образца (фаза peek: листы
 // поднимаются на 10 % высоты, разворот ×1.6, разлёт ×1.3, стенка на −15°) и обратно; пауза между циклами 1 с.
@@ -18,15 +18,15 @@ const H = 176;
 const TAB_H = 20;
 const SHOULDER = TAB_H * 0.75;
 const TAB_W = W * 0.34;
-/** Скругление стенок: в образце 12, у нас меньше. */
-const R = 5;
+/** Скругление стенок: в образце 12, у нас чуть меньше (Кирилл 2026-11-12: скруглённая, но не слишком). */
+const R = 10;
 const TAB_X = W - R - 5 - SHOULDER - TAB_W;
 const FRONT_TOP = TAB_H + H * 0.3;
 const FRONT_H = TAB_H + H - FRONT_TOP;
 const DOC_W = W * 0.54;
 const DOC_H = DOC_W * 1.22;
-/** Скругление листа: в образце 7, у нас меньше. */
-const DOC_R = 3;
+/** Скругление листа: в образце 7, у нас чуть меньше. */
+const DOC_R = 6;
 /** Центр листа в покое по высоте: 5 единиц от дна папки. */
 const FLOOR = TAB_H + H - 5 - DOC_H / 2;
 /** Веер листов в покое (FLAP_REST образца): сдвиг по ширине, подъём по высоте, поворот. */
@@ -63,6 +63,10 @@ const DROP_START = 0.16;
 const DROP_STEP = 0.085;
 const CLOSE_AFTER = 0.3;
 const APPEAR = 0.34;
+/** Пауза перед intro, с: панель сначала дорастает до вида «всё готово» (--motion-bounce), потом появляется папка. */
+const INTRO_DELAY = 0.45;
+/** Лист проявляется быстро, чтобы было видно, как он влетает в папку, с. */
+const PAPER_FADE = 0.12;
 /** Углы передней стенки образца: откинута при intro и при подглядывании. */
 const FRONT_INTRO = -42;
 const FRONT_PEEK = -15;
@@ -105,11 +109,16 @@ export function SubmitFolder({ className }: { className?: string }) {
     const run = async () => {
       void animate(front, { rotateX: FRONT_INTRO }, now);
       papers.forEach((paper, i) => void animate(paper, introPose(i), now));
-      // Проявление папки, затем листы падают по очереди: нижний (последний в стопке) — первым.
-      void animate(scope.current, { opacity: [0, 1] }, { duration: APPEAR, ease: 'easeOut' });
-      const drops = papers.map((paper, i) =>
-        animate(paper, { ...restPose(i), opacity: 1 }, { ...ITEM_SPRING, delay: DROP_START + (papers.length - 1 - i) * DROP_STEP }),
-      );
+      await wait(INTRO_DELAY);
+      if (cancelled) return;
+      // Как в образце: папка проявляется с лёгким увеличением (0.94 → 1, кубическое замедление), стенка откинута;
+      // листы влетают сверху по очереди (нижний в стопке — первым) и встают на место; затем стенка закрывается.
+      void animate(scope.current, { opacity: [0, 1], scale: [0.94, 1] }, { duration: APPEAR, ease: [0.33, 1, 0.68, 1] });
+      const drops = papers.map((paper, i) => {
+        const delay = DROP_START + (papers.length - 1 - i) * DROP_STEP;
+        void animate(paper, { opacity: 1 }, { duration: PAPER_FADE, delay });
+        return animate(paper, restPose(i), { ...ITEM_SPRING, delay });
+      });
       await wait(DROP_START + papers.length * DROP_STEP + CLOSE_AFTER);
       if (cancelled) return;
       await Promise.all([animate(front, { rotateX: 0 }, FRONT_SPRING), ...drops]);
@@ -132,44 +141,47 @@ export function SubmitFolder({ className }: { className?: string }) {
   }, [animate, reduce, scope]);
 
   return (
-    // 112 px шириной: высота — по пропорции образца (224 × 196).
-    <div ref={scope} aria-hidden="true" className={cn('pointer-events-none relative w-28 opacity-0 perspective-midrange', className)}>
-      <svg viewBox={`0 0 ${W} ${TAB_H + H}`} className="block w-full overflow-visible">
-        <defs>
-          {/* Задняя стенка — градиент «изнутри» образца: темнее книзу. */}
-          <linearGradient id={`${ids}-back`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--folder-back)" stopOpacity="0.85" />
-            <stop offset="1" stopColor="var(--folder-back)" />
-          </linearGradient>
-        </defs>
-        <path d={BACK} fill={`url(#${ids}-back)`} />
-        {/* Листы без текста; центр каждого — в точке покоя, движение — сдвиг и поворот группы. */}
-        {REST.map((rest) => (
-          <g key={rest.x} data-paper>
-            <rect
-              x={W / 2 - DOC_W / 2}
-              y={FLOOR - DOC_H / 2}
-              width={DOC_W}
-              height={DOC_H}
-              rx={DOC_R}
-              className="fill-folder-paper stroke-folder-back drop-shadow-sm"
-              strokeWidth="1"
-            />
-          </g>
-        ))}
-      </svg>
-      {/* Передняя стенка — нижние 70 % папки; откидывается к зрителю от нижнего края. */}
-      <svg data-front viewBox={`0 0 ${W} ${FRONT_H}`} className="absolute inset-x-0 bottom-0 block w-full origin-bottom drop-shadow-sm">
-        <defs>
-          {/* Лицо стенки — градиент 160° образца: светлее сверху, к низу — цвет стенки. */}
-          <linearGradient id={`${ids}-front`} x1="0" y1="0" x2="0.35" y2="1">
-            <stop offset="0" stopColor="var(--folder-paper)" />
-            <stop offset="0.48" stopColor="var(--folder-front)" />
-            <stop offset="1" stopColor="var(--folder-front)" />
-          </linearGradient>
-        </defs>
-        <rect width={W} height={FRONT_H} rx={R} fill={`url(#${ids}-front)`} />
-      </svg>
+    // 112 px шириной: высота — по пропорции образца (224 × 196). Папка повёрнута на 6° вокруг правого нижнего угла
+    // (Кирилл 2026-11-12; в RTL — зеркально, вокруг левого нижнего). Поворот — на обёртке: transform контейнера ведёт motion.
+    <div aria-hidden="true" className={cn('pointer-events-none origin-bottom-right rotate-6 rtl:origin-bottom-left rtl:-rotate-6', className)}>
+      <div ref={scope} className="relative w-28 opacity-0 perspective-midrange">
+        <svg viewBox={`0 0 ${W} ${TAB_H + H}`} className="block w-full overflow-visible">
+          <defs>
+            {/* Задняя стенка — градиент «изнутри» образца: темнее книзу. */}
+            <linearGradient id={`${ids}-back`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--folder-back)" stopOpacity="0.85" />
+              <stop offset="1" stopColor="var(--folder-back)" />
+            </linearGradient>
+          </defs>
+          <path d={BACK} fill={`url(#${ids}-back)`} />
+          {/* Листы без текста; центр каждого — в точке покоя, движение — сдвиг и поворот группы. */}
+          {REST.map((rest) => (
+            <g key={rest.x} data-paper>
+              <rect
+                x={W / 2 - DOC_W / 2}
+                y={FLOOR - DOC_H / 2}
+                width={DOC_W}
+                height={DOC_H}
+                rx={DOC_R}
+                className="fill-folder-paper stroke-folder-back drop-shadow-sm"
+                strokeWidth="1"
+              />
+            </g>
+          ))}
+        </svg>
+        {/* Передняя стенка — нижние 70 % папки; откидывается к зрителю от нижнего края. */}
+        <svg data-front viewBox={`0 0 ${W} ${FRONT_H}`} className="absolute inset-x-0 bottom-0 block w-full origin-bottom drop-shadow-sm">
+          <defs>
+            {/* Лицо стенки — градиент 160° образца: светлее сверху, к низу — цвет стенки. */}
+            <linearGradient id={`${ids}-front`} x1="0" y1="0" x2="0.35" y2="1">
+              <stop offset="0" stopColor="var(--folder-paper)" />
+              <stop offset="0.48" stopColor="var(--folder-front)" />
+              <stop offset="1" stopColor="var(--folder-front)" />
+            </linearGradient>
+          </defs>
+          <rect width={W} height={FRONT_H} rx={R} fill={`url(#${ids}-front)`} />
+        </svg>
+      </div>
     </div>
   );
 }
