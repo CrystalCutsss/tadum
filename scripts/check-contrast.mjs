@@ -74,6 +74,8 @@ export const REQUIRED = [
   { fg: '--limit-track', bg: '--card', min: 1, what: 'дорожка видна на карточке (информативно)' },
   { fg: '--status-done', bg: '--secondary', min: 3, what: 'галочка шкалы на панели шагов (1.4.11)' },
   { fg: '--status-done', bg: '--background', min: 3, what: 'галочка шкалы на фоне страницы (1.4.11)' },
+  { fg: '--primary-inverse-foreground', bg: '--primary-inverse', min: 4.5, what: 'текст белой кнопки на синей панели' },
+  { fg: '--primary-inverse', bg: '--primary', min: 3, what: 'белая кнопка видна на синей панели (1.4.11)' },
 ];
 
 /**

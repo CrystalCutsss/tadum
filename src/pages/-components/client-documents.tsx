@@ -168,6 +168,8 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
   const limit = useStatusPolling(limitQuery);
   // Попытка отправить без номера CR — поле показывает ошибку и получает фокус.
   const [crAttention, setCrAttention] = useState(0);
+  // Что сейчас в поле CR (null — клиент поле не трогал): стёр цифру — комплект уже не готов, хотя сохранён полный номер.
+  const [crDraft, setCrDraft] = useState<string | null>(null);
   const [docsOpen, setDocsOpen] = useState(false);
   // Высота блока Steps (третья колонка, ≥1024 px) — карточка лимита и папка той же высоты (Кирилл 2026-11-11).
   const [stepsHeight, setStepsHeight] = useState(0);
@@ -251,8 +253,8 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
             set={set.data}
             editable={editable}
             focusKey={focusKey}
-            header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} /> : null}
-            crReady={!crStage || isValidCr(company.data?.cr_number)}
+            header={crStage ? <CompanyCrCard company={company.data} editable={editable} attention={crAttention} onDraftChange={setCrDraft} /> : null}
+            crReady={!crStage || (isValidCr(company.data?.cr_number) && (crDraft === null || isValidCr(crDraft)))}
             crRequired={crStage}
             onCrMissing={() => setCrAttention((n) => n + 1)}
           />

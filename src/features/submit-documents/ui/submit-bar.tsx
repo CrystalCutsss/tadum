@@ -150,7 +150,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
           ) : null}
           <Button
             type="button"
-            className={cn('min-h-11 shrink-0', ready && 'bg-primary-foreground text-primary hover:bg-primary-foreground/90')}
+            className={cn('min-h-11 shrink-0', ready && 'bg-primary-inverse text-primary-inverse-foreground transition-none hover:bg-primary-inverse')}
             aria-busy={submit.isPending}
             onClick={onSend}
           >

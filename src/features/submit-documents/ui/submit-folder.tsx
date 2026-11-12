@@ -18,15 +18,15 @@ const H = 176;
 const TAB_H = 20;
 const SHOULDER = TAB_H * 0.75;
 const TAB_W = W * 0.34;
-/** Скругление стенок: в образце 12, у нас чуть меньше (Кирилл 2026-11-12: скруглённая, но не слишком). */
-const R = 10;
+/** Скругление стенок: в образце 12, у нас чуть больше (Кирилл 2026-11-12: «чуть увеличь скругления»). */
+const R = 14;
 const TAB_X = W - R - 5 - SHOULDER - TAB_W;
 const FRONT_TOP = TAB_H + H * 0.3;
 const FRONT_H = TAB_H + H - FRONT_TOP;
 const DOC_W = W * 0.54;
 const DOC_H = DOC_W * 1.22;
-/** Скругление листа: в образце 7, у нас чуть меньше. */
-const DOC_R = 6;
+/** Скругление листа: в образце 7, у нас чуть больше. */
+const DOC_R = 9;
 /** Центр листа в покое по высоте: 5 единиц от дна папки. */
 const FLOOR = TAB_H + H - 5 - DOC_H / 2;
 /** Веер листов в покое (FLAP_REST образца): сдвиг по ширине, подъём по высоте, поворот. */
@@ -69,7 +69,8 @@ const INTRO_DELAY = 0.45;
 const PAPER_FADE = 0.12;
 /** Углы передней стенки образца: откинута при intro и при подглядывании. */
 const FRONT_INTRO = -42;
-const FRONT_PEEK = -15;
+/** В цикле папка заметно приоткрывается (Кирилл 2026-11-12), сильнее, чем peek образца (−15°). */
+const FRONT_PEEK = -30;
 /** Пауза между циклами подглядывания и время в позе peek, с. */
 const PEEK_REST = 1;
 const PEEK_HOLD = 0.6;
@@ -141,20 +142,24 @@ export function SubmitFolder({ className }: { className?: string }) {
   }, [animate, reduce, scope]);
 
   return (
-    // 112 px шириной: высота — по пропорции образца (224 × 196). Папка повёрнута на 6° вокруг правого нижнего угла
-    // (Кирилл 2026-11-12; в RTL — зеркально, вокруг левого нижнего). Поворот — на обёртке: transform контейнера ведёт motion.
-    <div aria-hidden="true" className={cn('pointer-events-none origin-bottom-right rotate-6 rtl:origin-bottom-left rtl:-rotate-6', className)}>
-      <div ref={scope} className="relative w-28 opacity-0 perspective-midrange">
-        <svg viewBox={`0 0 ${W} ${TAB_H + H}`} className="block w-full overflow-visible">
-          <defs>
-            {/* Задняя стенка — градиент «изнутри» образца: темнее книзу. */}
-            <linearGradient id={`${ids}-back`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="var(--folder-back)" stopOpacity="0.85" />
-              <stop offset="1" stopColor="var(--folder-back)" />
-            </linearGradient>
-          </defs>
-          <path d={BACK} fill={`url(#${ids}-back)`} />
-          {/* Листы без текста; центр каждого — в точке покоя, движение — сдвиг и поворот группы. */}
+    // 112 px шириной: высота — по пропорции образца (224 × 196); стоит ровно (поворот Кирилл вернул 2026-11-12).
+    <div ref={scope} aria-hidden="true" className={cn('pointer-events-none relative w-28 opacity-0 perspective-midrange', className)}>
+      <svg viewBox={`0 0 ${W} ${TAB_H + H}`} className="block w-full overflow-visible">
+        <defs>
+          {/* Задняя стенка — градиент «изнутри» образца: темнее книзу. */}
+          <linearGradient id={`${ids}-back`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--folder-back)" stopOpacity="0.85" />
+            <stop offset="1" stopColor="var(--folder-back)" />
+          </linearGradient>
+          {/* Всё выше дна папки (с запасом вверх и в стороны — листы влетают сверху и расходятся). */}
+          <clipPath id={`${ids}-papers`}>
+            <rect x={-W} y={-W * 4} width={W * 3} height={W * 4 + TAB_H + H - 3} />
+          </clipPath>
+        </defs>
+        <path d={BACK} fill={`url(#${ids}-back)`} />
+        {/* Листы без текста; центр каждого — в точке покоя, движение — сдвиг и поворот группы. Снизу листы обрезаны по дну
+            папки: при повороте и перелёте пружины угол листа не выходит за нижний край (Кирилл 2026-11-12). */}
+        <g clipPath={`url(#${ids}-papers)`}>
           {REST.map((rest) => (
             <g key={rest.x} data-paper>
               <rect
@@ -168,20 +173,20 @@ export function SubmitFolder({ className }: { className?: string }) {
               />
             </g>
           ))}
-        </svg>
-        {/* Передняя стенка — нижние 70 % папки; откидывается к зрителю от нижнего края. */}
-        <svg data-front viewBox={`0 0 ${W} ${FRONT_H}`} className="absolute inset-x-0 bottom-0 block w-full origin-bottom drop-shadow-sm">
-          <defs>
-            {/* Лицо стенки — градиент 160° образца: светлее сверху, к низу — цвет стенки. */}
-            <linearGradient id={`${ids}-front`} x1="0" y1="0" x2="0.35" y2="1">
-              <stop offset="0" stopColor="var(--folder-paper)" />
-              <stop offset="0.48" stopColor="var(--folder-front)" />
-              <stop offset="1" stopColor="var(--folder-front)" />
-            </linearGradient>
-          </defs>
-          <rect width={W} height={FRONT_H} rx={R} fill={`url(#${ids}-front)`} />
-        </svg>
-      </div>
+        </g>
+      </svg>
+      {/* Передняя стенка — нижние 70 % папки; откидывается к зрителю от нижнего края. */}
+      <svg data-front viewBox={`0 0 ${W} ${FRONT_H}`} className="absolute inset-x-0 bottom-0 block w-full origin-bottom drop-shadow-sm">
+        <defs>
+          {/* Лицо стенки — градиент 160° образца: светлее сверху, к низу — цвет стенки. */}
+          <linearGradient id={`${ids}-front`} x1="0" y1="0" x2="0.35" y2="1">
+            <stop offset="0" stopColor="var(--folder-paper)" />
+            <stop offset="0.48" stopColor="var(--folder-front)" />
+            <stop offset="1" stopColor="var(--folder-front)" />
+          </linearGradient>
+        </defs>
+        <rect width={W} height={FRONT_H} rx={R} fill={`url(#${ids}-front)`} />
+      </svg>
     </div>
   );
 }

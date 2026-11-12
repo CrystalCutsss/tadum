@@ -19,9 +19,11 @@ export interface CompanyCrCardProps {
   editable: boolean;
   /** Растёт при попытке отправить без номера: показать ошибку, прокрутить и поставить фокус в поле. */
   attention?: number;
+  /** Значение в поле изменилось: панель отправки сразу возвращается в исходный вид, если номер стал неполным (Кирилл 2026-11-12). */
+  onDraftChange?: (value: string) => void;
 }
 
-export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCardProps) {
+export function CompanyCrCard({ company, editable, attention = 0, onDraftChange }: CompanyCrCardProps) {
   const { t } = useTranslation();
   const ids = { input: useId(), help: useId(), title: useId() };
   const saved = company?.cr_number ?? '';
@@ -89,6 +91,7 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
               onChange={(e) => {
                 const next = crDigits(e.target.value);
                 setValue(next);
+                onDraftChange?.(next);
                 if (save.isError) save.reset();
                 if (next.length === CR_LENGTH) {
                   setTouched(true);
