@@ -32,7 +32,7 @@ export function UploadedFileRow({
   const reason = issue ? fileIssueReason(issue, i18n.language === 'ar' ? 'ar' : 'en') : null;
   const reasonText = reason ? (reason.kind === 'text' ? reason.text : String(t(reason.key as ParseKeys))) : null;
   const reasonId = `issue-${file.id}`;
-  // Замечание к файлу (решение Кирилла 2026-11-11): как у всего документа — оранжевая точка с пульсом и оранжевый текст
+  // Замечание к файлу (решение Кирилла 2026-11-11): как у всего документа — красная точка с пульсом и красный текст
   // под строкой файла; иконки у файлов нет (2026-11-12).
   return (
     <Item size="sm" className={cn(ROW, 'items-center', reasonText ? 'flex-wrap' : 'flex-nowrap')} aria-describedby={reasonText ? reasonId : undefined}>
@@ -47,10 +47,10 @@ export function UploadedFileRow({
         <FileActions documentId={doc.id} portalKey={doc.portal_key} status={doc.status} file={file} editable={editable} onReplace={onReplace} />
       </ItemActions>
       {reasonText ? (
-        <ItemFooter id={reasonId} className="items-start justify-start gap-2 text-sm text-status-rejected">
+        <ItemFooter id={reasonId} className="items-start justify-start gap-2 text-sm text-destructive">
           {/* Точка — по центру первой строки текста, у левого края имени файла. */}
           <span className="flex h-5 shrink-0 items-center">
-            <PulseDot />
+            <PulseDot tone="destructive" />
           </span>
           <span className="min-w-0">{reasonText}</span>
         </ItemFooter>
@@ -75,17 +75,17 @@ function taskStatus(task: FileTask, t: TFunction): string {
 
 /**
  * Ошибка в нижней панели карточки: строкой таблицы файлов, под загруженными файлами; без иконки, как файл
- * (Кирилл 2026-11-12), — оранжевая точка с пульсом и текст. Тона — «нужно внимание» (status-rejected), не destructive.
+ * (Кирилл 2026-11-12), — красная точка с пульсом и текст — как ошибка у поля (destructive, Кирилл 2026-11-12).
  */
-export function ErrorNotice({ id, title, text, action }: { id?: string; title?: ReactNode; text: ReactNode; action?: ReactNode }) {
+function ErrorNotice({ id, title, text, action }: { id?: string; title?: ReactNode; text: ReactNode; action?: ReactNode }) {
   return (
-    <Item id={id} size="sm" className={cn(ROW, 'flex-nowrap items-center gap-2 text-status-rejected')}>
+    <Item id={id} size="sm" className={cn(ROW, 'flex-nowrap items-center gap-2 text-destructive')}>
       <span className="flex h-5 shrink-0 items-center self-start">
-        <PulseDot />
+        <PulseDot tone="destructive" />
       </span>
       <ItemContent className="min-w-0">
         {title ? <ItemTitle>{title}</ItemTitle> : null}
-        <ItemDescription className="line-clamp-none text-status-rejected">{text}</ItemDescription>
+        <ItemDescription className="line-clamp-none text-destructive">{text}</ItemDescription>
       </ItemContent>
       {action ? <ItemActions>{action}</ItemActions> : null}
     </Item>
@@ -104,7 +104,7 @@ export function UploadTaskMessage({ task, onDismiss }: { task: FileTask; onDismi
           type="button"
           variant="ghost"
           size="icon"
-          className="min-h-11 min-w-11 text-status-rejected"
+          className="min-h-11 min-w-11 text-destructive"
           aria-label={t('upload.dismiss', { name: task.name })}
           onClick={onDismiss}
         >
@@ -126,7 +126,7 @@ export function UploadTaskRow({ task, onCancel, onDismiss }: { task: FileTask; o
           <bdi className="truncate">{task.name}</bdi>
           {task.state === 'validating' ? <Spinner aria-label={t('upload.state.validating')} /> : null}
         </ItemTitle>
-        <ItemDescription className={task.state === 'failed' ? 'text-status-rejected' : undefined}>{status}</ItemDescription>
+        <ItemDescription className={task.state === 'failed' ? 'text-destructive' : undefined}>{status}</ItemDescription>
         {task.state === 'uploading' || task.state === 'queued' ? (
           <Progress value={task.percent} className="h-1.5" aria-label={t('upload.state.progress_label', { name: task.name })} />
         ) : null}

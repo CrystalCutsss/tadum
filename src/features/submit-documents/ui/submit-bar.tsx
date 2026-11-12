@@ -105,7 +105,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
   return (
     <>
       {/* Половина папки выступает над панелью: отступ до последней карточки растёт вместе с ней. */}
-      <div aria-hidden="true" className={cn('shrink-0 transition-all duration-bounce ease-bounce', ready ? 'h-12' : 'h-0')} />
+      <div aria-hidden="true" className={cn('shrink-0 transition-all duration-bounce ease-bounce', ready ? 'h-10' : 'h-0')} />
       <div
         data-ready={ready}
         className={cn(
@@ -138,13 +138,14 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
                 {label}
               </p>
             </div>
-            <SegmentedProgress segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
+            {/* Сегменты ниже, чем у компонента по умолчанию (Кирилл 2026-11-12: «ещё немного уменьши»). */}
+            <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
           </div>
         </div>
         {/* Колонка кнопки — на всю высоту панели: папка встаёт над кнопкой, наполовину выше верхнего края панели. */}
         <div className="relative flex shrink-0 items-end">
           {ready ? (
-            <div className="absolute inset-x-0 -top-15 flex justify-center md:-top-16">
+            <div className="absolute inset-x-0 -top-13.5 flex justify-center md:-top-14.5">
               <SubmitFolder />
             </div>
           ) : null}

@@ -125,8 +125,9 @@ export function DocumentHelp({ doc, title }: { doc: Pick<Document, 'portal_key' 
           <ResponsiveDialogBody className="flex flex-col gap-4">
             {tabs.length > 0 ? (
               <Tabs value={tab} onValueChange={(next) => select(next as HelpTab)} className="gap-3">
+                {/* Высота табов — как у кнопки «Upload» (44 px, Кирилл 2026-11-12). */}
                 {tabs.length > 1 ? (
-                  <TabsList className="w-full">
+                  <TabsList className="w-full group-data-horizontal/tabs:h-11">
                     <TabsTrigger value="video">{t('documents.resources.video')}</TabsTrigger>
                     <TabsTrigger value="example">{t('documents.resources.example')}</TabsTrigger>
                   </TabsList>

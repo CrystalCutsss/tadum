@@ -18,7 +18,7 @@ import { useOnline } from '@/shared/lib';
 import { Badge, Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, PulseDot, StatusBadge, toast } from '@/shared/ui';
 
 import { DocumentHelp, hasDocumentHelp } from './document-resources';
-import { ErrorNotice, UploadTaskMessage, UploadTaskRow, UploadedFileRow } from './file-rows';
+import { UploadTaskMessage, UploadTaskRow, UploadedFileRow } from './file-rows';
 
 export interface DocumentRowProps {
   doc: Document;
@@ -65,7 +65,12 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   );
   const messages = tasks.filter((task) => task.state === 'failed' || task.state === 'cancelled');
   const activeTasks = tasks.filter((task) => task.state !== 'failed' && task.state !== 'cancelled');
-  const hasNotices = warnings.length > 0 || messages.length > 0;
+  const hasNotices = messages.length > 0;
+  // Замечание к документу и предупреждения проверки (без повторов одного и того же текста) — в общей карточке.
+  const issues = [
+    ...(reasonText ? [{ id: reasonId, text: reasonText }] : []),
+    ...[...new Map(warnings.map((w) => [w.key, { id: `warning-${doc.id}-${w.id}`, text: String(t(w.key as ParseKeys)) }])).values()],
+  ];
   const hasFiles = doc.files.length > 0 || activeTasks.length > 0;
 
   const help = !archive && hasDocumentHelp(doc);
@@ -76,10 +81,11 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   const actionRow = editable ? (
     <Button
       type="button"
-      variant="secondary"
+      // Синяя, пока в документе нет ни одного файла; после первой загрузки — серая (Кирилл 2026-11-12).
+      variant={doc.files.length === 0 ? 'default' : 'secondary'}
       className="min-h-11"
       disabled={!online || upload.busy || full}
-      aria-describedby={reasonText ? reasonId : undefined}
+      aria-describedby={issues.length > 0 ? issues.map((i) => i.id).join(' ') : undefined}
       onClick={() => setPicker({})}
     >
       {t('documents.row.upload')}
@@ -102,13 +108,13 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
         >
           <Item className="flex-nowrap items-center rounded-none border-0 p-0">
             {/* Иконка документа — синяя на бледно-синей подложке (Кирилл 2026-11-12); есть замечание к документу или
-                к его файлу — квадрат и иконка оранжевые (2026-11-11). */}
+                к его файлу — квадрат и иконка красные (2026-11-11, цвет — 2026-11-12). */}
             <ItemMedia
               variant="icon"
               className={cn(
                 'hidden size-10 self-center rounded-lg sm:flex',
-                reasonText || doc.files.some((f) => f.issue)
-                  ? 'bg-status-rejected-muted text-status-rejected'
+                issues.length > 0 || doc.files.some((f) => f.issue)
+                  ? 'bg-destructive/10 text-destructive'
                   : 'bg-status-received-muted text-status-received',
               )}
             >
@@ -132,17 +138,19 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               </ItemActions>
             ) : null}
           </Item>
-          {/* Замечание ко всему документу (решения Кирилла 2026-11-10/11/12): над кнопкой «Загрузить»; оранжевая точка
-              с пульсом — в колонке иконки документа (на ≥640 px — по центру квадрата 40 px), текст — по левому краю названия. */}
-          {reasonText ? (
-            <Item id={reasonId} className="flex-nowrap items-start rounded-none border-0 p-0 text-status-rejected">
-              <span className="flex h-5 w-4 shrink-0 items-center justify-center sm:w-10">
-                <PulseDot />
-              </span>
-              <ItemContent className="min-w-0">
-                <ItemDescription className="line-clamp-none text-status-rejected">{reasonText}</ItemDescription>
-              </ItemContent>
-            </Item>
+          {/* Замечания ко всему документу и предупреждения проверки файла (решения Кирилла 2026-11-10/11/12): в общей карточке,
+              над кнопкой «Загрузить». Красная точка с пульсом (Кирилл 2026-11-12: как ошибка у поля) — сразу у текста, вся строка — по левому краю заголовка. */}
+          {issues.length > 0 ? (
+            <ul className="flex flex-col gap-1 sm:ps-13.5">
+              {issues.map((issue) => (
+                <li key={issue.id} id={issue.id} className="flex items-start gap-2 text-sm text-destructive">
+                  <span className="flex h-5 shrink-0 items-center">
+                    <PulseDot tone="destructive" />
+                  </span>
+                  <span className="min-w-0">{issue.text}</span>
+                </li>
+              ))}
+            </ul>
           ) : null}
           {/* Отступ слева = квадрат иконки 40 px + зазор Item 14 px: кнопка выровнена по тексту, а не по иконке. */}
           {actionRow ? <div className="flex sm:ps-13.5">{actionRow}</div> : null}
@@ -164,12 +172,7 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
                     <UploadTaskRow task={task} onCancel={() => upload.cancel(task.key)} onDismiss={() => upload.dismiss(task.key)} />
                   </li>
                 ))}
-                {/* Ошибки загрузки и предупреждения проверки — под файлами, строками той же таблицы (решение 2026-11-10). */}
-                {warnings.map((warning) => (
-                  <li key={warning.id}>
-                    <ErrorNotice text={t(warning.key as ParseKeys)} />
-                  </li>
-                ))}
+                {/* Ошибки загрузки — под файлами, строками той же таблицы (решение 2026-11-10). */}
                 {messages.map((task) => (
                   <li key={task.key}>
                     <UploadTaskMessage task={task} onDismiss={() => upload.dismiss(task.key)} />

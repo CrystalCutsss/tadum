@@ -29,11 +29,11 @@ const DOC_H = DOC_W * 1.22;
 const DOC_R = 9;
 /** Центр листа в покое по высоте: 5 единиц от дна папки. */
 const FLOOR = TAB_H + H - 5 - DOC_H / 2;
-/** Веер листов в покое (FLAP_REST образца): сдвиг по ширине, подъём по высоте, поворот. */
+/** Веер листов в покое (по FLAP_REST образца): сдвиг по ширине, подъём по высоте, поворот. */
 const REST = [
-  { x: 0.16, rise: 0, r: 3 },
-  { x: -0.17, rise: 0.05, r: -3.5 },
-  { x: 0, rise: 0.1, r: 0.5 },
+  // Два листа вместо трёх, наклон сильнее и в разные стороны (Кирилл 2026-11-12); в образце 3° и −3.5°.
+  { x: 0.13, rise: 0, r: 7 },
+  { x: -0.13, rise: 0.05, r: -8 },
 ] as const;
 
 /** Задняя стенка с ярлыком справа (backPath образца). */
@@ -142,21 +142,17 @@ export function SubmitFolder({ className }: { className?: string }) {
   }, [animate, reduce, scope]);
 
   return (
-    // 112 px шириной: высота — по пропорции образца (224 × 196); стоит ровно (поворот Кирилл вернул 2026-11-12).
-    <div ref={scope} aria-hidden="true" className={cn('pointer-events-none relative w-28 opacity-0 perspective-midrange', className)}>
+    // 96 px шириной (Кирилл 2026-11-12: «немного уменьши»): высота — по пропорции образца (224 × 196); стоит ровно (поворот Кирилл вернул 2026-11-12).
+    <div ref={scope} aria-hidden="true" className={cn('pointer-events-none relative w-24 opacity-0 perspective-midrange', className)}>
       <svg viewBox={`0 0 ${W} ${TAB_H + H}`} className="block w-full overflow-visible">
         <defs>
-          {/* Задняя стенка — градиент «изнутри» образца: темнее книзу. */}
-          <linearGradient id={`${ids}-back`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--folder-back)" stopOpacity="0.85" />
-            <stop offset="1" stopColor="var(--folder-back)" />
-          </linearGradient>
           {/* Всё выше дна папки (с запасом вверх и в стороны — листы влетают сверху и расходятся). */}
           <clipPath id={`${ids}-papers`}>
             <rect x={-W} y={-W * 4} width={W * 3} height={W * 4 + TAB_H + H - 3} />
           </clipPath>
         </defs>
-        <path d={BACK} fill={`url(#${ids}-back)`} />
+        {/* Задняя стенка — сплошная, непрозрачная (Кирилл 2026-11-12). */}
+        <path d={BACK} className="fill-folder-back" />
         {/* Листы без текста; центр каждого — в точке покоя, движение — сдвиг и поворот группы. Снизу листы обрезаны по дну
             папки: при повороте и перелёте пружины угол листа не выходит за нижний край (Кирилл 2026-11-12). */}
         <g clipPath={`url(#${ids}-papers)`}>
