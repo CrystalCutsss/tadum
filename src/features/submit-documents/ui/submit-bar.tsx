@@ -4,9 +4,12 @@
 // внизу колонки контента. Слева — «Загружено X из N» и прогресс, справа — «Отправить на проверку», по центру блока.
 // Кнопка всегда активна: если что-то не загружено или не прошло проверку, нажатие показывает тост сверху,
 // подсвечивает эти документы и прокручивает к верхнему из них (onBlocked). D-029: без диалога.
-// Всё загружено и номер CR введён (решение Кирилла 2026-11-10): панель с лёгким bounce вырастает по высоте, над
-// прогрессом появляется текст «всё готово — отправьте», обводка синяя, вокруг — мягкое синее свечение волнами.
-// Удалили файл или файл не прошёл проверку — эффекты гаснут, панель с тем же bounce возвращается к обычному виду.
+// Полоса — по сегменту на документ и на поле CR, рядом — примерное оставшееся время; подпись говорит, что осталось
+// и про поле CR (решение Кирилла 2026-11-12).
+// Всё загружено и номер CR введён (решения Кирилла 2026-11-10/12): панель не меняет высоту и не сдвигается — вместо
+// «X из N загружено» появляется «всё готово» с пояснением, панель перекрашивается в активный синий (текст белый и светлый,
+// кнопка белая). Папку с анимацией убрали (Кирилл 2026-11-12) — код сохранён в docs/assets/submit-folder/.
+// Удалили файл — всё возвращается к обычному виду.
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
@@ -17,8 +20,9 @@ import { formatNumber } from '@/shared/i18n';
 import { useOnline } from '@/shared/lib';
 import { cn } from 'cn';
 
-import { BorderBeam, Button, Progress, Spinner, toast } from '@/shared/ui';
+import { Button, SegmentedProgress, Spinner, toast } from '@/shared/ui';
 
+import { submitProgress } from '../model/submit-progress';
 import { submitErrorKey, useSubmitDocuments } from '../model/use-submit-documents';
 
 /** Документы, которые мешают отправке: обязательные «Нужен» и «Нужен новый файл». */
@@ -31,20 +35,38 @@ export interface SubmitBarProps {
   uploading: boolean;
   /** Номер CR компании сохранён и подходит. */
   crReady: boolean;
+  /** Поле CR есть на экране — у него свой сегмент полосы. */
+  crRequired?: boolean;
   /** Отправить пока нельзя: какие документы подсветить. */
   onBlocked: (portalKeys: string[]) => void;
   /** Нет номера CR: показать ошибку у поля и перейти к нему. */
   onCrMissing: () => void;
 }
 
-export function SubmitBar({ set, uploading, crReady, onBlocked, onCrMissing }: SubmitBarProps) {
+export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlocked, onCrMissing }: SubmitBarProps) {
   const { t } = useTranslation();
   const online = useOnline();
   const submit = useSubmitDocuments(set);
   const progress = documentsProgress(set);
   const documentsReady = canSubmitDocumentSet(set);
   const ready = documentsReady && crReady;
-  const label = t('documents.progress', { uploaded: formatNumber(progress.uploaded), total: formatNumber(progress.total) });
+  const state = submitProgress(progress, {
+    required: crRequired,
+    ready: crReady,
+  });
+  // «Сделано X из Y»: шаги — документы и поле CR, по сегментам полосы (Кирилл 2026-11-12).
+  const counts = {
+    done: formatNumber(state.segments.filter(Boolean).length),
+    total: formatNumber(state.segments.length),
+  };
+  const label = state.copy === 'cr_only' ? t('documents.progress_cr_only') : t('documents.progress', counts);
+  const timeLeft =
+    state.minutesLeft > 0
+      ? t('documents.time_left', {
+          count: state.minutesLeft,
+          minutes: formatNumber(state.minutesLeft),
+        })
+      : null;
 
   const onSend = () => {
     if (!online) {
@@ -62,13 +84,18 @@ export function SubmitBar({ set, uploading, crReady, onBlocked, onCrMissing }: S
     }
     if (!ready) {
       const blocking = blockingDocuments(set);
-      toast(t('documents.submit.blocked', { count: blocking.length }), { position: 'top-center' });
+      toast(t('documents.submit.blocked', { count: blocking.length }), {
+        position: 'top-center',
+      });
       onBlocked(blocking);
       return;
     }
     submit.mutate(undefined, {
       onSuccess: () => toast(t('documents.submit.done'), { position: 'top-center' }),
-      onError: (error) => toast(t(submitErrorKey(error) as ParseKeys), { position: 'top-center' }),
+      onError: (error) =>
+        toast(t(submitErrorKey(error) as ParseKeys), {
+          position: 'top-center',
+        }),
     });
   };
 
@@ -76,32 +103,59 @@ export function SubmitBar({ set, uploading, crReady, onBlocked, onCrMissing }: S
     <div
       data-ready={ready}
       className={cn(
-        'sticky bottom-4 z-10 mt-auto flex flex-col rounded-xl border bg-card p-3 text-card-foreground shadow-md transition duration-slow ease-standard md:bottom-6 md:p-4',
+        'sticky bottom-4 z-10 mt-auto flex flex-col gap-5 rounded-xl border p-3 shadow-md transition-colors duration-slow ease-standard sm:flex-row sm:items-stretch sm:gap-4 md:bottom-6 md:p-4',
+        ready ? 'border-transparent bg-metal-deep text-primary-foreground' : 'bg-card text-card-foreground',
       )}
     >
-      {/* Всё готово: по серой обводке бежит синяя подсветка, затем пауза 2 с (Кирилл 2026-11-11). */}
-      <BorderBeam active={ready} />
-      {/* Высота текста растёт от нуля с лёгким перелётом (ease-bounce) и так же схлопывается. */}
-      <div className={cn('grid transition-grid-rows duration-bounce ease-bounce', ready ? 'grid-rows-expanded' : 'grid-rows-collapsed')} aria-hidden={!ready}>
-        <div className="min-h-0 overflow-hidden">
-          <div className={cn('flex flex-col gap-1 pb-3 transition-opacity duration-slow ease-standard md:pb-4', ready ? 'opacity-100' : 'opacity-0')}>
+      {/* Содержимое прижато к низу: нижний край полосы прогресса совпадает с нижним краем кнопки (Кирилл 2026-11-12). */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2 max-sm:items-center max-sm:gap-4 max-sm:text-center sm:justify-end">
+        <p className="sr-only" aria-live="polite">
+          {ready ? `${t('documents.submit.ready_title')}. ${t('documents.submit.ready_body')}` : ''}
+        </p>
+        {/* Оба состояния текста — в одной ячейке сетки, прижаты к низу (Кирилл 2026-11-12): при смене состояния панель
+              и полоса прогресса не сдвигаются, а нижняя строка пояснения «всё готово» встаёт на место строки
+              «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. На телефоне показан только
+              текущий текст: панель подрастает при переходе, отступ сверху тот же (Кирилл 2026-11-12). */}
+        <div className="grid w-full items-end *:col-start-1 *:row-start-1">
+          {/* Время — на компьютере под «X из N загружено», на телефоне — рядом (Кирилл 2026-11-12); нижние края строк совпадают. */}
+          <div
+            aria-hidden={ready}
+            className={cn(
+              'flex flex-wrap items-end gap-x-2 gap-y-0.5 transition-opacity duration-slow ease-standard max-sm:justify-center sm:flex-col sm:items-start',
+              ready ? 'invisible opacity-0 max-sm:hidden' : 'opacity-100',
+            )}
+          >
+            {/* Заголовок панели — тем же кеглем, что у карточек документов (16 px полужирный). */}
+            <p id="submit-progress" className="text-base font-semibold">
+              {label}
+            </p>
+            {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
+          </div>
+          {/* Всё готово: вместо «7 из 7 загружено» — заголовок (кегль как у подписи) и пояснение (на всех размерах). */}
+          <div
+            aria-hidden={!ready}
+            className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'invisible opacity-0 max-sm:hidden')}
+          >
             <p className="text-base font-semibold">{t('documents.submit.ready_title')}</p>
-            <p className="text-sm text-muted-foreground">{t('documents.submit.ready_body')}</p>
+            <p className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</p>
           </div>
         </div>
+        {/* Сегменты ниже, чем у компонента по умолчанию (Кирилл 2026-11-12: «ещё немного уменьши»). */}
+        <SegmentedProgress className="*:h-1.5" segments={state.segments} tone={ready ? 'inverse' : 'default'} aria-labelledby="submit-progress" />
       </div>
-      <p className="sr-only" aria-live="polite">
-        {ready ? `${t('documents.submit.ready_title')}. ${t('documents.submit.ready_body')}` : ''}
-      </p>
-      <div className="flex items-center gap-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <p id="submit-progress" className="text-sm font-medium" aria-live="polite">
-            {label}
-          </p>
-          <Progress value={progress.total === 0 ? 0 : (progress.uploaded / progress.total) * 100} aria-labelledby="submit-progress" />
-          {ready ? <p className="text-xs text-muted-foreground">{t('documents.submit.hint_locks')}</p> : null}
-        </div>
-        <Button type="button" className="min-h-11 shrink-0" aria-busy={submit.isPending} onClick={onSend}>
+      {/* С 640 px кнопка — по центру панели по высоте (Кирилл 2026-11-12). */}
+      <div className="relative flex shrink-0 flex-col sm:flex-row sm:items-center">
+        <Button
+          type="button"
+          // Серая по умолчанию, белая на синей панели «всё готово» (Кирилл 2026-11-12); на телефоне — на всю ширину и крупнее.
+          variant={ready ? 'default' : 'secondary'}
+          className={cn(
+            'min-h-11 w-full shrink-0 max-sm:min-h-12 max-sm:text-base sm:w-auto',
+            ready && 'bg-primary-inverse text-primary-inverse-foreground transition-opacity hover:bg-primary-inverse hover:opacity-85',
+          )}
+          aria-busy={submit.isPending}
+          onClick={onSend}
+        >
           {submit.isPending ? <Spinner aria-label={t('documents.submit.sending')} /> : null}
           {t('documents.submit.cta')}
         </Button>

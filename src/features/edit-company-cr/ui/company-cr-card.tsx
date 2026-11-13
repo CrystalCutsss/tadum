@@ -1,8 +1,8 @@
 // Блок «Номер CR» над документами (решение Кирилла 2026-11-10): карточка как у документа (обводка, та же ширина),
 // поле — половина блока на компьютере и вся ширина на телефоне, высота 48 px. Только цифры, ровно 10;
 // ошибка — assistive text под полем, без ошибки текста под полем нет. Номер сохраняется, как только набраны 10 цифр, и при уходе с поля.
-// Шапка — тем же стилем, что у документа (Кирилл 2026-11-12): иконка в сером квадрате 40 px (на ≥640 px), заголовок
-// 16 px полужирный, пояснение; поле — как раньше, от левого края карточки.
+// Шапка — тем же стилем, что у документа (Кирилл 2026-11-12): иконка в бледно-синем квадрате 40 px (на ≥640 px),
+// заголовок 16 px полужирный, пояснение; поле — по левому краю текста, как кнопка «Upload» у документов.
 import { RiBuildingLine } from '@remixicon/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,9 +19,11 @@ export interface CompanyCrCardProps {
   editable: boolean;
   /** Растёт при попытке отправить без номера: показать ошибку, прокрутить и поставить фокус в поле. */
   attention?: number;
+  /** Значение в поле изменилось: панель отправки сразу возвращается в исходный вид, если номер стал неполным (Кирилл 2026-11-12). */
+  onDraftChange?: (value: string) => void;
 }
 
-export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCardProps) {
+export function CompanyCrCard({ company, editable, attention = 0, onDraftChange }: CompanyCrCardProps) {
   const { t } = useTranslation();
   const ids = { input: useId(), help: useId(), title: useId() };
   const saved = company?.cr_number ?? '';
@@ -54,7 +56,7 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
   return (
     <section id="company-cr" aria-labelledby={ids.title} className="scroll-mt-4 rounded-xl border bg-card p-3 text-card-foreground md:p-4">
       <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-        <ItemMedia variant="icon" className="hidden size-10 self-center rounded-lg bg-muted sm:flex">
+        <ItemMedia variant="icon" className="flex size-10 self-center rounded-lg bg-status-received-muted text-status-received">
           <Icon icon={RiBuildingLine} />
         </ItemMedia>
         <ItemContent className="min-w-0 gap-1">
@@ -64,46 +66,49 @@ export function CompanyCrCard({ company, editable, attention = 0 }: CompanyCrCar
           <ItemDescription className="line-clamp-none">{t('cr.hint')}</ItemDescription>
         </ItemContent>
       </Item>
-      {/* Поле — от левого края карточки, без отступа под иконку (Кирилл 2026-11-12). */}
-      <Field data-invalid={message !== null} className="mt-3 w-full md:w-1/2">
-        <FieldLabel htmlFor={ids.input} className="sr-only">
-          {t('cr.label')}
-        </FieldLabel>
-        <div className="relative">
-          <Input
-            ref={input}
-            id={ids.input}
-            size="lg"
-            // Скругление как у кнопок «Upload» (решение Кирилла 2026-11-10).
-            className="rounded-lg"
-            dir="ltr"
-            inputMode="numeric"
-            autoComplete="off"
-            enterKeyHint="done"
-            // Без maxLength: вставка «CR: 1010-000-003» должна сохранить цифры, лишнее отрезает crDigits.
-            value={value}
-            readOnly={!editable}
-            aria-invalid={message !== null}
-            aria-describedby={message ? ids.help : undefined}
-            onChange={(e) => {
-              const next = crDigits(e.target.value);
-              setValue(next);
-              if (save.isError) save.reset();
-              if (next.length === CR_LENGTH) {
+      {/* Поле выровнено по тексту, а не по иконке (Кирилл 2026-11-12, позже): отступ = квадрат 40 px + зазор Item 14 px. */}
+      <div className="mt-3 ps-13.5">
+        <Field data-invalid={message !== null} className="w-full md:w-1/2">
+          <FieldLabel htmlFor={ids.input} className="sr-only">
+            {t('cr.label')}
+          </FieldLabel>
+          <div className="relative">
+            <Input
+              ref={input}
+              id={ids.input}
+              size="lg"
+              // Скругление как у кнопок «Upload» (решение Кирилла 2026-11-10).
+              className="rounded-lg"
+              dir="ltr"
+              inputMode="numeric"
+              autoComplete="off"
+              enterKeyHint="done"
+              // Без maxLength: вставка «CR: 1010-000-003» должна сохранить цифры, лишнее отрезает crDigits.
+              value={value}
+              readOnly={!editable}
+              aria-invalid={message !== null}
+              aria-describedby={message ? ids.help : undefined}
+              onChange={(e) => {
+                const next = crDigits(e.target.value);
+                setValue(next);
+                onDraftChange?.(next);
+                if (save.isError) save.reset();
+                if (next.length === CR_LENGTH) {
+                  setTouched(true);
+                  commit(next);
+                }
+              }}
+              onBlur={() => {
                 setTouched(true);
-                commit(next);
-              }
-            }}
-            onBlur={() => {
-              setTouched(true);
-              commit(value);
-            }}
-          />
-          {save.isPending ? <Spinner className="absolute end-3 top-1/2 -translate-y-1/2" aria-label={t('common.loading')} /> : null}
-        </div>
-        {/* Текст под полем — только ошибка (решение Кирилла 2026-11-10). */}
-        {message ? <FieldError id={ids.help}>{message}</FieldError> : null}
-      </Field>
+                commit(value);
+              }}
+            />
+            {save.isPending ? <Spinner className="absolute end-3 top-1/2 -translate-y-1/2" aria-label={t('common.loading')} /> : null}
+          </div>
+          {/* Текст под полем — только ошибка (решение Кирилла 2026-11-10). */}
+          {message ? <FieldError id={ids.help}>{message}</FieldError> : null}
+        </Field>
+      </div>
     </section>
   );
 }

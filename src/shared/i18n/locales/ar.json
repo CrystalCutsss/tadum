@@ -221,11 +221,14 @@
       "title_many": "اقتربنا — {count} مستندًا إضافيًا",
       "title_other": "اقتربنا — {count} مستند إضافي"
     },
-    "progress": "تم رفع {uploaded} من {total}",
+    "progress": "اكتمل {done} من {total}",
+    "progress_cr_only": "لم يتبقَّ سوى رقم السجل التجاري",
     "resources": {
+      "dialog_description": "كيف تحصل على هذا المستند وكيف يبدو",
       "example": "عرض مثال",
       "example_alt": "مثال على {title}",
-      "example_title": "مثال على هذا المستند",
+      "example_pdf": "فتح المثال",
+      "open_label": "مساعدة: {title}",
       "play": "تشغيل الفيديو",
       "video": "كيف تحصل عليه",
       "video_title": "كيف تحصل على هذا المستند"
@@ -240,12 +243,10 @@
       "title": "الخطوات"
     },
     "row": {
-      "add_file": "إضافة ملف آخر",
       "collapse": "إخفاء تفاصيل {title}",
       "expand": "عرض تفاصيل {title}",
       "files": "ملفات {title}",
       "reason_title": "لماذا لم يُقبل هذا الملف",
-      "reupload": "رفع ملف جديد",
       "upload": "رفع الملف"
     },
     "sent_zero": "تم إرسال {count} مستند",
@@ -266,7 +267,6 @@
       "error_generic": "لم نتمكن من إرسال مستنداتك. حاول مرة أخرى",
       "error_incomplete": "بعض المستندات لم تُرفع بعد. ارفعها وحاول مجددًا",
       "error_locked": "تم إرسال مستنداتك بالفعل",
-      "hint_locks": "بعد الإرسال لا يمكن تعديل الملفات حتى انتهاء المراجعة",
       "ready_body": "رفعت جميع المستندات. أرسلها الآن للمراجعة",
       "ready_title": "كل شيء جاهز",
       "sending": "جارٍ الإرسال…",
@@ -274,6 +274,12 @@
     },
     "subtitle": "ارفع كل مستند، وعند اكتمالها أرسلها للمراجعة",
     "subtitle_locked": "مستنداتك الآن لدى فريقنا",
+    "time_left_zero": "يتبقّى نحو {minutes} دقيقة",
+    "time_left_one": "يتبقّى نحو دقيقة واحدة",
+    "time_left_two": "يتبقّى نحو دقيقتين",
+    "time_left_few": "يتبقّى نحو {minutes} دقائق",
+    "time_left_many": "يتبقّى نحو {minutes} دقيقة",
+    "time_left_other": "يتبقّى نحو {minutes} دقيقة",
     "title": "طلبك"
   },
   "help": {

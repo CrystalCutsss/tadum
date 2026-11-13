@@ -10,6 +10,9 @@ const pulseDotVariants = /* @__PURE__ */ cva("", {
     tone: {
       // Тёплый «внимание» статуса rejected (не красный error).
       rejected: "bg-status-rejected",
+      // Красный error (2026-11-12, Кирилл): предупреждения автоматической проверки файла — точка того же
+      // цвета, что и текст под ней (text-destructive, как FieldError).
+      destructive: "bg-destructive",
     },
   },
   defaultVariants: {

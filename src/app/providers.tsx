@@ -25,7 +25,8 @@ function ThemedToaster() {
   const { resolved } = useTheme();
   // Контекст аналитики: применённая тема (§2.2), не выбор пользователя.
   useEffect(() => setAnalyticsContext({ theme: resolved }), [resolved]);
-  return <Toaster theme={resolved} />;
+  // Все тосты — сверху по центру, как у ошибок валидации отправки (Кирилл 2026-11-12).
+  return <Toaster theme={resolved} position="top-center" />;
 }
 
 // Корневые провайдеры. TanStack Query — единственный слой данных (ADR-001).

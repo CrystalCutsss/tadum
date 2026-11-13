@@ -205,11 +205,14 @@
       "title_one": "Almost there — {count} more document",
       "title_other": "Almost there — {count} more documents"
     },
-    "progress": "{uploaded} of {total} uploaded",
+    "progress": "{done} of {total} done",
+    "progress_cr_only": "Only your CR number is left",
     "resources": {
+      "dialog_description": "How to get this document and what it looks like",
       "example": "See an example",
       "example_alt": "An example of {title}",
-      "example_title": "An example of this document",
+      "example_pdf": "Open the example",
+      "open_label": "Help: {title}",
       "play": "Play the video",
       "video": "How to get it",
       "video_title": "How to get this document"
@@ -220,12 +223,10 @@
       "title": "Steps"
     },
     "row": {
-      "add_file": "Add another file",
       "collapse": "Hide details for {title}",
       "expand": "Show details for {title}",
       "files": "Files for {title}",
       "reason_title": "Why this file didn't work",
-      "reupload": "Upload a new file",
       "upload": "Upload"
     },
     "sent_one": "{count} document sent",
@@ -238,7 +239,6 @@
       "error_generic": "We couldn't send your documents. Try again",
       "error_incomplete": "Some documents are still missing. Upload them and try again",
       "error_locked": "Your documents have already been sent",
-      "hint_locks": "After sending, files can't be changed until the review is done",
       "ready_body": "You've uploaded all the documents. Now send them for review",
       "ready_title": "Everything is ready",
       "sending": "Sending…",
@@ -246,6 +246,8 @@
     },
     "subtitle": "Upload each document. When everything is uploaded, send them for review",
     "subtitle_locked": "Your documents are with our team",
+    "time_left_one": "About {minutes} min left",
+    "time_left_other": "About {minutes} min left",
     "title": "Your application"
   },
   "help": {

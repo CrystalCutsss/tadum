@@ -78,7 +78,9 @@ function DrawerContent({
         )}
         {...props}
       >
-        <div aria-hidden className="mx-auto mt-4 hidden h-1.5 w-25 shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        {/* Проектное (Кирилл 2026-11-12): ручка ближе к верхнему краю (mt-2 вместо mt-4 пресета); mb-2 возвращает
+            заголовок и крестик на прежнее место, чтобы контент не поднялся к ручке. */}
+        <div aria-hidden className="mx-auto mt-2 mb-2 hidden h-1.5 w-25 shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>

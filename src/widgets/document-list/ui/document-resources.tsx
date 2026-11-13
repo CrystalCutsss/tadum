@@ -1,9 +1,10 @@
-// Помощь по документу в нижней панели карточки (решения Кирилла 2026-11-09): видео (только на арабском, D-026),
-// ссылки на сервисы, где получить документ (в общем ряду слева), и пример — картинкой в модальном окне с крестиком (без просмотрщика PDF).
-// Нет ассетов — блок не показывается (A10).
-import { RiFileLine } from '@remixicon/react';
+// Помощь по документу (решение Кирилла 2026-11-12): вместо ряда кнопок «How to get it», «See an example» и ссылок
+// на сервисы — одна небольшая кнопка на уровне заголовка и описания карточки. Она открывает окно с табами
+// «How to get it» (видео, только на арабском, D-026) и «See an example» (картинка; пример только в PDF — ссылка на файл);
+// под табами — ссылки на внешние сервисы, где получить документ. Нет ассетов — кнопки нет (A10).
+import { RiQuestionLine, RiQuestionMark } from '@remixicon/react';
 import type { ParseKeys } from 'i18next';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { exampleImageFor, hintFor, sourceLinksFor } from '@/entities/document';
@@ -19,7 +20,11 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
   RiExternalLinkLine,
-  RiPlayCircleLine,
+  RiFileTextLine,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from '@/shared/ui';
 
 /**
@@ -42,92 +47,120 @@ function DrivePlayer({ src, title, playLabel }: { src: string; title: string; pl
 /** Видео из Google Drive открывается их встроенным плеером, свои файлы — тегом video. */
 const isDrivePreview = (url: string) => url.startsWith('https://drive.google.com/');
 
-export function DocumentResources({ doc, title, leading }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string; leading?: ReactNode }) {
+type HelpTab = 'video' | 'example';
+
+/** Есть ли что показать в окне помощи — без этого кнопки в карточке нет. */
+export function hasDocumentHelp(doc: Pick<Document, 'portal_key' | 'hint'>): boolean {
+  return Boolean(
+    exampleImageFor(doc.portal_key) ||
+    (doc.hint.example_pdf_url ?? hintFor(doc.portal_key).example_pdf_url) ||
+    (doc.hint.video_url?.ar ?? hintFor(doc.portal_key).video_url?.ar) ||
+    sourceLinksFor(doc.portal_key).length > 0,
+  );
+}
+
+export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Document, 'portal_key' | 'hint'>; title: string; compact?: boolean }) {
   const { t } = useTranslation();
-  const [view, setView] = useState<'example' | 'video' | null>(null);
+  const [open, setOpen] = useState(false);
   // Ассеты из каталога, если бэкенд их не прислал (A-058).
   const image = exampleImageFor(doc.portal_key);
   const examplePdf = doc.hint.example_pdf_url ?? hintFor(doc.portal_key).example_pdf_url;
   const video = doc.hint.video_url?.ar ?? hintFor(doc.portal_key).video_url?.ar;
   const links = sourceLinksFor(doc.portal_key);
-  if (!leading && !image && !examplePdf && !video && links.length === 0) return null;
+  const tabs: HelpTab[] = [...(video ? (['video'] as const) : []), ...(image || examplePdf ? (['example'] as const) : [])];
+  const [tab, setTab] = useState<HelpTab>(tabs[0] ?? 'video');
+  if (tabs.length === 0 && links.length === 0) return null;
 
-  const openExample = () => {
-    track('document_example_opened', { owner: 'client', portal_key: doc.portal_key });
-    setView('example');
+  const select = (next: HelpTab) => {
+    setTab(next);
+    if (next === 'video')
+      track('document_video_opened', {
+        owner: 'client',
+        portal_key: doc.portal_key,
+        lang_video: 'ar',
+      });
+    else
+      track('document_example_opened', {
+        owner: 'client',
+        portal_key: doc.portal_key,
+      });
+  };
+  const openHelp = () => {
+    setOpen(true);
+    if (tabs[0]) select(tabs[0]);
   };
 
-  // Кнопки в нижней панели: фон панели, наведение — белый (решение Кирилла 2026-11-10).
-  // Размер sm дизайн-системы (h-8, px-3; с иконкой в начале — ps-2) без увеличения до 44 px, иконки 14 px (решение 2026-11-10).
-  const panelButton = 'shrink-0 hover:bg-card dark:hover:bg-card';
-  // Телефон: кнопки в один ряд с горизонтальной прокруткой внутри панели (решение Кирилла 2026-11-10); зазор 4 px (2026-11-11).
-  return (
-    <div className="-mx-3 flex flex-nowrap items-center gap-1 overflow-x-auto px-3 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
-      {leading}
-      {video ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className={panelButton}
-          onClick={() => {
-            track('document_video_opened', { owner: 'client', portal_key: doc.portal_key, lang_video: 'ar' });
-            setView('video');
-          }}
-        >
-          <Icon icon={RiPlayCircleLine} data-icon="inline-start" className="size-3.5" />
-          {t('documents.resources.video')}
-        </Button>
-      ) : null}
-      {image ? (
-        <Button type="button" variant="ghost" size="sm" className={panelButton} onClick={openExample}>
-          <Icon icon={RiFileLine} data-icon="inline-start" className="size-3.5" />
-          {t('documents.resources.example')}
-        </Button>
-      ) : examplePdf ? (
-        // Пример только в PDF (без картинки) — открываем файл, свой просмотрщик не делаем.
-        <Button asChild variant="ghost" size="sm" className={panelButton}>
-          <a href={examplePdf} target="_blank" rel="noopener noreferrer" onClick={() => track('document_example_opened', { owner: 'client', portal_key: doc.portal_key })}>
-            <Icon icon={RiFileLine} data-icon="inline-start" className="size-3.5" />
-            {t('documents.resources.example')}
-          </a>
-        </Button>
-      ) : null}
-      {/* Ссылки на сервисы — в общем ряду после видео и примера, подпись «Оформить на …» (решение Кирилла 2026-11-10). */}
-      {links.map((link) => (
-        <Button key={link.url} asChild variant="ghost" size="sm" className={panelButton}>
-          <a href={link.url} target="_blank" rel="noopener noreferrer">
-            <Icon icon={RiExternalLinkLine} data-icon="inline-start" className="size-3.5" />
-            {t(link.label_key as ParseKeys)}
-          </a>
-        </Button>
-      ))}
+  const videoPanel = video ? (
+    isDrivePreview(video) ? (
+      <DrivePlayer src={video} title={t('documents.resources.video_title')} playLabel={t('documents.resources.play')} />
+    ) : (
+      <video src={video} controls playsInline className="aspect-video w-full cursor-pointer rounded-lg bg-muted" />
+    )
+  ) : null;
+  const examplePanel = image ? (
+    <img src={image} alt={t('documents.resources.example_alt', { title })} className="w-full rounded-lg border bg-muted" />
+  ) : examplePdf ? (
+    // Пример только в PDF (без картинки) — открываем файл, свой просмотрщик не делаем.
+    <Button asChild variant="secondary" className="min-h-11">
+      <a href={examplePdf} target="_blank" rel="noopener noreferrer">
+        <Icon icon={RiFileTextLine} data-icon="inline-start" />
+        {t('documents.resources.example_pdf')}
+      </a>
+    </Button>
+  ) : null;
 
-      <ResponsiveDialog open={view !== null} onOpenChange={(open) => !open && setView(null)}>
-        {/* Пример — окно почти на всю высоту, чтобы документ помещался (Кирилл 2026-11-09); видео — обычный размер. */}
-        <ResponsiveDialogContent closeLabel={t('common.close')} size={view === 'example' ? 'tall' : 'default'} className="md:max-w-2xl">
+  return (
+    <>
+      {/* Круглая кнопка с иконкой вопроса в круге, высотой с «Upload» — слева от неё. compact — на телефоне: высотой со строку
+          заголовка (24 px), иконка — знак вопроса без круга, 12 px, линия толще за счёт обводки того же цвета (решения Кирилла 2026-11-12). */}
+      <Button
+        type="button"
+        variant="secondary"
+        size="icon"
+        className={compact ? 'size-6 shrink-0 rounded-full' : 'size-11 shrink-0 rounded-full'}
+        aria-label={t('documents.resources.open_label', { title })}
+        onClick={openHelp}
+      >
+        <Icon icon={compact ? RiQuestionMark : RiQuestionLine} className={compact ? 'size-3 stroke-current stroke-1.5' : undefined} />
+      </Button>
+
+      <ResponsiveDialog open={open} onOpenChange={setOpen}>
+        {/* Пример — окно почти на всю высоту, чтобы документ помещался (Кирилл 2026-11-09). */}
+        <ResponsiveDialogContent closeLabel={t('common.close')} size={tab === 'example' && image ? 'tall' : 'default'} className="md:max-w-2xl">
           <ResponsiveDialogHeader>
             <ResponsiveDialogTitle>{title}</ResponsiveDialogTitle>
-            <ResponsiveDialogDescription>
-              {view === 'video' ? t('documents.resources.video_title') : t('documents.resources.example_title')}
-            </ResponsiveDialogDescription>
+            <ResponsiveDialogDescription>{t('documents.resources.dialog_description')}</ResponsiveDialogDescription>
           </ResponsiveDialogHeader>
-          {view === 'video' && video ? (
-            <div className="px-4 pb-4 md:p-0">
-              {isDrivePreview(video) ? (
-                <DrivePlayer src={video} title={t('documents.resources.video_title')} playLabel={t('documents.resources.play')} />
-              ) : (
-                <video src={video} controls playsInline className="aspect-video w-full cursor-pointer rounded-lg bg-muted" />
-              )}
-            </div>
-          ) : null}
-          {view === 'example' && image ? (
-            <ResponsiveDialogBody>
-              <img src={image} alt={t('documents.resources.example_alt', { title })} className="w-full rounded-lg border bg-muted" />
-            </ResponsiveDialogBody>
-          ) : null}
+          <ResponsiveDialogBody className="flex flex-col gap-4">
+            {tabs.length > 0 ? (
+              <Tabs value={tab} onValueChange={(next) => select(next as HelpTab)} className="gap-3">
+                {/* Высота табов — как у кнопки «Upload» (44 px, Кирилл 2026-11-12). */}
+                {tabs.length > 1 ? (
+                  <TabsList className="w-full group-data-horizontal/tabs:h-11">
+                    <TabsTrigger value="video">{t('documents.resources.video')}</TabsTrigger>
+                    <TabsTrigger value="example">{t('documents.resources.example')}</TabsTrigger>
+                  </TabsList>
+                ) : null}
+                {videoPanel ? <TabsContent value="video">{videoPanel}</TabsContent> : null}
+                {examplePanel ? <TabsContent value="example">{examplePanel}</TabsContent> : null}
+              </Tabs>
+            ) : null}
+            {/* Ссылки на сервисы, где получить документ, — в том же окне (решение Кирилла 2026-11-12). */}
+            {links.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {links.map((link) => (
+                  <Button key={link.url} asChild variant="outline" className="min-h-11">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                      <Icon icon={RiExternalLinkLine} data-icon="inline-start" />
+                      {t(link.label_key as ParseKeys)}
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            ) : null}
+          </ResponsiveDialogBody>
         </ResponsiveDialogContent>
       </ResponsiveDialog>
-    </div>
+    </>
   );
 }
