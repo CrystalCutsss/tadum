@@ -121,7 +121,7 @@ export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Docume
         aria-label={t('documents.resources.open_label', { title })}
         onClick={openHelp}
       >
-        <Icon icon={compact ? RiQuestionMark : RiQuestionLine} className={compact ? 'size-3 stroke-current stroke-3' : undefined} />
+        <Icon icon={compact ? RiQuestionMark : RiQuestionLine} className={compact ? 'size-3 stroke-current stroke-1.5' : undefined} />
       </Button>
 
       <ResponsiveDialog open={open} onOpenChange={setOpen}>
