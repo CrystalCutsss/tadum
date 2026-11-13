@@ -112,7 +112,7 @@ export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Docume
   return (
     <>
       {/* Круглая кнопка с иконкой вопроса в круге, высотой с «Upload» — слева от неё. compact — на телефоне: высотой со строку
-          заголовка (24 px), иконка — знак вопроса без круга, 13 px, линия толще за счёт обводки того же цвета (решения Кирилла 2026-11-12). */}
+          заголовка (24 px), иконка — знак вопроса без круга, 12 px, линия толще за счёт обводки того же цвета (решения Кирилла 2026-11-12). */}
       <Button
         type="button"
         variant="secondary"
@@ -121,7 +121,7 @@ export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Docume
         aria-label={t('documents.resources.open_label', { title })}
         onClick={openHelp}
       >
-        <Icon icon={compact ? RiQuestionMark : RiQuestionLine} className={compact ? 'size-3.25 stroke-current stroke-1.5' : undefined} />
+        <Icon icon={compact ? RiQuestionMark : RiQuestionLine} className={compact ? 'size-3 stroke-current stroke-3' : undefined} />
       </Button>
 
       <ResponsiveDialog open={open} onOpenChange={setOpen}>
