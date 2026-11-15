@@ -1,31 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { CHECKLIST_STALE_HOURS, checklistFocusKey, checklistItemView } from './checklist';
+import { CHECKLIST_STALE_HOURS, checklistItemView } from './checklist';
 
 const H = 3_600_000;
-
-describe('checklistFocusKey', () => {
-  it('первый незавершённый в фиксированном порядке, даже если позже выполненный стоит раньше (SC-06 A5)', () => {
-    expect(
-      checklistFocusKey([
-        { key: 'spa_sadq', status: 'pending' },
-        { key: 'pn_company_nafith', status: 'done' },
-        { key: 'pn_owner_nafith', status: 'pending' },
-      ]),
-    ).toBe('spa_sadq');
-    expect(
-      checklistFocusKey([
-        { key: 'spa_sadq', status: 'done' },
-        { key: 'pn_company_nafith', status: 'failed' },
-        { key: 'pn_owner_nafith', status: 'pending' },
-      ]),
-    ).toBe('pn_company_nafith');
-  });
-
-  it('всё выполнено — акцента нет', () => {
-    expect(checklistFocusKey([{ key: 'spa_sadq', status: 'done' }])).toBeNull();
-  });
-});
 
 describe('checklistItemView', () => {
   const now = 1_000 * H;

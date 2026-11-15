@@ -18,13 +18,13 @@ import { Route as CIndexRouteImport } from './../pages/c/index'
 import { Route as CDocumentsRouteImport } from './../pages/c/documents'
 import { Route as CHelpRouteImport } from './../pages/c/help'
 import { Route as CHomeRouteImport } from './../pages/c/home'
-import { Route as DemoSignRouteImport } from './../pages/demo/sign'
 import { Route as LoginIndexRouteImport } from './../pages/login/index'
 import { Route as LoginCodeRouteImport } from './../pages/login/code'
 import { Route as SIndexRouteImport } from './../pages/s/index'
 import { Route as SDocumentsRouteImport } from './../pages/s/documents'
 import { Route as SHelpRouteImport } from './../pages/s/help'
 import { Route as SHomeRouteImport } from './../pages/s/home'
+import { Route as CDocumentsSignRouteImport } from './../pages/c/documents_.sign'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,11 +71,6 @@ const CHomeRoute = CHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => CRouteRoute,
 } as any)
-const DemoSignRoute = DemoSignRouteImport.update({
-  id: '/demo/sign',
-  path: '/demo/sign',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
   id: '/login/',
   path: '/login/',
@@ -106,6 +101,11 @@ const SHomeRoute = SHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => SRouteRoute,
 } as any)
+const CDocumentsSignRoute = CDocumentsSignRouteImport.update({
+  id: '/documents_/sign',
+  path: '/documents/sign',
+  getParentRoute: () => CRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,7 +116,6 @@ export interface FileRoutesByFullPath {
   '/c/documents': typeof CDocumentsRoute
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
-  '/demo/sign': typeof DemoSignRoute
   '/login/code': typeof LoginCodeRoute
   '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
@@ -124,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/c/': typeof CIndexRoute
   '/login/': typeof LoginIndexRoute
   '/s/': typeof SIndexRoute
+  '/c/documents/sign': typeof CDocumentsSignRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,7 +132,6 @@ export interface FileRoutesByTo {
   '/c/documents': typeof CDocumentsRoute
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
-  '/demo/sign': typeof DemoSignRoute
   '/login/code': typeof LoginCodeRoute
   '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
@@ -140,6 +139,7 @@ export interface FileRoutesByTo {
   '/c': typeof CIndexRoute
   '/login': typeof LoginIndexRoute
   '/s': typeof SIndexRoute
+  '/c/documents/sign': typeof CDocumentsSignRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,7 +151,6 @@ export interface FileRoutesById {
   '/c/documents': typeof CDocumentsRoute
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
-  '/demo/sign': typeof DemoSignRoute
   '/login/code': typeof LoginCodeRoute
   '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
@@ -159,6 +158,7 @@ export interface FileRoutesById {
   '/c/': typeof CIndexRoute
   '/login/': typeof LoginIndexRoute
   '/s/': typeof SIndexRoute
+  '/c/documents_/sign': typeof CDocumentsSignRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,7 +171,6 @@ export interface FileRouteTypes {
     | '/c/documents'
     | '/c/help'
     | '/c/home'
-    | '/demo/sign'
     | '/login/code'
     | '/s/documents'
     | '/s/help'
@@ -179,6 +178,7 @@ export interface FileRouteTypes {
     | '/c/'
     | '/login/'
     | '/s/'
+    | '/c/documents/sign'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,7 +187,6 @@ export interface FileRouteTypes {
     | '/c/documents'
     | '/c/help'
     | '/c/home'
-    | '/demo/sign'
     | '/login/code'
     | '/s/documents'
     | '/s/help'
@@ -195,6 +194,7 @@ export interface FileRouteTypes {
     | '/c'
     | '/login'
     | '/s'
+    | '/c/documents/sign'
   id:
     | '__root__'
     | '/'
@@ -205,7 +205,6 @@ export interface FileRouteTypes {
     | '/c/documents'
     | '/c/help'
     | '/c/home'
-    | '/demo/sign'
     | '/login/code'
     | '/s/documents'
     | '/s/help'
@@ -213,6 +212,7 @@ export interface FileRouteTypes {
     | '/c/'
     | '/login/'
     | '/s/'
+    | '/c/documents_/sign'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -221,7 +221,6 @@ export interface RootRouteChildren {
   SRouteRoute: typeof SRouteRouteWithChildren
   NotFoundRoute: typeof NotFoundRoute
   SessionExpiredRoute: typeof SessionExpiredRoute
-  DemoSignRoute: typeof DemoSignRoute
   LoginCodeRoute: typeof LoginCodeRoute
   LoginIndexRoute: typeof LoginIndexRoute
 }
@@ -291,13 +290,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CHomeRouteImport
       parentRoute: typeof CRouteRoute
     }
-    '/demo/sign': {
-      id: '/demo/sign'
-      path: '/demo/sign'
-      fullPath: '/demo/sign'
-      preLoaderRoute: typeof DemoSignRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login/': {
       id: '/login/'
       path: '/login'
@@ -340,6 +332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SHomeRouteImport
       parentRoute: typeof SRouteRoute
     }
+    '/c/documents_/sign': {
+      id: '/c/documents_/sign'
+      path: '/documents/sign'
+      fullPath: '/c/documents/sign'
+      preLoaderRoute: typeof CDocumentsSignRouteImport
+      parentRoute: typeof CRouteRoute
+    }
   }
 }
 
@@ -348,6 +347,7 @@ interface CRouteRouteChildren {
   CHelpRoute: typeof CHelpRoute
   CHomeRoute: typeof CHomeRoute
   CIndexRoute: typeof CIndexRoute
+  CDocumentsSignRoute: typeof CDocumentsSignRoute
 }
 
 const CRouteRouteChildren: CRouteRouteChildren = {
@@ -355,6 +355,7 @@ const CRouteRouteChildren: CRouteRouteChildren = {
   CHelpRoute: CHelpRoute,
   CHomeRoute: CHomeRoute,
   CIndexRoute: CIndexRoute,
+  CDocumentsSignRoute: CDocumentsSignRoute,
 }
 
 const CRouteRouteWithChildren =
@@ -383,7 +384,6 @@ const rootRouteChildren: RootRouteChildren = {
   SRouteRoute: SRouteRouteWithChildren,
   NotFoundRoute: NotFoundRoute,
   SessionExpiredRoute: SessionExpiredRoute,
-  DemoSignRoute: DemoSignRoute,
   LoginCodeRoute: LoginCodeRoute,
   LoginIndexRoute: LoginIndexRoute,
 }

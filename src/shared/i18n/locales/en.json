@@ -19,8 +19,7 @@
     },
     "limit_label": "Limit",
     "signing": {
-      "body": "Each step opens on the Sadq website or in the Nafith app. When you're done, come back to this page — we'll update the status",
-      "info": "Sign the documents below to activate your limit"
+      "info": "Sign the documents to activate your limit"
     },
     "subtitle": {
       "cancelled": "Your limit status has changed",
@@ -77,27 +76,15 @@
     }
   },
   "checklist": {
-    "item_failed": "We couldn't confirm this step. Our team will help",
-    "link_copied": "Link copied",
-    "locked_hint": "These steps open after we confirm the terms",
-    "nafith_instruction": "Open the Nafith app and approve the note sent to you",
-    "open": "Open",
-    "pn_company_nafith": "Approve the company note (Nafith)",
-    "pn_owner_nafith": "Approve the owner's note (Nafith)",
-    "spa_sadq": "Sign the agreement (Sadq)",
-    "stale_hint": "Already signed? Message us and we'll check",
+    "item_failed": "We couldn't confirm this step. Message us and our team will help",
+    "pn_nafith": "Promissory note (Nafith)",
+    "spa": "Agreement (SPA)",
+    "stale_hint": "Already sent? Message us and we'll check",
+    "stale_hint_pn": "Already approved in Nafith? Message us and we'll check",
     "status": {
       "done": "Done",
       "failed": "Needs attention",
-      "in_progress": "Waiting for confirmation",
-      "locked": "Not available yet",
-      "pending": "To do"
-    },
-    "title": "Documents to sign",
-    "where": {
-      "pn_company_nafith": "In the Nafith app",
-      "pn_owner_nafith": "In the Nafith app",
-      "spa_sadq": "On the Sadq website"
+      "in_progress": "Waiting for confirmation"
     }
   },
   "closed": {
@@ -130,14 +117,6 @@
     "label": "CR number",
     "missing": "Add your CR number to send for review",
     "title": "Commercial Registration (CR) number"
-  },
-  "demo_sign": {
-    "back": "Back to application",
-    "badge": "Demo — not a real signature",
-    "body": "In the real service, this step takes place on the Sadq website or in the Nafith app. Here you can only simulate signing",
-    "sign": "Sign",
-    "signed": "Signed. You can go back to the Tadum tab",
-    "unknown": "This step isn't available here. Go back to your application"
   },
   "document": {
     "aoa": {
@@ -363,6 +342,22 @@
     "hint_supplier": "You also have a supplier account — switch here",
     "supplier": "Supplier"
   },
+  "signing": {
+    "back": "Back to application",
+    "cta": "Sign documents",
+    "done": "Your limit is approved",
+    "pn": {
+      "body": "We've sent the note to Nafith. Open the Nafith app and approve the note from Tadum",
+      "open": "Open Nafith"
+    },
+    "spa": {
+      "body": "Download the agreement, print it and sign it by hand. Then send us a photo or scan via WhatsApp",
+      "download": "Download agreement",
+      "send": "Send signed copy"
+    },
+    "subtitle": "Two steps — your limit becomes active once both are done",
+    "title": "Sign documents"
+  },
   "source_picker": {
     "camera": "Camera",
     "files": "Files",
@@ -405,6 +400,7 @@
     "prefill": {
       "closed": "Hello, I have a question about my Tadum application for {company}.",
       "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
+      "signed_spa": "Hello, I'm sending the signed agreement (SPA) for {company}.",
       "under_review": "Hello, I have a question about my Tadum application for {company}."
     },
     "whatsapp": "WhatsApp"

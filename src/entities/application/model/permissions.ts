@@ -19,7 +19,7 @@ export const CLIENT_PERMISSIONS = {
   submit_document_set: COLLECTING,
   download_own_documents: ALL,
   view_limit: ACTIVE,
-  open_sadq_or_nafith_links: ACTIVE,
+  sign_spa_and_pn: ACTIVE,
   view_how_to_buy: ACTIVE,
   change_language: ALL,
   contact_support: ALL,
@@ -62,9 +62,9 @@ export function canViewLimit(state: PermissionState): boolean {
   return clientCan('view_limit', state);
 }
 
-/** Ссылки Sadq / Nafith: только когда лимит ready или active. */
-export function canOpenExternalLinks(limit: Pick<Limit, 'status'> | null): boolean {
-  return limit !== null && (limit.status === 'ready' || limit.status === 'active');
+/** Сценарий подписания (`/c/documents/sign`, D-083): скачать SPA, отправить в WhatsApp — только когда лимит ready. */
+export function canSign(limit: Pick<Limit, 'status'> | null): boolean {
+  return limit !== null && limit.status === 'ready';
 }
 
 /** Повторная заявка — только из closed (D-038). */

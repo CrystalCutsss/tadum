@@ -1,10 +1,10 @@
 // Этапы «Решение» и «Подписание» на экране «Заявка» (решения Кирилла 2026-11-11, A-063). Раскладка экрана прежняя;
-// над шагами подписания — синяя карточка лимита: сумма крупно сверху, под ней пояснение с иконкой info. Шаги подписания —
-// отдельный блок под своим заголовком, в виде карточек документов. «Есть вопрос?» внутри этапов нет — поддержка в сайдбаре.
+// синяя карточка лимита: сумма крупно сверху, под ней пояснение с иконкой info. На «Подписании» в карточке — кнопка
+// «Подписать документы», она ведёт на экран подписания (D-083); блока шагов на экране «Заявка» нет. «Есть вопрос?» внутри этапов нет — поддержка в сайдбаре.
 // Лимит cancelled / rejected: нейтральная карточка без причины (SC-06 A7).
 import { RiInformationLine } from '@remixicon/react';
 import { cn } from 'cn';
-import { useEffect, useId, type ComponentProps } from 'react';
+import { useEffect, type ComponentProps, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Limit } from '@/entities/limit';
@@ -12,7 +12,6 @@ import { track } from '@/shared/analytics';
 import { formatMoney, isLanguage } from '@/shared/i18n';
 import { Button, Icon, Ltr, MetalCard } from '@/shared/ui';
 
-import { OnboardingChecklistView } from './onboarding-checklist';
 
 const NBSP = '\u00a0';
 
@@ -53,52 +52,35 @@ export function LimitAmount({ value }: { value: Limit['approved'] }) {
 
 export interface LimitCardProps {
   limit: Pick<Limit, 'status' | 'approved'>;
+  /** Этап «Подписание»: прогресс и кнопка «Подписать документы» под пояснением (D-083). */
+  action?: ReactNode;
 }
 
 /**
  * Карточка лимита — вертикальная (Кирилл 2026-11-11): «Limit» и сумма сверху, пояснение прижато к низу — большой отступ
  * от суммы; высоту выравнивает сетка с папкой документов справа.
  */
-export function LimitCard({ limit, className }: LimitCardProps & { className?: string }) {
+export function LimitCard({ limit, action, className }: LimitCardProps & { className?: string }) {
   const { t } = useTranslation();
   const hasAmount = limit.approved.amount_minor > 0;
-  const info = limit.status === 'pending' ? t('application.decision.body') : t('application.signing.info');
+  // На «Подписании» пояснения нет — только кнопка сценария (Кирилл 2026-11-15).
+  const info = limit.status === 'pending' ? t('application.decision.body') : null;
   return (
     <LimitSurface aria-live="polite" className={cn('min-h-64 justify-between gap-8', className)}>
       <div className="flex flex-col gap-2">
         <span className="text-sm text-primary-foreground">{t('application.limit_label')}</span>
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}
       </div>
-      <p className="flex items-start gap-2 text-sm text-primary-foreground">
-        <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
-        <span>{info}</span>
-      </p>
+      <div className="flex flex-col gap-4">
+        {info ? (
+          <p className="flex items-start gap-2 text-sm text-primary-foreground">
+            <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
+            <span>{info}</span>
+          </p>
+        ) : null}
+        {action}
+      </div>
     </LimitSurface>
-  );
-}
-
-export interface SigningStepsProps {
-  limit: Pick<Limit, 'status' | 'checklist'>;
-  /** Время последнего ответа сервера по лимиту (TanStack Query dataUpdatedAt). */
-  limitUpdatedAt: number;
-  className?: string;
-}
-
-/** Три подписи под общим заголовком; до согласования условий — неактивны. */
-export function SigningSteps({ limit, limitUpdatedAt, className }: SigningStepsProps) {
-  const { t } = useTranslation();
-  const locked = limit.status === 'pending';
-  const titleId = useId();
-  return (
-    <section className={cn('flex flex-col gap-3', className)} aria-labelledby={titleId}>
-      <header className="flex flex-col gap-1">
-        <h2 id={titleId} className="text-lg font-semibold">
-          {t('checklist.title')}
-        </h2>
-        <p className="text-sm text-muted-foreground">{locked ? t('checklist.locked_hint') : t('application.signing.body')}</p>
-      </header>
-      <OnboardingChecklistView items={limit.checklist.items} locked={locked} dataUpdatedAt={limitUpdatedAt} />
-    </section>
   );
 }
 

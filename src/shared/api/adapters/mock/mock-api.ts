@@ -42,9 +42,10 @@ import { hash, hashRange, sha256Hex } from './hash';
 /**
  * Меняется при несовместимом изменении формы состояния или фикстур персон — сохранённое в браузере состояние
  * сбрасывается к фикстуре. 2 — замечания к файлам, номер CR, новые фикстуры client_new и других (2026-11-11):
- * без сброса браузер показывал старое состояние персоны (уже отправленный комплект).
+ * без сброса браузер показывал старое состояние персоны (уже отправленный комплект). 5 — подписание из двух шагов
+ * (SPA и вексель, D-083) вместо трёх пунктов. 6 — сброс состояний на превью после правок подписания (2026-11-15).
  */
-export const MOCK_SCHEMA_VERSION = 4;
+export const MOCK_SCHEMA_VERSION = 6;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
@@ -723,7 +724,7 @@ export function createMockApi(options: MockApiOptions): Api {
     return app;
   };
 
-  const checklistPending = (): OnboardingChecklist => checklist('pending', 'pending', 'pending');
+  const checklistPending = (): OnboardingChecklist => checklist('pending', 'pending');
 
   function demoState(): PersonaState {
     const id = loadActive().persona_id;

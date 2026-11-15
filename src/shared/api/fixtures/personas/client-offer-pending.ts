@@ -44,7 +44,7 @@ export const clientOfferPending: PersonaFixture = (now) => {
         approved: sar(180_000),
         used: ZERO,
         available: sar(180_000),
-        checklist: checklist('pending', 'pending', 'pending'),
+        checklist: checklist('pending', 'pending'),
       },
     ],
     deals: [],

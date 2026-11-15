@@ -24,3 +24,9 @@ export const MOCK_REVIEW_DELAY_MS = 2_000;
 
 /** Мок: задержка ответа 80–250 мс (было 300–800 — экран открывался 4–5 с, Кирилл 2026-11-10); `slow` — ×4. */
 export const MOCK_LATENCY = { min_ms: 80, max_ms: 250, slow_factor: 4 } as const;
+
+/**
+ * Демо витрины (A-066): нашей команды и Nafith у мока нет — после «Send signed copy» команда «подтверждает» договор,
+ * а затем Nafith — вексель, каждый через эту паузу (Кирилл 2026-11-15: без демо-ссылок в карточках шагов).
+ */
+export const MOCK_SIGNING_CONFIRM_MS = 3_000;

@@ -9,7 +9,7 @@ import {
   CLIENT_PERMISSIONS,
   canCreateReapplication,
   canEditFiles,
-  canOpenExternalLinks,
+  canSign,
   canReuploadRejected,
   canSubmitDocumentSet,
   canViewLimit,
@@ -60,11 +60,10 @@ const rules: Record<string, () => void> = {
   'Видеть блок «Лимит» на главной (D-023)': () => {
     for (const s of STATES) expect(canViewLimit(s)).toBe(s === 'active');
   },
-  'Открыть ссылки Sadq / Nafith': () => {
-    expect(canOpenExternalLinks({ status: 'ready' })).toBe(true);
-    expect(canOpenExternalLinks({ status: 'active' })).toBe(true);
-    for (const s of ['pending', 'cancelled', 'rejected'] as const) expect(canOpenExternalLinks({ status: s })).toBe(false);
-    expect(canOpenExternalLinks(null)).toBe(false);
+  'Сценарий подписания (/c/documents/sign): скачать SPA, отправить в WhatsApp': () => {
+    expect(canSign({ status: 'ready' })).toBe(true);
+    for (const s of ['pending', 'active', 'cancelled', 'rejected'] as const) expect(canSign({ status: s })).toBe(false);
+    expect(canSign(null)).toBe(false);
   },
   'Скачать свои документы': () => {
     for (const s of STATES) expect(clientCan('download_own_documents', s)).toBe(true);

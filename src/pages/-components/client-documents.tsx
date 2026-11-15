@@ -4,6 +4,7 @@
 // свёрнуты в папку; на этапе «Лимит одобрен» — только готовая карточка, подробности заявки — в выдвижной панели.
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +16,7 @@ import { track } from '@/shared/analytics';
 import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
 import { useIsMobile } from '@/shared/lib';
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
@@ -30,7 +32,7 @@ import {
   Skeleton,
   toast,
 } from '@/shared/ui';
-import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, SigningSteps, trackLimitTransition } from '@/widgets/application-stage';
+import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, trackLimitTransition } from '@/widgets/application-stage';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
@@ -155,6 +157,16 @@ function DocumentsPanel({
   );
 }
 
+/** Этап «Подписание»: кнопка сценария подписания (D-083) в карточке лимита, без прогресса (Кирилл 2026-11-15). */
+function SigningAction() {
+  const { t } = useTranslation();
+  return (
+    <Button asChild variant="secondary" className="min-h-11 w-full sm:w-fit">
+      <Link to="/c/documents/sign">{t('signing.cta')}</Link>
+    </Button>
+  );
+}
+
 export interface ClientDocumentsProps {
   focusKey?: string | undefined;
 }
@@ -275,15 +287,15 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
       ) : lim ? (
         <>
           {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
-              на телефоне папка — под шагами подписания. */}
+              на телефоне папка — под карточкой. На «Подписании» в карточке — кнопка сценария подписания (D-083). */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" style={stepsHeight > 0 ? { minHeight: stepsHeight } : undefined}>
-            {stage === 'cancelled' ? <CancelledLimitCard applyUrl={landingUrl} /> : <LimitCard limit={lim} />}
+            {stage === 'cancelled' ? (
+              <CancelledLimitCard applyUrl={landingUrl} />
+            ) : (
+              <LimitCard limit={lim} action={stage === 'signing' ? <SigningAction /> : null} />
+            )}
             <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           </div>
-          {stage === 'cancelled' ? null : (
-            /* Отступ от карточек до заголовка подписей больше обычного (Кирилл 2026-11-11). */
-            <SigningSteps className="mt-8" limit={lim} limitUpdatedAt={limit.dataUpdatedAt} />
-          )}
           <DocumentsFolder className="sm:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} />
         </>

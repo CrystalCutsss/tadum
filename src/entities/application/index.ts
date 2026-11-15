@@ -13,7 +13,7 @@ export {
   CLIENT_PERMISSIONS,
   canCreateReapplication,
   canEditFiles,
-  canOpenExternalLinks,
+  canSign,
   canReuploadRejected,
   canSubmitDocumentSet,
   canViewLimit,

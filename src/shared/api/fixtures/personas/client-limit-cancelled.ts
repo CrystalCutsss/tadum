@@ -44,7 +44,7 @@ export const clientLimitCancelled: PersonaFixture = (now) => {
         approved: sar(120_000),
         used: ZERO,
         available: sar(120_000),
-        checklist: checklist('done', 'pending', 'pending'),
+        checklist: checklist('done', 'pending'),
       },
     ],
     deals: [],

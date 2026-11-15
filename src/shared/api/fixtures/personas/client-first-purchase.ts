@@ -44,7 +44,7 @@ export const clientFirstPurchase: PersonaFixture = (now) => {
         approved: sar(100_000),
         used: sar(30_000),
         available: sar(70_000),
-        checklist: checklist('done', 'done', 'done'),
+        checklist: checklist('done', 'done'),
         activated_at: ago(now, { days: 15 }),
       },
     ],
