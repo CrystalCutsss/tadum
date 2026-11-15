@@ -1,4 +1,4 @@
-<!-- source: Drive 1_AzNT4yf-H-GRqfBEMLWUoXpSi1-1uY4, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1pITUGuZnZS9iNefPk5kkChngNVa5fMlW, synced: 2026-11-15. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -147,16 +147,12 @@ Limit:
 ```yaml
 OnboardingChecklist:
   items:
-    - key: 'spa_sadq'              # подписание SPA в Sadq
-      status: ChecklistItemStatus  # pending | in_progress | done | failed
-      external_url?: string        # ссылка с кодом; третьи стороны называем только текстом, без логотипов
-    - key: 'pn_company_nafith'     # вексель компании в Nafith
-      status: ChecklistItemStatus
-      external_url?: string
-    - key: 'pn_owner_nafith'       # вексель владельца в Nafith
-      status: ChecklistItemStatus
-      external_url?: string
-  completed: boolean               # все три done
+    - key: 'spa'                   # договор SPA: генерируем мы, клиент скачивает, подписывает от руки и присылает в WhatsApp (D-083)
+      status: ChecklistItemStatus  # pending | in_progress | done | failed; done ставит наша команда после проверки скана
+      document_url?: string        # PDF договора для скачивания; не логировать
+    - key: 'pn_nafith'             # вексель: запрос отправляем мы, клиент подтверждает в приложении Nafith (D-083)
+      status: ChecklistItemStatus  # done — по данным Nafith; ссылки нет, третьи стороны только текстом
+  completed: boolean               # оба done
 ```
 
 ### 2.9 Deal (минимум для расчётов)
@@ -308,7 +304,7 @@ DocumentHint:                      # то, что реально показыв�
 | `client_more_docs` | client_contact | `docs_required`, раунд 2, новый комплект из 2 документов, старый `superseded` | SC-04 |
 | `client_approved_unsigned` | client_owner | `approved`, лимит `ready`, чек-лист: все пункты `pending` | SC-06 |
 | `client_offer_pending` | client_owner | `approved`, лимит `pending` (Offer confirmation), чек-лист неактивен | SC-06 |
-| `client_signing_partial` | client_owner | `approved`, лимит `ready`, SPA `done`, вексель компании `in_progress`, вексель владельца `pending` | SC-06 |
+| `client_signing_partial` | client_owner | `approved`, лимит `ready`, SPA `done`, вексель `pending` | SC-06 |
 | `client_limit_cancelled` | client_owner | `approved`, лимит `cancelled` | SC-06 A7 |
 | `client_active` | client_owner | `approved`, лимит `active` 150 000 SAR, использовано 42 500 | SC-06, SC-07 |
 | `client_first_purchase` | client_owner | `first_purchase`, одна сделка `payment_done` | SC-06, SC-07 |

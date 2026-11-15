@@ -1,4 +1,4 @@
-<!-- source: Drive 1hNrIpW0SrBtYCkJhWs24zwKJI1Oky1c0, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1i3grYUJdWx05cf84-3eEe6GVpycZ5Oyn, synced: 2026-11-15. Не редактировать — источник в Drive. -->
 # Метрики и словарь событий — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** все вопросы закрыты (D-057…D-059).
@@ -174,11 +174,12 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 | `status_changed_while_open` | статус сменился без перезагрузки (опрос, D-035) | `{ from: ClientStatus, to: ClientStatus }` | SC-05 | v1 |
 | `status_change_banner_viewed` / `status_change_banner_dismissed` | баннер смены статуса (D-034) | `{ from, to }` | SC-05 | v1 |
 | `review_overdue_viewed` | показана строка «дольше обычного» | `{ hours_over: number }` | SC-05 | v1 |
-| `checklist_link_opened` | нажата «Открыть» у пункта | `{ item: 'spa_sadq' \| 'pn_company_nafith' \| 'pn_owner_nafith', position: number }` | SC-06 | v4 |
-| `checklist_item_completed` | пункт стал `done` (по данным) | `{ item, hours_since_ready: number }` | SC-06 | v4 |
+| `spa_downloaded` | нажата «Скачать договор» | `{}` | SC-06 | v18 |
+| `spa_whatsapp_clicked` | нажата «Отправить в WhatsApp» у договора | `{}` | SC-06 | v18 |
+| `checklist_item_completed` | пункт стал `done` (по данным) | `{ item: 'spa' \| 'pn_nafith', hours_since_ready: number }` | SC-06 | v4 |
 | `checklist_item_failed_viewed` | показан `failed` | `{ item }` | SC-06 | v4 |
 | `checklist_item_stale` | `in_progress` > 24 ч | `{ item, hours: number }` | SC-06 | v4 |
-| `external_link_blocked` | внешняя ссылка не открылась в IAB | `{ item?: string, href_host: string }` | SC-06 | v4 |
+| `external_link_blocked` | внешняя ссылка не открылась в IAB | `{ href_host: string }` | SC-10 | v4 |
 | `limit_activated` | лимит стал `active` | `{ days_since_approved?: number, amount_bucket }` | SC-06 | v4 |
 | `limit_cancelled_viewed` | показан `cancelled` | `{}` | SC-06, SC-07 | v4 |
 | `limit_fully_used_viewed` | доступный = 0 | `{}` | SC-07 | v4 |
@@ -223,6 +224,7 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 |---|---|---|
 | `client.home` | `{ status: ClientStatus, round?: number, requested_count?: number, has_eta?: boolean, hours_since_submit?: number, limit_status?: LimitStatus, checklist_done_count?: number, used_share_bucket?: string }` | SC-04…SC-07 |
 | `client.documents` / `client.document` | `{ portal_key?: string, locked: boolean, round: number }` | SC-02 |
+| `client.signing` | `{ done_count: number }` | SC-06 |
 | `client.closed` | `{ had_limit: boolean }` | SC-08 |
 | `client.reapply` | `{}` | SC-08 |
 | `supplier.home` | `{ supplier_status: SupplierStatus, referred_bucket }` | SP-01 |

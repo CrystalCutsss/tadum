@@ -1,4 +1,4 @@
-<!-- source: Drive 1JrpXr6UVuqPt7t85lXSeiOnID03GA_4T, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1UCO6QMHF_Z1skPiHA4CuL0dtIBXS_WUq, synced: 2026-11-15. Не редактировать — источник в Drive. -->
 # 01 · Роли и права
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.4 · **Дата:** 2026-11-04 · **Статус:** согласовано (все вопросы R-1…R-4 закрыты)
@@ -105,7 +105,7 @@ ClientPermission:
   submit_document_set:        { collecting: true,  reviewing: false, active: false, closed: false }
   download_own_documents:     { collecting: true,  reviewing: true,  active: true,  closed: true }
   view_limit:                 { collecting: false, reviewing: false, active: true,  closed: false }
-  open_sadq_or_nafith_links:  { collecting: false, reviewing: false, active: true,  closed: false }
+  sign_spa_and_pn:            { collecting: false, reviewing: false, active: true,  closed: false }
   view_how_to_buy:            { collecting: false, reviewing: false, active: true,  closed: false }
   change_language:            { collecting: true,  reviewing: true,  active: true,  closed: true }
   contact_support:            { collecting: true,  reviewing: true,  active: true,  closed: true }
