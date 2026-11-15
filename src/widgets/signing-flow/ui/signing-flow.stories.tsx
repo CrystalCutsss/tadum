@@ -8,7 +8,7 @@ import { matrix, withRouter } from '../../../../.storybook/decorators';
 import { markChecklistOpened, type ChecklistItem, type Limit } from '@/entities/limit';
 import { setAnalyticsProviders, type CapturedEvent } from '@/shared/analytics';
 import { createI18n } from '@/shared/i18n';
-import { now, sessionStore, setClock } from '@/shared/lib';
+import { sessionStore, setClock } from '@/shared/lib';
 
 import { SigningFlow } from './signing-flow';
 
@@ -52,7 +52,7 @@ const HOUR = 3_600_000;
 export const BothPending: Story = {
   name: 'Оба шага к выполнению: скачать, WhatsApp, инструкция Nafith',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <SigningFlow limit={checklist('pending', 'pending')} limitUpdatedAt={now()} company="Ufuq Office Furniture" demo={false} />,
+  render: () => <SigningFlow limit={checklist('pending', 'pending')} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     // Переходы по ссылкам в тесте не нужны — события проверяем, навигацию гасим.
@@ -69,6 +69,9 @@ export const BothPending: Story = {
         await expect(send.getAttribute('href')).toContain('https://wa.me/');
         await expect(send).toHaveAttribute('target', '_blank');
         await expect(c.getByText(t('signing.pn.body'))).toBeVisible();
+        const nafith = c.getByRole('link', { name: t('signing.pn.open') });
+        await expect(nafith).toHaveAttribute('href', 'https://www.nafith.sa');
+        await expect(nafith).toHaveAttribute('target', '_blank');
       }
       const [first] = panels(canvasElement);
       await userEvent.click(first!.c.getByRole('link', { name: first!.t('signing.spa.download') }));
@@ -86,7 +89,7 @@ export const BothPending: Story = {
 
 export const SpaDonePnPending: Story = {
   name: 'SPA подтверждён, вексель ждёт Nafith',
-  render: () => <SigningFlow limit={checklist('done', 'pending')} limitUpdatedAt={now()} company="Ufuq Office Furniture" demo={false} />,
+  render: () => <SigningFlow limit={checklist('done', 'pending')} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement }) => {
     for (const { el, t } of panels(canvasElement)) {
       const [spa, pn] = el.querySelectorAll('li');
@@ -106,7 +109,7 @@ export const SpaStale: Story = {
       return { restore, captured: eventsLoader() };
     },
   ],
-  render: () => <SigningFlow limit={checklist('pending', 'pending')} limitUpdatedAt={FIXED - 26 * HOUR} company="Ufuq Office Furniture" demo={false} />,
+  render: () => <SigningFlow limit={checklist('pending', 'pending')} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement, loaded }) => {
     const l = loaded as { restore: () => void; captured: Captured };
     try {
@@ -127,7 +130,7 @@ export const SpaStale: Story = {
 export const PnFailed: Story = {
   name: 'Вексель не подтвердился — нейтральный текст и checklist_item_failed_viewed',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <SigningFlow limit={checklist('done', 'failed')} limitUpdatedAt={now()} company="Ufuq Office Furniture" demo={false} />,
+  render: () => <SigningFlow limit={checklist('done', 'failed')} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     try {

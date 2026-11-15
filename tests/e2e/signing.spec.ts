@@ -19,7 +19,7 @@ const step = (page: Page, key: ItemKey, lang: Lang = LANG) =>
   steps(page, lang).getByRole('listitem').filter({ hasText: tr(lang, `checklist.${key}`) });
 const signCta = (page: Page, lang: Lang = LANG) => page.getByRole('link', { name: tr(lang, 'signing.cta') });
 
-test('@smoke client_approved_unsigned: «Sign documents» → экран подписания → «Send signed copy» → демо-подтверждения → «Лимит одобрен» → подробности в панели', async ({ page, context }) => {
+test('@smoke client_approved_unsigned: «Sign documents» → экран подписания → «Send signed copy» → договор подтверждён → «Open Nafith» → вексель ждёт', async ({ page, context }) => {
   // WhatsApp открывается в новой вкладке — наружу не ходим.
   await context.route('https://wa.me/**', (route) => route.abort());
   await openApplication(page, 'client_approved_unsigned');
@@ -36,13 +36,16 @@ test('@smoke client_approved_unsigned: «Sign documents» → экран под�
   const [wa] = await Promise.all([context.waitForEvent('page'), step(page, 'spa').getByRole('link', { name: tr(LANG, 'signing.spa.send') }).click()]);
   await wa.close();
   await expect(step(page, 'spa')).toContainText(tr(LANG, 'checklist.status.in_progress'));
-  // Демо витрины (A-066): «команда» подтверждает договор, затем «Nafith» — вексель.
+  // Демо витрины (A-066): «команда» подтверждает договор; вексель сам не подтверждается (Кирилл 2026-11-15).
   await expect(step(page, 'spa')).toContainText(tr(LANG, 'checklist.status.done'), { timeout: 10_000 });
-  await expect(page.getByText(tr(LANG, 'signing.done')).first()).toBeVisible({ timeout: 10_000 });
-  await page.getByRole('link', { name: tr(LANG, 'signing.back') }).click();
-  await expect(page.getByRole('heading', { name: tr(LANG, 'application.summary.title') })).toBeVisible();
+  await context.route('https://www.nafith.sa/**', (route) => route.abort());
+  const [nafith] = await Promise.all([context.waitForEvent('page'), step(page, 'pn_nafith').getByRole('link', { name: tr(LANG, 'signing.pn.open') }).click()]);
+  await nafith.close();
+  await expect(step(page, 'pn_nafith')).toContainText(tr(LANG, 'checklist.status.in_progress'));
+});
 
-  // «Open application» — выдвижная панель с датами, лимитом и документами (Кирилл 2026-11-11).
+test('client_active: «Open application» — выдвижная панель с датами, лимитом и документами', async ({ page }) => {
+  await openApplication(page, 'client_active');
   await page.getByRole('button', { name: tr(LANG, 'application.summary.open') }).click();
   const panel = page.getByRole('dialog', { name: tr(LANG, 'application.details.title') });
   await expect(panel).toBeVisible();

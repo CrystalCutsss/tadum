@@ -80,6 +80,7 @@
     "pn_nafith": "Promissory note (Nafith)",
     "spa": "Agreement (SPA)",
     "stale_hint": "Already sent? Message us and we'll check",
+    "stale_hint_pn": "Already approved in Nafith? Message us and we'll check",
     "status": {
       "done": "Done",
       "failed": "Needs attention",
@@ -346,7 +347,8 @@
     "cta": "Sign documents",
     "done": "Your limit is approved",
     "pn": {
-      "body": "We've sent the note to Nafith. Open the Nafith app and approve the note from Tadum"
+      "body": "We've sent the note to Nafith. Open the Nafith app and approve the note from Tadum",
+      "open": "Open Nafith"
     },
     "spa": {
       "body": "Download the agreement, print it and sign it by hand. Then send us a photo or scan via WhatsApp",

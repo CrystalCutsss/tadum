@@ -79,7 +79,7 @@ export function ClientSigning() {
           </CardContent>
         </Card>
       ) : (
-        <SigningFlow limit={lim} limitUpdatedAt={limit.dataUpdatedAt} company={company.data?.name ?? ''} />
+        <SigningFlow limit={lim} company={company.data?.name ?? ''} />
       )}
     </div>
   );

@@ -4,7 +4,7 @@
 // пока команда не проверит скан (D-035: статус только из данных, отметка — не подтверждение). У векселя — инструкция
 // текстом, без ссылок и логотипов Nafith. Без номеров шагов и без строк под карточками (Кирилл 2026-11-15); в демо
 // витрины подтверждения приходят сами: договор — через паузу после «Send signed copy», затем вексель (A-066).
-import { RiCheckLine, RiDownloadLine, RiErrorWarningLine, RiFileShield2Line, RiFileTextLine, RiTimeLine, RiWhatsappLine, type RemixiconComponentType } from '@remixicon/react';
+import { RiCheckLine, RiDownloadLine, RiErrorWarningLine, RiExternalLinkLine, RiFileShield2Line, RiFileTextLine, RiTimeLine, RiWhatsappLine, type RemixiconComponentType } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { checklistItemView, checklistOpenedAt, limitQuery, markChecklistOpened, type ChecklistItem, type ChecklistItemView, type Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
 import { getApi } from '@/shared/api';
-import { MOCK_SIGNING_CONFIRM_MS, supportWhatsappUrl } from '@/shared/config';
+import { MOCK_SIGNING_CONFIRM_MS, NAFITH_URL, supportWhatsappUrl } from '@/shared/config';
 import { now as clockNow, useNow } from '@/shared/lib';
 import { Button, Icon, Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/shared/ui';
 
@@ -48,15 +48,13 @@ const demoConfirm = import.meta.env.VITE_DEMO_PANEL !== '0' && (import.meta.env.
 
 export interface SigningFlowProps {
   limit: Pick<Limit, 'checklist'>;
-  /** Время последнего ответа сервера по лимиту (TanStack Query dataUpdatedAt). */
-  limitUpdatedAt: number;
   /** Название компании — в готовый текст WhatsApp (в аналитику не уходит). */
   company: string;
   /** Демо-подтверждения шагов (A-066); по умолчанию — в демо витрины, в историях выключено. */
   demo?: boolean;
 }
 
-export function SigningFlow({ limit, limitUpdatedAt, company, demo = demoConfirm }: SigningFlowProps) {
+export function SigningFlow({ limit, company, demo = demoConfirm }: SigningFlowProps) {
   const { t } = useTranslation();
   const now = useNow(60_000);
   // Нажатие WhatsApp пишет отметку в sessionStorage — перерисовываем шаг сразу.
@@ -68,8 +66,8 @@ export function SigningFlow({ limit, limitUpdatedAt, company, demo = demoConfirm
   // с pending после возврата на вкладку не значит, что договор не дошёл (в отличие от прежней отметки «ссылка открыта»).
   const spaView = spa ? checklistItemView(spa, checklistOpenedAt('spa'), 0, now) : null;
   // Демо (A-066): «команда» подтверждает договор через паузу после «Send signed copy» (таймер не зависит от
-  // перерисовок — обновление данных при возврате на вкладку его не сбрасывает); когда договор готов, а вексель ждёт, —
-  // «Nafith» подтверждает вексель.
+  // перерисовок — обновление данных при возврате на вкладку его не сбрасывает). Вексель в демо сам не подтверждается
+  // (Кирилл 2026-11-15): клиент переходит в Nafith, шаг ждёт подтверждения.
   const demoSign = useCallback(
     (key: ChecklistItem['key']) =>
       window.setTimeout(() => {
@@ -80,12 +78,6 @@ export function SigningFlow({ limit, limitUpdatedAt, company, demo = demoConfirm
       }, MOCK_SIGNING_CONFIRM_MS),
     [queryClient],
   );
-  const pnNext = demo && spa?.status === 'done' && pn?.status === 'pending';
-  useEffect(() => {
-    if (!pnNext) return;
-    const timer = demoSign('pn_nafith');
-    return () => window.clearTimeout(timer);
-  }, [pnNext, demoSign]);
 
   return (
     <ol className="flex flex-col gap-4" aria-label={t('signing.title')}>
@@ -128,9 +120,25 @@ export function SigningFlow({ limit, limitUpdatedAt, company, demo = demoConfirm
       {pn ? (
         <SigningStep
           item={pn}
-          view={checklistItemView(pn, null, limitUpdatedAt, now)}
-          staleHours={0}
+          view={checklistItemView(pn, checklistOpenedAt('pn_nafith'), 0, now)}
+          staleHours={staleHours(checklistOpenedAt('pn_nafith'), now)}
           body={t('signing.pn.body')}
+          actions={
+            <Button asChild className="min-h-11">
+              <a
+                href={NAFITH_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  markChecklistOpened('pn_nafith', clockNow());
+                  setTick((n) => n + 1);
+                }}
+              >
+                {t('signing.pn.open')}
+                <Icon icon={RiExternalLinkLine} data-icon="inline-end" />
+              </a>
+            </Button>
+          }
         />
       ) : null}
     </ol>
@@ -170,7 +178,7 @@ function SigningStep({
   );
   const tray =
     view === 'stale'
-      ? supportLink(t('checklist.stale_hint'))
+      ? supportLink(t(item.key === 'spa' ? 'checklist.stale_hint' : 'checklist.stale_hint_pn'))
       : view === 'failed'
         ? supportLink(t('checklist.item_failed'))
         : null;
