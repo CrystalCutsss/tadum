@@ -1,4 +1,4 @@
-<!-- source: Drive 1i3grYUJdWx05cf84-3eEe6GVpycZ5Oyn, synced: 2026-11-15. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1bsXKRrzZvmmWh8EYVfWbMv8UM-VPoOHf, synced: 2026-11-15. Не редактировать — источник в Drive. -->
 # Метрики и словарь событий — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** все вопросы закрыты (D-057…D-059).
@@ -174,8 +174,8 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 | `status_changed_while_open` | статус сменился без перезагрузки (опрос, D-035) | `{ from: ClientStatus, to: ClientStatus }` | SC-05 | v1 |
 | `status_change_banner_viewed` / `status_change_banner_dismissed` | баннер смены статуса (D-034) | `{ from, to }` | SC-05 | v1 |
 | `review_overdue_viewed` | показана строка «дольше обычного» | `{ hours_over: number }` | SC-05 | v1 |
-| `spa_downloaded` | нажата «Скачать договор» | `{}` | SC-06 | v18 |
-| `spa_whatsapp_clicked` | нажата «Отправить в WhatsApp» у договора | `{}` | SC-06 | v18 |
+| `spa_downloaded` | нажата «Скачать договор» | `{}` | SC-06 | v4 |
+| `spa_whatsapp_clicked` | нажата «Отправить в WhatsApp» у договора | `{}` | SC-06 | v4 |
 | `checklist_item_completed` | пункт стал `done` (по данным) | `{ item: 'spa' \| 'pn_nafith', hours_since_ready: number }` | SC-06 | v4 |
 | `checklist_item_failed_viewed` | показан `failed` | `{ item }` | SC-06 | v4 |
 | `checklist_item_stale` | `in_progress` > 24 ч | `{ item, hours: number }` | SC-06 | v4 |
