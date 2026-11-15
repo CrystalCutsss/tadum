@@ -1,11 +1,11 @@
 // Этапы «Решение», «Подписание», «Лимит одобрен» (A-063, D-083): кнопка подписания в карточке лимита, экран подписания
-// из двух шагов (SPA и вексель), демо-подтверждение в той же вкладке, подробности заявки в панели, отменённый лимит, папка.
+// из двух шагов (SPA и вексель), демо-подтверждения шагов, подробности заявки в панели, отменённый лимит, папка.
 import type { Page } from '@playwright/test';
 
 import { asPersona, expect, test, tr, type Lang } from './fixtures';
 
 const LANG: Lang = 'en';
-const ITEMS = ['spa', 'pn_nafith'] as const;
+type ItemKey = 'spa' | 'pn_nafith';
 
 /** Открыть «Заявку» персоны и дождаться данных (заголовок экрана и без скелетонов). */
 async function openApplication(page: Page, persona: string, lang: Lang = LANG) {
@@ -15,15 +15,16 @@ async function openApplication(page: Page, persona: string, lang: Lang = LANG) {
 }
 
 const steps = (page: Page, lang: Lang = LANG) => page.getByRole('list', { name: tr(lang, 'signing.title') });
-const step = (page: Page, key: (typeof ITEMS)[number], lang: Lang = LANG) =>
+const step = (page: Page, key: ItemKey, lang: Lang = LANG) =>
   steps(page, lang).getByRole('listitem').filter({ hasText: tr(lang, `checklist.${key}`) });
 const signCta = (page: Page, lang: Lang = LANG) => page.getByRole('link', { name: tr(lang, 'signing.cta') });
 
-test('@smoke client_approved_unsigned: «Sign documents» → экран подписания → подтверждение двух шагов → «Лимит одобрен» → подробности в панели', async ({ page }) => {
+test('@smoke client_approved_unsigned: «Sign documents» → экран подписания → «Send signed copy» → демо-подтверждения → «Лимит одобрен» → подробности в панели', async ({ page, context }) => {
+  // WhatsApp открывается в новой вкладке — наружу не ходим.
+  await context.route('https://wa.me/**', (route) => route.abort());
   await openApplication(page, 'client_approved_unsigned');
-  // Блока шагов на «Заявке» нет (D-083) — только кнопка в карточке лимита и прогресс.
+  // Блока шагов на «Заявке» нет (D-083) — только кнопка в карточке лимита.
   await expect(steps(page)).toHaveCount(0);
-  await expect(page.getByText(tr(LANG, 'signing.progress', { done: '0', total: '2' }))).toBeVisible();
   await signCta(page).click();
   await expect(page).toHaveURL(/\/c\/documents\/sign$/);
   await expect(page.getByRole('heading', { level: 1, name: tr(LANG, 'signing.title') })).toBeVisible();
@@ -31,19 +32,13 @@ test('@smoke client_approved_unsigned: «Sign documents» → экран под�
   await expect(crumbs.getByRole('link', { name: tr(LANG, 'nav.application'), exact: true })).toBeVisible();
   await expect(step(page, 'spa').getByRole('link', { name: tr(LANG, 'signing.spa.download') })).toHaveAttribute('href', /demo\/spa\.pdf$/);
 
-  for (const key of ITEMS) {
-    // Демо: «подтверждение» команды (SPA) или Nafith (вексель) — на демо-странице в той же вкладке, «Назад» — к подписанию.
-    await step(page, key).getByRole('link', { name: tr(LANG, 'demo_sign.confirm') }).click();
-    await expect(page).toHaveURL(new RegExp(`/demo/sign\\?item=${key}$`));
-    await page.getByRole('button', { name: tr(LANG, 'demo_sign.sign') }).click();
-    await expect(page.getByRole('status')).toHaveText(tr(LANG, 'demo_sign.signed'));
-    await page.getByRole('link', { name: tr(LANG, 'demo_sign.back') }).click();
-    await expect(page).toHaveURL(/\/c\/documents\/sign$/);
-    if (key === 'spa') await expect(step(page, 'spa')).toContainText(tr(LANG, 'checklist.status.done'));
-  }
-
-  // Оба шага готовы: экран подписания говорит «Лимит одобрен», путь — назад к заявке.
-  await expect(page.getByText(tr(LANG, 'signing.done')).first()).toBeVisible();
+  // «Send signed copy» → WhatsApp в новой вкладке; шаг SPA — «ждём подтверждения».
+  const [wa] = await Promise.all([context.waitForEvent('page'), step(page, 'spa').getByRole('link', { name: tr(LANG, 'signing.spa.send') }).click()]);
+  await wa.close();
+  await expect(step(page, 'spa')).toContainText(tr(LANG, 'checklist.status.in_progress'));
+  // Демо витрины (A-066): «команда» подтверждает договор, затем «Nafith» — вексель.
+  await expect(step(page, 'spa')).toContainText(tr(LANG, 'checklist.status.done'), { timeout: 10_000 });
+  await expect(page.getByText(tr(LANG, 'signing.done')).first()).toBeVisible({ timeout: 10_000 });
   await page.getByRole('link', { name: tr(LANG, 'signing.back') }).click();
   await expect(page.getByRole('heading', { name: tr(LANG, 'application.summary.title') })).toBeVisible();
 
@@ -72,9 +67,8 @@ test('client_offer_pending: экран подписания до согласо�
   await expect(page.getByRole('heading', { level: 1, name: tr(LANG, 'documents.title') })).toBeVisible();
 });
 
-test('client_signing_partial: «1 из 2», SPA готов, вексель ждёт Nafith', async ({ page }) => {
+test('client_signing_partial: SPA готов, вексель ждёт Nafith', async ({ page }) => {
   await openApplication(page, 'client_signing_partial');
-  await expect(page.getByText(tr(LANG, 'signing.progress', { done: '1', total: '2' }))).toBeVisible();
   await signCta(page).click();
   await expect(step(page, 'spa')).toContainText(tr(LANG, 'checklist.status.done'));
   await expect(step(page, 'spa').getByRole('link', { name: tr(LANG, 'signing.spa.send') })).toHaveCount(0);

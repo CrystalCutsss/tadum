@@ -14,7 +14,6 @@ import { limitQuery, type Limit } from '@/entities/limit';
 import { CompanyCrCard } from '@/features/edit-company-cr';
 import { track } from '@/shared/analytics';
 import { useStatusPolling, type Application, type DocumentSet } from '@/shared/api';
-import { formatNumber } from '@/shared/i18n';
 import { useIsMobile } from '@/shared/lib';
 import {
   Button,
@@ -158,17 +157,13 @@ function DocumentsPanel({
   );
 }
 
-/** Этап «Подписание»: сколько шагов готово и кнопка сценария подписания (D-083) — в карточке лимита. */
-function SigningAction({ limit }: { limit: Limit }) {
+/** Этап «Подписание»: кнопка сценария подписания (D-083) в карточке лимита, без прогресса (Кирилл 2026-11-15). */
+function SigningAction() {
   const { t } = useTranslation();
-  const done = limit.checklist.items.filter((i) => i.status === 'done').length;
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-sm text-primary-foreground">{t('signing.progress', { done: formatNumber(done), total: formatNumber(limit.checklist.items.length) })}</span>
-      <Button asChild variant="secondary" className="min-h-11 w-full sm:w-fit">
-        <Link to="/c/documents/sign">{t('signing.cta')}</Link>
-      </Button>
-    </div>
+    <Button asChild variant="secondary" className="min-h-11 w-full sm:w-fit">
+      <Link to="/c/documents/sign">{t('signing.cta')}</Link>
+    </Button>
   );
 }
 
@@ -297,7 +292,7 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
             {stage === 'cancelled' ? (
               <CancelledLimitCard applyUrl={landingUrl} />
             ) : (
-              <LimitCard limit={lim} action={stage === 'signing' ? <SigningAction limit={lim} /> : null} />
+              <LimitCard limit={lim} action={stage === 'signing' ? <SigningAction /> : null} />
             )}
             <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
           </div>

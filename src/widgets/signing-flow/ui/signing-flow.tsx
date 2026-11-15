@@ -2,16 +2,18 @@
 // Шаг — карточка в стиле документа (иконка в сером квадрате, название, пояснение, статус справа). У SPA — «Скачать
 // договор» и «Отправить подписанный в WhatsApp»; после нажатия WhatsApp — локальная отметка и «ждём подтверждения»,
 // пока команда не проверит скан (D-035: статус только из данных, отметка — не подтверждение). У векселя — инструкция
-// текстом, без ссылок и логотипов Nafith. В демо витрины у шага — ссылка на демо-страницу подтверждения.
+// текстом, без ссылок и логотипов Nafith. Без номеров шагов и без строк под карточками (Кирилл 2026-11-15); в демо
+// витрины подтверждения приходят сами: договор — через паузу после «Send signed copy», затем вексель (A-066).
 import { RiCheckLine, RiDownloadLine, RiErrorWarningLine, RiFileShield2Line, RiFileTextLine, RiTimeLine, RiWhatsappLine, type RemixiconComponentType } from '@remixicon/react';
-import { Link } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { checklistItemView, checklistOpenedAt, markChecklistOpened, type ChecklistItem, type ChecklistItemView, type Limit } from '@/entities/limit';
+import { checklistItemView, checklistOpenedAt, limitQuery, markChecklistOpened, type ChecklistItem, type ChecklistItemView, type Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
-import { supportWhatsappUrl } from '@/shared/config';
+import { getApi } from '@/shared/api';
+import { MOCK_SIGNING_CONFIRM_MS, supportWhatsappUrl } from '@/shared/config';
 import { now as clockNow, useNow } from '@/shared/lib';
 import { Button, Icon, Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/shared/ui';
 
@@ -41,7 +43,7 @@ function StatusPill({ view }: { view: Exclude<ChecklistItemView, 'pending'> }) {
 
 const ICON: Record<ChecklistItem['key'], RemixiconComponentType> = { spa: RiFileTextLine, pn_nafith: RiFileShield2Line };
 
-/** Демо витрины: мок и демо-режим (не прод-сборка) — у шага ссылка на демо-страницу подтверждения. */
+/** Демо витрины: мок и демо-режим (не прод-сборка) — подтверждения шагов приходят сами (A-066). */
 const demoConfirm = import.meta.env.VITE_DEMO_PANEL !== '0' && (import.meta.env.VITE_API_MODE ?? 'mock') === 'mock';
 
 export interface SigningFlowProps {
@@ -50,23 +52,47 @@ export interface SigningFlowProps {
   limitUpdatedAt: number;
   /** Название компании — в готовый текст WhatsApp (в аналитику не уходит). */
   company: string;
+  /** Демо-подтверждения шагов (A-066); по умолчанию — в демо витрины, в историях выключено. */
+  demo?: boolean;
 }
 
-export function SigningFlow({ limit, limitUpdatedAt, company }: SigningFlowProps) {
+export function SigningFlow({ limit, limitUpdatedAt, company, demo = demoConfirm }: SigningFlowProps) {
   const { t } = useTranslation();
   const now = useNow(60_000);
   // Нажатие WhatsApp пишет отметку в sessionStorage — перерисовываем шаг сразу.
   const [, setTick] = useState(0);
   const spa = limit.checklist.items.find((i) => i.key === 'spa');
   const pn = limit.checklist.items.find((i) => i.key === 'pn_nafith');
+  const queryClient = useQueryClient();
+  // Отметка «отправлено в WhatsApp» держится, пока сервер не скажет done: проверка скана занимает часы, а новый ответ
+  // с pending после возврата на вкладку не значит, что договор не дошёл (в отличие от прежней отметки «ссылка открыта»).
+  const spaView = spa ? checklistItemView(spa, checklistOpenedAt('spa'), 0, now) : null;
+  // Демо (A-066): «команда» подтверждает договор через паузу после «Send signed copy» (таймер не зависит от
+  // перерисовок — обновление данных при возврате на вкладку его не сбрасывает); когда договор готов, а вексель ждёт, —
+  // «Nafith» подтверждает вексель.
+  const demoSign = useCallback(
+    (key: ChecklistItem['key']) =>
+      window.setTimeout(() => {
+        void getApi().then(async (api) => {
+          api.demo?.externalSign(key);
+          await queryClient.invalidateQueries({ queryKey: limitQuery.queryKey });
+        });
+      }, MOCK_SIGNING_CONFIRM_MS),
+    [queryClient],
+  );
+  const pnNext = demo && spa?.status === 'done' && pn?.status === 'pending';
+  useEffect(() => {
+    if (!pnNext) return;
+    const timer = demoSign('pn_nafith');
+    return () => window.clearTimeout(timer);
+  }, [pnNext, demoSign]);
 
   return (
     <ol className="flex flex-col gap-4" aria-label={t('signing.title')}>
       {spa ? (
         <SigningStep
           item={spa}
-          index={0}
-          view={checklistItemView(spa, checklistOpenedAt('spa'), limitUpdatedAt, now)}
+          view={spaView ?? 'pending'}
           staleHours={staleHours(checklistOpenedAt('spa'), now)}
           body={t('signing.spa.body')}
           actions={
@@ -87,6 +113,7 @@ export function SigningFlow({ limit, limitUpdatedAt, company }: SigningFlowProps
                   onClick={() => {
                     markChecklistOpened('spa', clockNow());
                     track('spa_whatsapp_clicked', {});
+                    if (demo && spa.status !== 'done') demoSign('spa');
                     setTick((n) => n + 1);
                   }}
                 >
@@ -101,15 +128,9 @@ export function SigningFlow({ limit, limitUpdatedAt, company }: SigningFlowProps
       {pn ? (
         <SigningStep
           item={pn}
-          index={1}
           view={checklistItemView(pn, null, limitUpdatedAt, now)}
           staleHours={0}
           body={t('signing.pn.body')}
-          note={
-            <a href={supportWhatsappUrl()} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
-              {t('signing.pn.not_received')}
-            </a>
-          }
         />
       ) : null}
     </ol>
@@ -120,20 +141,16 @@ const staleHours = (at: number | null, now: number) => (at === null ? 0 : Math.f
 
 function SigningStep({
   item,
-  index,
   view,
   staleHours: hours,
   body,
   actions,
-  note,
 }: {
   item: ChecklistItem;
-  index: number;
   view: ChecklistItemView;
   staleHours: number;
   body: string;
   actions?: ReactNode;
-  note?: ReactNode;
 }) {
   const { t } = useTranslation();
 
@@ -156,9 +173,7 @@ function SigningStep({
       ? supportLink(t('checklist.stale_hint'))
       : view === 'failed'
         ? supportLink(t('checklist.item_failed'))
-        : done
-          ? null
-          : (note ?? null);
+        : null;
 
   return (
     <li className="flex list-none flex-col rounded-xl bg-secondary">
@@ -168,10 +183,7 @@ function SigningStep({
             <Icon icon={ICON[item.key]} />
           </ItemMedia>
           <ItemContent className="min-w-0 gap-1">
-            <ItemTitle className="flex-wrap text-base font-semibold">
-              <span className="text-muted-foreground">{t('signing.step', { n: index + 1 })}</span>
-              {t(`checklist.${item.key}`)}
-            </ItemTitle>
+            <ItemTitle className="flex-wrap text-base font-semibold">{t(`checklist.${item.key}`)}</ItemTitle>
             {done ? null : <ItemDescription className="line-clamp-none">{body}</ItemDescription>}
           </ItemContent>
           {view === 'pending' ? null : (
@@ -183,16 +195,7 @@ function SigningStep({
         {/* Действия — пока шаг не подтверждён; после «отправлено» их можно повторить (новый скан). */}
         {actions && !done && view !== 'failed' ? <div className="flex flex-wrap gap-2 sm:ps-13.5">{actions}</div> : null}
       </div>
-      {tray || (demoConfirm && !done) ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 md:px-4">
-          {tray ? <p className="text-sm text-secondary-foreground/75">{tray}</p> : <span />}
-          {demoConfirm && !done ? (
-            <Link to="/demo/sign" search={{ item: item.key }} className="text-sm text-secondary-foreground/75 underline underline-offset-4">
-              {t('demo_sign.confirm')}
-            </Link>
-          ) : null}
-        </div>
-      ) : null}
+      {tray ? <p className="px-3 py-2 text-sm text-secondary-foreground/75 md:px-4">{tray}</p> : null}
     </li>
   );
 }

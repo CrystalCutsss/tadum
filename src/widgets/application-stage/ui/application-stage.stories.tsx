@@ -64,12 +64,13 @@ export const LimitPendingNoAmount: Story = {
 };
 
 export const LimitReady: Story = {
-  name: 'LimitCard — ready («Подписание»): пояснение и место под кнопку подписания',
+  name: 'LimitCard — ready («Подписание»): только сумма и кнопка подписания',
   render: () => <LimitCard limit={{ status: 'ready', approved: sar(250_000) }} action={<button type="button">Sign</button>} />,
   play: async ({ canvasElement }) => {
     for (const { el, c, t } of panels(canvasElement)) {
       await expect(el).toHaveTextContent('250,000');
-      await expect(c.getByText(t('application.signing.info'))).toBeVisible();
+      // На «Подписании» пояснения нет, только кнопка сценария (Кирилл 2026-11-15).
+      await expect(c.queryByText(t('application.decision.body'))).toBeNull();
       await expect(c.getByRole('button')).toBeVisible();
     }
   },

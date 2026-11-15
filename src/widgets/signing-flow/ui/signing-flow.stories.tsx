@@ -52,7 +52,7 @@ const HOUR = 3_600_000;
 export const BothPending: Story = {
   name: 'Оба шага к выполнению: скачать, WhatsApp, инструкция Nafith',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <SigningFlow limit={checklist('pending', 'pending')} limitUpdatedAt={now()} company="Ufuq Office Furniture" />,
+  render: () => <SigningFlow limit={checklist('pending', 'pending')} limitUpdatedAt={now()} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     // Переходы по ссылкам в тесте не нужны — события проверяем, навигацию гасим.
@@ -63,6 +63,8 @@ export const BothPending: Story = {
         await expect(c.getByText(t('checklist.spa'))).toBeVisible();
         await expect(c.getByText(t('checklist.pn_nafith'))).toBeVisible();
         await expect(c.getByRole('link', { name: t('signing.spa.download') })).toHaveAttribute('href', '/demo/spa.pdf');
+        // Без номеров шагов и демо-ссылок (Кирилл 2026-11-15).
+        await expect(c.queryByRole('link', { name: /demo|تجريبي/i })).toBeNull();
         const send = c.getByRole('link', { name: t('signing.spa.send') });
         await expect(send.getAttribute('href')).toContain('https://wa.me/');
         await expect(send).toHaveAttribute('target', '_blank');
@@ -84,13 +86,13 @@ export const BothPending: Story = {
 
 export const SpaDonePnPending: Story = {
   name: 'SPA подтверждён, вексель ждёт Nafith',
-  render: () => <SigningFlow limit={checklist('done', 'pending')} limitUpdatedAt={now()} company="Ufuq Office Furniture" />,
+  render: () => <SigningFlow limit={checklist('done', 'pending')} limitUpdatedAt={now()} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement }) => {
     for (const { el, t } of panels(canvasElement)) {
       const [spa, pn] = el.querySelectorAll('li');
       await expect(spa).toHaveTextContent(t('checklist.status.done'));
       await expect(within(spa!).queryByRole('link', { name: t('signing.spa.send') })).toBeNull();
-      await expect(pn).toHaveTextContent(t('signing.pn.not_received'));
+      await expect(pn).toHaveTextContent(t('signing.pn.body'));
     }
   },
 };
@@ -104,7 +106,7 @@ export const SpaStale: Story = {
       return { restore, captured: eventsLoader() };
     },
   ],
-  render: () => <SigningFlow limit={checklist('pending', 'pending')} limitUpdatedAt={FIXED - 26 * HOUR} company="Ufuq Office Furniture" />,
+  render: () => <SigningFlow limit={checklist('pending', 'pending')} limitUpdatedAt={FIXED - 26 * HOUR} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement, loaded }) => {
     const l = loaded as { restore: () => void; captured: Captured };
     try {
@@ -125,7 +127,7 @@ export const SpaStale: Story = {
 export const PnFailed: Story = {
   name: 'Вексель не подтвердился — нейтральный текст и checklist_item_failed_viewed',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <SigningFlow limit={checklist('done', 'failed')} limitUpdatedAt={now()} company="Ufuq Office Furniture" />,
+  render: () => <SigningFlow limit={checklist('done', 'failed')} limitUpdatedAt={now()} company="Ufuq Office Furniture" demo={false} />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     try {

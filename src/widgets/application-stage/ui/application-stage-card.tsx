@@ -63,7 +63,8 @@ export interface LimitCardProps {
 export function LimitCard({ limit, action, className }: LimitCardProps & { className?: string }) {
   const { t } = useTranslation();
   const hasAmount = limit.approved.amount_minor > 0;
-  const info = limit.status === 'pending' ? t('application.decision.body') : t('application.signing.info');
+  // На «Подписании» пояснения нет — только кнопка сценария (Кирилл 2026-11-15).
+  const info = limit.status === 'pending' ? t('application.decision.body') : null;
   return (
     <LimitSurface aria-live="polite" className={cn('min-h-64 justify-between gap-8', className)}>
       <div className="flex flex-col gap-2">
@@ -71,10 +72,12 @@ export function LimitCard({ limit, action, className }: LimitCardProps & { class
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}
       </div>
       <div className="flex flex-col gap-4">
-        <p className="flex items-start gap-2 text-sm text-primary-foreground">
-          <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
-          <span>{info}</span>
-        </p>
+        {info ? (
+          <p className="flex items-start gap-2 text-sm text-primary-foreground">
+            <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
+            <span>{info}</span>
+          </p>
+        ) : null}
         {action}
       </div>
     </LimitSurface>
