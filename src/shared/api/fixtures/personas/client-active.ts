@@ -45,7 +45,7 @@ export const clientActive: PersonaFixture = (now) => {
         approved: sar(150_000),
         used: sar(42_500),
         available: sar(107_500),
-        checklist: checklist('done', 'done', 'done'),
+        checklist: checklist('done', 'done'),
         activated_at: ago(now, { days: 10 }),
       },
     ],

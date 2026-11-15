@@ -373,14 +373,13 @@ describe('демо-действия клиента — каждое (01-statuses
     api.demo!.salesConfirmOffer();
     expect((await api.application.getCurrent()).odoo_stage).toBe('Signing SPA & PN');
     expect((await api.limit.get()).status).toBe('ready');
-    expect((await api.limit.getChecklist()).items.map((i) => i.status)).toEqual(['pending', 'pending', 'pending']);
+    expect((await api.limit.getChecklist()).items.map((i) => i.status)).toEqual(['pending', 'pending']);
   });
-  it('externalSign: пункт → done; все три → Client Approved, лимит active', async () => {
+  it('externalSign: шаг → done; оба (SPA и вексель, D-083) → Client Approved, лимит active', async () => {
     const api = as('client_approved_unsigned');
-    api.demo!.externalSign('spa_sadq');
-    api.demo!.externalSign('pn_company_nafith');
+    api.demo!.externalSign('spa');
     expect((await api.limit.get()).status).toBe('ready');
-    api.demo!.externalSign('pn_owner_nafith');
+    api.demo!.externalSign('pn_nafith');
     expect(await api.limit.get()).toMatchObject({ status: 'active', checklist: { completed: true } });
     expect((await api.application.getCurrent()).odoo_stage).toBe('Client Approved');
   });
@@ -454,7 +453,7 @@ describe('демо-действия клиента — каждое (01-statuses
     api.demo!.submitDocumentSet();
     api.demo!.uwApproveApplication(sar(50_000));
     api.demo!.salesConfirmOffer();
-    for (const k of ['spa_sadq', 'pn_company_nafith', 'pn_owner_nafith'] as const) api.demo!.externalSign(k);
+    for (const k of ['spa', 'pn_nafith'] as const) api.demo!.externalSign(k);
     api.demo!.payDeal(api.demo!.createDeal(sar(10_000), 'sup_ext_01'));
     expect((await api.application.getCurrent()).client_status).toBe('first_purchase');
     expect(await api.limit.get()).toMatchObject({ used: sar(10_000), available: sar(40_000) });

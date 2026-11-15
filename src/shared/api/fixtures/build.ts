@@ -103,20 +103,16 @@ export const documentSet = (s: Omit<DocumentSet, 'locked'> & { locked?: boolean 
   locked: s.locked ?? s.status !== 'draft',
 });
 
-/**
- * Ссылка пункта чек-листа в моке — демо-страница подписи внутри прототипа (решение Кирилла 2026-11-11, A-063): настоящих
- * Sadq и Nafith у мока нет, а демо-панели нет (A-057). С бэкендом ссылка приходит из Sadq / Nafith.
- */
-const demoSignUrl = (key: 'spa_sadq' | 'pn_company_nafith' | 'pn_owner_nafith'): string =>
-  `${import.meta.env.BASE_URL}demo/sign?item=${key}`;
+/** PDF договора в моке — заглушка «SPA — demo» (D-083); с бэкендом приходит сгенерированный договор клиента. */
+const demoSpaUrl = (): string => `${import.meta.env.BASE_URL}demo/spa.pdf`;
 
-export const checklist = (spa: 'pending' | 'in_progress' | 'done' | 'failed', pnCompany: typeof spa, pnOwner: typeof spa) => ({
+/** Чек-лист подписания (D-083): договор SPA (скачать, подписать от руки, прислать в WhatsApp) и вексель в Nafith. */
+export const checklist = (spa: 'pending' | 'in_progress' | 'done' | 'failed', pn: typeof spa) => ({
   items: [
-    { key: 'spa_sadq' as const, status: spa, external_url: demoSignUrl('spa_sadq') },
-    { key: 'pn_company_nafith' as const, status: pnCompany, external_url: demoSignUrl('pn_company_nafith') },
-    { key: 'pn_owner_nafith' as const, status: pnOwner, external_url: demoSignUrl('pn_owner_nafith') },
+    { key: 'spa' as const, status: spa, document_url: demoSpaUrl() },
+    { key: 'pn_nafith' as const, status: pn },
   ],
-  completed: spa === 'done' && pnCompany === 'done' && pnOwner === 'done',
+  completed: spa === 'done' && pn === 'done',
 });
 
 /** Ссылка «Подать заявку» для закрытой заявки (VITE_LANDING_URL). */

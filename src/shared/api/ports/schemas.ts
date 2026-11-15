@@ -183,7 +183,8 @@ export const DocumentSetSchema = z.object({
 export const ChecklistItemSchema = z.object({
   key: z.enum(CHECKLIST_KEYS),
   status: ChecklistItemStatusSchema,
-  external_url: z.string().optional(),
+  /** PDF договора для скачивания (`spa`, D-083); не логировать. */
+  document_url: z.string().optional(),
 });
 
 export const OnboardingChecklistSchema = z.object({

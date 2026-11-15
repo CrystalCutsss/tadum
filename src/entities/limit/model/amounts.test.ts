@@ -36,8 +36,8 @@ describe('limit amounts', () => {
     expect(computeTurnover(deals, 'sup_1')).toEqual(sar(700));
   });
   it('чек-лист завершён, когда все пункты done', () => {
-    expect(isChecklistCompleted([{ key: 'spa_sadq', status: 'done' }, { key: 'pn_company_nafith', status: 'done' }, { key: 'pn_owner_nafith', status: 'done' }])).toBe(true);
-    expect(isChecklistCompleted([{ key: 'spa_sadq', status: 'done' }, { key: 'pn_company_nafith', status: 'failed' }, { key: 'pn_owner_nafith', status: 'done' }])).toBe(false);
+    expect(isChecklistCompleted([{ key: 'spa', status: 'done' }, { key: 'pn_nafith', status: 'done' }])).toBe(true);
+    expect(isChecklistCompleted([{ key: 'spa', status: 'done' }, { key: 'pn_nafith', status: 'failed' }])).toBe(false);
   });
 });
 

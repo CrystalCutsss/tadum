@@ -1,7 +1,7 @@
-// Чек-лист подключения лимита (SC-06, 01-statuses.md §7, D-035): порядок пунктов фиксирован, акцент — на первом
-// незавершённом; статус приходит только из данных. Отметка «ссылка открыта» — локальная, в sessionStorage с временем
-// клика: сразу после клика пункт показывается как «ждём подтверждения», пока данные не обновились (D-035), и по ней
-// считается «давно ждём» (24 ч, SC-06 A4). Подтверждением подписи отметка не считается.
+// Шаги подписания (SC-06, 01-statuses.md §7, D-035, D-083): порядок фиксирован (SPA → вексель); статус приходит только
+// из данных. Отметка «отправлено» — локальная, в sessionStorage с временем нажатия «Отправить в WhatsApp»: сразу после
+// нажатия шаг SPA показывается как «ждём подтверждения», пока данные не обновились (D-035), и по ней считается «давно
+// ждём» (24 ч, SC-06 A4). Подтверждением отметка не считается.
 
 import { sessionStore } from '@/shared/lib';
 
@@ -22,11 +22,6 @@ export function checklistOpenedAt(key: ChecklistItem['key']): number | null {
 
 export function markChecklistOpened(key: ChecklistItem['key'], at: number): void {
   sessionStore.set(openedKey(key), String(at));
-}
-
-/** Первый незавершённый пункт в фиксированном порядке — на нём акцент (SC-06 §6, A5). */
-export function checklistFocusKey(items: readonly Pick<ChecklistItem, 'key' | 'status'>[]): ChecklistItem['key'] | null {
-  return items.find((i) => i.status !== 'done')?.key ?? null;
 }
 
 export type ChecklistItemView = ChecklistItemStatus | 'stale';

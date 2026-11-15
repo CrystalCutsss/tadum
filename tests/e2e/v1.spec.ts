@@ -118,7 +118,7 @@ test('@smoke client_active: компания в аккаунте; в демо п
 // «Supplier» открывает кабинет поставщика, «Client» возвращает к той же клиентской персоне и её этапу.
 test('client_signing_partial → Supplier → Client: демо-переключение ролей возвращает к заявке персоны', async ({ page }) => {
   await asPersona(page, 'client_signing_partial', 'en', '/c/documents');
-  await expect(page.getByRole('heading', { name: tr('en', 'checklist.title') })).toBeVisible();
+  await expect(page.getByRole('link', { name: tr('en', 'signing.cta') })).toBeVisible();
   await openAccountMenu(page, 'en');
   await page.getByRole('menuitemradio', { name: tr('en', 'role.supplier') }).click();
   await expect(page).toHaveURL(/\/s\/home/);
@@ -128,5 +128,5 @@ test('client_signing_partial → Supplier → Client: демо-переключ�
   await page.getByRole('menuitemradio', { name: tr('en', 'role.client') }).click();
   await expect(page).toHaveURL(/\/c\/home\?persona=client_signing_partial/);
   await page.goto(page.url().replace(/\/c\/home/, '/c/documents'));
-  await expect(page.getByRole('heading', { name: tr('en', 'checklist.title') })).toBeVisible();
+  await expect(page.getByRole('link', { name: tr('en', 'signing.cta') })).toBeVisible();
 });

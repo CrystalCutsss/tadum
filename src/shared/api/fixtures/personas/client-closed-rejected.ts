@@ -36,7 +36,7 @@ export const clientClosedRejected: PersonaFixture = (now) => {
         documents: CLIENT_BASE_KEYS.map((key) => uploaded(SET, key, 'received', t)),
       }),
     ],
-    limits: [{ id: 'lim_ccr', application_id: 'app_ccr', status: 'rejected', approved: ZERO, used: ZERO, available: ZERO, checklist: checklist('pending', 'pending', 'pending') }],
+    limits: [{ id: 'lim_ccr', application_id: 'app_ccr', status: 'rejected', approved: ZERO, used: ZERO, available: ZERO, checklist: checklist('pending', 'pending') }],
     deals: [],
     supplier: null,
     referrals: [],

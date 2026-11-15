@@ -64,8 +64,9 @@ export const SCREENS: readonly Screen[] = [
   persona('client.home', 'client_new', '/', heading('stub.coming_soon.title')),
   persona('client.documents', 'client_new', '/c/documents', heading('documents.title')),
   // Этапы «Заявки» после одобрения (A-063): «Решение», «Подписание», «Лимит одобрен» и подробности заявки.
-  persona('client.application.decision', 'client_offer_pending', '/c/documents', heading('checklist.title')),
-  persona('client.application.signing', 'client_signing_partial', '/c/documents', heading('checklist.title')),
+  persona('client.application.decision', 'client_offer_pending', '/c/documents', heading('documents.title')),
+  persona('client.application.signing', 'client_signing_partial', '/c/documents', heading('documents.title')),
+  persona('client.signing', 'client_signing_partial', '/c/documents/sign', heading('signing.title')),
   persona('client.application.approved', 'client_active', '/c/documents', heading('application.summary.title')),
   persona('client.application.details', 'client_active', '/c/documents', async (page, lang) => {
     await page.getByRole('button', { name: tr(lang, 'application.summary.open') }).click();

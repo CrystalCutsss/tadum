@@ -8,6 +8,7 @@ export type ScreenId =
   | 'client.home'
   | 'client.documents'
   | 'client.document'
+  | 'client.signing'
   | 'client.closed'
   | 'client.reapply'
   | 'client.help'
@@ -28,6 +29,7 @@ export const ROUTES = {
   sessionExpired: '/session-expired',
   clientHome: '/c/home',
   clientDocuments: '/c/documents',
+  clientSigning: '/c/documents/sign',
   clientHelp: '/c/help',
   supplierHome: '/s/home',
   supplierDocuments: '/s/documents',
@@ -45,6 +47,7 @@ export const SCREEN_IDS: Readonly<Partial<Record<RoutePath, ScreenId>>> = {
   [ROUTES.sessionExpired]: 'auth.expired',
   [ROUTES.clientHome]: 'client.home',
   [ROUTES.clientDocuments]: 'client.documents',
+  [ROUTES.clientSigning]: 'client.signing',
   [ROUTES.clientHelp]: 'client.help',
   [ROUTES.supplierHome]: 'supplier.home',
   [ROUTES.supplierDocuments]: 'supplier.documents',

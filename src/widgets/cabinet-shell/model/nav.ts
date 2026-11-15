@@ -28,7 +28,7 @@ export const NAV: Readonly<Record<Family, readonly NavItem[]>> = {
 
 /** Крошка шапки: последняя — текущая страница; предыдущие (на будущее) — ссылки. */
 export interface Crumb {
-  labelKey: NavLabelKey | 'help.title';
+  labelKey: NavLabelKey | 'help.title' | 'signing.title';
   to?: string;
 }
 
@@ -41,6 +41,10 @@ const HELP: Readonly<Record<Family, string>> = { client: ROUTES.clientHelp, supp
 export function crumbsFor(family: Family, pathname: string): Crumb[] {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
   if (path === HELP[family]) return [{ labelKey: 'help.title' }];
+  // Экран подписания вложен в «Заявку» (D-083): «Application › Sign documents», родитель — ссылкой.
+  if (family === 'client' && path === ROUTES.clientSigning) {
+    return [{ labelKey: 'nav.application', to: ROUTES.clientDocuments }, { labelKey: 'signing.title' }];
+  }
   const item = NAV[family].find((n) => path === n.to || path.startsWith(`${n.to}/`));
   return item ? [{ labelKey: item.labelKey }] : [];
 }

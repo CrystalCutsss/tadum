@@ -1,7 +1,6 @@
-// /demo/sign?item=<ключ пункта> — демо-страница подписи у партнёра (решение Кирилла 2026-11-11, A-063). Демо-панели
-// нет (A-057), а настоящих Sadq и Nafith у мока нет: ссылка «Открыть» в чек-листе ведёт сюда, «Подписать» выполняет
-// демо-действие externalSign — как будто партнёр подтвердил подпись. Экран заявки во вкладке, откуда открыли ссылку,
-// подхватит статус при возврате (опрос по фокусу, D-035). Без логотипов и имитации интерфейса партнёров.
+// /demo/sign?item=<ключ шага> — демо-подтверждение шага подписания (A-063, D-083). Демо-панели нет (A-057), а нашей
+// команды и Nafith у мока нет: ссылка «Demo: confirm» у шага ведёт сюда, кнопка выполняет демо-действие externalSign —
+// как будто команда проверила скан SPA или Nafith подтвердил вексель. «Назад» — на экран подписания. Без логотипов.
 // В режиме бэкенда (api.demo нет) и в прод-сборке страница говорит, что шаг недоступен.
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -13,9 +12,8 @@ import { Badge, Button } from '@/shared/ui';
 import { AuthLayout } from '../-components/auth-layout';
 
 const TITLE_KEY = {
-  spa_sadq: 'checklist.spa_sadq',
-  pn_company_nafith: 'checklist.pn_company_nafith',
-  pn_owner_nafith: 'checklist.pn_owner_nafith',
+  spa: 'checklist.spa',
+  pn_nafith: 'checklist.pn_nafith',
 } as const;
 
 interface SignSearch {
@@ -37,7 +35,7 @@ function DemoSignPage() {
 
   const back = (
     <Button asChild size="lg" variant="secondary" className="h-12 w-full text-base">
-      <Link to="/c/documents">{t('demo_sign.back')}</Link>
+      <Link to="/c/documents/sign">{t('demo_sign.back')}</Link>
     </Button>
   );
 

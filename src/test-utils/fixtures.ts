@@ -44,9 +44,8 @@ export function limit(status: LimitStatus, completed: boolean): Pick<Limit, 'sta
     checklist: {
       completed,
       items: [
-        { key: 'spa_sadq', status: s },
-        { key: 'pn_company_nafith', status: s },
-        { key: 'pn_owner_nafith', status: s },
+        { key: 'spa', status: s },
+        { key: 'pn_nafith', status: s },
       ],
     },
   };

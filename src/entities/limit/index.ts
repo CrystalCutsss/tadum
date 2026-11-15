@@ -3,7 +3,6 @@ export type * from './model/types';
 export { computeLimitAmounts, computeTurnover, isChecklistCompleted, limitView } from './model/amounts';
 export {
   CHECKLIST_STALE_HOURS,
-  checklistFocusKey,
   checklistItemView,
   checklistOpenedAt,
   markChecklistOpened,

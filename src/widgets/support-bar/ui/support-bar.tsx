@@ -5,10 +5,9 @@ import { useTranslation } from 'react-i18next';
 
 import { track } from '@/shared/analytics';
 import type { ClientStatus, SupplierStatus } from '@/shared/api';
+import { SUPPORT_EMAIL, supportWhatsappUrl } from '@/shared/config';
 import { Button, Card, CardContent, Icon } from '@/shared/ui';
 
-const WHATSAPP = import.meta.env.VITE_SUPPORT_WHATSAPP ?? '966579768881';
-const EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? 'info@tadum.sa';
 
 /**
  * Кнопка блока помощи: в светлой теме белая с тёмным текстом; в тёмной — светло-серая полупрозрачная (foreground/15)
@@ -33,10 +32,10 @@ function useSupportLinks({ prefill, status, context }: SupportBarProps) {
   const props = { ...(status ? { status } : {}), ...(context ? { context } : {}) };
   return {
     whatsapp: {
-      href: `https://wa.me/${WHATSAPP}${text ? `?text=${encodeURIComponent(text)}` : ''}`,
+      href: supportWhatsappUrl(text),
       onClick: () => track('support_contact_clicked', { channel: 'whatsapp', ...props }),
     },
-    email: { href: `mailto:${EMAIL}`, onClick: () => track('support_contact_clicked', { channel: 'email', ...props }) },
+    email: { href: `mailto:${SUPPORT_EMAIL}`, onClick: () => track('support_contact_clicked', { channel: 'email', ...props }) },
   };
 }
 

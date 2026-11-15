@@ -15,7 +15,7 @@ export type RoleFamilyProp = 'client' | 'supplier';
 export type Owner = 'client' | 'supplier';
 /** Ключ карточки «следующий шаг» (`next_step.*`). */
 export type NextStepKey = `next_step.${string}`;
-export type ChecklistItemKey = 'spa_sadq' | 'pn_company_nafith' | 'pn_owner_nafith';
+export type ChecklistItemKey = 'spa' | 'pn_nafith';
 type MaterialLang = 'ar' | 'en' | 'both';
 type ReferralSource = 'home' | 'referral';
 
@@ -35,6 +35,7 @@ export type ScreenViewedProps =
     }
   | { screen_id: 'client.documents'; portal_key?: string; locked: boolean; round: number }
   | { screen_id: 'client.document'; portal_key?: string; locked: boolean; round: number }
+  | { screen_id: 'client.signing'; done_count: number }
   | { screen_id: 'client.closed'; had_limit: boolean }
   | { screen_id: 'client.reapply' }
   | { screen_id: 'supplier.home'; supplier_status: SupplierStatus; referred_bucket: CountBucket }
@@ -130,11 +131,12 @@ export type AnalyticsEvent =
   | { name: 'status_change_banner_viewed'; props: { from: ClientStatus; to: ClientStatus } }
   | { name: 'status_change_banner_dismissed'; props: { from: ClientStatus; to: ClientStatus } }
   | { name: 'review_overdue_viewed'; props: { hours_over: number } }
-  | { name: 'checklist_link_opened'; props: { item: ChecklistItemKey; position: number } }
+  | { name: 'spa_downloaded'; props: Record<string, never> }
+  | { name: 'spa_whatsapp_clicked'; props: Record<string, never> }
   | { name: 'checklist_item_completed'; props: { item: ChecklistItemKey; hours_since_ready: number } }
   | { name: 'checklist_item_failed_viewed'; props: { item: ChecklistItemKey } }
   | { name: 'checklist_item_stale'; props: { item: ChecklistItemKey; hours: number } }
-  | { name: 'external_link_blocked'; props: { item?: string; href_host: string } }
+  | { name: 'external_link_blocked'; props: { href_host: string } }
   | { name: 'limit_activated'; props: { days_since_approved?: number; amount_bucket: AmountBucket } }
   | { name: 'limit_cancelled_viewed'; props: Record<string, never> }
   | { name: 'limit_fully_used_viewed'; props: Record<string, never> }
@@ -211,7 +213,8 @@ export const EVENT_VERSIONS = {
   status_change_banner_viewed: 'v1',
   status_change_banner_dismissed: 'v1',
   review_overdue_viewed: 'v1',
-  checklist_link_opened: 'v4',
+  spa_downloaded: 'v4',
+  spa_whatsapp_clicked: 'v4',
   checklist_item_completed: 'v4',
   checklist_item_failed_viewed: 'v4',
   checklist_item_stale: 'v4',

@@ -37,7 +37,7 @@ export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 /** Файлов в одном документе (решение Кирилла 2026-11-10). */
 export const MAX_FILES_PER_DOCUMENT = 10;
 
-export const CHECKLIST_KEYS = ['spa_sadq', 'pn_company_nafith', 'pn_owner_nafith'] as const;
+export const CHECKLIST_KEYS = ['spa', 'pn_nafith'] as const;
 
 /** Размер страницы списка приведённых клиентов (SP-04 A7). */
 export const REFERRED_CLIENTS_PAGE_SIZE = 20;
