@@ -6,15 +6,15 @@
 // В документе несколько файлов, до MAX_FILES_PER_DOCUMENT; тот же файл не загружается — окно-предупреждение.
 import { RiFileLine, RiTimeLine } from '@remixicon/react';
 import { cn } from 'cn';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 import { hasDocumentIssue, rejectReason } from '@/entities/document';
-import { SameFileDialog, SourcePicker, useDocumentUpload, type UploadSource } from '@/features/upload-document';
+import { DirectFileInput, SameFileDialog, SourcePicker, useDocumentUpload, type UploadSource } from '@/features/upload-document';
 import { MAX_FILES_PER_DOCUMENT, type Document } from '@/shared/api';
 import { formatNumber } from '@/shared/i18n';
-import { useOnline } from '@/shared/lib';
+import { useIsMobile, useOnline } from '@/shared/lib';
 import { Badge, Button, Icon, Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle, PulseDot, toast } from '@/shared/ui';
 
 import { DocumentHelp, hasDocumentHelp } from './document-resources';
@@ -55,6 +55,23 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
   const tasks = upload.tasks.filter((task) => task.state !== 'done');
 
   const pick = (files: File[], source: UploadSource) => void upload.start(files, source, picker?.replaceFileId);
+  // Выбор файла (решение Кирилла 2026-11-16): на телефоне — шторка выбора источника, на компьютере — сразу файловый менеджер.
+  const isMobile = useIsMobile();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const directReplace = useRef<string | undefined>(undefined);
+  const openPicker = (replaceFileId?: string) => {
+    if (isMobile) {
+      setPicker(replaceFileId ? { replaceFileId } : {});
+      return;
+    }
+    const input = fileInput.current;
+    if (!input) return;
+    directReplace.current = replaceFileId;
+    // Замена одного файла — один файл, новая загрузка — несколько.
+    input.multiple = !replaceFileId;
+    input.click();
+  };
+  const pickDirect = (files: File[], source: UploadSource) => void upload.start(files, source, directReplace.current);
   const busy = upload.busy;
   useEffect(() => onUploadingChange?.(doc.portal_key, busy), [busy, doc.portal_key, onUploadingChange]);
 
@@ -85,7 +102,7 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
       className="min-h-11"
       disabled={!online || upload.busy || full}
       aria-describedby={issues.length > 0 ? issues.map((i) => i.id).join(' ') : undefined}
-      onClick={() => setPicker({})}
+      onClick={() => openPicker()}
     >
       {t('documents.row.upload')}
     </Button>
@@ -177,7 +194,7 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               <ul className="flex w-full flex-col divide-y overflow-hidden rounded-lg bg-card" aria-label={t('documents.row.files', { title })}>
                 {doc.files.map((file) => (
                   <li key={file.id}>
-                    <UploadedFileRow doc={doc} file={file} editable={editable} onReplace={() => setPicker({ replaceFileId: file.id })} />
+                    <UploadedFileRow doc={doc} file={file} editable={editable} onReplace={() => openPicker(file.id)} />
                   </li>
                 ))}
                 {activeTasks.map((task) => (
@@ -205,7 +222,8 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
         multiple={!picker?.replaceFileId}
         onPick={pick}
       />
-      <SameFileDialog names={sameFiles} onClose={() => setSameFiles([])} onPickOther={() => setPicker({})} />
+      <DirectFileInput ref={fileInput} onPick={pickDirect} />
+      <SameFileDialog names={sameFiles} onClose={() => setSameFiles([])} onPickOther={() => openPicker()} />
     </li>
   );
 }

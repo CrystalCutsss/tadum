@@ -144,9 +144,18 @@
       "generic": "This file couldn't be accepted. Upload a new one following the hint below"
     },
     "source": {
-      "molim": "Get it on Molim",
-      "simah": "Get it on SIMAH",
-      "zatca": "Get it on ZATCA"
+      "molim": {
+        "description": "Request the owner's report in the SIMAH app",
+        "title": "Molim"
+      },
+      "simah": {
+        "description": "Request your company's report on the SIMAH website",
+        "title": "SIMAH"
+      },
+      "zatca": {
+        "description": "Sign in to download your VAT documents",
+        "title": "ZATCA"
+      }
     },
     "status": {
       "approved": "Accepted",
@@ -193,6 +202,8 @@
       "example_pdf": "Open the example",
       "open_label": "Help: {title}",
       "play": "Play the video",
+      "source_open": "Open",
+      "source_open_label": "Open {name}",
       "video": "How to get it",
       "video_title": "How to get this document"
     },

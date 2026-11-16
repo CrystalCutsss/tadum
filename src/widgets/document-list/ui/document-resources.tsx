@@ -13,6 +13,12 @@ import type { Document } from '@/shared/api';
 import {
   Button,
   Icon,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemTitle,
   ResponsiveDialog,
   ResponsiveDialogBody,
   ResponsiveDialogContent,
@@ -145,18 +151,30 @@ export function DocumentHelp({ doc, title, compact = false }: { doc: Pick<Docume
                 {examplePanel ? <TabsContent value="example">{examplePanel}</TabsContent> : null}
               </Tabs>
             ) : null}
-            {/* Ссылки на сервисы, где получить документ, — в том же окне (решение Кирилла 2026-11-12). */}
+            {/* Ссылки на сервисы, где получить документ, — в том же окне (решение Кирилла 2026-11-12). Каждая — блок item:
+                слева название и пояснение, справа кнопка без обводки (решение Кирилла 2026-11-16). */}
             {links.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {links.map((link) => (
-                  <Button key={link.url} asChild variant="outline" className="min-h-11">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer">
-                      <Icon icon={RiExternalLinkLine} data-icon="inline-start" />
-                      {t(link.label_key as ParseKeys)}
-                    </a>
-                  </Button>
-                ))}
-              </div>
+              <ItemGroup className="gap-2">
+                {links.map((link) => {
+                  const name = String(t(link.title_key as ParseKeys));
+                  return (
+                    <Item key={link.url} role="listitem" variant="muted" size="sm" className="flex-nowrap">
+                      <ItemContent className="min-w-0">
+                        <ItemTitle>{name}</ItemTitle>
+                        <ItemDescription>{t(link.description_key as ParseKeys)}</ItemDescription>
+                      </ItemContent>
+                      <ItemActions className="shrink-0">
+                        <Button asChild variant="secondary" className="min-h-11">
+                          <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={t('documents.resources.source_open_label', { name })}>
+                            {t('documents.resources.source_open')}
+                            <Icon icon={RiExternalLinkLine} data-icon="inline-end" />
+                          </a>
+                        </Button>
+                      </ItemActions>
+                    </Item>
+                  );
+                })}
+              </ItemGroup>
             ) : null}
           </ResponsiveDialogBody>
         </ResponsiveDialogContent>
