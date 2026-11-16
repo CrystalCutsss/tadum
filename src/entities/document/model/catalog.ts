@@ -22,22 +22,32 @@ export interface DocumentType {
   source_links: readonly SourceLink[];
 }
 
-/** Ссылка на сторонний сервис: подпись — ключ i18n, адрес — только официальный и проверенный. */
+/**
+ * Ссылка на сторонний сервис: название и пояснение — ключи i18n, адрес — только официальный и проверенный.
+ * В окне помощи — блок item: слева название и пояснение, справа кнопка (решение Кирилла 2026-11-16).
+ */
 export interface SourceLink {
-  label_key: string;
+  title_key: string;
+  description_key: string;
   url: string;
 }
 
+const source = (name: 'zatca' | 'molim' | 'simah', url: string): SourceLink => ({
+  title_key: `document.source.${name}.title`,
+  description_key: `document.source.${name}.description`,
+  url,
+});
+
 // Проверенные официальные адреса (2026-11-09): ZATCA — сертификат и декларации VAT; Molim — приложение SIMAH
 // для отчёта владельца; SIMAT — коммерческие отчёты SIMAH. Банк, удостоверение и устав — без ссылки (A-058).
-const ZATCA: SourceLink = { label_key: 'document.source.zatca', url: 'https://zatca.gov.sa' };
-const MOLIM: SourceLink = { label_key: 'document.source.molim', url: 'https://apps.apple.com/sa/app/molim/id919072738' };
+const ZATCA = source('zatca', 'https://zatca.gov.sa');
+const MOLIM = source('molim', 'https://apps.apple.com/sa/app/molim/id919072738');
 // Демо-ассеты (A-058, решения Кирилла 2026-11-09): одна картинка-пример и одно видео на все документы с ассетами,
 // пока нет файлов upload-портала (В16). Видео — встроенный плеер Google Drive (`/preview`), файл «Arabic ID.mp4»
 // из Drive Tadum: скачать его в репозиторий коннектором нельзя (ограничение размера), смотреть — по ссылке.
 const EXAMPLE_IMAGE = `${import.meta.env.BASE_URL}examples/document-example.webp`;
 const VIDEO_AR = { ar: 'https://drive.google.com/file/d/180yyGSeVxN-LIx97vriUXmycyoqKN6_5/preview' };
-const SIMAT: SourceLink = { label_key: 'document.source.simah', url: 'https://www.simah.com/en/products/pages/simat.aspx' };
+const SIMAT = source('simah', 'https://www.simah.com/en/products/pages/simat.aspx');
 
 const entry = (
   portal_key: PortalKey,
