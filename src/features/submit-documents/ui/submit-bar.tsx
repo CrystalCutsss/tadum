@@ -100,15 +100,13 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
         ready ? 'border-transparent bg-metal-deep text-primary-foreground' : 'bg-card text-card-foreground',
       )}
     >
-      {/* Содержимое прижато к низу: нижний край полосы прогресса совпадает с нижним краем кнопки (Кирилл 2026-11-12). */}
-      <div className="flex min-w-0 flex-1 flex-col gap-2 max-sm:items-center max-sm:gap-4 max-sm:text-center sm:justify-end">
+      {/* Содержимое по центру панели по высоте: отступы сверху и снизу одинаковые (Кирилл 2026-11-17). */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2 max-sm:items-center max-sm:gap-4 max-sm:text-center sm:justify-center">
         <p className="sr-only" aria-live="polite">
           {ready ? `${t('documents.submit.ready_title')}. ${t('documents.submit.ready_body')}` : ''}
         </p>
-        {/* Оба состояния текста — в одной ячейке сетки, прижаты к низу (Кирилл 2026-11-12): при смене состояния панель
-              и полоса прогресса не сдвигаются, а нижняя строка пояснения «всё готово» встаёт на место строки
-              «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. На телефоне показан только
-              текущий текст: панель подрастает при переходе, отступ сверху тот же (Кирилл 2026-11-12). */}
+        {/* Показан только текущий текст: панель подстраивается по высоте, отступы сверху и снизу одинаковые (Кирилл 2026-11-17).
+              Состояние «всё готово» — как раньше. */}
         <div className="grid w-full items-end *:col-start-1 *:row-start-1">
           {/* Оценку оставшегося времени Кирилл убрал 2026-11-17; вёрстка панели прежняя. */}
           <div
@@ -126,7 +124,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
           {/* Всё готово: вместо «7 из 7 загружено» — заголовок (кегль как у подписи) и пояснение (на всех размерах). */}
           <div
             aria-hidden={!ready}
-            className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'invisible opacity-0 max-sm:hidden')}
+            className={cn('flex flex-col gap-1 transition-opacity duration-slow ease-standard', ready ? 'opacity-100' : 'hidden')}
           >
             <p className="text-base font-semibold">{t('documents.submit.ready_title')}</p>
             <p className="text-sm text-primary-foreground/80">{t('documents.submit.ready_body')}</p>
