@@ -1,11 +1,11 @@
 // /c/documents (SC-02…SC-06, решения Кирилла 2026-11-09 и 2026-11-11): экран «Заявка» — список документов
 // (отдельных карточек нет), справа на ≥1024 px — панель шагов заявки, на телефоне — она же сверху, свёрнутая.
-// После одобрения раскладка та же (A-063): над списком — карточка этапа («Решение», «Подписание»), принятые документы
-// свёрнуты в папку; на этапе «Лимит одобрен» — только готовая карточка, подробности заявки — в выдвижной панели.
+// После одобрения (A-063, D-084): на этапах «Решение» и «Подписание» — только карточка лимита на всю ширину, папки
+// документов нет; на этапе «Лимит одобрен» — готовая карточка, подробности заявки — в выдвижной панели.
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { applicationQuery, applicationStage, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
@@ -32,7 +32,7 @@ import {
   Skeleton,
   toast,
 } from '@/shared/ui';
-import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, DocumentsFolder, LimitCard, trackLimitTransition } from '@/widgets/application-stage';
+import { ApplicationFacts, ApplicationSummaryCard, CancelledLimitCard, LimitCard, trackLimitTransition } from '@/widgets/application-stage';
 import { CabinetAside, CabinetPageHeader, LoadError } from '@/widgets/cabinet-shell';
 import { DocumentList } from '@/widgets/document-list';
 import { StatusStepBar, StatusTimeline } from '@/widgets/status-timeline';
@@ -112,8 +112,8 @@ function useLimitChangeNotice(limit: Limit | null | undefined) {
 }
 
 /**
- * Принятые документы — в выдвижной панели по клику на папку (Кирилл 2026-11-11): на компьютере — боковой Drawer
- * (SideDrawer) с края экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
+ * Подробности заявки на «Лимит одобрен» — выдвижная панель (D-082): на компьютере — боковой Drawer (SideDrawer) с края
+ * экрана по направлению текста, на телефоне — нижняя почти на всю высоту, с прокруткой.
  */
 function DocumentsPanel({
   set,
@@ -124,12 +124,12 @@ function DocumentsPanel({
   set: DocumentSet;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** «Лимит одобрен»: та же панель — подробности заявки (даты и лимит над документами; Кирилл 2026-11-11). */
-  facts?: ReactNode;
+  /** Даты и лимит над документами (Кирилл 2026-11-11). */
+  facts: ReactNode;
 }) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  const title = facts ? t('application.details.title') : t('application.folder.title');
+  const title = t('application.details.title');
   const description = t('application.documents_accepted', { count: set.documents.length });
   const list = (
     <div className="flex flex-col gap-6">
@@ -183,14 +183,6 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
   // Что сейчас в поле CR (null — клиент поле не трогал): стёр цифру — комплект уже не готов, хотя сохранён полный номер.
   const [crDraft, setCrDraft] = useState<string | null>(null);
   const [docsOpen, setDocsOpen] = useState(false);
-  // Высота блока Steps (третья колонка, ≥1024 px) — карточка лимита и папка той же высоты (Кирилл 2026-11-11).
-  const [stepsHeight, setStepsHeight] = useState(0);
-  const stepsRef = useCallback((el: HTMLDivElement | null) => {
-    if (!el) return undefined;
-    const observer = new ResizeObserver(([entry]) => setStepsHeight(Math.round(entry?.borderBoxSize[0]?.blockSize ?? 0)));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
   useLimitChangeNotice(limit.data);
 
   const data = app.data;
@@ -251,9 +243,7 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
           <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
             <div className="sticky top-4 flex w-1/2 max-w-full min-w-56 flex-col gap-4">
-              <div ref={stepsRef}>
-                <StepsPanel steps={timeline.steps} app={data} />
-              </div>
+              <StepsPanel steps={timeline.steps} app={data} />
             </div>
           </CabinetAside>
         </>
@@ -285,20 +275,12 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
           <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} facts={<ApplicationFacts sentAt={sentAt} limit={lim} />} />
         </>
       ) : lim ? (
-        <>
-          {/* Карточка лимита — вертикальная, справа — папка документов той же высоты (Кирилл 2026-11-11);
-              на телефоне папка — под карточкой. На «Подписании» в карточке — кнопка сценария подписания (D-083). */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" style={stepsHeight > 0 ? { minHeight: stepsHeight } : undefined}>
-            {stage === 'cancelled' ? (
-              <CancelledLimitCard applyUrl={landingUrl} />
-            ) : (
-              <LimitCard limit={lim} action={stage === 'signing' ? <SigningAction /> : null} />
-            )}
-            <DocumentsFolder className="hidden sm:flex" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
-          </div>
-          <DocumentsFolder className="sm:hidden" count={set.data.documents.length} onOpen={() => setDocsOpen(true)} />
-          <DocumentsPanel set={set.data} open={docsOpen} onOpenChange={setDocsOpen} />
-        </>
+        // Карточка лимита на всю ширину, папки документов нет (D-084); на «Подписании» в карточке — кнопка сценария (D-083).
+        stage === 'cancelled' ? (
+          <CancelledLimitCard applyUrl={landingUrl} />
+        ) : (
+          <LimitCard limit={lim} action={stage === 'signing' ? <SigningAction /> : null} />
+        )
       ) : null}
     </div>
   );

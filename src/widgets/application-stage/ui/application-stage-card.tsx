@@ -1,6 +1,7 @@
-// Этапы «Решение» и «Подписание» на экране «Заявка» (решения Кирилла 2026-11-11, A-063). Раскладка экрана прежняя;
-// синяя карточка лимита: сумма крупно сверху, под ней пояснение с иконкой info. На «Подписании» в карточке — кнопка
-// «Подписать документы», она ведёт на экран подписания (D-083); блока шагов на экране «Заявка» нет. «Есть вопрос?» внутри этапов нет — поддержка в сайдбаре.
+// Этапы «Решение» и «Подписание» на экране «Заявка» (решения Кирилла 2026-11-11, A-063; D-084). Синяя карточка лимита
+// на всю ширину, как на «Лимит одобрен»: заголовок «одобренный, ещё не активен», сумма крупно, ниже подсказка — иконка
+// info в полупрозрачном круге и текст не шире половины карточки. На «Подписании» под подсказкой — кнопка «Подписать
+// документы», она ведёт на экран подписания (D-083). «Есть вопрос?» внутри этапов нет — поддержка в сайдбаре.
 // Лимит cancelled / rejected: нейтральная карточка без причины (SC-06 A7).
 import { RiInformationLine } from '@remixicon/react';
 import { cn } from 'cn';
@@ -52,35 +53,44 @@ export function LimitAmount({ value }: { value: Limit['approved'] }) {
 
 export interface LimitCardProps {
   limit: Pick<Limit, 'status' | 'approved'>;
-  /** Этап «Подписание»: прогресс и кнопка «Подписать документы» под пояснением (D-083). */
+  /** Этап «Подписание»: кнопка «Подписать документы» под подсказкой (D-083). */
   action?: ReactNode;
 }
 
 /**
- * Карточка лимита — вертикальная (Кирилл 2026-11-11): «Limit» и сумма сверху, пояснение прижато к низу — большой отступ
- * от суммы; высоту выравнивает сетка с папкой документов справа.
+ * Карточка лимита на этапах «Решение» и «Подписание» (D-084): заголовок «одобренный, ещё не активен» и сумма сверху,
+ * ниже подсказка этапа — на «Решении» «менеджер позвонит», на «Подписании» «подпишите договор и вексель» над кнопкой.
  */
 export function LimitCard({ limit, action, className }: LimitCardProps & { className?: string }) {
   const { t } = useTranslation();
   const hasAmount = limit.approved.amount_minor > 0;
-  // На «Подписании» пояснения нет — только кнопка сценария (Кирилл 2026-11-15).
-  const info = limit.status === 'pending' ? t('application.decision.body') : null;
+  const info = limit.status === 'pending' ? t('application.decision.body') : limit.status === 'ready' ? t('application.signing.info') : null;
   return (
-    <LimitSurface aria-live="polite" className={cn('min-h-64 justify-between gap-8', className)}>
-      <div className="flex flex-col gap-2">
-        <span className="text-sm text-primary-foreground">{t('application.limit_label')}</span>
+    <LimitSurface aria-live="polite" className={cn('gap-8', className)}>
+      <div className="flex flex-col gap-3">
+        <h2 className="text-base font-medium">{t('application.limit_label_approved')}</h2>
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}
       </div>
-      <div className="flex flex-col gap-4">
-        {info ? (
-          <p className="flex items-start gap-2 text-sm text-primary-foreground">
-            <Icon icon={RiInformationLine} className="mt-0.5 size-4 shrink-0" />
-            <span>{info}</span>
-          </p>
-        ) : null}
+      <div className="flex flex-col items-start gap-4">
+        {info ? <LimitHint>{info}</LimitHint> : null}
         {action}
       </div>
     </LimitSurface>
+  );
+}
+
+/**
+ * Подсказка этапа: иконка info 20 px в полупрозрачном круге 40 px — как подложка иконки в блоках документов;
+ * текст не шире половины карточки на ≥640 px (Кирилл 2026-11-17, D-084).
+ */
+function LimitHint({ children }: { children: ReactNode }) {
+  return (
+    <p className="flex items-center gap-3 text-sm text-primary-foreground sm:max-w-1/2">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
+        <Icon icon={RiInformationLine} />
+      </span>
+      <span>{children}</span>
+    </p>
   );
 }
 

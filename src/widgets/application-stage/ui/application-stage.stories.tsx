@@ -45,8 +45,10 @@ export const LimitPendingWithAmount: Story = {
   play: async ({ canvasElement }) => {
     for (const { el, c, t } of panels(canvasElement)) {
       await expect(el).toHaveTextContent('180,000');
-      await expect(c.getByText(t('application.limit_label'))).toBeVisible();
+      // Заголовок «одобренный, ещё не активен» и подсказка «менеджер позвонит» (D-084).
+      await expect(c.getByRole('heading', { name: t('application.limit_label_approved') })).toBeVisible();
       await expect(c.getByText(t('application.decision.body'))).toBeVisible();
+      await expect(c.queryByText(t('application.signing.info'))).toBeNull();
       await expect(c.queryByText(t('application.decision.no_amount'))).toBeNull();
     }
   },
@@ -64,14 +66,19 @@ export const LimitPendingNoAmount: Story = {
 };
 
 export const LimitReady: Story = {
-  name: 'LimitCard — ready («Подписание»): только сумма и кнопка подписания',
+  name: 'LimitCard — ready («Подписание»): сумма, подсказка и кнопка подписания',
   render: () => <LimitCard limit={{ status: 'ready', approved: sar(250_000) }} action={<button type="button">Sign</button>} />,
   play: async ({ canvasElement }) => {
     for (const { el, c, t } of panels(canvasElement)) {
       await expect(el).toHaveTextContent('250,000');
-      // На «Подписании» пояснения нет, только кнопка сценария (Кирилл 2026-11-15).
+      // На «Подписании» — подсказка «подпишите договор и вексель» над кнопкой сценария (D-084).
+      await expect(c.getByRole('heading', { name: t('application.limit_label_approved') })).toBeVisible();
       await expect(c.queryByText(t('application.decision.body'))).toBeNull();
-      await expect(c.getByRole('button')).toBeVisible();
+      const hint = c.getByText(t('application.signing.info'));
+      const button = c.getByRole('button');
+      await expect(hint).toBeVisible();
+      await expect(button).toBeVisible();
+      await expect(hint.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
   },
 };
