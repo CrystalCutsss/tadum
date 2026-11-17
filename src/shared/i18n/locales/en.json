@@ -18,8 +18,9 @@
       "title": "Your documents"
     },
     "limit_label": "Limit",
+    "limit_label_approved": "Approved limit · Not active yet",
     "signing": {
-      "info": "Sign the documents to activate your limit"
+      "info": "To activate your limit, sign the agreement and approve the promissory note in Nafith"
     },
     "subtitle": {
       "cancelled": "Your limit status has changed",

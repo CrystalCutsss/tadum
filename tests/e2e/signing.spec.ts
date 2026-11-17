@@ -86,15 +86,11 @@ test('client_limit_cancelled: «Подать новую заявку» ведё�
   await expect(steps(page)).toHaveCount(0);
 });
 
-test('папка документов открывает панель со списком документов без статусов', async ({ page }) => {
-  await openApplication(page, 'client_approved_unsigned');
-  await page.getByRole('button', { name: new RegExp(tr(LANG, 'application.folder.title')) }).filter({ visible: true }).click();
-  const panel = page.getByRole('dialog', { name: tr(LANG, 'application.folder.title') });
-  await expect(panel).toBeVisible();
-  await expect(panel.getByText(tr(LANG, 'document.aoa.title'), { exact: true })).toBeVisible();
-  await expect(panel.getByText(tr(LANG, 'document.bs.title'), { exact: true })).toBeVisible();
-  // Архив: ни статусов, ни бейджей.
-  await expect(panel.locator('[data-slot="status-badge"], [data-slot="badge"]')).toHaveCount(0);
-  await page.keyboard.press('Escape');
-  await expect(panel).toBeHidden();
+test('«Решение» и «Подписание»: папки документов нет, карточка лимита «одобренный, ещё не активен» (D-084)', async ({ page }) => {
+  for (const persona of ['client_offer_pending', 'client_approved_unsigned'] as const) {
+    await openApplication(page, persona);
+    await expect(page.getByRole('heading', { name: tr(LANG, 'application.limit_label_approved') })).toBeVisible();
+    await expect(page.getByRole('button', { name: new RegExp(tr(LANG, 'application.folder.title')) })).toHaveCount(0);
+  }
+  await expect(page.getByText(tr(LANG, 'application.signing.info'))).toBeVisible();
 });
