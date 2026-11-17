@@ -264,12 +264,6 @@
     },
     "subtitle": "ارفع كل مستند، وعند اكتمالها أرسلها للمراجعة",
     "subtitle_locked": "مستنداتك الآن لدى فريقنا",
-    "time_left_zero": "يتبقّى نحو {minutes} دقيقة",
-    "time_left_one": "يتبقّى نحو دقيقة واحدة",
-    "time_left_two": "يتبقّى نحو دقيقتين",
-    "time_left_few": "يتبقّى نحو {minutes} دقائق",
-    "time_left_many": "يتبقّى نحو {minutes} دقيقة",
-    "time_left_other": "يتبقّى نحو {minutes} دقيقة",
     "title": "طلبك"
   },
   "help": {

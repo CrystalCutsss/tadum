@@ -236,8 +236,6 @@
     },
     "subtitle": "Upload each document. When everything is uploaded, send them for review",
     "subtitle_locked": "Your documents are with our team",
-    "time_left_one": "About {minutes} min left",
-    "time_left_other": "About {minutes} min left",
     "title": "Your application"
   },
   "help": {
