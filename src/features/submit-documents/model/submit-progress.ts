@@ -1,11 +1,7 @@
 // Что показать в панели отправки (решение Кирилла 2026-11-12): сегмент полосы на каждый документ и на поле CR,
-// заполняются по очереди от начала строки (поле CR — как ещё один шаг, без своего места), подпись «X из N загружено», «осталось только поле CR» и оценку оставшегося времени.
-// Оценка времени — допущение A-065: 2 минуты на незагруженный документ и 1 минута на номер CR.
+// заполняются по очереди от начала строки (поле CR — как ещё один шаг, без своего места), подписи «X из N загружено» и «осталось только поле CR». Оценку оставшегося времени Кирилл убрал 2026-11-17.
 
 import type { DocumentsProgress } from '@/entities/document';
-
-const MINUTES_PER_DOCUMENT = 2;
-const MINUTES_FOR_CR = 1;
 
 type ProgressCopy =
   /** «X из N загружено» — пока есть незагруженные документы или поля CR нет (приписку про CR Кирилл убрал 2026-11-12). */
@@ -17,8 +13,6 @@ export interface SubmitProgress {
   /** Заполнен ли сегмент: заполняются по очереди от начала строки — документы и поле CR вместе (Кирилл 2026-11-12). */
   segments: boolean[];
   copy: ProgressCopy;
-  /** Примерно минут до конца заполнения; 0 — всё готово. */
-  minutesLeft: number;
 }
 
 export function submitProgress(progress: DocumentsProgress, cr: { required: boolean; ready: boolean }): SubmitProgress {
@@ -29,6 +23,5 @@ export function submitProgress(progress: DocumentsProgress, cr: { required: bool
   return {
     segments,
     copy: crMissing && remaining === 0 ? 'cr_only' : 'documents',
-    minutesLeft: remaining * MINUTES_PER_DOCUMENT + (crMissing ? MINUTES_FOR_CR : 0),
   };
 }

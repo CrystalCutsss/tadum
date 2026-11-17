@@ -60,13 +60,6 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
     total: formatNumber(state.segments.length),
   };
   const label = state.copy === 'cr_only' ? t('documents.progress_cr_only') : t('documents.progress', counts);
-  const timeLeft =
-    state.minutesLeft > 0
-      ? t('documents.time_left', {
-          count: state.minutesLeft,
-          minutes: formatNumber(state.minutesLeft),
-        })
-      : null;
 
   const onSend = () => {
     if (!online) {
@@ -117,7 +110,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
               «X из N загружено · примерно N мин». Высота панели — по большему из двух состояний. На телефоне показан только
               текущий текст: панель подрастает при переходе, отступ сверху тот же (Кирилл 2026-11-12). */}
         <div className="grid w-full items-end *:col-start-1 *:row-start-1">
-          {/* Время — на компьютере под «X из N загружено», на телефоне — рядом (Кирилл 2026-11-12); нижние края строк совпадают. */}
+          {/* Оценку оставшегося времени Кирилл убрал 2026-11-17; вёрстка панели прежняя. */}
           <div
             aria-hidden={ready}
             className={cn(
@@ -129,7 +122,6 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
             <p id="submit-progress" className="text-base font-semibold">
               {label}
             </p>
-            {timeLeft ? <p className="text-sm text-muted-foreground">{timeLeft}</p> : null}
           </div>
           {/* Всё готово: вместо «7 из 7 загружено» — заголовок (кегль как у подписи) и пояснение (на всех размерах). */}
           <div
