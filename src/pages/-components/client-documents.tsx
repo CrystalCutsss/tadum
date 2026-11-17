@@ -5,7 +5,7 @@
 import { cn } from 'cn';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { applicationQuery, applicationStage, canEditFiles, companyQuery, computeClientTimeline, isValidCr, type ClientTimeline } from '@/entities/application';
@@ -183,6 +183,15 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
   // Что сейчас в поле CR (null — клиент поле не трогал): стёр цифру — комплект уже не готов, хотя сохранён полный номер.
   const [crDraft, setCrDraft] = useState<string | null>(null);
   const [docsOpen, setDocsOpen] = useState(false);
+  // Высота блока Steps (третья колонка, ≥1024 px) — карточка лимита той же высоты на «Решении» и «Подписании»
+  // (Кирилл 2026-11-11, 2026-11-17); без колонки (телефон, планшет) — 0, высота по содержимому.
+  const [stepsHeight, setStepsHeight] = useState(0);
+  const stepsRef = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return undefined;
+    const observer = new ResizeObserver(([entry]) => setStepsHeight(Math.round(entry?.borderBoxSize[0]?.blockSize ?? 0)));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   useLimitChangeNotice(limit.data);
 
   const data = app.data;
@@ -243,7 +252,9 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
           <StepsTopPanel steps={timeline.steps} app={data} />
           <CabinetAside>
             <div className="sticky top-4 flex w-1/2 max-w-full min-w-56 flex-col gap-4">
-              <StepsPanel steps={timeline.steps} app={data} />
+              <div ref={stepsRef}>
+                <StepsPanel steps={timeline.steps} app={data} />
+              </div>
             </div>
           </CabinetAside>
         </>
@@ -279,7 +290,11 @@ export function ClientDocuments({ focusKey }: ClientDocumentsProps) {
         stage === 'cancelled' ? (
           <CancelledLimitCard applyUrl={landingUrl} />
         ) : (
-          <LimitCard limit={lim} action={stage === 'signing' ? <SigningAction /> : null} />
+          <LimitCard
+            limit={lim}
+            action={stage === 'signing' ? <SigningAction /> : null}
+            style={stepsHeight > 0 ? { height: stepsHeight } : undefined}
+          />
         )
       ) : null}
     </div>

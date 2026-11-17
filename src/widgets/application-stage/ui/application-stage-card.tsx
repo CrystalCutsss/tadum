@@ -5,7 +5,7 @@
 // Лимит cancelled / rejected: нейтральная карточка без причины (SC-06 A7).
 import { RiInformationLine } from '@remixicon/react';
 import { cn } from 'cn';
-import { useEffect, type ComponentProps, type ReactNode } from 'react';
+import { useEffect, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Limit } from '@/entities/limit';
@@ -61,14 +61,17 @@ export interface LimitCardProps {
  * Карточка лимита на этапах «Решение» и «Подписание» (D-084): заголовок «одобренный, ещё не активен» и сумма сверху,
  * ниже подсказка этапа — на «Решении» «менеджер позвонит», на «Подписании» «подпишите договор и вексель» над кнопкой.
  */
-export function LimitCard({ limit, action, className }: LimitCardProps & { className?: string }) {
+export function LimitCard({ limit, action, className, style }: LimitCardProps & { className?: string; style?: CSSProperties | undefined }) {
   const { t } = useTranslation();
   const hasAmount = limit.approved.amount_minor > 0;
   const info = limit.status === 'pending' ? t('application.decision.body') : limit.status === 'ready' ? t('application.signing.info') : null;
   return (
-    <LimitSurface aria-live="polite" className={cn('gap-8', className)}>
-      <div className="flex flex-col gap-3">
-        <h2 className="text-base font-medium">{t('application.limit_label_approved')}</h2>
+    // Высота на компьютере — как у блока Steps и одна на обоих этапах (style от экрана, Кирилл 2026-11-17): подсказка
+    // и кнопка прижаты к низу.
+    <LimitSurface aria-live="polite" className={cn('justify-between gap-8', className)} style={style}>
+      {/* Заголовок — начертание как у «Steps» (CardTitle); отступ до суммы — 16 px (Кирилл 2026-11-17). */}
+      <div className="flex flex-col gap-4">
+        <h2 className="font-heading text-base font-medium">{t('application.limit_label_approved')}</h2>
         {hasAmount ? <LimitAmount value={limit.approved} /> : <span className="text-xl">{t('application.decision.no_amount')}</span>}
       </div>
       <div className="flex flex-col items-start gap-4">
