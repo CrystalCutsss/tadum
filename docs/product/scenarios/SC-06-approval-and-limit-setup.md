@@ -1,11 +1,11 @@
-<!-- source: Drive 1sf4HYZ06JrXnptGdMQXKn2ijPDl_q7Q5, synced: 2026-11-15. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1jby7ltDfJqdLCPYSCa3mR3nzMo1uXXqg, synced: 2026-11-17. Не редактировать — источник в Drive. -->
 # SC-06 · Одобрение и подключение лимита
 
 | Поле | Значение |
 |---|---|
 | **ID** | `SC-06` |
 | **Роли** | `client_contact`, `client_owner` |
-| **Экраны** | `client.documents` (этапы «Решение» и «Подписание», D-081), `client.signing` (`/c/documents/sign` — сценарий подписания, D-083), `client.help` |
+| **Экраны** | `client.documents` (этапы «Решение» и «Подписание», D-081, D-084), `client.signing` (`/c/documents/sign` — сценарий подписания, D-083), `client.help` |
 | **Предусловие** | UW одобрил заявку: `client_status = approved`, `permission_state = active`; лимит `pending` → `ready`; чек-лист не завершён |
 | **Статусы** | Odoo: Approved → Offer confirmation → Signing SPA & PN; лимит `pending` → `ready`; чек-лист `spa`, `pn_nafith` (D-083) |
 | **Цель** | Клиент понимает, что заявка одобрена, какие два шага остались до активного лимита и как их сделать: скачать договор (SPA), подписать от руки и отправить нам в WhatsApp; подтвердить вексель в приложении Nafith. Возвращается и видит прогресс |
@@ -25,25 +25,33 @@
 Когда: клиент открывает /c/documents
 Тогда: шкала: «Документы» done, «Проверка» done, «Решение» current, «Подписание» upcoming;
        карточка next_step.offer_confirmation (owner = tadum): «Заявка одобрена. Наш менеджер свяжется
-       с вами, чтобы подтвердить условия» — без CTA; карточка лимита показывает статус «согласуем условия»,
-       сумму показываем (approved задан); блока подписей и кнопки подписания нет (D-083);
+       с вами, чтобы подтвердить условия» — без CTA; карточка лимита — на всю ширину колонки, как
+       на этапе «Лимит одобрен»; заголовок «Одобренный лимит · ещё не активен», сумма (approved задан),
+       подсказка с иконкой info: «От вас сейчас ничего не нужно. Наш менеджер позвонит, чтобы
+       подтвердить условия»; папки документов, блока подписей и кнопки подписания нет (D-083, D-084);
        событие screen_viewed {status: approved, limit_status: pending}
 
 Дано:  продажи согласовали условия (мок: salesConfirmOffer()); odoo_stage = Signing SPA & PN; лимит ready;
        чек-лист: spa pending с document_url (PDF договора), pn_nafith pending (запрос в Nafith отправлен)
 Когда: клиент открывает /c/documents
 Тогда: карточка next_step.sign_documents (owner = user) с CTA → /c/documents/sign;
-       в карточке лимита — одобренный лимит 150 000 SAR, прогресс «0 из 2» и кнопка «Подписать документы»
+       карточка лимита на всю ширину: заголовок «Одобренный лимит · ещё не активен», сумма 150 000 SAR,
+       над кнопкой — подсказка с иконкой info «Чтобы активировать лимит, подпишите договор и подтвердите
+       вексель в Nafith», кнопка «Подписать документы»; прогресса «N из 2» нет; папки документов нет (D-084)
 
 Когда: клиент нажимает «Подписать документы»
-Тогда: экран /c/documents/sign (client.signing): заголовок, два шага в фиксированном порядке —
-       1) договор SPA: «Скачать договор (PDF)» и «Отправить подписанный в WhatsApp»;
-       2) вексель: инструкция «откройте приложение Nafith и подтвердите вексель от Tadum»;
-       у каждого шага статус текстом; событие screen_viewed {screen_id: client.signing, done_count: 0}
+Тогда: экран /c/documents/sign (client.signing): заголовок, два шага в фиксированном порядке, без номеров —
+       1) договор SPA: «Скачать договор» и «Отправить подписанную копию» (WhatsApp);
+       2) вексель: инструкция «откройте приложение Nafith и подтвердите вексель от Tadum» и кнопка
+          «Открыть Nafith» (сайт Nafith в новой вкладке);
+       у начатого шага — статус текстом; событие screen_viewed {screen_id: client.signing, done_count: 0}
 
 Когда: клиент скачивает договор, подписывает его от руки и нажимает «Отправить подписанный в WhatsApp»
 Тогда: открывается WhatsApp с готовым текстом (название компании); шаг SPA локально → in_progress
-       «Проверяем вашу копию»; события spa_downloaded, spa_whatsapp_clicked
+       «Ждём подтверждения»; события spa_downloaded, spa_whatsapp_clicked
+
+Когда: клиент нажимает «Открыть Nafith»
+Тогда: сайт Nafith в новой вкладке; шаг векселя локально → in_progress «Ждём подтверждения»
 
 Когда: команда проверила скан (мок: externalSign('spa')); клиент возвращается на экран
 Тогда: при обновлении данных шаг SPA → done; тост status.updated
@@ -61,9 +69,9 @@
 | # | Условие | Что видит (ключ) | Действие | Событие |
 |---|---|---|---|---|
 | A1 | Лимит `pending`, `approved` не задан | Карточка лимита без суммы: `limit.pending_no_amount` | — | — |
-| A2 | Запрос в Nafith не пришёл клиенту | Под инструкцией шага векселя — строка `signing.pn.not_received` и путь в поддержку | поддержка | — |
+| A2 | Вексель не подтверждён за 24 часа после «Открыть Nafith» | Шаг остаётся «Ждём подтверждения»; под карточкой — `checklist.stale_hint_pn` ссылкой в поддержку | поддержка | `checklist_item_stale {item, hours}` |
 | A3 | Пункт `failed` | Нейтральный текст `checklist.item_failed` + «Написать в поддержку»; причину не показываем | поддержка | `checklist_item_failed_viewed {item}` |
-| A4 | SPA отправлен в WhatsApp, но команда не подтвердила за 24 часа | Шаг остаётся «Проверяем вашу копию»; через 24 часа — мягкая строка «уже отправили? напишите нам» | поддержка | `checklist_item_stale {item, hours}` |
+| A4 | SPA отправлен в WhatsApp, но команда не подтвердила за 24 часа | Шаг остаётся «Ждём подтверждения»; под карточкой — `checklist.stale_hint` ссылкой в поддержку | поддержка | `checklist_item_stale {item, hours}` |
 | A5 | Шаги выполняются не по порядку (вексель подтверждён раньше SPA) | Разрешено; порядок отображения фиксированный | — | — |
 | A6 | Экран `/c/documents/sign` открыт не на этапе подписания (лимит не `ready`) | Переход на `/c/documents` без ошибки | — | — |
 | A7 | Лимит стал `cancelled` на этапе подписания | Нейтральная карточка без причины и «Apply again» на лендинг; кнопки подписания нет | поддержка | `limit_cancelled_viewed` |
@@ -76,10 +84,11 @@
 
 | Экран / блок | Состояние | Что показываем |
 |---|---|---|
-| `client.documents` | approved-pending-offer | Шкала (decision current), карточка лимита «менеджер свяжется»; подписей нет |
-| `client.documents` | approved-ready | Карточка лимита с суммой, прогрессом «N из 2» и кнопкой «Подписать документы» |
-| `client.signing` | шаг pending / in_progress / done / failed | Статус текстом и иконкой; у SPA — кнопки «Скачать» и «Отправить в WhatsApp», у векселя — инструкция |
-| `client.signing` | stale (A4) | Шаг SPA «проверяем» + строка про поддержку |
+| `client.documents` | approved-pending-offer | Шкала (decision current); карточка лимита на всю ширину: «Одобренный лимит · ещё не активен», сумма, подсказка «менеджер позвонит»; папки и подписей нет (D-084) |
+| `client.documents` | approved-ready | Карточка лимита на всю ширину: заголовок, сумма, подсказка «подпишите договор и вексель», кнопка «Подписать документы»; без прогресса и папки (D-084) |
+| `client.documents` | подсказка в карточке | Иконка info 20 px в полупрозрачном круге 40 px — того же размера, что подложка иконки в блоках документов; текст не шире половины карточки на ≥640 px |
+| `client.signing` | шаг pending / in_progress / done / failed | Статус текстом и иконкой у начатого шага; у SPA — «Скачать договор» и «Отправить подписанную копию», у векселя — инструкция и «Открыть Nafith» |
+| `client.signing` | stale (A2, A4) | Шаг «ждём подтверждения» + строка-ссылка в поддержку |
 | `client.signing` | оба done | «Лимит одобрен» и «Вернуться к заявке» |
 | все | длинный арабский текст | Названия шагов в 2 строки без обрезки |
 | все | RTL / LTR, light / dark | Галочки не зеркалятся; стрелка «назад» в крошках зеркалится |
@@ -95,21 +104,24 @@
 | `next_step.sign_documents` | Almost done — sign the documents to activate your limit | اقتربت من النهاية — وقّع المستندات لتفعيل حدّك | owner = user |
 | `limit.pending_no_amount` | Your application is approved. The limit amount will appear here after we confirm the terms | تمت الموافقة على طلبك. سيظهر مبلغ الحد هنا بعد تأكيد الشروط | A1 |
 | `limit.cancelled` | This limit is no longer active. Our team can tell you more | هذا الحد لم يعد نشطًا. يمكن لفريقنا توضيح المزيد | A7, без причины |
+| `application.limit_label_approved` | Approved limit · not active yet | الحد المعتمد · غير مفعّل بعد | заголовок карточки на «Решении» и «Подписании» (D-084) |
+| `application.decision.body` | Nothing is needed from you right now. Our team will call you to confirm the terms | لا حاجة لأي إجراء منك حاليًا. سيتواصل معك فريقنا هاتفيًا لتأكيد الشروط | подсказка на «Решении» |
+| `application.signing.info` | To activate your limit, sign the agreement and approve the promissory note in Nafith | لتفعيل حدّك، وقّع الاتفاقية واعتمد السند لأمر في نافذ | подсказка над кнопкой на «Подписании» (D-084) |
 | `signing.cta` | Sign documents | توقيع المستندات | кнопка в карточке лимита |
-| `signing.progress` | {done} of 2 done | تم {done} من 2 | прогресс в карточке |
 | `signing.title` | Sign documents | توقيع المستندات | заголовок экрана |
 | `checklist.spa` | Agreement (SPA) | الاتفاقية (SPA) | шаг 1 |
-| `signing.spa.body` | Download the agreement, print it, sign it by hand and send us a photo or scan in WhatsApp | حمّل الاتفاقية واطبعها ووقّعها بخط اليد، ثم أرسل لنا صورتها أو نسخة ممسوحة عبر واتساب | |
-| `signing.spa.download` | Download agreement (PDF) | تحميل الاتفاقية (PDF) | |
-| `signing.spa.send` | Send signed copy in WhatsApp | إرسال النسخة الموقّعة عبر واتساب | |
+| `signing.spa.body` | Download the agreement, print it and sign it by hand. Then send us a photo or scan via WhatsApp | نزّل الاتفاقية واطبعها ووقّعها بخط اليد، ثم أرسل إلينا صورة لها أو نسخة ممسوحة ضوئيًا عبر واتساب | |
+| `signing.spa.download` | Download agreement | تنزيل الاتفاقية | |
+| `signing.spa.send` | Send signed copy | إرسال النسخة الموقّعة | WhatsApp |
 | `checklist.pn_nafith` | Promissory note (Nafith) | السند لأمر (نافذ) | шаг 2 |
 | `signing.pn.body` | We've sent the note to Nafith. Open the Nafith app and approve the note from Tadum | أرسلنا السند إلى نافذ. افتح تطبيق نافذ واعتمد السند المرسل من تدوم | третьи стороны — текстом |
-| `signing.pn.not_received` | Don't see the note in Nafith? Message us | لا ترى السند في نافذ؟ راسلنا | A2 |
+| `signing.pn.open` | Open Nafith | فتح نافذ | сайт Nafith, новая вкладка |
 | `checklist.status.in_progress` | Waiting for confirmation | بانتظار التأكيد | |
 | `checklist.status.done` | Done | تم | |
 | `checklist.status.failed` | Needs attention | يحتاج متابعة | |
 | `checklist.stale_hint` | Already sent? Message us and we'll check | هل أرسلتها بالفعل؟ راسلنا وسنتحقق | A4, 24 ч |
-| `checklist.item_failed` | We couldn't confirm this step. Our team will help | لم نتمكن من تأكيد هذه الخطوة. فريقنا جاهز للمساعدة | A3 |
+| `checklist.stale_hint_pn` | Already approved in Nafith? Message us and we'll check | هل اعتمدت السند في نافذ؟ راسلنا وسنتحقق | A2, 24 ч |
+| `checklist.item_failed` | We couldn't confirm this step. Message us and our team will help | لم نتمكن من تأكيد هذه الخطوة. راسلنا وسيساعدك فريقنا | A3 |
 | `signing.done` | Your limit is approved | تم اعتماد حدّك | оба шага done |
 | `signing.back` | Back to application | العودة إلى الطلب | |
 | `documents.approved_banner` | Your documents are accepted | تم قبول مستنداتك | A9 |
@@ -127,7 +139,7 @@
 | `spa_whatsapp_clicked` | нажата «Отправить подписанный в WhatsApp» | `{}` |
 | `checklist_item_completed` | пункт стал `done` (по данным) | `{ item, hours_since_ready }` |
 | `checklist_item_failed_viewed` | показан `failed` | `{ item }` |
-| `checklist_item_stale` | SPA «проверяем» > 24 ч | `{ item, hours }` |
+| `checklist_item_stale` | шаг «ждём подтверждения» > 24 ч | `{ item, hours }` |
 | `limit_activated` | лимит стал `active` | `{ days_since_approved?, amount_bucket }` — сумма в корзинах, не точное значение |
 | `limit_cancelled_viewed` | показан `cancelled` | `{}` |
 
@@ -137,18 +149,19 @@
 
 ## 6. Критерии приёмки
 
-- [ ] На этапе «Решение» блока подписей и кнопки подписания нет; на «Подписании» в карточке лимита — кнопка «Подписать документы» и прогресс «N из 2» (D-083).
+- [ ] На этапе «Решение» блока подписей и кнопки подписания нет; на «Подписании» в карточке лимита — подсказка и кнопка «Подписать документы», прогресса нет (D-083, D-084).
+- [ ] На «Решении» и «Подписании» папки документов нет; карточка лимита на всю ширину колонки, заголовок «Одобренный лимит · ещё не активен»; подсказка — иконка info в полупрозрачном круге, текст не шире половины карточки (D-084).
 - [ ] Сценарий подписания — отдельный экран `/c/documents/sign` с крошками «Заявка › Подписание документов»; открыт не на этапе подписания — переход на `/c/documents`.
 - [ ] Шаги в фиксированном порядке: SPA → вексель; выполнение не по порядку не ломает отображение.
-- [ ] SPA скачивается PDF-файлом; «Отправить в WhatsApp» открывает `wa.me` с готовым текстом; после нажатия шаг показывает «Проверяем вашу копию».
-- [ ] Шаг векселя — инструкция текстом, без ссылок и логотипов Nafith.
+- [ ] SPA скачивается PDF-файлом; «Отправить подписанную копию» открывает `wa.me` с готовым текстом; после нажатия шаг показывает «Ждём подтверждения».
+- [ ] Шаг векселя — инструкция текстом и кнопка «Открыть Nafith» (сайт в новой вкладке), без логотипов Nafith; номеров шагов нет.
 - [ ] Статусы шагов приходят из данных; локальная отметка «отправлено» не считается подтверждением (D-035).
 - [ ] `failed` и `cancelled` — нейтральные тексты без причин, с путём в поддержку.
 - [ ] Сумма — через `formatMoney` (D-006): «SAR 150,000» в EN, «150,000 ر.س» в AR, западные цифры.
 - [ ] Когда оба шага `done`, экран и «Заявка» переключаются на «Лимит одобрен» без перезагрузки.
 - [ ] Тексты в `ar` и `en`; axe без нарушений; статусы шагов доступны тексту, не только иконкой.
 - [ ] Storybook: карточка лимита pending / ready / cancelled; шаги подписания × статусы × stale × AR/EN × light/dark.
-- [ ] Playwright: `client_approved_unsigned` → «Подписать документы» → подтверждение двух шагов на демо-странице `/demo/sign` → лимит `active`; A6, A7.
+- [ ] Playwright: `client_approved_unsigned` → «Подписать документы» → «Отправить подписанную копию» → SPA `done` (демо) → «Открыть Nafith» → вексель ждёт; A6, A7; итог «Лимит одобрен» — персона `client_active`.
 
 ---
 
@@ -156,7 +169,8 @@
 
 - Локальная отметка «SPA отправлен в WhatsApp» хранится в `sessionStorage` с меткой времени — для A4 и для UI сразу после нажатия.
 - `document_url` может быть подписанной ссылкой — не логировать и не отправлять в аналитику.
-- В демо витрины у каждого шага есть ссылка на демо-страницу `/demo/sign?item=…`, которая имитирует подтверждение командой или Nafith.
+- Демо витрины: договор подтверждается сам через 3 секунды после «Отправить подписанную копию»; вексель сам не подтверждается — клиент переходит в Nafith, шаг ждёт (A-066). Демо-ссылок и демо-страницы нет.
+- Компонент папки документов остаётся в коде (D-084), на этапах «Решение» и «Подписание» не показывается; принятые документы — в «Открыть заявку» на этапе «Лимит одобрен».
 
 ## 8. Открытые вопросы
 
