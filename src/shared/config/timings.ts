@@ -24,6 +24,3 @@ export const MOCK_REVIEW_DELAY_MS = 2_000;
 
 /** Мок: задержка ответа 80–250 мс (было 300–800 — экран открывался 4–5 с, Кирилл 2026-11-10); `slow` — ×4. */
 export const MOCK_LATENCY = { min_ms: 80, max_ms: 250, slow_factor: 4 } as const;
-
-/** Демо витрины (A-066): договор SPA «подписывается в SADQ» через эту паузу после открытия экрана подписания. */
-export const MOCK_SPA_SIGN_MS = 6_000;

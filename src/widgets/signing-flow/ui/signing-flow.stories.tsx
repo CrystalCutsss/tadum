@@ -51,7 +51,7 @@ const HOUR = 3_600_000;
 
 export const BothPending: Story = {
   name: 'Договор ждёт подписи в SADQ: серый бейдж, инструкция без кнопок; вексель — Nafith',
-  render: () => <SigningFlow limit={checklist('pending', 'pending')} demo={false} />,
+  render: () => <SigningFlow limit={checklist('pending', 'pending')} />,
   play: async ({ canvasElement }) => {
     for (const { el, c, t } of panels(canvasElement)) {
       const spa = el.querySelectorAll<HTMLElement>('ol[aria-label] > li')[0]!;
@@ -74,7 +74,7 @@ export const BothPending: Story = {
 export const SpaDonePnPending: Story = {
   name: 'Договор подписан: зелёный бейдж, «скачайте копию»; вексель ждёт Nafith',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <SigningFlow limit={checklist('done', 'pending')} demo={false} />,
+  render: () => <SigningFlow limit={checklist('done', 'pending')} />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     const block = (e: Event) => e.preventDefault();
@@ -110,7 +110,7 @@ export const PnStale: Story = {
       return { restore, captured: eventsLoader() };
     },
   ],
-  render: () => <SigningFlow limit={checklist('done', 'pending')} demo={false} />,
+  render: () => <SigningFlow limit={checklist('done', 'pending')} />,
   play: async ({ canvasElement, loaded }) => {
     const l = loaded as { restore: () => void; captured: Captured };
     try {
@@ -131,7 +131,7 @@ export const PnStale: Story = {
 export const PnFailed: Story = {
   name: 'Вексель не подтвердился — нейтральный текст и checklist_item_failed_viewed',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <SigningFlow limit={checklist('done', 'failed')} demo={false} />,
+  render: () => <SigningFlow limit={checklist('done', 'failed')} />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     try {

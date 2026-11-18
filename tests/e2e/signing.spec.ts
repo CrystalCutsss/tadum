@@ -19,7 +19,7 @@ const step = (page: Page, key: ItemKey, lang: Lang = LANG) =>
   steps(page, lang).getByRole('listitem').filter({ hasText: tr(lang, `checklist.${key}`) });
 const signCta = (page: Page, lang: Lang = LANG) => page.getByRole('link', { name: tr(lang, 'signing.cta') });
 
-test('@smoke client_approved_unsigned: «Sign documents» → экран подписания → договор ждёт подписи в SADQ → подписан, копия → «Open Nafith» → вексель ждёт', async ({ page, context }) => {
+test('@smoke client_approved_unsigned: «Sign documents» → экран подписания → договор ждёт подписи в Sadq без автоперехода → «Open Nafith» → вексель ждёт', async ({ page, context }) => {
   await openApplication(page, 'client_approved_unsigned');
   // Блока шагов на «Заявке» нет (D-083) — только кнопка в карточке лимита.
   await expect(steps(page)).toHaveCount(0);
@@ -34,10 +34,9 @@ test('@smoke client_approved_unsigned: «Sign documents» → экран под�
   await expect(step(page, 'spa')).toContainText(tr(LANG, 'signing.spa.step_sms'));
   await expect(step(page, 'spa').getByRole('link')).toHaveCount(0);
   await expect(page.getByText(tr(LANG, 'signing.subtitle'), { exact: true })).toBeVisible();
-  // Демо витрины (A-066): договор «подписывается» сам; после подписи — копия и «подписывать больше нечего».
-  await expect(step(page, 'spa')).toContainText(tr(LANG, 'signing.spa.status_signed'), { timeout: 15_000 });
-  await expect(step(page, 'spa').getByRole('link', { name: tr(LANG, 'signing.spa.download') })).toHaveAttribute('href', /demo\/spa\.pdf$/);
-  await expect(page.getByText(tr(LANG, 'signing.subtitle_signed'))).toBeVisible();
+  // Автоперехода нет (Кирилл 2026-11-18): договор так и ждёт подписи.
+  await page.waitForTimeout(1_000);
+  await expect(step(page, 'spa')).toContainText(tr(LANG, 'signing.spa.status_required'));
   await context.route('https://www.nafith.sa/**', (route) => route.abort());
   const [nafith] = await Promise.all([context.waitForEvent('page'), step(page, 'pn_nafith').getByRole('link', { name: tr(LANG, 'signing.pn.open') }).click()]);
   await nafith.close();
@@ -75,6 +74,7 @@ test('client_signing_partial: SPA готов, вексель ждёт Nafith', a
   await signCta(page).click();
   await expect(step(page, 'spa')).toContainText(tr(LANG, 'signing.spa.status_signed'));
   await expect(step(page, 'spa').getByRole('link', { name: tr(LANG, 'signing.spa.download') })).toBeVisible();
+  await expect(page.getByText(tr(LANG, 'signing.subtitle_signed'))).toBeVisible();
   await expect(step(page, 'pn_nafith')).toContainText(tr(LANG, 'signing.pn.body'));
 });
 

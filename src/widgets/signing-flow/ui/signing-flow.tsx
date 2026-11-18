@@ -2,18 +2,16 @@
 // Шаг — карточка в стиле документа (иконка в сером квадрате, название, пояснение, статус справа). Договор SPA
 // (Кирилл 2026-11-18): два статуса бейджем — «Нужна подпись» (серый) и «Подписан» (зелёный). До подписи кнопок нет —
 // инструкция: менеджер прислал SMS со ссылкой на SADQ, два шага. После подписи — «подписан, скачайте копию» и
-// нейтральная кнопка скачивания. Статус только из данных (D-035). У векселя — «Open Nafith» и ожидание. В демо
-// витрины договор «подписывается» сам через паузу после открытия экрана, вексель — нет (A-066).
+// нейтральная кнопка скачивания. Статус только из данных (D-035), автоперехода в демо нет — состояния показывают
+// персоны (Кирилл 2026-11-18). У векселя — «Open Nafith» и ожидание.
 import { RiCheckLine, RiDownloadLine, RiErrorWarningLine, RiExternalLinkLine, RiFileShield2Line, RiFileTextLine, RiTimeLine, type RemixiconComponentType } from '@remixicon/react';
-import { useQueryClient } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { checklistItemView, checklistOpenedAt, limitQuery, markChecklistOpened, type ChecklistItem, type ChecklistItemView, type Limit } from '@/entities/limit';
+import { checklistItemView, checklistOpenedAt, markChecklistOpened, type ChecklistItem, type ChecklistItemView, type Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
-import { getApi } from '@/shared/api';
-import { MOCK_SPA_SIGN_MS, NAFITH_URL, supportWhatsappUrl } from '@/shared/config';
+import { NAFITH_URL, supportWhatsappUrl } from '@/shared/config';
 import { now as clockNow, useNow } from '@/shared/lib';
 import { Button, Icon, Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/shared/ui';
 
@@ -43,43 +41,17 @@ function StatusPill({ view }: { view: Exclude<ChecklistItemView, 'pending'> }) {
 
 const ICON: Record<ChecklistItem['key'], RemixiconComponentType> = { spa: RiFileTextLine, pn_nafith: RiFileShield2Line };
 
-/** Демо витрины: мок и демо-режим (не прод-сборка) — подтверждения шагов приходят сами (A-066). */
-const demoConfirm = import.meta.env.VITE_DEMO_PANEL !== '0' && (import.meta.env.VITE_API_MODE ?? 'mock') === 'mock';
-
 export interface SigningFlowProps {
   limit: Pick<Limit, 'checklist'>;
-  /** Демо-подтверждения шагов (A-066); по умолчанию — в демо витрины, в историях выключено. */
-  demo?: boolean;
 }
 
-export function SigningFlow({ limit, demo = demoConfirm }: SigningFlowProps) {
+export function SigningFlow({ limit }: SigningFlowProps) {
   const { t } = useTranslation();
   const now = useNow(60_000);
   // Нажатие WhatsApp пишет отметку в sessionStorage — перерисовываем шаг сразу.
   const [, setTick] = useState(0);
   const spa = limit.checklist.items.find((i) => i.key === 'spa');
   const pn = limit.checklist.items.find((i) => i.key === 'pn_nafith');
-  const queryClient = useQueryClient();
-  // Демо (A-066): договор «подписывается» через паузу. Вексель в демо сам не подтверждается (Кирилл 2026-11-15):
-  // клиент переходит в Nafith, шаг ждёт подтверждения.
-  const demoSign = useCallback(
-    (key: ChecklistItem['key'], delay: number) =>
-      window.setTimeout(() => {
-        void getApi().then(async (api) => {
-          api.demo?.externalSign(key);
-          await queryClient.invalidateQueries({ queryKey: limitQuery.queryKey });
-        });
-      }, delay),
-    [queryClient],
-  );
-
-  // Демо: договор «подписывается в SADQ» сам через паузу после открытия экрана — кнопок у шага нет (Кирилл 2026-11-18).
-  const spaPending = spa !== undefined && spa.status !== 'done' && spa.status !== 'failed';
-  useEffect(() => {
-    if (!demo || !spaPending) return;
-    const id = demoSign('spa', MOCK_SPA_SIGN_MS);
-    return () => window.clearTimeout(id);
-  }, [demo, spaPending, demoSign]);
 
   return (
     <ol className="flex flex-col gap-4" aria-label={t('signing.title')}>
@@ -93,9 +65,16 @@ export function SigningFlow({ limit, demo = demoConfirm }: SigningFlowProps) {
           body={t(spa.status === 'done' ? 'signing.spa.signed_body' : 'signing.spa.body')}
           extra={
             spa.status === 'done' ? undefined : (
-              <ol className="mt-1 flex list-decimal flex-col gap-1 ps-5 text-sm">
-                <li>{t('signing.spa.step_sms')}</li>
-                <li>{t('signing.spa.step_sign')}</li>
+              <ol className="mt-2 flex flex-col gap-2 text-sm">
+                {(['step_sms', 'step_sign'] as const).map((key, i) => (
+                  <li key={key} className="flex items-center gap-2">
+                    {/* Номер шага в сером круге (Кирилл 2026-11-18). */}
+                    <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                      {i + 1}
+                    </span>
+                    {t(`signing.spa.${key}`)}
+                  </li>
+                ))}
               </ol>
             )
           }
