@@ -185,7 +185,8 @@ function SigningStep({
           <ItemMedia variant="icon" className="hidden size-10 self-start rounded-lg bg-muted sm:flex">
             <Icon icon={ICON[item.key]} />
           </ItemMedia>
-          <ItemContent className="min-w-0 gap-2">
+          {/* Отступ под заголовком больше только у договора (свой бейдж); у векселя — прежний (Кирилл 2026-11-18). */}
+          <ItemContent className={cn('min-w-0', pill === undefined ? 'gap-1' : 'gap-2')}>
             <div className="flex min-h-6 items-start justify-between gap-3">
               <ItemTitle className="flex-wrap text-base font-semibold">{t(`checklist.${item.key}`)}</ItemTitle>
               {pill !== undefined || view !== 'pending' ? (
