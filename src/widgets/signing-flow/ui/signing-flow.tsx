@@ -119,12 +119,11 @@ export function SigningFlow({ limit }: SigningFlowProps) {
   );
 }
 
-/** Статус договора бейджем: «Нужна подпись» — серый, «Подписан» — зелёный (Кирилл 2026-11-18). */
+/** Статус договора бейджем без иконки: «Нужна подпись» — серый, «Подписан» — зелёный (Кирилл 2026-11-18). */
 function SpaBadge({ signed }: { signed: boolean }) {
   const { t } = useTranslation();
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-medium whitespace-nowrap', TONE[signed ? 'approved' : 'neutral'])}>
-      {signed ? <Icon icon={RiCheckLine} className="size-4" /> : null}
+    <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium whitespace-nowrap', TONE[signed ? 'approved' : 'neutral'])}>
       {t(signed ? 'signing.spa.status_signed' : 'signing.spa.status_required')}
     </span>
   );

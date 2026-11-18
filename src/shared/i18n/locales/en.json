@@ -362,7 +362,7 @@
     },
     "spa": {
       "body": "Your manager has sent you an SMS with a link to sign the agreement in Sadq",
-      "download": "Download copy",
+      "download": "Download",
       "signed_body": "The agreement is signed. You can download a copy",
       "status_required": "Signature required",
       "status_signed": "Signed",
