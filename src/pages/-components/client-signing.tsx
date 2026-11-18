@@ -1,13 +1,12 @@
 // /c/documents/sign — сценарий подписания (SC-06, D-083): отдельный экран, а не модалка — ожидание часами и днями,
 // диплинк из WhatsApp, возврат из WhatsApp и Nafith. Крошки «Application › Sign documents». Открыт не на этапе
 // подписания — переход на «Заявку» (SC-06 A6); оба шага готовы (лимит active) — «Лимит одобрен» и путь назад.
-import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate } from '@tanstack/react-router';
 import { RiCheckboxCircleLine } from '@remixicon/react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { applicationQuery, applicationStage, companyQuery } from '@/entities/application';
+import { applicationQuery, applicationStage } from '@/entities/application';
 import { limitQuery, type Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
 import { useStatusPolling } from '@/shared/api';
@@ -21,7 +20,6 @@ export function ClientSigning() {
   const { t } = useTranslation();
   const app = useStatusPolling(applicationQuery);
   const limit = useStatusPolling(limitQuery);
-  const company = useQuery(companyQuery);
   const prev = useRef<Limit['status'] | null | undefined>(undefined);
   const doneCount = limit.data?.checklist.items.filter((i) => i.status === 'done').length;
 
@@ -58,12 +56,16 @@ export function ClientSigning() {
   const stage = applicationStage(app.data.client_status, lim);
   if (!lim || (stage !== 'signing' && stage !== 'approved')) return <Navigate to="/c/documents" replace />;
 
+  // После подписи договора — «больше подписывать нечего» (Кирилл 2026-11-18); вексель подтверждается, а не подписывается.
+  const spaSigned = lim.checklist.items.some((i) => i.key === 'spa' && i.status === 'done');
+  const subtitle = stage === 'approved' ? 'signing.subtitle_all_done' : spaSigned ? 'signing.subtitle_signed' : 'signing.subtitle';
+
   return (
     <div className="flex flex-1 flex-col gap-4">
       <CabinetPageHeader>
         <header className="flex flex-col gap-1.5">
           <h1 className="text-2xl font-semibold">{t('signing.title')}</h1>
-          <p className="text-base text-muted-foreground">{stage === 'approved' ? t('signing.done') : t('signing.subtitle')}</p>
+          <p className="text-base text-muted-foreground">{t(subtitle)}</p>
         </header>
       </CabinetPageHeader>
       {stage === 'approved' ? (
@@ -79,7 +81,7 @@ export function ClientSigning() {
           </CardContent>
         </Card>
       ) : (
-        <SigningFlow limit={lim} company={company.data?.name ?? ''} />
+        <SigningFlow limit={lim} />
       )}
     </div>
   );

@@ -41,15 +41,15 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `105r-_amdvpWTBCyt3d-hfJrQyg63-Bas` | 50891 | 2026-11-17 |
+| `00-decision-log.md` | `1Tbi8tBKkfxKSMRJZTC78xhgKQBaY4NKm` | 52428 | 2026-11-18 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
 | `01-cabinet-structure.md` | `1X6BmRo9LoICXGYcepr30n9Lv1pdxF6Zs` | 25919 | 2026-11-17 |
 | `01-entities.md` | `1pITUGuZnZS9iNefPk5kkChngNVa5fMlW` | 22966 | 2026-11-15 |
 | `01-nfr-locale-brand.md` | `1nWl9j1MUxN6S3Rh869BlnFQKAXSa2NQA` | 49904 | 2026-11-15 |
 | `01-roles.md` | `1UCO6QMHF_Z1skPiHA4CuL0dtIBXS_WUq` | 18427 | 2026-11-15 |
-| `01-statuses.md` | `1z4Mv_wo9GkV7JNNQjSz6ms3cK5LHPNgx` | 21510 | 2026-11-15 |
-| `04-metrics-and-events.md` | `1bsXKRrzZvmmWh8EYVfWbMv8UM-VPoOHf` | 28754 | 2026-11-15 |
+| `01-statuses.md` | `1syfgoad19_Zvb3Uo3Ntax6qpyseL7Hfu` | 21608 | 2026-11-18 |
+| `04-metrics-and-events.md` | `1KudM1JHby4jI8yd6zAuOivH6JT9z2jpf` | 28675 | 2026-11-18 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
 | `requirements-supplier.md` | `1m7p6aNOBqaZYZ7DDkHhjc6hMRziYxJAi` | 9923 | 2026-11-05 |
 | `scenarios/SC-01-first-login.md` | `1PNXh2CjAh20FIxOBnyheoiFENlBA0JWe` | 18517 | 2026-11-11 |
@@ -57,7 +57,7 @@
 | `scenarios/SC-03-document-rejected.md` | `1yiEiKa7CuOaKOBoZnrChKo0hHPOrVu9b` | 15093 | 2026-11-05 |
 | `scenarios/SC-04-more-docs-requested.md` | `1vYqiAgrrhbuagTwIUxDXiF15_jAovM0A` | 13958 | 2026-11-05 |
 | `scenarios/SC-05-under-review.md` | `1AsDtblK9cnPAZynjX8W180tNx50acj92` | 14120 | 2026-11-05 |
-| `scenarios/SC-06-approval-and-limit-setup.md` | `1jby7ltDfJqdLCPYSCa3mR3nzMo1uXXqg` | 21421 | 2026-11-17 |
+| `scenarios/SC-06-approval-and-limit-setup.md` | `1uRtGlHaRhUlpUGDWnuWVoQIfEwBuEgpI` | 23445 | 2026-11-18 |
 | `scenarios/SC-07-limit-active.md` | `1vvB1EXQGTV6vluA_dSUEf4-xICyOhkIV` | 14330 | 2026-11-12 |
 | `scenarios/SC-08-application-closed.md` | `1KrxQawcS7rbPNlXYx6jIBa9mQy0N68gp` | 13936 | 2026-11-05 |
 | `scenarios/SC-09-returning-client.md` | `1Aa6SK1sG5CNr0oWvQHx8dNSTGjIEnIHF` | 11125 | 2026-11-05 |

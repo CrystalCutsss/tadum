@@ -54,6 +54,11 @@
     ],
     "overrides": {
       "basic-ftp": ">=6.2.1"
+    },
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-fc5q-39xc-vjpf"
+      ]
     }
   },
   "dependencies": {

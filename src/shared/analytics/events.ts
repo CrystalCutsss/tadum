@@ -132,7 +132,6 @@ export type AnalyticsEvent =
   | { name: 'status_change_banner_dismissed'; props: { from: ClientStatus; to: ClientStatus } }
   | { name: 'review_overdue_viewed'; props: { hours_over: number } }
   | { name: 'spa_downloaded'; props: Record<string, never> }
-  | { name: 'spa_whatsapp_clicked'; props: Record<string, never> }
   | { name: 'checklist_item_completed'; props: { item: ChecklistItemKey; hours_since_ready: number } }
   | { name: 'checklist_item_failed_viewed'; props: { item: ChecklistItemKey } }
   | { name: 'checklist_item_stale'; props: { item: ChecklistItemKey; hours: number } }
@@ -214,7 +213,6 @@ export const EVENT_VERSIONS = {
   status_change_banner_dismissed: 'v1',
   review_overdue_viewed: 'v1',
   spa_downloaded: 'v4',
-  spa_whatsapp_clicked: 'v4',
   checklist_item_completed: 'v4',
   checklist_item_failed_viewed: 'v4',
   checklist_item_stale: 'v4',

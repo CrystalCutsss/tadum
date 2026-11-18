@@ -60,7 +60,7 @@ const rules: Record<string, () => void> = {
   'Видеть блок «Лимит» на главной (D-023)': () => {
     for (const s of STATES) expect(canViewLimit(s)).toBe(s === 'active');
   },
-  'Сценарий подписания (/c/documents/sign): скачать SPA, отправить в WhatsApp': () => {
+  'Сценарий подписания (/c/documents/sign): инструкция по подписи SPA в Sadq, скачать подписанную копию': () => {
     expect(canSign({ status: 'ready' })).toBe(true);
     for (const s of ['pending', 'active', 'cancelled', 'rejected'] as const) expect(canSign({ status: s })).toBe(false);
     expect(canSign(null)).toBe(false);

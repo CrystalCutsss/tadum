@@ -361,11 +361,17 @@
       "open": "Open Nafith"
     },
     "spa": {
-      "body": "Download the agreement, print it and sign it by hand. Then send us a photo or scan via WhatsApp",
-      "download": "Download agreement",
-      "send": "Send signed copy"
+      "body": "Your manager has sent you an SMS with a link to sign the agreement in Sadq",
+      "download": "Download",
+      "signed_body": "The agreement is signed. You can download a copy",
+      "status_required": "Signature required",
+      "status_signed": "Signed",
+      "step_sign": "Sign the agreement",
+      "step_sms": "Open the Sadq link in the SMS"
     },
     "subtitle": "Two steps — your limit becomes active once both are done",
+    "subtitle_all_done": "Nothing else to sign",
+    "subtitle_signed": "Nothing else to sign — just approve the note in Nafith",
     "title": "Sign documents"
   },
   "source_picker": {
@@ -410,7 +416,6 @@
     "prefill": {
       "closed": "Hello, I have a question about my Tadum application for {company}.",
       "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
-      "signed_spa": "Hello, I'm sending the signed agreement (SPA) for {company}.",
       "under_review": "Hello, I have a question about my Tadum application for {company}."
     },
     "whatsapp": "WhatsApp"
