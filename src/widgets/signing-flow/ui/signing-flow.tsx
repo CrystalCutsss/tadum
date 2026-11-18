@@ -1,10 +1,10 @@
 // Сценарий подписания (SC-06, D-083): два шага в фиксированном порядке — договор SPA и вексель в Nafith.
-// Шаг — карточка в стиле документа (иконка в сером квадрате, название, пояснение, статус справа). У SPA — «Скачать
-// договор» и «Отправить подписанный в WhatsApp»; после нажатия WhatsApp — локальная отметка и «ждём подтверждения»,
-// пока команда не проверит скан (D-035: статус только из данных, отметка — не подтверждение). У векселя — инструкция
-// текстом, без ссылок и логотипов Nafith. Без номеров шагов и без строк под карточками (Кирилл 2026-11-15); в демо
-// витрины подтверждения приходят сами: договор — через паузу после «Send signed copy», затем вексель (A-066).
-import { RiCheckLine, RiDownloadLine, RiErrorWarningLine, RiExternalLinkLine, RiFileShield2Line, RiFileTextLine, RiTimeLine, RiWhatsappLine, type RemixiconComponentType } from '@remixicon/react';
+// Шаг — карточка в стиле документа (иконка в сером квадрате, название, пояснение, статус справа). Договор SPA
+// (Кирилл 2026-11-18): два статуса бейджем — «Нужна подпись» (серый) и «Подписан» (зелёный). До подписи кнопок нет —
+// инструкция: менеджер прислал SMS со ссылкой на SADQ, два шага. После подписи — «подписан, скачайте копию» и
+// нейтральная кнопка скачивания. Статус только из данных (D-035). У векселя — «Open Nafith» и ожидание. В демо
+// витрины договор «подписывается» сам через паузу после открытия экрана, вексель — нет (A-066).
+import { RiCheckLine, RiDownloadLine, RiErrorWarningLine, RiExternalLinkLine, RiFileShield2Line, RiFileTextLine, RiTimeLine, type RemixiconComponentType } from '@remixicon/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { checklistItemView, checklistOpenedAt, limitQuery, markChecklistOpened, type ChecklistItem, type ChecklistItemView, type Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
 import { getApi } from '@/shared/api';
-import { MOCK_SIGNING_CONFIRM_MS, NAFITH_URL, supportWhatsappUrl } from '@/shared/config';
+import { MOCK_SPA_SIGN_MS, NAFITH_URL, supportWhatsappUrl } from '@/shared/config';
 import { now as clockNow, useNow } from '@/shared/lib';
 import { Button, Icon, Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/shared/ui';
 
@@ -48,13 +48,11 @@ const demoConfirm = import.meta.env.VITE_DEMO_PANEL !== '0' && (import.meta.env.
 
 export interface SigningFlowProps {
   limit: Pick<Limit, 'checklist'>;
-  /** Название компании — в готовый текст WhatsApp (в аналитику не уходит). */
-  company: string;
   /** Демо-подтверждения шагов (A-066); по умолчанию — в демо витрины, в историях выключено. */
   demo?: boolean;
 }
 
-export function SigningFlow({ limit, company, demo = demoConfirm }: SigningFlowProps) {
+export function SigningFlow({ limit, demo = demoConfirm }: SigningFlowProps) {
   const { t } = useTranslation();
   const now = useNow(60_000);
   // Нажатие WhatsApp пишет отметку в sessionStorage — перерисовываем шаг сразу.
@@ -62,59 +60,56 @@ export function SigningFlow({ limit, company, demo = demoConfirm }: SigningFlowP
   const spa = limit.checklist.items.find((i) => i.key === 'spa');
   const pn = limit.checklist.items.find((i) => i.key === 'pn_nafith');
   const queryClient = useQueryClient();
-  // Отметка «отправлено в WhatsApp» держится, пока сервер не скажет done: проверка скана занимает часы, а новый ответ
-  // с pending после возврата на вкладку не значит, что договор не дошёл (в отличие от прежней отметки «ссылка открыта»).
-  const spaView = spa ? checklistItemView(spa, checklistOpenedAt('spa'), 0, now) : null;
-  // Демо (A-066): «команда» подтверждает договор через паузу после «Send signed copy» (таймер не зависит от
-  // перерисовок — обновление данных при возврате на вкладку его не сбрасывает). Вексель в демо сам не подтверждается
-  // (Кирилл 2026-11-15): клиент переходит в Nafith, шаг ждёт подтверждения.
+  // Демо (A-066): договор «подписывается» через паузу. Вексель в демо сам не подтверждается (Кирилл 2026-11-15):
+  // клиент переходит в Nafith, шаг ждёт подтверждения.
   const demoSign = useCallback(
-    (key: ChecklistItem['key']) =>
+    (key: ChecklistItem['key'], delay: number) =>
       window.setTimeout(() => {
         void getApi().then(async (api) => {
           api.demo?.externalSign(key);
           await queryClient.invalidateQueries({ queryKey: limitQuery.queryKey });
         });
-      }, MOCK_SIGNING_CONFIRM_MS),
+      }, delay),
     [queryClient],
   );
+
+  // Демо: договор «подписывается в SADQ» сам через паузу после открытия экрана — кнопок у шага нет (Кирилл 2026-11-18).
+  const spaPending = spa !== undefined && spa.status !== 'done' && spa.status !== 'failed';
+  useEffect(() => {
+    if (!demo || !spaPending) return;
+    const id = demoSign('spa', MOCK_SPA_SIGN_MS);
+    return () => window.clearTimeout(id);
+  }, [demo, spaPending, demoSign]);
 
   return (
     <ol className="flex flex-col gap-4" aria-label={t('signing.title')}>
       {spa ? (
         <SigningStep
           item={spa}
-          view={spaView ?? 'pending'}
-          staleHours={staleHours(checklistOpenedAt('spa'), now)}
-          body={t('signing.spa.body')}
+          view={spa.status === 'done' || spa.status === 'failed' ? spa.status : 'pending'}
+          staleHours={0}
+          pill={spa.status === 'failed' ? undefined : <SpaBadge signed={spa.status === 'done'} />}
+          showBodyWhenDone
+          body={t(spa.status === 'done' ? 'signing.spa.signed_body' : 'signing.spa.body')}
+          extra={
+            spa.status === 'done' ? undefined : (
+              <ol className="mt-1 flex list-decimal flex-col gap-1 ps-5 text-sm">
+                <li>{t('signing.spa.step_sms')}</li>
+                <li>{t('signing.spa.step_sign')}</li>
+              </ol>
+            )
+          }
           actions={
-            <>
-              {spa.document_url ? (
-                <Button asChild variant="secondary" className="min-h-11">
-                  <a href={spa.document_url} download onClick={() => track('spa_downloaded', {})}>
-                    <Icon icon={RiDownloadLine} data-icon="inline-start" />
-                    {t('signing.spa.download')}
-                  </a>
-                </Button>
-              ) : null}
-              <Button asChild className="min-h-11">
-                <a
-                  href={supportWhatsappUrl(t('support.prefill.signed_spa', { company }))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    markChecklistOpened('spa', clockNow());
-                    track('spa_whatsapp_clicked', {});
-                    if (demo && spa.status !== 'done') demoSign('spa');
-                    setTick((n) => n + 1);
-                  }}
-                >
-                  <Icon icon={RiWhatsappLine} data-icon="inline-start" />
-                  {t('signing.spa.send')}
+            spa.status === 'done' && spa.document_url ? (
+              <Button asChild variant="secondary" className="min-h-11">
+                <a href={spa.document_url} download onClick={() => track('spa_downloaded', {})}>
+                  <Icon icon={RiDownloadLine} data-icon="inline-start" />
+                  {t('signing.spa.download')}
                 </a>
               </Button>
-            </>
+            ) : undefined
           }
+          actionsWhenDone
         />
       ) : null}
       {pn ? (
@@ -145,6 +140,17 @@ export function SigningFlow({ limit, company, demo = demoConfirm }: SigningFlowP
   );
 }
 
+/** Статус договора бейджем: «Нужна подпись» — серый, «Подписан» — зелёный (Кирилл 2026-11-18). */
+function SpaBadge({ signed }: { signed: boolean }) {
+  const { t } = useTranslation();
+  return (
+    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-medium whitespace-nowrap', TONE[signed ? 'approved' : 'neutral'])}>
+      {signed ? <Icon icon={RiCheckLine} className="size-4" /> : null}
+      {t(signed ? 'signing.spa.status_signed' : 'signing.spa.status_required')}
+    </span>
+  );
+}
+
 const staleHours = (at: number | null, now: number) => (at === null ? 0 : Math.floor((now - at) / 3_600_000));
 
 function SigningStep({
@@ -152,13 +158,23 @@ function SigningStep({
   view,
   staleHours: hours,
   body,
+  extra,
   actions,
+  pill,
+  showBodyWhenDone = false,
+  actionsWhenDone = false,
 }: {
   item: ChecklistItem;
   view: ChecklistItemView;
   staleHours: number;
   body: string;
-  actions?: ReactNode;
+  /** Под пояснением — шаги инструкции (договор SPA до подписи). */
+  extra?: ReactNode | undefined;
+  actions?: ReactNode | undefined;
+  /** Свой бейдж статуса вместо общего (договор SPA). */
+  pill?: ReactNode | undefined;
+  showBodyWhenDone?: boolean;
+  actionsWhenDone?: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -192,16 +208,15 @@ function SigningStep({
           </ItemMedia>
           <ItemContent className="min-w-0 gap-1">
             <ItemTitle className="flex-wrap text-base font-semibold">{t(`checklist.${item.key}`)}</ItemTitle>
-            {done ? null : <ItemDescription className="line-clamp-none">{body}</ItemDescription>}
+            {done && !showBodyWhenDone ? null : <ItemDescription className="line-clamp-none">{body}</ItemDescription>}
+            {extra}
           </ItemContent>
-          {view === 'pending' ? null : (
-            <div className="ms-auto shrink-0 self-start">
-              <StatusPill view={view} />
-            </div>
-          )}
+          {pill !== undefined || view !== 'pending' ? (
+            <div className="ms-auto shrink-0 self-start">{pill ?? (view === 'pending' ? null : <StatusPill view={view} />)}</div>
+          ) : null}
         </Item>
         {/* Действия — пока шаг не подтверждён; после «отправлено» их можно повторить (новый скан). */}
-        {actions && !done && view !== 'failed' ? <div className="flex flex-wrap gap-2 sm:ps-13.5">{actions}</div> : null}
+        {actions && (!done || actionsWhenDone) && view !== 'failed' ? <div className="flex flex-wrap gap-2 sm:ps-13.5">{actions}</div> : null}
       </div>
       {tray ? <p className="px-3 py-2 text-sm text-secondary-foreground/75 md:px-4">{tray}</p> : null}
     </li>
