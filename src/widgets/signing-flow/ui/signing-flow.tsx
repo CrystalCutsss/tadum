@@ -65,9 +65,9 @@ export function SigningFlow({ limit }: SigningFlowProps) {
           body={t(spa.status === 'done' ? 'signing.spa.signed_body' : 'signing.spa.body')}
           extra={
             spa.status === 'done' ? undefined : (
-              <ol className="mt-2 flex flex-col gap-2 text-sm">
+              <ol className="mt-2 flex flex-col gap-3 text-sm">
                 {(['step_sms', 'step_sign'] as const).map((key, i) => (
-                  <li key={key} className="flex items-center gap-2">
+                  <li key={key} className="flex items-start gap-3 leading-6">
                     {/* Номер шага в сером круге (Кирилл 2026-11-18). */}
                     <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
                       {i + 1}
@@ -180,18 +180,21 @@ function SigningStep({
   return (
     <li className="flex list-none flex-col rounded-xl bg-secondary">
       <div className="flex flex-col gap-4 rounded-xl border bg-card p-3 text-card-foreground md:p-4">
-        <Item className="flex-nowrap items-center rounded-none border-0 p-0">
-          <ItemMedia variant="icon" className="hidden size-10 self-center rounded-lg bg-muted sm:flex">
+        {/* Бейдж — в строке заголовка, пояснение и шаги под ней на всю ширину (Кирилл 2026-11-18). */}
+        <Item className="flex-nowrap items-start rounded-none border-0 p-0">
+          <ItemMedia variant="icon" className="hidden size-10 self-start rounded-lg bg-muted sm:flex">
             <Icon icon={ICON[item.key]} />
           </ItemMedia>
-          <ItemContent className="min-w-0 gap-1">
-            <ItemTitle className="flex-wrap text-base font-semibold">{t(`checklist.${item.key}`)}</ItemTitle>
+          <ItemContent className="min-w-0 gap-2">
+            <div className="flex min-h-6 items-start justify-between gap-3">
+              <ItemTitle className="flex-wrap text-base font-semibold">{t(`checklist.${item.key}`)}</ItemTitle>
+              {pill !== undefined || view !== 'pending' ? (
+                <div className="shrink-0">{pill ?? (view === 'pending' ? null : <StatusPill view={view} />)}</div>
+              ) : null}
+            </div>
             {done && !showBodyWhenDone ? null : <ItemDescription className="line-clamp-none">{body}</ItemDescription>}
             {extra}
           </ItemContent>
-          {pill !== undefined || view !== 'pending' ? (
-            <div className="ms-auto shrink-0 self-start">{pill ?? (view === 'pending' ? null : <StatusPill view={view} />)}</div>
-          ) : null}
         </Item>
         {/* Действия — пока шаг не подтверждён; после «отправлено» их можно повторить (новый скан). */}
         {actions && (!done || actionsWhenDone) && view !== 'failed' ? <div className="flex flex-wrap gap-2 sm:ps-13.5">{actions}</div> : null}
