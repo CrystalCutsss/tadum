@@ -20,12 +20,17 @@ interface LoginSearch {
 function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Вариант с Business name — для нового пользователя без заявки: свой подзаголовок (Кирилл 2026-11-19, A-071).
+  const withBusinessName = demoLoginVariant.businessName();
   return (
-    <AuthLayout title={t('auth.phone.title')} subtitle={t('auth.phone.subtitle')}>
+    <AuthLayout
+      title={t('auth.phone.title')}
+      subtitle={t(withBusinessName ? 'auth.phone.subtitle_business_name' : 'auth.phone.subtitle')}
+    >
       <PhoneForm
         onRequested={() => void navigate({ to: '/login/code' })}
         supportSlot={<SupportLink context="error" />}
-        withBusinessName={demoLoginVariant.businessName()}
+        withBusinessName={withBusinessName}
       />
     </AuthLayout>
   );
