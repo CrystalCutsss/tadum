@@ -36,9 +36,12 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
  * «Подписание: частично», «Лимит отменён», «Лимит одобрен». «Клиент и поставщик» (dual-active) убран: состояние
  * не понадобится (Кирилл 2026-11-11). Девять пунктов — больше 6, которые пускает схема Proto
  * (`packages/registry/schemas/version.schema.json`, axes.items.maxItems): правку Proto Кирилл пока не согласовал.
+ * v23 (Кирилл 2026-11-19, A-071): два пункта входа — обычный и вариант с полем Business name
+ * (`login-business-name`); оба не персоны, а начало с экрана входа. Десять пунктов из 12.
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру' },
+  { id: 'login-business-name', title: 'Вход: номер и Business name' },
   { id: 'client-new', title: 'Клиент: новая заявка' },
   { id: 'client-rejected', title: 'Клиент: нужен новый файл' },
   { id: 'client-more-docs', title: 'Клиент: дозапрос документов' },

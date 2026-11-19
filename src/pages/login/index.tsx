@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { PhoneForm } from '@/features/request-otp';
 import { authMemory, decideAuthScreen, familyMemory, loadSessionState } from '@/entities/session';
 import { setAnalyticsContext } from '@/shared/analytics';
+import { demoLoginVariant } from '@/shared/api';
 import { isInAppBrowser } from '@/shared/lib';
 
 import { AuthLayout } from '../-components/auth-layout';
@@ -21,7 +22,11 @@ function LoginPage() {
   const navigate = useNavigate();
   return (
     <AuthLayout title={t('auth.phone.title')} subtitle={t('auth.phone.subtitle')}>
-      <PhoneForm onRequested={() => void navigate({ to: '/login/code' })} supportSlot={<SupportLink context="error" />} />
+      <PhoneForm
+        onRequested={() => void navigate({ to: '/login/code' })}
+        supportSlot={<SupportLink context="error" />}
+        withBusinessName={demoLoginVariant.businessName()}
+      />
     </AuthLayout>
   );
 }

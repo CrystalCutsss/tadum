@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { personaFromParam } from '../src/shared/api/demo-persona';
+import { LOGIN_ITEMS, personaFromParam } from '../src/shared/api/demo-persona';
 import { PERSONA_IDS } from '../src/shared/api/fixtures/types';
 
 import { PERSONA_ITEMS, PROTOTYPE_META, PROTO_INSTALL_ARGS, frozenManifest, pendingVersion, releaseVersions, touchedOutsideTadum, injectProtoTags, parseReleaseNotes, versionMeta, versionPackage } from './release-proto.mjs';
@@ -55,12 +55,18 @@ describe('метаданные Proto', () => {
     // Схема Proto: до 12 пунктов оси (Кирилл 2026-11-11, A-063; CrystalCutsss/proto#65 — merge до выпуска v15).
     expect(PERSONA_ITEMS.length).toBeLessThanOrEqual(12);
     expect(PERSONA_ITEMS[0].id).toBe('login');
-    for (const { id } of PERSONA_ITEMS) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
-    for (const { id } of PERSONA_ITEMS.slice(1)) expect(PERSONA_IDS).toContain(personaFromParam(id));
+    for (const { id, title } of PERSONA_ITEMS) {
+      expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+      expect(title.length).toBeLessThanOrEqual(40);
+    }
+    // Первые два пункта — вход (обычный и с Business name, A-071), остальные — персоны мока.
+    for (const { id } of PERSONA_ITEMS.slice(0, 2)) expect(Object.values(LOGIN_ITEMS)).toContain(personaFromParam(id));
+    for (const { id } of PERSONA_ITEMS.slice(2)) expect(PERSONA_IDS).toContain(personaFromParam(id));
     // v6: клиентские сценарии экрана документов вернулись в меню (SC-02…SC-04), «Поставщик» убран (Кирилл 2026-11-09).
     // v14: все сценарии этапов после одобрения (A-063).
     expect(PERSONA_ITEMS.map((i) => i.id)).toEqual([
       'login',
+      'login-business-name',
       'client-new',
       'client-rejected',
       'client-more-docs',
