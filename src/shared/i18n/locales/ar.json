@@ -81,6 +81,7 @@
       "placeholder": "5X XXX XXXX",
       "submit": "إرسال الرمز",
       "subtitle": "أدخل رقم الجوال الذي استخدمته في طلبك",
+      "subtitle_business_name": "أدخل رقم جوالك والاسم التجاري للبدء",
       "title": "مرحبًا بك في تدوم",
       "too_many_requests_zero": "محاولات كثيرة. حاول مجددًا بعد {minutes} دقيقة",
       "too_many_requests_one": "محاولات كثيرة. حاول مجددًا بعد دقيقة",

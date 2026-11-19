@@ -73,6 +73,7 @@
       "placeholder": "5X XXX XXXX",
       "submit": "Get code",
       "subtitle": "Enter the phone number you used in your application",
+      "subtitle_business_name": "Enter your mobile number and business name to get started",
       "title": "Welcome to Tadum",
       "too_many_requests_one": "Too many attempts. Try again in {minutes} min",
       "too_many_requests_other": "Too many attempts. Try again in {minutes} min"
