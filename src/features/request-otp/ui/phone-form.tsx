@@ -1,5 +1,6 @@
 // Экран auth.phone (SC-01 §1, A1, A2, A9, A10, A13): поле номера с маской, «Получить код».
-// Вариант с полем Business name (Кирилл 2026-11-19, A-071): поле без проверки, его значение никуда не уходит.
+// Вариант с полем Business name (Кирилл 2026-11-19, A-071): поле обязательное — пустое (или из одних пробелов)
+// не пускает дальше, после ухода из поля — ошибка; значение никуда не уходит.
 // Разметка — блок shadcn login-05 (FieldGroup → Field → кнопка во всю ширину).
 import { useMutation } from '@tanstack/react-query';
 import { useId, useState, type FormEvent } from 'react';
@@ -27,8 +28,9 @@ export interface PhoneFormProps {
 
 export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }: PhoneFormProps) {
   const { t } = useTranslation();
-  const ids = { input: useId(), error: useId(), label: useId(), prefix: useId(), business: useId() };
+  const ids = { input: useId(), error: useId(), label: useId(), prefix: useId(), business: useId(), businessError: useId() };
   const [businessName, setBusinessName] = useState('');
+  const [businessBlurred, setBusinessBlurred] = useState(false);
   const [digits, setDigits] = useState(() => nationalDigits(loginFlow.lastPhone() ?? ''));
   const [blurred, setBlurred] = useState(false);
   const [error, setError] = useState<PhoneFormError | null>(null);
@@ -57,9 +59,13 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
     },
   });
 
-  const blocked = !phone || formatInvalid || request.isPending || (activeError !== null && 'until' in activeError);
+  const businessMissing = withBusinessName && businessName.trim() === '';
+  const businessInvalid = businessMissing && businessBlurred;
+  const blocked =
+    !phone || formatInvalid || businessMissing || request.isPending || (activeError !== null && 'until' in activeError);
   const submit = (e: FormEvent) => {
     e.preventDefault();
+    setBusinessBlurred(true);
     if (phone && !blocked) {
       setError(null);
       request.mutate(phone);
@@ -114,13 +120,24 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
               className="h-12 rounded-lg text-base md:text-base"
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
+              onBlur={() => setBusinessBlurred(true)}
               disabled={request.isPending}
+              required
+              aria-invalid={businessInvalid}
+              aria-describedby={businessInvalid ? ids.businessError : undefined}
             />
+            {businessInvalid ? <FieldError id={ids.businessError}>{t('auth.phone.business_name_required')}</FieldError> : null}
           </Field>
         ) : null}
         <Field>
           {retryable ? (
-            <Button type="submit" variant="secondary" size="lg" className="h-12 w-full text-base" disabled={!phone || request.isPending}>
+            <Button
+              type="submit"
+              variant="secondary"
+              size="lg"
+              className="h-12 w-full text-base"
+              disabled={!phone || businessMissing || request.isPending}
+            >
               {t('common.retry')}
             </Button>
           ) : (

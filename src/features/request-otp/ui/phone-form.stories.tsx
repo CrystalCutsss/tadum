@@ -153,30 +153,40 @@ export const PrefilledAfterChange: Story = {
   },
 };
 
-// Вариант входа с полем Business name (Кирилл 2026-11-19, A-071): поле не проверяется и не мешает запросу кода.
+// Вариант входа с полем Business name (Кирилл 2026-11-19, A-071): поле обязательное.
 const phoneField = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr('auth.phone.label') });
 const businessField = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr('auth.phone.business_name') });
 
 export const WithBusinessName: Story = {
-  name: 'Business name · пустое поле не мешает запросу кода',
+  name: 'Business name · без названия код не запросить, с названием — запрос',
   args: { withBusinessName: true },
   play: async ({ canvasElement, args }) => {
-    await expect(businessField(canvasElement)).toHaveValue('');
-    await expect(businessField(canvasElement)).not.toBeRequired();
+    await expect(businessField(canvasElement)).toBeRequired();
     await userEvent.type(phoneField(canvasElement), '500000001');
+    await expect(submit(canvasElement)).toBeDisabled();
+    await userEvent.type(businessField(canvasElement), 'Rimal Al Sharq');
+    await expect(submit(canvasElement)).toBeEnabled();
     await userEvent.click(submit(canvasElement));
     await waitFor(() => expect(args.onRequested).toHaveBeenCalledTimes(1));
   },
 };
 
-export const WithBusinessNameFilled: Story = {
-  name: 'Business name · любое значение без ошибки',
+export const WithBusinessNameEmpty: Story = {
+  name: 'Business name · пустое или из пробелов после ухода из поля — ошибка',
   args: { withBusinessName: true },
-  play: async ({ canvasElement }) => {
-    await userEvent.type(businessField(canvasElement), 'x');
-    await expect(businessField(canvasElement)).toHaveValue('x');
-    await expect(businessField(canvasElement)).not.toHaveAttribute('aria-invalid', 'true');
-    await expect(within(canvasElement).queryByRole('alert')).toBeNull();
+  play: async ({ canvasElement, args }) => {
+    await userEvent.type(phoneField(canvasElement), '500000001');
+    await userEvent.type(businessField(canvasElement), '   ');
+    await userEvent.tab();
+    await expect(businessField(canvasElement)).toHaveAttribute('aria-invalid', 'true');
+    await expect(await within(canvasElement).findByText(tr('auth.phone.business_name_required'))).toBeVisible();
     await expect(submit(canvasElement)).toBeDisabled();
+    // Enter в поле тоже не отправляет форму.
+    await userEvent.type(businessField(canvasElement), '{enter}');
+    await expect(args.onRequested).not.toHaveBeenCalled();
+    // Ввод названия снимает ошибку.
+    await userEvent.type(businessField(canvasElement), 'x');
+    await expect(businessField(canvasElement)).toHaveAttribute('aria-invalid', 'false');
+    await expect(submit(canvasElement)).toBeEnabled();
   },
 };

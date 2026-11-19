@@ -67,6 +67,7 @@
     },
     "phone": {
       "business_name": "Business name",
+      "business_name_required": "Enter the business name",
       "invalid_format": "Enter a Saudi mobile number starting with 5",
       "label": "Mobile number",
       "placeholder": "5X XXX XXXX",
