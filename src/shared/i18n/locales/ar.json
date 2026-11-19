@@ -74,6 +74,8 @@
       "too_many_attempts": "محاولات كثيرة. اطلب رمزًا جديدًا"
     },
     "phone": {
+      "business_name": "الاسم التجاري",
+      "business_name_required": "أدخل الاسم التجاري",
       "invalid_format": "أدخل رقم جوال سعودي يبدأ بالرقم 5",
       "label": "رقم الجوال",
       "placeholder": "5X XXX XXXX",
