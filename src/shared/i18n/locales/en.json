@@ -1,8 +1,8 @@
 {
   "application": {
     "cancelled": {
-      "apply": "Apply again",
       "body": "Our team can tell you more",
+      "contact": "Contact us",
       "title": "This limit is no longer active"
     },
     "decision": {
@@ -20,7 +20,7 @@
     "limit_label": "Limit",
     "limit_label_approved": "Approved limit · Not active yet",
     "signing": {
-      "info": "To activate your limit, sign the agreement and approve the promissory note in Nafith"
+      "info": "To activate your limit, sign the agreement and the promissory note"
     },
     "subtitle": {
       "cancelled": "Your limit status has changed",
@@ -82,12 +82,8 @@
     "item_failed": "We couldn't confirm this step. Message us and our team will help",
     "pn_nafith": "Promissory note (Nafith)",
     "spa": "Agreement (SPA)",
-    "stale_hint": "Already sent? Message us and we'll check",
-    "stale_hint_pn": "Already approved in Nafith? Message us and we'll check",
     "status": {
-      "done": "Done",
-      "failed": "Needs attention",
-      "in_progress": "Waiting for confirmation"
+      "failed": "Needs attention"
     }
   },
   "closed": {
@@ -358,22 +354,24 @@
     "back": "Back to application",
     "cta": "Sign documents",
     "done": "Your limit is approved",
+    "download": "Download",
     "pn": {
-      "body": "We've sent the note to Nafith. Open the Nafith app and approve the note from Tadum",
-      "open": "Open Nafith"
+      "body": "Your manager has sent you an SMS with a link to sign the promissory note in Nafith",
+      "signed_body": "The promissory note is signed. You can download a copy",
+      "step_sign": "Sign the promissory note",
+      "step_sms": "Open the Nafith link in the SMS"
     },
     "spa": {
       "body": "Your manager has sent you an SMS with a link to sign the agreement in Sadq",
-      "download": "Download",
       "signed_body": "The agreement is signed. You can download a copy",
-      "status_required": "Signature required",
-      "status_signed": "Signed",
       "step_sign": "Sign the agreement",
       "step_sms": "Open the Sadq link in the SMS"
     },
-    "subtitle": "Two steps — your limit becomes active once both are done",
+    "status_required": "Signature required",
+    "status_signed": "Signed",
+    "subtitle": "Sign two documents — your limit becomes active once both are signed",
     "subtitle_all_done": "Nothing else to sign",
-    "subtitle_signed": "Nothing else to sign — just approve the note in Nafith",
+    "subtitle_signed": "One document left to sign",
     "title": "Sign documents"
   },
   "source_picker": {
@@ -433,11 +431,13 @@
       "decision": "Decision",
       "documents": "Documents",
       "limit_active": "Limit approved",
+      "limit_inactive": "Limit not active",
       "review": "Review",
       "signing": "Signing"
     },
     "needs_more_docs": "A few more documents needed",
     "state": {
+      "cancelled": "Cancelled",
       "closed": "Closed",
       "current": "In progress",
       "done": "Done",

@@ -42,6 +42,7 @@ const cabinetInputs: Record<string, Parameters<typeof computeClientTimeline>[0]>
   'approved (лимита нет или pending)': { client_status: 'approved', round: 1, limit: limit('pending', false) },
   'approved (лимит ready, чек-лист не завершён)': { client_status: 'approved', round: 1, limit: limit('ready', false) },
   'approved (всё подписано, лимит active)': { client_status: 'approved', round: 1, limit: limit('active', true) },
+  'approved (лимит cancelled или rejected)': { client_status: 'approved', round: 1, limit: limit('cancelled', false) },
   first_purchase: { client_status: 'first_purchase', round: 1, limit: limit('active', true) },
   closed: { client_status: 'closed', round: 1, limit: null },
 };
@@ -64,6 +65,13 @@ describe('01-cabinet-structure.md §5 — состояния шагов, каж�
     expect(computeClientTimeline({ client_status: 'approved', round: 1, limit: null }).steps?.decision).toBe('current');
     const ready = computeClientTimeline({ client_status: 'approved', round: 1, limit: limit('ready', false) }).steps;
     expect([ready?.decision, ready?.signing]).toEqual(['done', 'current']);
+  });
+
+  it('лимит отменён или отклонён — последний шаг «Лимит не активен» (cancelled), остальные пройдены (Кирилл 2026-11-19)', () => {
+    for (const status of ['cancelled', 'rejected'] as const) {
+      const out = computeClientTimeline({ client_status: 'approved', round: 1, limit: limit(status, false) });
+      expect(out.steps).toEqual({ documents: 'done', review: 'done', decision: 'done', signing: 'done', limit_active: 'cancelled' });
+    }
   });
 
   it('шкала не откатывается при дозапросе: «Документы» пройдены, «Проверка» — текущий шаг (D-008, решение 2026-11-09)', () => {

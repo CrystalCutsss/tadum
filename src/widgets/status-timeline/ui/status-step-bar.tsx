@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { CLIENT_TIMELINE_STEPS, type ClientTimelineStep, type TimelineStepState } from '@/entities/application';
 import { formatNumber } from '@/shared/i18n';
 
+import { stepLabel } from './status-timeline';
+
 const FILL: Record<TimelineStepState, string> = {
   done: 'bg-status-done',
   current: 'bg-primary',
@@ -14,18 +16,19 @@ const FILL: Record<TimelineStepState, string> = {
   // Непройденные шаги — белые: шкала лежит на серой панели, bg-muted с ней сливался (Кирилл 2026-11-11).
   upcoming: 'bg-card',
   closed: 'bg-card',
+  cancelled: 'bg-muted-foreground/40',
 };
 
 export function StatusStepBar({ steps }: { steps: Record<ClientTimelineStep, TimelineStepState> }) {
   const { t } = useTranslation();
   // Текущий шаг — и при дозапросе (needs_attention на «Проверке»).
-  const index = CLIENT_TIMELINE_STEPS.findIndex((s) => steps[s] === 'current' || steps[s] === 'needs_attention');
+  const index = CLIENT_TIMELINE_STEPS.findIndex((s) => steps[s] === 'current' || steps[s] === 'needs_attention' || steps[s] === 'cancelled');
   const current = CLIENT_TIMELINE_STEPS[Math.max(0, index)] ?? 'documents';
   return (
     <div className="flex flex-col gap-2">
       <p className="flex items-baseline justify-between gap-2 text-sm">
         <span className="flex flex-col">
-          <span className="font-medium">{t(`timeline.client.${current}`)}</span>
+          <span className="font-medium">{t(stepLabel(current, steps[current]))}</span>
           {steps[current] === 'needs_attention' ? <span className="text-xs text-status-rejected">{t('timeline.needs_more_docs')}</span> : null}
         </span>
         <span className="text-xs text-muted-foreground">
@@ -36,9 +39,9 @@ export function StatusStepBar({ steps }: { steps: Record<ClientTimelineStep, Tim
         {CLIENT_TIMELINE_STEPS.map((step) => {
           const state = steps[step];
           return (
-            <li key={step} aria-current={state === 'current' || state === 'needs_attention' ? 'step' : undefined} className={cn('h-1.5 flex-1 rounded-full', FILL[state])}>
+            <li key={step} aria-current={state === 'current' || state === 'needs_attention' || state === 'cancelled' ? 'step' : undefined} className={cn('h-1.5 flex-1 rounded-full', FILL[state])}>
               <span className="sr-only">
-                {t(`timeline.client.${step}`)} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}
+                {t(stepLabel(step, state))} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}
               </span>
             </li>
           );

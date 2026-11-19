@@ -3,13 +3,14 @@
 // info в полупрозрачном круге; на «Подписании» она под суммой, в две строки, внизу — кнопка «Подписать
 // документы», она ведёт на экран подписания (D-083). «Есть вопрос?» внутри этапов нет — поддержка в сайдбаре.
 // Лимит cancelled / rejected: нейтральная карточка без причины (SC-06 A7).
-import { RiInformationLine } from '@remixicon/react';
+import { RiInformationLine, RiWhatsappLine } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { Limit } from '@/entities/limit';
 import { track } from '@/shared/analytics';
+import { supportWhatsappUrl } from '@/shared/config';
 import { formatMoney, isLanguage } from '@/shared/i18n';
 import { Button, Icon, Ltr, MetalCard } from '@/shared/ui';
 
@@ -101,8 +102,8 @@ function LimitHint({ children, className }: { children: ReactNode; className?: s
   );
 }
 
-/** Лимит отменён: нейтральный текст без причины и «Подать новую заявку» (Кирилл 2026-11-11) — на лендинг, как в SC-08. */
-export function CancelledLimitCard({ applyUrl }: { applyUrl: string }) {
+/** Лимит отменён: нейтральный текст без причины и «Связаться с нами» — чат WhatsApp поддержки (Кирилл 2026-11-19). */
+export function CancelledLimitCard() {
   const { t } = useTranslation();
   useEffect(() => track('limit_cancelled_viewed', {}), []);
   return (
@@ -112,8 +113,9 @@ export function CancelledLimitCard({ applyUrl }: { applyUrl: string }) {
         <p className="text-sm text-muted-foreground">{t('application.cancelled.body')}</p>
       </div>
       <Button asChild className="min-h-11">
-        <a href={applyUrl} rel="noopener">
-          {t('application.cancelled.apply')}
+        <a href={supportWhatsappUrl()} target="_blank" rel="noopener noreferrer">
+          <Icon icon={RiWhatsappLine} data-icon="inline-start" />
+          {t('application.cancelled.contact')}
         </a>
       </Button>
     </section>
