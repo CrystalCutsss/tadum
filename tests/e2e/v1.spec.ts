@@ -130,3 +130,24 @@ test('client_signing_partial → Supplier → Client: демо-переключ�
   await page.goto(page.url().replace(/\/c\/home/, '/c/documents'));
   await expect(page.getByRole('link', { name: tr('en', 'signing.cta') })).toBeVisible();
 });
+
+test('@smoke меню витрины: «Вход: номер и Business name» и «Вход по номеру» (A-071)', async ({ page }) => {
+  const business = () => page.getByRole('textbox', { name: tr('en', 'auth.phone.business_name') });
+  const phone = () => page.getByRole('main').getByRole('textbox', { name: tr('en', 'auth.phone.label') });
+  // Пункт входа открывает экран входа, даже если в браузере уже открыт кабинет персоны.
+  await asPersona(page, 'client_active');
+  await expect(page).toHaveURL(/\/c\/home/);
+  await asPersona(page, 'login-business-name');
+  await expect(page).toHaveURL(/\/login$/);
+  // Поле Business name не проверяется: пустое оно не мешает войти.
+  await expect(business()).toHaveValue('');
+  await phone().fill('500000001');
+  await page.getByRole('button', { name: tr('en', 'auth.phone.submit') }).click();
+  await enterCode(page, 'en');
+  await expect(page).toHaveURL(/\/c\/home$/);
+  // Обычный вход — без поля.
+  await asPersona(page, 'login');
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(phone()).toBeVisible();
+  await expect(business()).toHaveCount(0);
+});

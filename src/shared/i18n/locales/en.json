@@ -66,6 +66,7 @@
       "too_many_attempts": "Too many attempts. Request a new code"
     },
     "phone": {
+      "business_name": "Business name",
       "invalid_format": "Enter a Saudi mobile number starting with 5",
       "label": "Mobile number",
       "placeholder": "5X XXX XXXX",

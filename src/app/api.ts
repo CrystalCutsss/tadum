@@ -10,7 +10,16 @@ import { computeLimitAmounts, computeTurnover, isChecklistCompleted } from '@/en
 import { initialActiveRole, resolveRoles } from '@/entities/session';
 import { deriveSupplierStatus, supplierNextStep } from '@/entities/supplier';
 import { setAnalyticsContext } from '@/shared/analytics';
-import { PERSONA_IDS, configureApi, demoPersona, getApi, personaFromParam, type MockDomain } from '@/shared/api';
+import {
+  LOGIN_ITEMS,
+  PERSONA_IDS,
+  configureApi,
+  demoLoginVariant,
+  demoPersona,
+  getApi,
+  personaFromParam,
+  type MockDomain,
+} from '@/shared/api';
 
 export const mockDomain: MockDomain = {
   deriveClientStatus,
@@ -41,7 +50,15 @@ export const landingUrl: string = import.meta.env.VITE_LANDING_URL ?? 'https://t
  */
 async function applyPersonaFromUrl(): Promise<void> {
   const persona = personaFromParam(new URL(window.location.href).searchParams.get('persona'));
-  if (!persona || !(PERSONA_IDS as readonly string[]).includes(persona)) return;
+  if (!persona) return;
+  // Любой пункт меню витрины задаёт вариант формы входа: с полем Business name — только свой пункт (A-071).
+  demoLoginVariant.set(persona === LOGIN_ITEMS.businessName);
+  if (persona === LOGIN_ITEMS.plain || persona === LOGIN_ITEMS.businessName) {
+    // Пункты входа начинают с экрана входа, даже если в этом браузере уже открыт кабинет другой персоны.
+    await (await getApi()).auth.logout();
+    return;
+  }
+  if (!(PERSONA_IDS as readonly string[]).includes(persona)) return;
   setAnalyticsContext({ persona });
   const api = await getApi();
   // Та же персона уже выбрана — состояние не трогаем (перезагрузка ссылки не теряет загрузки). Но если сохранённое

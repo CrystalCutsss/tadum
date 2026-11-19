@@ -1,4 +1,5 @@
 // Экран auth.phone (SC-01 §1, A1, A2, A9, A10, A13): поле номера с маской, «Получить код».
+// Вариант с полем Business name (Кирилл 2026-11-19, A-071): поле без проверки, его значение никуда не уходит.
 // Разметка — блок shadcn login-05 (FieldGroup → Field → кнопка во всю ширину).
 import { useMutation } from '@tanstack/react-query';
 import { useId, useState, type FormEvent } from 'react';
@@ -20,11 +21,14 @@ export interface PhoneFormProps {
   onRequested: () => void;
   /** Ссылка на поддержку при ошибке сервера (A10). */
   supportSlot?: React.ReactNode;
+  /** Вариант входа с полем Business name под номером (A-071). */
+  withBusinessName?: boolean;
 }
 
-export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
+export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }: PhoneFormProps) {
   const { t } = useTranslation();
-  const ids = { input: useId(), error: useId(), label: useId(), prefix: useId() };
+  const ids = { input: useId(), error: useId(), label: useId(), prefix: useId(), business: useId() };
+  const [businessName, setBusinessName] = useState('');
   const [digits, setDigits] = useState(() => nationalDigits(loginFlow.lastPhone() ?? ''));
   const [blurred, setBlurred] = useState(false);
   const [error, setError] = useState<PhoneFormError | null>(null);
@@ -100,6 +104,20 @@ export function PhoneForm({ onRequested, supportSlot }: PhoneFormProps) {
           </div>
           {message ? <FieldError id={ids.error}>{t(message.key, message.values)}</FieldError> : null}
         </Field>
+        {withBusinessName ? (
+          <Field>
+            <FieldLabel htmlFor={ids.business}>{t('auth.phone.business_name')}</FieldLabel>
+            <Input
+              id={ids.business}
+              type="text"
+              autoComplete="organization"
+              className="h-12 rounded-lg text-base md:text-base"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              disabled={request.isPending}
+            />
+          </Field>
+        ) : null}
         <Field>
           {retryable ? (
             <Button type="submit" variant="secondary" size="lg" className="h-12 w-full text-base" disabled={!phone || request.isPending}>

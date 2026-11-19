@@ -152,3 +152,31 @@ export const PrefilledAfterChange: Story = {
     await expect(submit(canvasElement)).toBeEnabled();
   },
 };
+
+// Вариант входа с полем Business name (Кирилл 2026-11-19, A-071): поле не проверяется и не мешает запросу кода.
+const phoneField = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr('auth.phone.label') });
+const businessField = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr('auth.phone.business_name') });
+
+export const WithBusinessName: Story = {
+  name: 'Business name · пустое поле не мешает запросу кода',
+  args: { withBusinessName: true },
+  play: async ({ canvasElement, args }) => {
+    await expect(businessField(canvasElement)).toHaveValue('');
+    await expect(businessField(canvasElement)).not.toBeRequired();
+    await userEvent.type(phoneField(canvasElement), '500000001');
+    await userEvent.click(submit(canvasElement));
+    await waitFor(() => expect(args.onRequested).toHaveBeenCalledTimes(1));
+  },
+};
+
+export const WithBusinessNameFilled: Story = {
+  name: 'Business name · любое значение без ошибки',
+  args: { withBusinessName: true },
+  play: async ({ canvasElement }) => {
+    await userEvent.type(businessField(canvasElement), 'x');
+    await expect(businessField(canvasElement)).toHaveValue('x');
+    await expect(businessField(canvasElement)).not.toHaveAttribute('aria-invalid', 'true');
+    await expect(within(canvasElement).queryByRole('alert')).toBeNull();
+    await expect(submit(canvasElement)).toBeDisabled();
+  },
+};
