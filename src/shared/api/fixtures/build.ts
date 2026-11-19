@@ -103,14 +103,14 @@ export const documentSet = (s: Omit<DocumentSet, 'locked'> & { locked?: boolean 
   locked: s.locked ?? s.status !== 'draft',
 });
 
-/** PDF договора в моке — заглушка «SPA — demo» (D-083); с бэкендом приходит сгенерированный договор клиента. */
-const demoSpaUrl = (): string => `${import.meta.env.BASE_URL}demo/spa.pdf`;
+/** PDF подписанных копий в моке — заглушки «demo» (D-083, D-085); с бэкендом приходят копии из Sadq и Nafith. */
+const demoUrl = (name: 'spa' | 'pn'): string => `${import.meta.env.BASE_URL}demo/${name}.pdf`;
 
-/** Чек-лист подписания (D-083): договор SPA (скачать, подписать от руки, прислать в WhatsApp) и вексель в Nafith. */
+/** Чек-лист подписания: договор SPA в Sadq и вексель в Nafith, оба по ссылке из SMS от менеджера (D-085). */
 export const checklist = (spa: 'pending' | 'in_progress' | 'done' | 'failed', pn: typeof spa) => ({
   items: [
-    { key: 'spa' as const, status: spa, document_url: demoSpaUrl() },
-    { key: 'pn_nafith' as const, status: pn },
+    { key: 'spa' as const, status: spa, document_url: demoUrl('spa') },
+    { key: 'pn_nafith' as const, status: pn, document_url: demoUrl('pn') },
   ],
   completed: spa === 'done' && pn === 'done',
 });

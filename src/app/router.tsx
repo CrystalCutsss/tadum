@@ -21,6 +21,9 @@ export const router = createRouter({
 setUnauthorizedHandler(() => {
   const { pathname, searchStr } = router.state.location;
   if (pathname === ROUTES.sessionExpired) return;
+  // Сессии уже нет (клиент сам вышел): запросы, ещё открытые после выхода и «Назад», отвечают 401 — это не
+  // «сессия истекла». Без проверки «Назад» после выхода на миг показывало вход, затем /session-expired (SC-10).
+  if (queryClient.getQueryData(SESSION_QUERY_KEY) === null) return;
   if (safeReturnTo(pathname + searchStr)) authMemory.setReturnTo(pathname + searchStr);
   queryClient.setQueryData(SESSION_QUERY_KEY, null);
   void router.navigate({ to: ROUTES.sessionExpired, replace: true });

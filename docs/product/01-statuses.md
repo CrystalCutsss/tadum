@@ -1,4 +1,4 @@
-<!-- source: Drive 1syfgoad19_Zvb3Uo3Ntax6qpyseL7Hfu, synced: 2026-11-18. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1JWyQ0jSQD25QJKoHe1KLZs8Yxm0bE31z, synced: 2026-11-19. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -21,7 +21,7 @@
 | `Risk committee` | решение комитета | UW |
 | `Approved` | лимит одобрен | UW |
 | `Offer confirmation` | согласование условий с клиентом (по телефону) | Sales |
-| `Signing SPA & PN` | подписание SPA (в Sadq по ссылке из SMS, D-085) и векселя (Nafith), D-083 | клиент |
+| `Signing SPA & PN` | подписание SPA (в Sadq) и векселя (в Nafith) по ссылкам из SMS, D-083, D-085, D-086 | клиент |
 | `Client Approved` | всё подписано, лимит активен | система |
 | `Payment done` | первая сделка дошла до оплаты | система |
 | `Rejected by UW` | отказ | UW |
@@ -151,7 +151,7 @@ LimitStatus: pending | ready | active | cancelled | rejected
 | `pending` | заявка `approved`, условия ещё согласуются (`Offer confirmation`) | сумму не показываем, если `approved` не задан; текст «согласуем условия» |
 | `ready` | условия согласованы, идёт подписание (`Signing SPA & PN`) | одобренный лимит + чек-лист |
 | `active` | всё подписано (`Client Approved` и дальше) | графики approved / used / available + «Как оформить покупку» |
-| `cancelled` | лимит аннулирован | нейтральный текст, без причины; переход к поддержке |
+| `cancelled` | лимит аннулирован | нейтральный текст, без причины; «Связаться с нами» — чат WhatsApp поддержки; на шкале последний шаг «Лимит не активен» (D-086) |
 | `rejected` | отказ | нейтральный текст, как у `closed` заявки |
 
 Расчёты: `used = Σ outstanding` по сделкам с `outstanding > 0`; `available = max(approved − used, 0)`. Графики — только для `active`; при `used == 0` показываем «ещё не использован», не пустой график.
@@ -167,9 +167,9 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | Пункт | Что значит `done` | Ссылка |
 |---|---|---|
 | `spa` | клиент подписал SPA в Sadq по ссылке из SMS, которую прислал менеджер (статус от Sadq) | ссылки в портале нет — инструкция «откройте ссылку на Sadq из SMS»; после `done` `document_url` — подписанная копия PDF для скачивания |
-| `pn_nafith` | клиент подтвердил вексель в приложении Nafith (статус от Nafith) | ссылки нет — инструкция «откройте приложение Nafith» |
+| `pn_nafith` | клиент подписал вексель в Nafith по ссылке из SMS, которую прислал менеджер (статус от Nafith) | ссылки в портале нет — инструкция «откройте ссылку на Nafith из SMS»; после `done` `document_url` — подписанная копия PDF (D-086) |
 
-`failed` показываем нейтрально («не удалось подтвердить, свяжитесь с поддержкой») — причину не выводим. Порядок пунктов фиксирован (SPA → вексель), выполнять можно в любом порядке. У `spa` в интерфейсе два состояния: «Требуется подпись» (`pending`, `in_progress`) и «Подписан» (`done`); локальной отметки нет. Подпись SPA — электронная в Sadq вне портала, в портале подписи нет (D-085).
+`failed` показываем нейтрально («не удалось подтвердить, свяжитесь с поддержкой») — причину не выводим. Порядок пунктов фиксирован (SPA → вексель), выполнять можно в любом порядке. У обоих пунктов в интерфейсе два состояния: «Требуется подпись» (`pending`, `in_progress`) и «Подписан» (`done`); локальных отметок нет. Подписи электронные — SPA в Sadq, вексель в Nafith — вне портала, в портале подписи нет (D-085, D-086).
 
 ---
 
@@ -218,7 +218,7 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | `uwRequestMoreDocs(portal_keys[])` | текущий комплект → `superseded`, новый `draft` с `round + 1`, `odoo_stage = Need more docs for UW`, `client_status = docs_required` |
 | `uwApproveApplication(limit_amount)` | `odoo_stage = Approved`, лимит `pending` с `approved = amount` |
 | `salesConfirmOffer()` | `odoo_stage = Offer confirmation → Signing SPA & PN`, лимит `ready`, чек-лист `pending` |
-| `externalSign(item_key)` | `spa` — клиент подписал SPA в Sadq, `pn_nafith` — Nafith подтвердил вексель: пункт → `done`; когда оба `done` → `odoo_stage = Client Approved`, лимит `active` |
+| `externalSign(item_key)` | `spa` — клиент подписал SPA в Sadq, `pn_nafith` — клиент подписал вексель в Nafith: пункт → `done`; когда оба `done` → `odoo_stage = Client Approved`, лимит `active` |
 | `createDeal(amount, supplier_id)` / `payDeal(id)` | сделка `payment_done`, `odoo_stage = Payment done`, `client_status = first_purchase`; обновляет `used`, `turnover` поставщика |
 | `uwReject()` / `salesLose()` | `odoo_stage = Rejected by UW / Lost`, `client_status = closed`, лимит `rejected`/`cancelled` |
 | `createApplication()` | только из `closed`: новая заявка `docs_required`, раунд 1, пустой комплект; старая остаётся `closed`; `resolveRoles` далее находит новую |

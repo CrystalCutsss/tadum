@@ -105,6 +105,10 @@ test('SC-10: выход и «Назад» не показывают данные
   await expect(page).toHaveURL(/\/login$/);
   await page.goBack();
   await expect(page).toHaveURL(/\/login/);
+  // Регрессия: запросы экрана, на который вернулись, отвечали 401 уже после редиректа на вход и уводили на
+  // /session-expired. Ждём, пока они отработают (задержка мока до 250 мс × 4), и проверяем, что остались на входе.
+  await page.waitForTimeout(1_500);
+  await expect(page).toHaveURL(/\/login/);
 });
 
 test('@smoke client_active: компания в аккаунте; в демо переключатель ролей есть и у одной роли (Кирилл 2026-11-11)', async ({ page }) => {

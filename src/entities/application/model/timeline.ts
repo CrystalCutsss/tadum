@@ -4,7 +4,8 @@
 
 import type { ClientStatus, Limit } from '@/shared/api';
 
-export type TimelineStepState = 'done' | 'current' | 'upcoming' | 'needs_attention' | 'closed';
+/** cancelled — лимит отменён или отклонён: последний шаг «Лимит не активен» с серым крестиком (Кирилл 2026-11-19). */
+export type TimelineStepState = 'done' | 'current' | 'upcoming' | 'needs_attention' | 'closed' | 'cancelled';
 
 export const CLIENT_TIMELINE_STEPS = ['documents', 'review', 'decision', 'signing', 'limit_active'] as const;
 export type ClientTimelineStep = (typeof CLIENT_TIMELINE_STEPS)[number];
@@ -34,6 +35,7 @@ export function computeClientTimeline({ client_status: status, round, limit }: C
     case 'under_review':
       return row('done', 'current', 'upcoming', 'upcoming', 'upcoming');
     case 'approved':
+      if (limit?.status === 'cancelled' || limit?.status === 'rejected') return row('done', 'done', 'done', 'done', 'cancelled');
       if (limit?.status === 'active' && limit.checklist.completed) return row('done', 'done', 'done', 'done', 'current');
       // Решение Кирилла 2026-11-11 (A-063): пока условия согласуются (лимита ещё нет или он pending) — текущий шаг
       // «Решение»; «Подписание» становится текущим, когда открылось подписание (лимит ready). Расходится с §8 до правки Drive.

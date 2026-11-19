@@ -56,9 +56,8 @@ export function ClientSigning() {
   const stage = applicationStage(app.data.client_status, lim);
   if (!lim || (stage !== 'signing' && stage !== 'approved')) return <Navigate to="/c/documents" replace />;
 
-  // После подписи договора — «больше подписывать нечего» (Кирилл 2026-11-18); вексель подтверждается, а не подписывается.
-  const spaSigned = lim.checklist.items.some((i) => i.key === 'spa' && i.status === 'done');
-  const subtitle = stage === 'approved' ? 'signing.subtitle_all_done' : spaSigned ? 'signing.subtitle_signed' : 'signing.subtitle';
+  // Подписан один документ — «остался один», оба — «больше подписывать нечего» (Кирилл 2026-11-18, 2026-11-19).
+  const subtitle = stage === 'approved' ? 'signing.subtitle_all_done' : doneCount === 1 ? 'signing.subtitle_signed' : 'signing.subtitle';
 
   return (
     <div className="flex flex-1 flex-col gap-4">

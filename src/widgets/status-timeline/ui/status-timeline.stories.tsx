@@ -40,3 +40,12 @@ export const UnderReview: Story = {
 export const ApprovedSigning: Story = { name: 'approved, до подписания', args: { steps: steps({ client_status: 'approved', round: 1, limit: ready }) } };
 export const ApprovedActive: Story = { name: 'approved, лимит active', args: { steps: steps({ client_status: 'approved', round: 1, limit: done }) } };
 export const FirstPurchase: Story = { args: { steps: steps({ client_status: 'first_purchase', round: 1, limit: done }) } };
+export const LimitCancelled: Story = {
+  name: 'approved, лимит отменён — последний шаг «Limit not active» с серым крестиком',
+  args: { steps: steps({ client_status: 'approved', round: 1, limit: { status: 'cancelled', checklist: { completed: false, items: [] } } }) },
+  play: async ({ canvasElement }) => {
+    const current = Array.from(canvasElement.querySelectorAll('li[aria-current="step"]'));
+    await expect(current).toHaveLength(4);
+    for (const li of current) await expect(li).toHaveTextContent(/Limit not active|الحد غير مفعّل/);
+  },
+};
