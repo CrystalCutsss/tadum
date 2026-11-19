@@ -104,15 +104,17 @@ export const LimitExtremeAmount360: Story = {
 // ---------- Лимит отменён ----------
 
 export const Cancelled: Story = {
-  name: 'CancelledLimitCard — «Подать новую заявку» на лендинг',
+  name: 'CancelledLimitCard — «Contact us» ведёт в чат WhatsApp',
   loaders: [() => ({ captured: eventsLoader() })],
-  render: () => <CancelledLimitCard applyUrl="https://tadum.sa" />,
+  render: () => <CancelledLimitCard />,
   play: async ({ canvasElement, loaded }) => {
     const { events, restore } = (loaded as { captured: Captured }).captured;
     try {
       for (const { c, t } of panels(canvasElement)) {
         await expect(c.getByRole('heading', { name: t('application.cancelled.title') })).toBeVisible();
-        await expect(c.getByRole('link', { name: t('application.cancelled.apply') })).toHaveAttribute('href', 'https://tadum.sa');
+        const contact = c.getByRole('link', { name: t('application.cancelled.contact') });
+        await expect(contact.getAttribute('href')).toMatch(/^https:\/\/wa\.me\//);
+        await expect(contact).toHaveAttribute('target', '_blank');
       }
       await expect(propsOf(events, 'limit_cancelled_viewed')).toEqual(Array(4).fill({}));
     } finally {

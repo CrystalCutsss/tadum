@@ -66,6 +66,13 @@ describe('01-cabinet-structure.md §5 — состояния шагов, каж�
     expect([ready?.decision, ready?.signing]).toEqual(['done', 'current']);
   });
 
+  it('лимит отменён или отклонён — последний шаг «Лимит не активен» (cancelled), остальные пройдены (Кирилл 2026-11-19)', () => {
+    for (const status of ['cancelled', 'rejected'] as const) {
+      const out = computeClientTimeline({ client_status: 'approved', round: 1, limit: limit(status, false) });
+      expect(out.steps).toEqual({ documents: 'done', review: 'done', decision: 'done', signing: 'done', limit_active: 'cancelled' });
+    }
+  });
+
   it('шкала не откатывается при дозапросе: «Документы» пройдены, «Проверка» — текущий шаг (D-008, решение 2026-11-09)', () => {
     const out = computeClientTimeline({ client_status: 'docs_required', round: 2, limit: null });
     expect(out.steps?.documents).toBe('done');
