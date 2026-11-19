@@ -100,15 +100,27 @@ export const SpaSignedPnPending: Story = {
 };
 
 export const PnSigned: Story = {
-  name: 'Вексель подписан раньше договора: зелёный бейдж и «Download» копии векселя',
+  name: 'Вексель подписан раньше договора: зелёный бейдж, «Download» копии векселя и pn_downloaded',
+  loaders: [() => ({ captured: eventsLoader() })],
   render: () => <SigningFlow limit={checklist('pending', 'done')} />,
-  play: async ({ canvasElement }) => {
-    for (const { el, t } of panels(canvasElement)) {
-      const [spa, pn] = steps(el);
-      await expect(spa).toHaveTextContent(t('signing.status_required'));
-      await expect(pn).toHaveTextContent(t('signing.status_signed'));
-      await expect(pn).toHaveTextContent(t('signing.pn.signed_body'));
-      await expect(within(pn!).getByRole('link', { name: t('signing.download') })).toHaveAttribute('href', '/demo/pn.pdf');
+  play: async ({ canvasElement, loaded }) => {
+    const { events, restore } = (loaded as { captured: Captured }).captured;
+    const block = (e: Event) => e.preventDefault();
+    canvasElement.addEventListener('click', block, true);
+    try {
+      for (const { el, t } of panels(canvasElement)) {
+        const [spa, pn] = steps(el);
+        await expect(spa).toHaveTextContent(t('signing.status_required'));
+        await expect(pn).toHaveTextContent(t('signing.status_signed'));
+        await expect(pn).toHaveTextContent(t('signing.pn.signed_body'));
+        await expect(within(pn!).getByRole('link', { name: t('signing.download') })).toHaveAttribute('href', '/demo/pn.pdf');
+      }
+      const [first] = panels(canvasElement);
+      await userEvent.click(within(steps(first!.el)[1]!).getByRole('link', { name: first!.t('signing.download') }));
+      await expect(events.map((e) => e.name)).toEqual(['pn_downloaded']);
+    } finally {
+      canvasElement.removeEventListener('click', block, true);
+      restore();
     }
   },
 };

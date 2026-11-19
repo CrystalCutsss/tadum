@@ -4,7 +4,7 @@
 // иконок: «Нужна подпись» (серый) и «Подписан» (зелёный). До подписи кнопок нет — пояснение «менеджер прислал SMS
 // со ссылкой» на всю ширину и два шага с номерами в серых кругах. После подписи — «подписан, можно скачать копию»
 // и нейтральная кнопка «Скачать». Статус только из данных (D-035); `failed` — нейтральный текст и путь в поддержку.
-// Скачивание векселя событием не отмечается: в словаре событий есть только `spa_downloaded` (04-metrics).
+// Скачивание копии — `spa_downloaded` или `pn_downloaded` (D-086).
 import { RiErrorWarningLine, RiDownloadLine, RiFileShield2Line, RiFileTextLine, type RemixiconComponentType } from '@remixicon/react';
 import { cn } from 'cn';
 import { useEffect } from 'react';
@@ -100,7 +100,7 @@ function SigningStep({ item }: { item: ChecklistItem }) {
         {signed && item.document_url ? (
           <div className="flex flex-wrap gap-2 sm:ps-13.5">
             <Button asChild variant="secondary" className="min-h-11">
-              <a href={item.document_url} download onClick={item.key === 'spa' ? () => track('spa_downloaded', {}) : undefined}>
+              <a href={item.document_url} download onClick={() => (item.key === 'spa' ? track('spa_downloaded', {}) : track('pn_downloaded', {}))}>
                 <Icon icon={RiDownloadLine} data-icon="inline-start" />
                 {t('signing.download')}
               </a>

@@ -1,4 +1,4 @@
-<!-- source: Drive 1X6BmRo9LoICXGYcepr30n9Lv1pdxF6Zs, synced: 2026-11-17. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1hKjeE725kS6ygPO75YXujzkQuuCwfdmc, synced: 2026-11-19. Не редактировать — источник в Drive. -->
 # 01 · Структура кабинета
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.6 · **Дата:** 2026-11-06 · **Статус:** согласовано как базовый каркас (C-1…C-3 закрыты); раздел 2 «Оболочка» — по решению Кирилла 2026-11-06 (сайдбар `sidebar-08`)
@@ -129,7 +129,7 @@
 
 ```yaml
 # → код: src/widgets/status-timeline/model.ts
-TimelineStepState: 'done' | 'current' | 'upcoming' | 'needs_attention' | 'closed'
+TimelineStepState: 'done' | 'current' | 'upcoming' | 'needs_attention' | 'closed' | 'cancelled'
 
 ClientTimeline:
   steps: [documents, review, decision, signing, limit_active]
@@ -154,6 +154,7 @@ SupplierTimeline:
 | `approved` (лимита нет или `pending`) | done | done | current | upcoming | upcoming | Условия согласуются (D-081) |
 | `approved` (лимит `ready`, чек-лист не завершён) | done | done | done | current | upcoming | |
 | `approved` (всё подписано, лимит `active`) | done | done | done | done | current | На экране «Заявка» шкала скрыта (D-081) |
+| `approved` (лимит `cancelled` или `rejected`) | done | done | done | done | cancelled | Последний шаг — «Limit not active» / «الحد غير مفعّل» с серым крестиком (D-086) |
 | `first_purchase` | done | done | done | done | done | Шкала полностью пройдена; `home` показывает лимит и инструкцию |
 | `closed` | — | — | closed | — | — | Шкала заменяется нейтральной карточкой «Заявка закрыта» |
 

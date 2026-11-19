@@ -42,6 +42,7 @@ const cabinetInputs: Record<string, Parameters<typeof computeClientTimeline>[0]>
   'approved (лимита нет или pending)': { client_status: 'approved', round: 1, limit: limit('pending', false) },
   'approved (лимит ready, чек-лист не завершён)': { client_status: 'approved', round: 1, limit: limit('ready', false) },
   'approved (всё подписано, лимит active)': { client_status: 'approved', round: 1, limit: limit('active', true) },
+  'approved (лимит cancelled или rejected)': { client_status: 'approved', round: 1, limit: limit('cancelled', false) },
   first_purchase: { client_status: 'first_purchase', round: 1, limit: limit('active', true) },
   closed: { client_status: 'closed', round: 1, limit: null },
 };
