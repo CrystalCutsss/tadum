@@ -41,7 +41,7 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `1ixZjZu2kX9MhH--mXI8ddSRu1LfZYtKd` | 54021 | 2026-11-19 |
+| `00-decision-log.md` | `1nQhj6Wx7MWGsQm9MOR9z77Sozv2bRcVW` | 54021 | 2026-11-19 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
 | `01-cabinet-structure.md` | `1hKjeE725kS6ygPO75YXujzkQuuCwfdmc` | 26158 | 2026-11-19 |
