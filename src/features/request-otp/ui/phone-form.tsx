@@ -1,6 +1,8 @@
 // Экран auth.phone (SC-01 §1, A1, A2, A9, A10, A13): поле номера с маской, «Получить код».
 // Вариант с полем Business name (Кирилл 2026-11-19, A-071): поле обязательное — пустое (или из одних пробелов)
 // не пускает дальше, после ухода из поля — ошибка; значение никуда не уходит.
+// «Получить код» активна всегда, кроме отправки (Кирилл 2026-11-19): нажатие с непрошедшей проверкой
+// показывает ошибки у полей и ставит фокус в первое неверное поле, запрос не уходит.
 // Разметка — блок shadcn login-05 (FieldGroup → Field → кнопка во всю ширину).
 import { useMutation } from '@tanstack/react-query';
 import { useId, useState, type FormEvent } from 'react';
@@ -31,6 +33,8 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
   const ids = { input: useId(), error: useId(), label: useId(), prefix: useId(), business: useId(), businessError: useId() };
   const [businessName, setBusinessName] = useState('');
   const [businessBlurred, setBusinessBlurred] = useState(false);
+  // Нажата «Получить код»: ошибки показываются и у полей, из которых ещё не уходили (в т. ч. пустых).
+  const [attempted, setAttempted] = useState(false);
   const [digits, setDigits] = useState(() => nationalDigits(loginFlow.lastPhone() ?? ''));
   const [blurred, setBlurred] = useState(false);
   const [error, setError] = useState<PhoneFormError | null>(null);
@@ -40,7 +44,7 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
 
   const phone = toKsaMobile(digits);
   // A1: инлайн-ошибка, если номер не с 5 или (после ухода из поля) неполный.
-  const formatInvalid = digits.length > 0 && (digits[0] !== '5' || (blurred && !phone));
+  const formatInvalid = (digits.length > 0 && (digits[0] !== '5' || (blurred && !phone))) || (attempted && !phone);
   const activeError = phoneErrorActive(error, tick) ? error : null;
   const shown: PhoneFormError | null = formatInvalid ? { kind: 'invalid_format' } : activeError;
 
@@ -60,13 +64,22 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
   });
 
   const businessMissing = withBusinessName && businessName.trim() === '';
-  const businessInvalid = businessMissing && businessBlurred;
+  const businessInvalid = businessMissing && (businessBlurred || attempted);
   const blocked =
     !phone || formatInvalid || businessMissing || request.isPending || (activeError !== null && 'until' in activeError);
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    setBusinessBlurred(true);
-    if (phone && !blocked) {
+    if (request.isPending) return;
+    setAttempted(true);
+    if (!phone) {
+      document.getElementById(ids.input)?.focus();
+      return;
+    }
+    if (businessMissing) {
+      document.getElementById(ids.business)?.focus();
+      return;
+    }
+    if (!blocked) {
       setError(null);
       request.mutate(phone);
     }
@@ -136,12 +149,12 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
               variant="secondary"
               size="lg"
               className="h-12 w-full text-base"
-              disabled={!phone || businessMissing || request.isPending}
+              disabled={request.isPending}
             >
               {t('common.retry')}
             </Button>
           ) : (
-            <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={blocked} aria-busy={request.isPending}>
+            <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={request.isPending} aria-busy={request.isPending}>
               {request.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
               {t('auth.phone.submit')}
             </Button>

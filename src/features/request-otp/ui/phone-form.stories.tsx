@@ -28,7 +28,19 @@ export const Normal: Story = {
   play: async ({ canvasElement }) => {
     await expect(field(canvasElement)).toHaveAttribute('inputmode', 'tel');
     await expect(field(canvasElement)).toHaveAttribute('dir', 'ltr');
-    await expect(submit(canvasElement)).toBeDisabled();
+    // «Получить код» активна всегда (Кирилл 2026-11-19).
+    await expect(submit(canvasElement)).toBeEnabled();
+  },
+};
+
+export const EmptySubmit: Story = {
+  name: 'Нажатие с пустым номером → ошибка у поля, фокус в поле',
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(submit(canvasElement));
+    await expect(within(canvasElement).getByText(tr('auth.phone.invalid_format'))).toBeVisible();
+    await expect(field(canvasElement)).toHaveAttribute('aria-invalid', 'true');
+    await expect(field(canvasElement)).toHaveFocus();
+    await expect(args.onRequested).not.toHaveBeenCalled();
   },
 };
 
@@ -79,7 +91,18 @@ export const InvalidFormat: Story = {
     await userEvent.type(field(canvasElement), '41');
     await expect(within(canvasElement).getByText(tr('auth.phone.invalid_format'))).toBeVisible();
     await expect(field(canvasElement)).toHaveAttribute('aria-invalid', 'true');
-    await expect(submit(canvasElement)).toBeDisabled();
+    await expect(submit(canvasElement)).toBeEnabled();
+  },
+};
+
+export const IncompleteSubmit: Story = {
+  name: 'A1 · нажатие с неполным номером → ошибка, запрос не уходит',
+  play: async ({ canvasElement, args }) => {
+    await userEvent.type(field(canvasElement), '5000');
+    await userEvent.click(submit(canvasElement));
+    await expect(within(canvasElement).getByText(tr('auth.phone.invalid_format'))).toBeVisible();
+    await expect(field(canvasElement)).toHaveFocus();
+    await expect(args.onRequested).not.toHaveBeenCalled();
   },
 };
 
@@ -103,7 +126,9 @@ export const RateLimited: Story = {
     await userEvent.click(submit(canvasElement));
     // Первый из трёх запросов был 2 минуты назад: до конца окна в 10 минут — 8 минут.
     await waitFor(() => expect(within(canvasElement).getByText(tr('auth.phone.too_many_requests', { count: 8, minutes: 8 }))).toBeVisible());
-    await expect(submit(canvasElement)).toBeDisabled();
+    // Кнопка активна, но до конца таймера повторное нажатие запрос не отправляет.
+    await expect(submit(canvasElement)).toBeEnabled();
+    await userEvent.click(submit(canvasElement));
     await expect(args.onRequested).not.toHaveBeenCalled();
   },
 };
@@ -158,16 +183,33 @@ const phoneField = (el: HTMLElement) => within(el).getByRole('textbox', { name: 
 const businessField = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr('auth.phone.business_name') });
 
 export const WithBusinessName: Story = {
-  name: 'Business name · без названия код не запросить, с названием — запрос',
+  name: 'Business name · нажатие без названия → ошибка у поля, с названием — запрос',
   args: { withBusinessName: true },
   play: async ({ canvasElement, args }) => {
     await expect(businessField(canvasElement)).toBeRequired();
     await userEvent.type(phoneField(canvasElement), '500000001');
-    await expect(submit(canvasElement)).toBeDisabled();
-    await userEvent.type(businessField(canvasElement), 'Rimal Al Sharq');
     await expect(submit(canvasElement)).toBeEnabled();
     await userEvent.click(submit(canvasElement));
+    await expect(within(canvasElement).getByText(tr('auth.phone.business_name_required'))).toBeVisible();
+    await expect(businessField(canvasElement)).toHaveAttribute('aria-invalid', 'true');
+    await expect(businessField(canvasElement)).toHaveFocus();
+    await expect(args.onRequested).not.toHaveBeenCalled();
+    await userEvent.type(businessField(canvasElement), 'Rimal Al Sharq');
+    await expect(businessField(canvasElement)).toHaveAttribute('aria-invalid', 'false');
+    await userEvent.click(submit(canvasElement));
     await waitFor(() => expect(args.onRequested).toHaveBeenCalledTimes(1));
+  },
+};
+
+export const WithBusinessNameBothEmpty: Story = {
+  name: 'Business name · нажатие с пустыми полями → ошибки у обоих, фокус в номере',
+  args: { withBusinessName: true },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(submit(canvasElement));
+    await expect(within(canvasElement).getByText(tr('auth.phone.invalid_format'))).toBeVisible();
+    await expect(within(canvasElement).getByText(tr('auth.phone.business_name_required'))).toBeVisible();
+    await expect(phoneField(canvasElement)).toHaveFocus();
+    await expect(args.onRequested).not.toHaveBeenCalled();
   },
 };
 
@@ -180,13 +222,10 @@ export const WithBusinessNameEmpty: Story = {
     await userEvent.tab();
     await expect(businessField(canvasElement)).toHaveAttribute('aria-invalid', 'true');
     await expect(await within(canvasElement).findByText(tr('auth.phone.business_name_required'))).toBeVisible();
-    await expect(submit(canvasElement)).toBeDisabled();
-    // Enter в поле тоже не отправляет форму.
-    await userEvent.type(businessField(canvasElement), '{enter}');
+    await userEvent.click(submit(canvasElement));
     await expect(args.onRequested).not.toHaveBeenCalled();
     // Ввод названия снимает ошибку.
     await userEvent.type(businessField(canvasElement), 'x');
     await expect(businessField(canvasElement)).toHaveAttribute('aria-invalid', 'false');
-    await expect(submit(canvasElement)).toBeEnabled();
   },
 };

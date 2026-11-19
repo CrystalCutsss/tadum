@@ -139,10 +139,12 @@ test('@smoke меню витрины: «Вход: номер и Business name» 
   await expect(page).toHaveURL(/\/c\/home/);
   await asPersona(page, 'login-business-name');
   await expect(page).toHaveURL(/\/login$/);
-  // Поле Business name обязательное: без него код не запросить.
+  // Поле Business name обязательное: нажатие без него показывает ошибку у поля, код не запрашивается.
   const submit = page.getByRole('button', { name: tr('en', 'auth.phone.submit') });
   await phone().fill('500000001');
-  await expect(submit).toBeDisabled();
+  await submit.click();
+  await expect(page.getByText(tr('en', 'auth.phone.business_name_required'))).toBeVisible();
+  await expect(page).toHaveURL(/\/login$/);
   await business().fill('Rimal Al Sharq');
   await submit.click();
   await enterCode(page, 'en');
