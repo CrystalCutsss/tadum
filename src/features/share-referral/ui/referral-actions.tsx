@@ -1,6 +1,6 @@
 // Реферальная ссылка и действия с ней (SP-02 §1, D-089): поле со ссылкой и копированием, «Поделиться в WhatsApp»,
 // «QR-код для магазина» (выдвижная панель грузится лениво — библиотека QR не попадает в первый чанк).
-import { RiCheckLine, RiFileCopyLine, RiQrCodeLine, RiWhatsappLine } from '@remixicon/react';
+import { RiCheckLine, RiFileCopyLine, RiQrCodeLine, RiWhatsappFill } from '@remixicon/react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -73,7 +73,7 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
       {/* Телефон — кнопки друг под другом на всю ширину; с md — в строку по ширине текста (Кирилл 2026-11-24). Обе серые. */}
       <div className="flex flex-col gap-2 md:flex-row">
         <Button type="button" variant="secondary" className="min-h-11 md:w-fit" onClick={() => void onShare()}>
-          <Icon icon={RiWhatsappLine} />
+          <Icon icon={RiWhatsappFill} />
           {t('referral.share_whatsapp')}
         </Button>
         <Button type="button" variant="secondary" className="min-h-11 md:w-fit" onClick={() => setQrOpen(true)}>
