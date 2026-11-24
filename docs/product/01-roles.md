@@ -1,4 +1,4 @@
-<!-- source: Drive 1UCO6QMHF_Z1skPiHA4CuL0dtIBXS_WUq, synced: 2026-11-15. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1onQsFUgw7Htz2vue6SRHvQ3_IfCg_mKf, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Роли и права
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.4 · **Дата:** 2026-11-04 · **Статус:** согласовано (все вопросы R-1…R-4 закрыты)
@@ -134,7 +134,7 @@ SupplierPermission:
   upload_or_replace_file:        when supplier_status == 'docs_required' and !document_set.locked
   reupload_rejected:             when supplier_status == 'docs_required' and !document_set.locked
   submit_document_set:           when supplier_status == 'docs_required' and !document_set.locked
-  view_referral_link:            always          # ссылка активна всегда, независимо от любого статуса поставщика (D-022)
+  view_referral_link:            partner_or_active   # только после одобрения документов: partner (Interested) или active (Activated) (D-087, заменяет D-022)
   copy_referral_link:            always
   share_referral_whatsapp:       always
   download_referral_qr:          always
