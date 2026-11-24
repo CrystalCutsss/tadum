@@ -42,11 +42,16 @@ export async function copyText(text: string): Promise<boolean> {
 export type ShareResult = 'web_share' | 'wa_me' | 'cancelled';
 
 /**
- * Web Share при наличии (только по жесту пользователя, SP-02 §7), иначе — wa.me в новом окне.
- * Отмена системного листа — не ошибка (SP-02 A2).
+ * Системное меню «Поделиться» устройства (Web Share: iOS, Android, macOS, Windows) — только по жесту пользователя
+ * (SP-02 §7, Кирилл 2026-11-24). Ссылка — отдельным полем url, чтобы WhatsApp, Telegram и «Скопировать» получили её
+ * как ссылку. Где Web Share нет (часть десктопных браузеров) — wa.me в новом окне. Отмена меню — не ошибка (SP-02 A2).
  */
-export async function shareLink(message: string, open: (href: string) => void = (href) => window.open(href, '_blank', 'noopener')): Promise<ShareResult> {
-  const data = { text: message };
+export async function shareLink(
+  text: string,
+  url: string,
+  open: (href: string) => void = (href) => window.open(href, '_blank', 'noopener'),
+): Promise<ShareResult> {
+  const data = { text, url };
   if (typeof navigator !== 'undefined' && navigator.share && (!navigator.canShare || navigator.canShare(data))) {
     try {
       await navigator.share(data);
@@ -55,7 +60,7 @@ export async function shareLink(message: string, open: (href: string) => void = 
       if (error instanceof DOMException && error.name === 'AbortError') return 'cancelled';
     }
   }
-  open(whatsappShareUrl(message));
+  open(whatsappShareUrl(shareMessage(text, url)));
   return 'wa_me';
 }
 

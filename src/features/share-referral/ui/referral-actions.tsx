@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { track } from '@/shared/analytics';
 import { Button, Icon, Ltr, toast } from '@/shared/ui';
 
-import { copyText, shareLink, shareMessage } from '../model/referral';
+import { copyText, shareLink } from '../model/referral';
 
 const QrPanel = lazy(() => import('./qr-panel'));
 
@@ -54,7 +54,7 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
   }
 
   async function onShare() {
-    const result = await shareLink(shareMessage(t('referral.share_text', { supplier: supplierName }), url));
+    const result = await shareLink(t('referral.share_text', { supplier: supplierName }), url);
     if (result === 'cancelled') track('referral_share_cancelled', { source });
     else track('referral_shared_whatsapp', { source, method: result });
   }

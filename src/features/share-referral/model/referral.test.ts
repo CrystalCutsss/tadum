@@ -38,15 +38,17 @@ describe('share-referral model', () => {
     await expect(copyText(URL_)).resolves.toBe(false);
   });
 
-  it('отправка: Web Share, отмена листа, запасной wa.me (SP-02 §1, A2)', async () => {
+  it('отправка: системное меню с текстом и ссылкой, отмена меню, запасной wa.me (SP-02 §1, A2)', async () => {
     const open = vi.fn();
-    vi.stubGlobal('navigator', { share: vi.fn().mockResolvedValue(undefined) });
-    await expect(shareLink('m', open)).resolves.toBe('web_share');
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { share });
+    await expect(shareLink('m', URL_, open)).resolves.toBe('web_share');
+    expect(share).toHaveBeenCalledWith({ text: 'm', url: URL_ });
     vi.stubGlobal('navigator', { share: vi.fn().mockRejectedValue(new DOMException('cancel', 'AbortError')) });
-    await expect(shareLink('m', open)).resolves.toBe('cancelled');
+    await expect(shareLink('m', URL_, open)).resolves.toBe('cancelled');
     expect(open).not.toHaveBeenCalled();
     vi.stubGlobal('navigator', {});
-    await expect(shareLink('m', open)).resolves.toBe('wa_me');
-    expect(open).toHaveBeenCalledWith('https://wa.me/?text=m');
+    await expect(shareLink('m', URL_, open)).resolves.toBe('wa_me');
+    expect(open).toHaveBeenCalledWith(whatsappShareUrl(shareMessage('m', URL_)));
   });
 });
