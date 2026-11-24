@@ -1,21 +1,24 @@
-// Права поставщика (01-roles.md §5): от статуса зависят только документы; ссылка, клиенты и условия — всегда (D-022).
+// Права поставщика (01-roles.md §5): документы правятся только до отправки комплекта; ссылка, QR и список
+// клиентов — только после одобрения документов, при partner или active (D-087); остальное — всегда.
 
 import type { SupplierStatus } from '@/shared/api';
 
-export type SupplierRule = 'always' | 'never' | 'docs_required_unlocked';
+import { isSupplierPartner } from './status';
+
+export type SupplierRule = 'always' | 'never' | 'editable_unlocked' | 'partner_or_active';
 
 export const SUPPLIER_PERMISSIONS = {
   view_own_status_and_next_step: 'always',
   view_documents: 'always',
-  upload_or_replace_file: 'docs_required_unlocked',
-  reupload_rejected: 'docs_required_unlocked',
-  submit_document_set: 'docs_required_unlocked',
-  view_referral_link: 'always',
-  copy_referral_link: 'always',
-  share_referral_whatsapp: 'always',
-  download_referral_qr: 'always',
-  view_referred_clients: 'always',
-  filter_sort_referred_clients: 'always',
+  upload_or_replace_file: 'editable_unlocked',
+  reupload_rejected: 'editable_unlocked',
+  submit_document_set: 'editable_unlocked',
+  view_referral_link: 'partner_or_active',
+  copy_referral_link: 'partner_or_active',
+  share_referral_whatsapp: 'partner_or_active',
+  download_referral_qr: 'partner_or_active',
+  view_referred_clients: 'partner_or_active',
+  filter_sort_referred_clients: 'partner_or_active',
   view_offer_terms: 'always',
   download_materials: 'always',
   edit_referral_page: 'never',
@@ -34,7 +37,14 @@ export interface SupplierPermissionContext {
 
 export function supplierCan(permission: SupplierPermission, ctx: SupplierPermissionContext): boolean {
   const rule: SupplierRule = SUPPLIER_PERMISSIONS[permission];
-  if (rule === 'always') return true;
-  if (rule === 'never') return false;
-  return ctx.supplier_status === 'docs_required' && !ctx.locked;
+  switch (rule) {
+    case 'always':
+      return true;
+    case 'never':
+      return false;
+    case 'partner_or_active':
+      return isSupplierPartner(ctx.supplier_status);
+    case 'editable_unlocked':
+      return (ctx.supplier_status === 'application_created' || ctx.supplier_status === 'docs_required') && !ctx.locked;
+  }
 }

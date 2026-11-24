@@ -17,7 +17,12 @@ export const PERSONA_IDS = [
   'client_closed_rejected',
   'client_closed_lost',
   'supplier_new',
+  'supplier_review',
+  'supplier_contract',
+  'supplier_partner',
   'supplier_active',
+  'supplier_declined',
+  'supplier_lost',
   'unknown_phone',
 ] as const;
 

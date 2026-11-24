@@ -34,6 +34,8 @@ export const supplierNew: PersonaFixture = (now) => {
       name: 'Zahrat Al Madina Stationery',
       slug: 'zahrat-al-madina',
       referral_url: 'https://tadum.sa/s/zahrat-al-madina',
+      // Сбор документов (Processing: Pending Docs) — ссылки ещё нет (D-087, D-088).
+      odoo_stage: 'Processing: Pending Docs',
       supplier_status: 'docs_required',
       next_step: { owner: 'user', text_key: 'next_step.supplier.upload_documents', cta: { label_key: 'next_step.cta.documents', route: '/s/documents' } },
       current_document_set_id: SET,

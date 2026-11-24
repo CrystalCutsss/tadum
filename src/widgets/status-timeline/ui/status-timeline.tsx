@@ -6,6 +6,7 @@ import { cn } from 'cn';
 import { useTranslation } from 'react-i18next';
 
 import { CLIENT_TIMELINE_STEPS, type ClientTimelineStep, type TimelineStepState } from '@/entities/application';
+import { SUPPLIER_TIMELINE_STEPS, type SupplierTimelineStep } from '@/entities/supplier';
 import {
   Icon,
   RiCheckboxBlankCircleFill,
@@ -37,20 +38,32 @@ const TONE: Record<TimelineStepState, string> = {
   cancelled: 'text-muted-foreground',
 };
 
+/** Шкала клиента или поставщика (поставщик: документы → проверка → партнёр, 01-cabinet-structure.md §5, D-088). */
+export type TimelineSteps =
+  | { family?: 'client'; steps: Record<ClientTimelineStep, TimelineStepState> }
+  | { family: 'supplier'; steps: Record<SupplierTimelineStep, TimelineStepState> };
+
+/** Порядок шагов шкалы и их состояния — в одном виде для обеих семей. */
+export function orderedSteps(props: TimelineSteps): { step: string; state: TimelineStepState }[] {
+  return props.family === 'supplier'
+    ? SUPPLIER_TIMELINE_STEPS.map((step) => ({ step, state: props.steps[step] }))
+    : CLIENT_TIMELINE_STEPS.map((step) => ({ step, state: props.steps[step] }));
+}
+
 /** Название шага; отменённый лимит — «Лимит не активен» вместо «Лимит одобрен». */
-export const stepLabel = (step: ClientTimelineStep, state: TimelineStepState) =>
-  state === 'cancelled' ? 'timeline.client.limit_inactive' : (`timeline.client.${step}` as const);
+export const stepLabel = (family: 'client' | 'supplier', step: string, state: TimelineStepState) =>
+  state === 'cancelled' ? 'timeline.client.limit_inactive' : (`timeline.${family}.${step}` as 'timeline.client.documents');
 
 /** `auto` — вертикально на телефоне, в строку с md; `vertical` — всегда столбиком (боковая панель экрана документов). */
 export type TimelineOrientation = 'auto' | 'vertical';
 
-export function StatusTimeline({ steps, orientation = 'auto' }: { steps: Record<ClientTimelineStep, TimelineStepState>; orientation?: TimelineOrientation }) {
+export function StatusTimeline({ orientation = 'auto', ...props }: TimelineSteps & { orientation?: TimelineOrientation }) {
+  const family = props.family ?? 'client';
   const row = orientation === 'auto';
   const { t } = useTranslation();
   return (
     <ol aria-label={t('timeline.title')} className={cn('flex flex-col gap-3', row && 'md:flex-row md:gap-2')}>
-      {CLIENT_TIMELINE_STEPS.map((step) => {
-        const state = steps[step];
+      {orderedSteps(props).map(({ step, state }) => {
         const active = state === 'current' || state === 'needs_attention' || state === 'cancelled';
         return (
           <li
@@ -63,7 +76,7 @@ export function StatusTimeline({ steps, orientation = 'auto' }: { steps: Record<
             </span>
             <div className="flex flex-col">
               <span className={cn('text-sm', active ? 'font-medium text-foreground' : 'text-muted-foreground')}>
-                {t(stepLabel(step, state))}
+                {t(stepLabel(family, step, state))}
               </span>
               <span className={cn('text-xs', state === 'needs_attention' ? 'text-status-rejected' : 'text-muted-foreground')}>
                 {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}

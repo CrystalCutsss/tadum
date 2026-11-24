@@ -1,19 +1,30 @@
-// Собственный статус поставщика (01-statuses.md §3 — предложение до ответа на S-1; SP-03 §2, §7).
-// Чистая функция от текущего комплекта документов поставщика.
+// Собственный статус поставщика (01-statuses.md §3, D-088): из стадии его записи в Odoo.
+// Комплект отправлен, а Odoo ещё не перевёл запись (гонка, SP-01 A2) — under_review по document_set.locked.
 
-import type { DocumentSet, SupplierStatus } from '@/shared/api';
+import type { DocumentSet, SupplierOdooStage, SupplierStatus } from '@/shared/api';
 
-type SetLike = Pick<DocumentSet, 'locked' | 'documents'>;
+type SetLike = Pick<DocumentSet, 'locked'>;
 
-/**
- * active — все обязательные документы approved (или комплект не требуется: set === null);
- * under_review — комплект отправлен (locked), но не всё approved;
- * docs_required — комплект открыт: не отправлен, вернули после проверки с rejected (A1)
- * или Odoo добавил новый обязательный документ (A2).
- */
-export function deriveSupplierStatus(set: SetLike | null): SupplierStatus {
-  if (set === null) return 'active';
-  const required = set.documents.filter((d) => d.required);
-  if (required.every((d) => d.status === 'approved')) return 'active';
-  return set.locked ? 'under_review' : 'docs_required';
+export function deriveSupplierStatus(stage: SupplierOdooStage, set: SetLike | null): SupplierStatus {
+  switch (stage) {
+    case 'Declined':
+      return 'declined';
+    case 'Lost':
+      return 'paused';
+    case 'Activated':
+      return 'active';
+    case 'Interested':
+      return 'partner';
+    case 'Processing: Need Contract':
+      return 'contract_pending';
+    case 'New Lead':
+      return set?.locked ? 'under_review' : 'application_created';
+    case 'Processing: Pending Docs':
+      return set?.locked ? 'under_review' : 'docs_required';
+  }
+}
+
+/** Ссылка, QR и список клиентов — только после одобрения документов (D-087). */
+export function isSupplierPartner(status: SupplierStatus): boolean {
+  return status === 'partner' || status === 'active';
 }

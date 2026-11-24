@@ -18,6 +18,7 @@ import type {
   PortalKey,
   PrevalidationResult,
   Role,
+  SupplierOdooStage,
   SupplierStatus,
   SupplierViewStatus,
 } from '../../ports/schemas';
@@ -48,9 +49,8 @@ export interface MockDomain {
   supplierNextStep(input: {
     supplier_status: SupplierStatus;
     document_set: Pick<DocumentSet, 'documents'> | null;
-    review_eta_hours?: number | undefined;
   }): NextStep;
-  deriveSupplierStatus(set: Pick<DocumentSet, 'locked' | 'documents'> | null): SupplierStatus;
+  deriveSupplierStatus(stage: SupplierOdooStage, set: Pick<DocumentSet, 'locked'> | null): SupplierStatus;
   computeLimitAmounts(approved: Money, deals: readonly Pick<Deal, 'outstanding'>[]): Pick<Limit, 'approved' | 'used' | 'available'>;
   computeTurnover(deals: readonly Pick<Deal, 'amount' | 'stage' | 'supplier_id'>[], supplierId: string): Money;
   isChecklistCompleted(items: OnboardingChecklist['items']): boolean;

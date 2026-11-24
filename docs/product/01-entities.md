@@ -1,4 +1,4 @@
-<!-- source: Drive 13ZftL84Zm1IFspFhOdEuKaVcmtAK8zJE, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1xOxOSw0NOSTfsahbz8Olb9oE7aoqg34j, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -313,7 +313,12 @@ DocumentHint:                      # то, что реально показыв�
 | `client_closed_rejected` | client_contact | `closed` (Rejected by UW), лимит `rejected` | SC-08 |
 | `client_closed_lost` | client_contact | `closed` (Lost) | SC-08 |
 | `supplier_new` | supplier | `docs_required`, 0 клиентов | SP-01, SP-03 |
+| `supplier_review` | supplier | `under_review`: комплект отправлен, ссылки нет | SP-03, TD-001 |
+| `supplier_contract` | supplier | `contract_pending` (Processing: Need Contract): документы приняты, остался договор, ссылки нет | SP-03, TD-001 (D-090) |
+| `supplier_partner` | supplier | `partner` (Interested): ссылка и QR открыты, 0 клиентов | SP-02, SP-03, TD-001 (D-087, D-089) |
 | `supplier_active` | supplier | `active`, 14 приведённых клиентов во всех статусах, обороты | SP-02, SP-04, SP-05 |
+| `supplier_declined` | supplier | `declined` (Declined): нейтральный экран без причины | TD-001 |
+| `supplier_lost` | supplier | `paused` (Lost): кабинет только для чтения | TD-001 |
 | `unknown_phone` | — | номер без заявки | SC-01 (ошибка) |
 
 Правила генерации: `faker` с фиксированным `seed` на персону; названия компаний — вымышленные, арабские и английские варианты; телефоны только вида `+966 5X XXX XXXX` из диапазона, не принадлежащего реальным номерам (`+966 50 000 0XXX`); суммы кратны 500 SAR; даты относительно «сегодня», чтобы персоны не устаревали.

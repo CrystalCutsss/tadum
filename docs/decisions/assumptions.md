@@ -427,3 +427,14 @@
   - Лимит отменён или отклонён: кнопка «Contact us» открывает чат WhatsApp поддержки (вместо «Apply again» на лендинг). На шкале шаги до «Подписания» пройдены, последний шаг — «Limit not active» с серым крестиком (новое состояние шага `cancelled`).
 
   Проверить: превью ветки — `client_approved_unsigned` (оба документа ждут подписи), `client_signing_partial` (договор подписан), `client_limit_cancelled` (кнопка и шкала).
+
+- **A-073.** Подача документов поставщика до реферальной ссылки (TD-001; D-087–D-091, решения Кирилла 2026-11-24) — детали реализации:
+  - Статус поставщика берётся из `Supplier.odoo_stage` (новое поле порта, `SupplierOdooStage`); `under_review` — комплект отправлен, а стадия ещё New Lead / Processing: Pending Docs (гонка, SP-01 A2). Заменяет A-023 в части `deriveSupplierStatus(null) → active`: без стадии статуса нет.
+  - Вход поставщика ведёт на `/s/documents` (`homeOf('supplier')`), `/s/home` остаётся заглушкой в меню; `/s/` перенаправляет на `/s/documents`. Пункт меню — «Заявка» (`nav.application`), как у клиента.
+  - Шкала поставщика — тот же виджет `StatusTimeline` / `StatusStepBar` с `family="supplier"`; Lost (`paused`) показывает шкалу по комплекту (отправлен — «Проверка», иначе «Документы»).
+  - Карточка «Вы партнёр Tadum» (D-089): события `referral_*` с `source: 'referral'` (новых значений нет — решение Кирилла по брифу); QR — PNG 1024 px с подписью-ссылкой, тёмные модули на белом в обеих темах, библиотека `uqr` (0.1.3, без зависимостей) грузится только с панелью QR. Отдельного экрана `/s/referral` и печатной версии в этой фиче нет.
+  - Документы поставщика: события загрузки и отправки получают `owner: 'supplier'` от комплекта; после отправки обновляются данные поставщика. Названия и подсказки `document.sup_*` — черновик SP-03 §4 (срок IBAN-письма «3 месяца» и формулировки подтверждает Ops).
+  - Персоны: `supplier_review`, `supplier_contract`, `supplier_partner`, `supplier_declined`, `supplier_lost` (номера 500000018–022, `01-entities.md` §6); `supplier_new` — Processing: Pending Docs, `supplier_active` — Activated.
+  - Порты изменены агентом через `git apply` по явному разрешению Кирилла в чате (переменная `TADUM_ALLOW_PROTECTED` не дошла до продолжения сессии).
+
+  Проверить: превью ветки — `/?persona=supplier_new&lang=en` (документы, ссылки нет), `supplier_review`, `supplier_contract`, `supplier_partner` (копирование, WhatsApp, QR), `supplier_declined`, `supplier_lost`; ar/en × light/dark.

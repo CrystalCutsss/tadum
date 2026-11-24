@@ -67,8 +67,12 @@ export function familyOfPath(pathname: string): Family | null {
   return null;
 }
 
-export function homeOf(family: Family): typeof ROUTES.clientHome | typeof ROUTES.supplierHome {
-  return family === 'client' ? ROUTES.clientHome : ROUTES.supplierHome;
+/**
+ * Стартовый экран кабинета. Поставщик, пока нет его главной, попадает на экран «Заявка» (Application) —
+ * решение Кирилла 2026-11-24, бриф TD-001 §12.
+ */
+export function homeOf(family: Family): typeof ROUTES.clientHome | typeof ROUTES.supplierDocuments {
+  return family === 'client' ? ROUTES.clientHome : ROUTES.supplierDocuments;
 }
 
 /**

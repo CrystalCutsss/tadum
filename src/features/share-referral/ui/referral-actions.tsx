@@ -1,6 +1,7 @@
 // Реферальная ссылка и действия с ней (SP-02 §1, D-089): поле со ссылкой и копированием, «Поделиться в WhatsApp»,
 // «QR-код для магазина» (выдвижная панель грузится лениво — библиотека QR не попадает в первый чанк).
 import { RiCheckLine, RiFileCopyLine, RiQrCodeLine, RiWhatsappFill } from '@remixicon/react';
+import { cn } from 'cn';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -62,14 +63,15 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
   return (
     <div className="flex flex-col gap-3">
       <div className="flex min-h-11 items-center gap-2 rounded-lg border bg-background ps-3 pe-1">
-        <span ref={linkRef} className="min-w-0 flex-1 font-medium wrap-anywhere" data-testid="referral-url">
+        <span ref={linkRef} className="min-w-0 flex-1 text-sm font-medium wrap-anywhere md:text-base" data-testid="referral-url">
           <Ltr>{url}</Ltr>
         </span>
         <Button type="button" variant="ghost" size="icon" className="size-11 shrink-0" onClick={() => void onCopy()} aria-label={copied ? t('referral.copied') : t('referral.copy')}>
           <Icon icon={copied ? RiCheckLine : RiFileCopyLine} />
         </Button>
       </div>
-      <p className="min-h-5 text-sm text-muted-foreground" aria-live="polite">
+      {/* Живой регион всегда в DOM (иначе скринридер пропустит «Скопировано»), но без текста не занимает места. */}
+      <p className={cn('text-sm text-muted-foreground', !copied && !manual && 'sr-only')} aria-live="polite">
         {copied ? t('referral.copied') : manual ? t('referral.copy_manual') : ''}
       </p>
       <div className="flex flex-col gap-2 md:flex-row">

@@ -33,8 +33,9 @@ function expectedCta(cell: string): { route?: string; external?: true } | null {
 describe('01-cabinet-structure.md §6 — каждая клиентская строка', () => {
   const all = tableWithHeader(section(readProductDoc('01-cabinet-structure.md'), '6.'), 'Ситуация').rows;
   const rows = all.filter((r) => !r[0]?.startsWith('supplier '));
-  it('в таблице 11 строк, из них 8 клиентских', () => {
-    expect(all).toHaveLength(11);
+  // 8 строк поставщика — по одной на статус (D-088, 01-cabinet-structure.md §6 от 2026-11-24).
+  it('в таблице 16 строк, из них 8 клиентских', () => {
+    expect(all).toHaveLength(16);
     expect(rows).toHaveLength(8);
   });
   it.each(rows)('%s → %s %s', (situation, owner, textKeyCell, ctaCell) => {

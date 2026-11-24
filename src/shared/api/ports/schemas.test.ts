@@ -13,6 +13,7 @@ import {
   LimitStatusSchema,
   MoneySchema,
   OdooStageSchema,
+  SupplierOdooStageSchema,
   SupplierStatusSchema,
   SupplierViewStatusSchema,
 } from './schemas';
@@ -21,6 +22,7 @@ const ENUMS: Record<string, { options: readonly string[] }> = {
   OdooStage: OdooStageSchema,
   ClientStatus: ClientStatusSchema,
   SupplierViewStatus: SupplierViewStatusSchema,
+  SupplierOdooStage: SupplierOdooStageSchema,
   SupplierStatus: SupplierStatusSchema,
   DocumentSetStatus: DocumentSetStatusSchema,
   DocumentStatus: DocumentStatusSchema,

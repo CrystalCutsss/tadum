@@ -41,9 +41,10 @@ test('?persona= через дефис (меню просмотрщика Proto) 
   await expect(account(page, 'en')).toContainText('Danah Medical Supplies');
 });
 
-test('@smoke supplier_active → /s/home', async ({ page }) => {
+// Вход поставщика — на экран «Заявка», пока нет главной (Кирилл 2026-11-24, TD-001 §12).
+test('@smoke supplier_active → /s/documents', async ({ page }) => {
   await asPersona(page, 'supplier_active');
-  await expect(page).toHaveURL(/\/s\/home/);
+  await expect(page).toHaveURL(/\/s\/documents/);
   // Название поставщика — в аккаунте внизу сайдбара (решение Кирилла 2026-11-06).
   await openSidebar(page, 'en');
   await expect(account(page, 'en')).toContainText('Bayt Al Khayr Wholesale');
@@ -125,7 +126,7 @@ test('client_signing_partial → Supplier → Client: демо-переключ�
   await expect(page.getByRole('link', { name: tr('en', 'signing.cta') })).toBeVisible();
   await openAccountMenu(page, 'en');
   await page.getByRole('menuitemradio', { name: tr('en', 'role.supplier') }).click();
-  await expect(page).toHaveURL(/\/s\/home/);
+  await expect(page).toHaveURL(/\/s\/documents/); // вход поставщика — на «Заявку» (TD-001 §12)
   await openSidebar(page, 'en');
   await expect(account(page, 'en')).toContainText('Bayt Al Khayr Wholesale');
   await openAccountMenu(page, 'en');
