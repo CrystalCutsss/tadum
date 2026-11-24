@@ -17,6 +17,17 @@ export const ODOO_STAGES = [
   'Lost',
 ] as const;
 
+/** Стадии записи поставщика в Odoo (требования поставщика 2026-11-24; маппинг — 01-statuses.md §3, D-088). */
+export const SUPPLIER_ODOO_STAGES = [
+  'New Lead',
+  'Processing: Pending Docs',
+  'Processing: Need Contract',
+  'Interested',
+  'Activated',
+  'Declined',
+  'Lost',
+] as const;
+
 /** Открытый каталог (01-entities.md §3): новые ключи приходят без правок UI. */
 export const KNOWN_PORTAL_KEYS = [
   'bs',
