@@ -1,4 +1,4 @@
-<!-- source: Drive 1EzL7Zyu7D_Dwcj2la_pRSZTIwEmxdfNs, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1iyg3W531VsIjtA0XJagSw4lM5IYiogYd, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -86,8 +86,8 @@ SupplierStatus: application_created | docs_required | under_review | contract_pe
 | Processing: Pending Docs или rejected | `docs_required` | documents: current | «Загрузите недостающие документы» / «N документов нужен новый файл» (поставщик) | загрузка и замена | — | — |
 | комплект отправлен (`locked`), стадия ещё Processing | `under_review` | review: current | «Проверяем документы» (Tadum) | только чтение | — | — |
 | Processing: Need Contract, нет данных | `contract_pending` | review: current | «Остался договор — менеджер свяжется» (Tadum) | только чтение | — | — |
-| Interested | `partner` | active: current | «Вы партнёр Tadum: делитесь ссылкой» (поставщик) | только чтение | да | да |
-| Activated | `active` | active: current | «Делитесь ссылкой» (поставщик) | только чтение | да | да |
+| Interested | `partner` | partner: current | «Вы партнёр Tadum: делитесь ссылкой» (поставщик) | только чтение | да | да |
+| Activated | `active` | partner: current | «Делитесь ссылкой» (поставщик) | только чтение | да | да |
 | Declined | `declined` | — | нейтральный экран без причины, поддержка | — | — | — |
 | Lost | `paused` | шкала только для чтения | «Работа приостановлена, свяжитесь с нами» | только чтение | — | — |
 

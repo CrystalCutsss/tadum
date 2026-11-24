@@ -1,4 +1,4 @@
-<!-- source: Drive 1pITUGuZnZS9iNefPk5kkChngNVa5fMlW, synced: 2026-11-15. Не редактировать — источник в Drive. -->
+<!-- source: Drive 13ZftL84Zm1IFspFhOdEuKaVcmtAK8zJE, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -179,8 +179,9 @@ Supplier:
   id: string                       # odoo: tadum.supplier.id
   name: string
   slug: string                     # реферальная страница tadum.sa/s/{slug}; редактировать нельзя (SFL-850)
-  referral_url: string             # https://tadum.sa/s/{slug}
-  supplier_status: SupplierStatus  # docs_required | under_review | active; см. 01-statuses.md §3
+  referral_url: string             # https://tadum.sa/s/{slug}; показываем только при partner / active (D-087)
+  odoo_stage: SupplierOdooStage    # стадия записи поставщика в Odoo (D-088)
+  supplier_status: SupplierStatus  # из odoo_stage, см. 01-statuses.md §3
   next_step: NextStep
   current_document_set_id: string
   counters:
@@ -269,7 +270,8 @@ DocumentHint:                      # то, что реально показыв�
 | `OdooStage` | New lead, Processing lead, Document collection, Need more docs for UW, Ready for UW, Company risk assessment, Risk committee, Approved, Offer confirmation, Signing SPA & PN, Client Approved, Payment done, Rejected by UW, Lost | `01-statuses.md` §1 |
 | `ClientStatus` | `docs_required`, `under_review`, `approved`, `first_purchase`, `closed` | §2 |
 | `SupplierViewStatus` | `applied`, `collecting_docs`, `under_review`, `approved`, `first_purchase`, `closed` | §2 |
-| `SupplierStatus` | `docs_required`, `under_review`, `active` | §3 |
+| `SupplierOdooStage` | New Lead, Processing: Pending Docs, Processing: Need Contract, Interested, Activated, Declined, Lost | §3 |
+| `SupplierStatus` | `application_created`, `docs_required`, `under_review`, `contract_pending`, `partner`, `active`, `declined`, `paused` | §3 |
 | `DocumentSetStatus` | `draft`, `submitted`, `in_review`, `completed`, `superseded` | §4 |
 | `DocumentStatus` | `pending`, `received`, `rejected`, `approved` | §5 |
 | `LimitStatus` | `pending`, `ready`, `active`, `cancelled`, `rejected` | §6 |
