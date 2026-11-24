@@ -1,4 +1,4 @@
-<!-- source: Drive 1KCsmwdUgfi996Rl2f1_DmPx34-6yxuXO, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1EzL7Zyu7D_Dwcj2la_pRSZTIwEmxdfNs, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -229,6 +229,13 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | `createApplication()` | только из `closed`: новая заявка `docs_required`, раунд 1, пустой комплект; старая остаётся `closed`; `resolveRoles` далее находит новую |
 | `expireSession()` | следующий вызов порта → `401` |
 | `setNetwork('offline' | 'slow' | 'error')` | имитация сети для состояний оболочки |
+| `uwApproveSupplierSet()` | комплект поставщика: `received → approved`, `completed`, `locked`; `odoo_stage` поставщика = Processing: Need Contract, `supplier_status = contract_pending` (D-090) |
+| `uwRejectSupplierDocument(portal_key, reason_tag?)` | документ поставщика → `rejected`; комплект снова `draft`, `locked = false`; `odoo_stage` = Processing: Pending Docs, `supplier_status = docs_required` (D-047) |
+| `odooRequireDocument(portal_key)` | новый обязательный документ поставщика `pending`, `supplier_status = docs_required` (D-048) |
+| `salesSupplierContractDone()` | договор и данные получены: `odoo_stage` поставщика = Interested, `supplier_status = partner` — открываются ссылка и QR (D-087) |
+| `odooSupplierActivated()` | первая сделка через поставщика: `odoo_stage` = Activated, `supplier_status = active` |
+| `odooSupplierDecline()` / `odooSupplierLost()` | `odoo_stage` = Declined / Lost, `supplier_status = declined` / `paused` |
+| `returnToProcessing()` | из Lost: `odoo_stage` = Processing: Pending Docs; `supplier_status` — по комплекту (`docs_required` или `under_review`) |
 
 Инварианты, которые мок обязан соблюдать (и которые покрыты тестами адаптера): после `submitted` любая попытка изменить файл → ошибка `document_set_locked`; `available` никогда < 0; новый комплект содержит только запрошенные ключи; `ReferredClient.turnover` считает только `payment_done`/`repaid` (D-012).
 

@@ -48,7 +48,7 @@
 | `01-entities.md` | `1pITUGuZnZS9iNefPk5kkChngNVa5fMlW` | 22966 | 2026-11-15 |
 | `01-nfr-locale-brand.md` | `1nWl9j1MUxN6S3Rh869BlnFQKAXSa2NQA` | 49904 | 2026-11-15 |
 | `01-roles.md` | `15uiBDtEkxyC_m5SMpbuZZkmIk4imO7jY` | 18809 | 2026-11-24 |
-| `01-statuses.md` | `1KCsmwdUgfi996Rl2f1_DmPx34-6yxuXO` | 23251 | 2026-11-24 |
+| `01-statuses.md` | `1EzL7Zyu7D_Dwcj2la_pRSZTIwEmxdfNs` | 24545 | 2026-11-24 |
 | `04-metrics-and-events.md` | `1vhO94b122qIHJ98-fUrFy1VxZb6Hjtc-` | 28800 | 2026-11-19 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
 | `requirements-supplier.md` | `1OlsWI4k2pjxvu-2fqDsNNrsG_XuU6ykr` | 13895 | 2026-11-24 |
