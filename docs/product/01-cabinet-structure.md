@@ -1,4 +1,4 @@
-<!-- source: Drive 1hKjeE725kS6ygPO75YXujzkQuuCwfdmc, synced: 2026-11-19. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1zvxjEz_S_Iu4v3B6BbHPhniqtmeVJrOp, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Структура кабинета
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.6 · **Дата:** 2026-11-06 · **Статус:** согласовано как базовый каркас (C-1…C-3 закрыты); раздел 2 «Оболочка» — по решению Кирилла 2026-11-06 (сайдбар `sidebar-08`)
@@ -26,9 +26,9 @@
 | `/c/reapply` | `client.reapply` | client | `client_status == closed` | Повторная заявка (D-038): в v1 заглушка с текстом и кнопкой «Создать заявку»; создаёт новую заявку, старая остаётся закрытой | P1 | v4 |
 | `/c/help` | `client.help` | client | — | Контакты поддержки, FAQ-ссылки (текст), язык, тема (D-025), выход | P0 | v1 |
 | `/s/home` | `supplier.home` | supplier | — | Статус поставщика, следующий шаг, счётчики, короткая реферальная карточка | P0 | v3 |
-| `/s/referral` | `supplier.referral` | supplier | — | Ссылка, «Скопировать», «Поделиться в WhatsApp», QR для печати | P0 | v3 |
-| `/s/clients` | `supplier.clients` | supplier | — | Приведённые клиенты: список, фильтр по статусу, сортировка по дате | P1 | v3 |
-| `/s/documents` | `supplier.documents` | supplier | — | Документы поставщика (те же правила, что у клиента) | P1 | v3 |
+| `/s/referral` | `supplier.referral` | supplier | `supplier_status` ∈ `partner`, `active` (D-087) | Ссылка, «Скопировать», «Поделиться в WhatsApp», QR для печати | P0 | v3 |
+| `/s/clients` | `supplier.clients` | supplier | `supplier_status` ∈ `partner`, `active` (D-087) | Приведённые клиенты: список, фильтр по статусу, сортировка по дате | P1 | v3 |
+| `/s/documents` | `supplier.documents` | supplier | — | Экран «Заявка» (Application) поставщика: документы (те же правила, что у клиента), этапы до реферальной ссылки (D-089); сюда ведёт вход, пока нет главной | P1 | v3 |
 | `/s/documents/:portalKey` | `supplier.document` | supplier | документ есть в комплекте | Карточка документа поставщика | P1 | v3 |
 | `/s/offer` | `supplier.offer` | supplier | — | Условия Tadum (один текст) и материалы для клиентов (PDF/видео, AR/EN) | P2 | v5 |
 | `/s/help` | `supplier.help` | supplier | — | Поддержка, язык, тема (D-025), выход | P0 | v3 (в v1 — заглушка вместе с `/s/home`, D-067) |
@@ -141,7 +141,7 @@ ClientTimeline:
     limit_active: timeline.client.limit_active
 
 SupplierTimeline:
-  steps: [documents, review, active]
+  steps: [documents, review, partner]   # partner — «Партнёр» / «شريك» (D-088)
 ```
 
 Вычисление состояния шагов клиента по `client_status`:
@@ -189,11 +189,16 @@ NextStep:
 | `approved`, чек-лист завершён, лимит `active` | user | `next_step.how_to_buy` | → `/c/home#how-to-buy` |
 | `first_purchase` | none | `next_step.first_purchase_done` | — |
 | `closed` | none | `next_step.closed` | → лендинг «Подать заявку» |
+| supplier `application_created` | user | `next_step.supplier.upload_documents` | → `/s/documents` |
 | supplier `docs_required` | user | `next_step.supplier.upload_documents` | → `/s/documents` |
 | supplier `under_review` | tadum | `next_step.supplier.under_review` | — |
-| supplier `active` | user | `next_step.supplier.share_link` | → `/s/referral` |
+| supplier `contract_pending` | tadum | `next_step.supplier.contract_pending` | — |
+| supplier `partner` | user | `next_step.supplier.share_link` | — |
+| supplier `active` | user | `next_step.supplier.share_link` | — |
+| supplier `paused` | none | `next_step.supplier.paused` | — |
+| supplier `declined` | none | `next_step.supplier.declined` | — |
 
-Текст «проверяем документы, это займёт N часов» показываем **только** если `meta.hours` пришёл из данных; иначе — формулировка без срока.
+Текст «проверяем документы, это займёт N часов» показываем **только** если `meta.hours` пришёл из данных; иначе — формулировка без срока. Поставщику срок проверки не показываем никогда (D-091). Ссылка и QR у поставщика `partner` / `active` — в карточке «Вы партнёр Tadum» на `/s/documents` (D-089), поэтому у шага `share_link` нет CTA.
 
 ---
 

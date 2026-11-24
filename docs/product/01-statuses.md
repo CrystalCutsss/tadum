@@ -1,4 +1,4 @@
-<!-- source: Drive 1PoSBHwK-9Khd5oOXMxCKhCWHezUNPb8C, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1KCsmwdUgfi996Rl2f1_DmPx34-6yxuXO, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -193,7 +193,7 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | first_purchase | any | active | true | done | done | done | done | done |
 | closed | any | any | any | шкала скрыта, карточка «Заявка закрыта» | | | | |
 
-Для поставщика: `docs_required` → documents current; `under_review` → documents done, review current; `active` → все done, active current.
+Для поставщика (D-088, D-090): `application_created`, `docs_required` → documents current; `under_review`, `contract_pending` → documents done, review current; `partner`, `active` → все done, partner current; `paused` — шкала по последнему шагу, только для чтения; `declined` — шкалы нет.
 
 ---
 

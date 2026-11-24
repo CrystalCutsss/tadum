@@ -1,4 +1,4 @@
-<!-- source: Drive 1onQsFUgw7Htz2vue6SRHvQ3_IfCg_mKf, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 15uiBDtEkxyC_m5SMpbuZZkmIk4imO7jY, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Роли и права
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.4 · **Дата:** 2026-11-04 · **Статус:** согласовано (все вопросы R-1…R-4 закрыты)
@@ -124,22 +124,22 @@ ClientPermission:
 
 ## 5. Матрица прав поставщика
 
-Права поставщика зависят от его собственного статуса (`supplier_status`, см. `01-statuses.md`, раздел 3) только в части документов; всё остальное доступно всегда.
+Права поставщика зависят от его собственного статуса (`supplier_status`, см. `01-statuses.md`, раздел 3): документы правятся только до отправки комплекта, реферальная ссылка, QR и список клиентов открываются после одобрения документов — при `partner` или `active` (D-087); остальное доступно всегда.
 
 ```yaml
 # → код: src/entities/supplier/model/permissions.ts
 SupplierPermission:
   view_own_status_and_next_step: always
   view_documents:                always
-  upload_or_replace_file:        when supplier_status == 'docs_required' and !document_set.locked
-  reupload_rejected:             when supplier_status == 'docs_required' and !document_set.locked
-  submit_document_set:           when supplier_status == 'docs_required' and !document_set.locked
+  upload_or_replace_file:        when supplier_status in ('application_created', 'docs_required') and !document_set.locked
+  reupload_rejected:             when supplier_status in ('application_created', 'docs_required') and !document_set.locked
+  submit_document_set:           when supplier_status in ('application_created', 'docs_required') and !document_set.locked
   view_referral_link:            partner_or_active   # только после одобрения документов: partner (Interested) или active (Activated) (D-087, заменяет D-022)
-  copy_referral_link:            always
-  share_referral_whatsapp:       always
-  download_referral_qr:          always
-  view_referred_clients:         always
-  filter_sort_referred_clients:  always
+  copy_referral_link:            partner_or_active
+  share_referral_whatsapp:       partner_or_active
+  download_referral_qr:          partner_or_active
+  view_referred_clients:         partner_or_active
+  filter_sort_referred_clients:  partner_or_active
   view_offer_terms:              always
   download_materials:            always
   edit_referral_page:            never           # SFL-850, вне MVP
