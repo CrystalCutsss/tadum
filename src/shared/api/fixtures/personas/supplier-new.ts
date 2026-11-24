@@ -1,5 +1,5 @@
 // supplier_new — supplier; docs_required, 0 клиентов; комплект draft: sup_vat, sup_iban_letter,
-// sup_national_address обязательные, sup_cr необязательный (SP-01, SP-03).
+// sup_national_address обязательные; номер CR ещё не введён (SP-01, SP-03, D-093).
 import { ago, document, documentSet, phone } from '../build';
 import type { PersonaFixture } from '../types';
 
@@ -23,7 +23,6 @@ export const supplierNew: PersonaFixture = (now) => {
           document(SET, 'sup_vat', { status: 'pending', updated_at: t }),
           document(SET, 'sup_iban_letter', { status: 'pending', updated_at: t }),
           document(SET, 'sup_national_address', { status: 'pending', updated_at: t }),
-          document(SET, 'sup_cr', { status: 'pending', required: false, updated_at: t }),
         ],
       }),
     ],

@@ -581,6 +581,8 @@ export function createMockApi(options: MockApiOptions): Api {
             if (!allowed) throw new Forbidden();
             // Без номера CR комплект клиента не отправить (решение Кирилла 2026-11-10).
             if (set.owner.kind === 'application' && !g.company?.cr_number) throw new DomainError('documents.submit_incomplete');
+            // У поставщика тоже: без номера CR комплект не отправить (D-093).
+            if (set.owner.kind === 'supplier' && !g.supplier?.cr_number) throw new DomainError('documents.submit_incomplete');
             submitIn(g, set);
             return structuredClone(set);
           });
@@ -627,6 +629,17 @@ export function createMockApi(options: MockApiOptions): Api {
           const s = fresh(asSupplier().state).supplier;
           if (!s) throw new NotFound('supplier');
           return s.counters;
+        }),
+      setCrNumber: (crNumber) =>
+        io('supplier.setCrNumber', () => {
+          const { state } = asSupplier();
+          if (!/^\d{10}$/.test(crNumber)) throw new DomainError('company.cr_invalid');
+          commit(state, (g) => {
+            supplierOf(g).cr_number = crNumber;
+          });
+          const s = fresh(asSupplier().state).supplier;
+          if (!s) throw new NotFound('supplier');
+          return s;
         }),
     },
 

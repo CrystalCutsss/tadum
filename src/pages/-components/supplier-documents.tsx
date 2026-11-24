@@ -4,10 +4,12 @@
 // Lost — карточки без причины, как отменённый лимит у клиента (Кирилл 2026-11-24). Срок проверки поставщику не показываем (D-091).
 import { useQuery } from '@tanstack/react-query';
 import { cn } from 'cn';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { isValidCr } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
+import { CompanyCrCard } from '@/features/edit-company-cr';
 import { computeSupplierTimeline, supplierApplicationStage, supplierCan, supplierQuery, type SupplierStatus } from '@/entities/supplier';
 import { track } from '@/shared/analytics';
 import { useStatusPolling } from '@/shared/api';
@@ -46,6 +48,10 @@ export function SupplierDocuments() {
   const status = data?.supplier_status;
   const locked = set.data?.locked ?? true;
   const editable = status ? supplierCan('upload_or_replace_file', { supplier_status: status, locked }) : false;
+  // Номер CR — как у клиента (D-093): карточка над документами, без номера комплект не отправить; попытка отправить
+  // без него подсвечивает поле, неполный номер в поле сразу возвращает панель отправки в исходный вид.
+  const [crAttention, setCrAttention] = useState(0);
+  const [crDraft, setCrDraft] = useState<string | null>(null);
 
   useEffect(() => {
     if (!set.data) return;
@@ -76,6 +82,9 @@ export function SupplierDocuments() {
     );
   }
 
+  // Как у клиента: блок CR — только при первом сборе документов; после возврата с проверки номер уже сохранён.
+  const reviewed = set.data.round > 1 || set.data.documents.some((d) => d.rejected_file_hashes.length > 0 || d.status === 'rejected');
+  const crStage = editable && !reviewed;
   const stage = supplierApplicationStage(status);
   // Шкала есть на всех этапах, включая «Партнёр» и Lost/Declined (Кирилл 2026-11-24).
   const steps = computeSupplierTimeline(status);
@@ -110,7 +119,16 @@ export function SupplierDocuments() {
 
       {stage === 'documents' ? (
         <>
-          <DocumentList set={set.data} editable={editable} crReady onCrMissing={() => undefined} />
+          <DocumentList
+            set={set.data}
+            editable={editable}
+            header={
+              crStage ? <CompanyCrCard owner="supplier" company={data} editable={editable} attention={crAttention} onDraftChange={setCrDraft} /> : null
+            }
+            crReady={!crStage || (isValidCr(data.cr_number) && (crDraft === null || isValidCr(crDraft)))}
+            crRequired={crStage}
+            onCrMissing={() => setCrAttention((n) => n + 1)}
+          />
           {!editable ? (
             <Card className="rounded-xl">
               <CardHeader>

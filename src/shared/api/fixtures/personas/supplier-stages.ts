@@ -34,7 +34,6 @@ function stagePersona(spec: StageSpec): PersonaFixture {
         uploaded(setId, 'sup_vat', docStatus, t),
         uploaded(setId, 'sup_iban_letter', docStatus, t),
         uploaded(setId, 'sup_national_address', docStatus, t),
-        uploaded(setId, 'sup_cr', docStatus, t, { required: false }),
       ],
     });
     return {
@@ -52,6 +51,7 @@ function stagePersona(spec: StageSpec): PersonaFixture {
         slug: spec.slug,
         referral_url: `https://tadum.sa/s/${spec.slug}`,
         odoo_stage: spec.odoo_stage,
+        cr_number: `10104${String(spec.phone).padStart(5, '0')}`,
         supplier_status: spec.supplier_status,
         next_step: spec.next_step,
         current_document_set_id: setId,

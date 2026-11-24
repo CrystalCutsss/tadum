@@ -238,6 +238,8 @@ export const SupplierSchema = z.object({
   slug: z.string(),
   referral_url: z.string(),
   odoo_stage: SupplierOdooStageSchema,
+  /** Номер CR поставщика: 10 цифр; без него комплект не отправить (D-093). */
+  cr_number: z.string().regex(/^\d{10}$/).optional(),
   supplier_status: SupplierStatusSchema,
   next_step: NextStepSchema,
   current_document_set_id: z.string(),

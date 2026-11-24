@@ -1,4 +1,4 @@
-<!-- source: Drive 1xOxOSw0NOSTfsahbz8Olb9oE7aoqg34j, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1Ty6G_PVaOap53H4fou-kn3iQj88wGIal, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -183,6 +183,7 @@ Supplier:
   odoo_stage: SupplierOdooStage    # стадия записи поставщика в Odoo (D-088)
   supplier_status: SupplierStatus  # из odoo_stage, см. 01-statuses.md §3
   next_step: NextStep
+  cr_number?: string               # Commercial Registration поставщика; 10 цифр, LTR; обязателен для отправки комплекта (D-093)
   current_document_set_id: string
   counters:
     referred_total: number         # все привязанные лиды

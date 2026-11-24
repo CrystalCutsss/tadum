@@ -58,6 +58,7 @@
 |---|---|---|---|
 | `get` | `get(): Promise<Supplier>` | `01-entities.md` §2.10 | — |
 | `getCounters` | `getCounters(): Promise<SupplierCounters>` | `01-entities.md` §2.10 (`counters`) | — |
+| `setCrNumber` | `setCrNumber(crNumber: string): Promise<Supplier>` | `01-entities.md` §2.10 | Номер CR поставщика (D-093), как ApplicationPort.setCrNumber у клиента. |
 
 ### `referredClients` — `ReferredClientsPort`
 

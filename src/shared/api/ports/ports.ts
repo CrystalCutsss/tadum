@@ -86,6 +86,8 @@ export interface LimitPort {
 export interface SupplierPort {
   get(): Promise<Supplier>;
   getCounters(): Promise<SupplierCounters>;
+  /** Номер CR поставщика (D-093), как ApplicationPort.setCrNumber у клиента. */
+  setCrNumber(crNumber: string): Promise<Supplier>;
 }
 
 export interface ReferredClientsPort {

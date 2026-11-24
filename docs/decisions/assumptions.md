@@ -436,5 +436,6 @@
   - Документы поставщика: события загрузки и отправки получают `owner: 'supplier'` от комплекта; после отправки обновляются данные поставщика. Названия и подсказки `document.sup_*` — черновик SP-03 §4 (срок IBAN-письма «3 месяца» и формулировки подтверждает Ops).
   - Персоны: `supplier_review`, `supplier_contract`, `supplier_partner`, `supplier_declined`, `supplier_lost` (номера 500000018–022, `01-entities.md` §6); `supplier_new` — Processing: Pending Docs, `supplier_active` — Activated.
   - Порты изменены агентом через `git apply` по явному разрешению Кирилла в чате (переменная `TADUM_ALLOW_PROTECTED` не дошла до продолжения сессии).
+  - D-093: у поставщика номер CR вместо файла `sup_cr` — `Supplier.cr_number`, `SupplierPort.setCrNumber` (тот же блок `CompanyCrCard` с `owner="supplier"`); блок CR показывается только при первом сборе документов, как у клиента. Ключ `sup_cr` остаётся в каталоге: Odoo может запросить файл (`odooRequireDocument`).
 
   Проверить: превью ветки — `/?persona=supplier_new&lang=en` (документы, ссылки нет), `supplier_review`, `supplier_contract`, `supplier_partner` (копирование, WhatsApp, QR), `supplier_declined`, `supplier_lost`; ar/en × light/dark.
