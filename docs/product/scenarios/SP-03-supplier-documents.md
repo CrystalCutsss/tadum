@@ -1,4 +1,4 @@
-<!-- source: Drive 1NBLaNpq6aEGSc9jcoCC6izLbA85C5bBT, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1w4CPJWkeuAgBsD9oejqeONIPe219UVQ9, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # SP-03 · Документы поставщика
 
 | Поле | Значение |
@@ -39,10 +39,25 @@
        действия с файлами скрыты; на /s/home шкала: «Документы» done, «Проверка» current;
        событие document_set_submitted {owner: supplier, documents_count, optional_uploaded}
 
-Дано:  проверка завершена, все обязательные approved (мок: uwApproveSupplierSet())
-Когда: поставщик открывает кабинет
-Тогда: supplier_status = active; /s/documents в режиме чтения с баннером «Документы приняты»;
-       на /s/home — «Активен» current и карточка next_step.supplier.share_link; тост/баннер о смене статуса (D-034)
+Дано:  проверка завершена, все обязательные approved (мок: uwApproveSupplierSet()); odoo_stage = Processing: Need Contract
+Когда: поставщик открывает /s/documents
+Тогда: supplier_status = contract_pending; шкала: «Документы» done, «Проверка» current; карточка «Документы приняты.
+       Остался договор — менеджер свяжется» (owner = tadum), без CTA; документы только для чтения; ссылки нет (D-087, D-090)
+
+Дано:  договор и данные получены (мок: salesSupplierContractDone()); odoo_stage = Interested
+Когда: поставщик открывает /s/documents
+Тогда: supplier_status = partner; шкала: «Партнёр» current; карточка «Вы партнёр Tadum» (D-089): ссылка (LTR) с копированием,
+       «Поделиться в WhatsApp», «QR-код для магазина» (выдвижная панель, скачивание), «Как это работает» в 3 шага;
+       комплект документов — в выдвижной панели только для чтения; тост/баннер о смене статуса (D-034)
+
+Дано:  через поставщика прошла первая сделка (мок: odooSupplierActivated()); odoo_stage = Activated
+Тогда: supplier_status = active; экран тот же, что при partner
+
+Дано:  odoo_stage = Declined (мок: odooSupplierDecline())
+Тогда: supplier_status = declined; нейтральный экран без причины, поддержка; документов и ссылки нет
+
+Дано:  odoo_stage = Lost (мок: odooSupplierLost()); возврат — Return to Processing (мок: returnToProcessing())
+Тогда: supplier_status = paused; кабинет только для чтения, баннер «Работа приостановлена, свяжитесь с нами»; ссылки нет
 ```
 
 Все правила загрузки, валидации, замены и удаления файлов, автоотправки и блокировки — из `SC-02`; здесь описаны только отличия поставщика.
@@ -129,10 +144,10 @@
 - [ ] `supplier_status` переключается `docs_required → under_review → active` строго по состоянию комплекта (`01-statuses.md` §3); при `rejected` после проверки возвращается в `docs_required`, редактируются только отклонённые и `pending`, `approved` — только чтение.
 - [ ] Отправка одной кнопкой без диалога (D-029); необязательный `sup_cr` не блокирует отправку.
 - [ ] Новый обязательный документ от Odoo (A2) появляется без перезагрузки и переводит статус в `docs_required`.
-- [ ] Реферальная ссылка и список клиентов доступны на всех шагах (D-022) — проверено на персоне `supplier_new`.
+- [ ] Реферальная ссылка и список клиентов появляются только при `partner` / `active` (D-087); на `supplier_new` их нет.
 - [ ] Тексты в `ar` и `en`; axe без нарушений; `aria-live` для статусов загрузки — как в SC-02.
 - [ ] Storybook: `SupplierDocuments` draft-empty / partial / ready / in_review / rejected / completed / no-assets × AR/EN × light/dark.
-- [ ] Playwright: `supplier_new` → загрузка трёх файлов → отправка → `under_review` → демо-панель `uwRejectSupplierDocument('sup_iban_letter')` → `docs_required` с причиной → замена → отправка → `uwApproveSupplierSet()` → `active`.
+- [ ] Playwright: `supplier_new` → загрузка трёх файлов → отправка → `under_review` → демо-панель `uwRejectSupplierDocument('sup_iban_letter')` → `docs_required` с причиной → замена → отправка → `uwApproveSupplierSet()` → `active`. Обновлено (D-088): после `uwApproveSupplierSet()` → `contract_pending` без ссылки → `salesSupplierContractDone()` → `partner` с карточкой «Вы партнёр Tadum».
 
 ---
 
