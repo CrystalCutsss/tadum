@@ -74,5 +74,12 @@ export const SCREENS: readonly Screen[] = [
   }),
   persona('client.help', 'client_active', '/c/help', heading('help.title')),
   persona('supplier.home', 'supplier_active', '/s/home', heading('stub.coming_soon.title')),
+  // Экран «Заявка» поставщика по этапам (TD-001): документы, проверка, договор, партнёр со ссылкой, Declined, Lost.
+  persona('supplier.application.documents', 'supplier_new', '/s/documents', heading('documents.title')),
+  persona('supplier.application.review', 'supplier_review', '/s/documents', heading('documents.title')),
+  persona('supplier.application.contract', 'supplier_contract', '/s/documents', heading('supplier.contract.title')),
+  persona('supplier.application.partner', 'supplier_partner', '/s/documents', heading('supplier.partner.title')),
+  persona('supplier.application.declined', 'supplier_declined', '/s/documents', heading('supplier.declined.title')),
+  persona('supplier.application.paused', 'supplier_lost', '/s/documents', heading('supplier.paused.title')),
   persona('supplier.help', 'supplier_active', '/s/help', heading('help.title')),
 ];

@@ -4,9 +4,9 @@
 
 import { z } from 'zod';
 
-import { CHECKLIST_KEYS, MAX_FILE_SIZE_BYTES, ODOO_STAGES } from './constants';
+import { CHECKLIST_KEYS, MAX_FILE_SIZE_BYTES, ODOO_STAGES, SUPPLIER_ODOO_STAGES } from './constants';
 
-export { CHECKLIST_KEYS, KNOWN_PORTAL_KEYS, MAX_FILE_SIZE_BYTES, MAX_FILES_PER_DOCUMENT, ODOO_STAGES } from './constants';
+export { CHECKLIST_KEYS, KNOWN_PORTAL_KEYS, MAX_FILE_SIZE_BYTES, MAX_FILES_PER_DOCUMENT, ODOO_STAGES, SUPPLIER_ODOO_STAGES } from './constants';
 
 // ---------- Общие ----------
 
@@ -25,10 +25,21 @@ const LocalizedText = z.object({ ar: z.string(), en: z.string() });
 
 
 export const OdooStageSchema = z.enum(ODOO_STAGES);
+export const SupplierOdooStageSchema = z.enum(SUPPLIER_ODOO_STAGES);
 
 export const ClientStatusSchema = z.enum(['docs_required', 'under_review', 'approved', 'first_purchase', 'closed']);
 export const SupplierViewStatusSchema = z.enum(['applied', 'collecting_docs', 'under_review', 'approved', 'first_purchase', 'closed']);
-export const SupplierStatusSchema = z.enum(['docs_required', 'under_review', 'active']);
+// 01-statuses.md §3 (D-088): статус поставщика — из стадии его записи в Odoo; under_review — комплект отправлен.
+export const SupplierStatusSchema = z.enum([
+  'application_created',
+  'docs_required',
+  'under_review',
+  'contract_pending',
+  'partner',
+  'active',
+  'declined',
+  'paused',
+]);
 export const PermissionStateSchema = z.enum(['collecting', 'reviewing', 'active', 'closed']);
 export const DocumentSetStatusSchema = z.enum(['draft', 'submitted', 'in_review', 'completed', 'superseded']);
 export const DocumentStatusSchema = z.enum(['pending', 'received', 'rejected', 'approved']);
@@ -226,6 +237,9 @@ export const SupplierSchema = z.object({
   name: z.string(),
   slug: z.string(),
   referral_url: z.string(),
+  odoo_stage: SupplierOdooStageSchema,
+  /** Номер CR поставщика: 10 цифр; без него комплект не отправить (D-093). */
+  cr_number: z.string().regex(/^\d{10}$/).optional(),
   supplier_status: SupplierStatusSchema,
   next_step: NextStepSchema,
   current_document_set_id: z.string(),
@@ -275,6 +289,7 @@ export type OdooStage = z.infer<typeof OdooStageSchema>;
 export type ClientStatus = z.infer<typeof ClientStatusSchema>;
 export type SupplierViewStatus = z.infer<typeof SupplierViewStatusSchema>;
 export type SupplierStatus = z.infer<typeof SupplierStatusSchema>;
+export type SupplierOdooStage = z.infer<typeof SupplierOdooStageSchema>;
 export type PermissionState = z.infer<typeof PermissionStateSchema>;
 export type DocumentSetStatus = z.infer<typeof DocumentSetStatusSchema>;
 export type DocumentStatus = z.infer<typeof DocumentStatusSchema>;

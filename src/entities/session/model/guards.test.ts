@@ -24,9 +24,9 @@ describe('активная семья (D-020)', () => {
 describe('/', () => {
   it('нет сессии → /login', () => expect(decideRoot(none, null)).toEqual({ kind: 'redirect', to: '/login' }));
   it('истекла → /login', () => expect(decideRoot(expired, null)).toEqual({ kind: 'redirect', to: '/login' }));
-  it('клиент → /c/home, поставщик → /s/home, dual → /c/home', () => {
+  it('клиент → /c/home, поставщик → /s/documents (TD-001 §12), dual → /c/home', () => {
     expect(decideRoot(active('client_contact'), null)).toMatchObject({ to: '/c/home' });
-    expect(decideRoot(active('supplier'), null)).toMatchObject({ to: '/s/home' });
+    expect(decideRoot(active('supplier'), null)).toMatchObject({ to: '/s/documents' });
     expect(decideRoot(active('client_owner', 'supplier'), null)).toMatchObject({ to: '/c/home' });
   });
 });
@@ -40,7 +40,7 @@ describe('SC-01 — альтернативы, которые решает гар
   });
   it('A12: с сессией открыт /login → home активной роли', () => {
     expect(decideAuthScreen(active('client_contact'), null)).toEqual({ kind: 'redirect', to: '/c/home' });
-    expect(decideAuthScreen(active('supplier'), null)).toEqual({ kind: 'redirect', to: '/s/home' });
+    expect(decideAuthScreen(active('supplier'), null)).toEqual({ kind: 'redirect', to: '/s/documents' });
     expect(decideAuthScreen(none, null)).toEqual({ kind: 'allow' });
   });
   it('A14: диплинк /c/documents без сессии — после входа открывается /c/documents', () => {
@@ -54,20 +54,20 @@ describe('семьи маршрутов', () => {
   it('клиент открыл /s/home → свой home без ошибки', () => {
     expect(decideCabinet(active('client_contact'), '/s/home', null)).toEqual({ kind: 'redirect', to: '/c/home' });
   });
-  it('поставщик открыл /c/* → /s/home', () => {
-    expect(decideCabinet(active('supplier'), '/c/documents', null)).toEqual({ kind: 'redirect', to: '/s/home' });
+  it('поставщик открыл /c/* → /s/documents', () => {
+    expect(decideCabinet(active('supplier'), '/c/documents', null)).toEqual({ kind: 'redirect', to: '/s/documents' });
   });
   it('dual открывает маршруты обеих семей', () => {
     expect(decideCabinet(active('client_owner', 'supplier'), '/s/home', null)).toEqual({ kind: 'allow' });
     expect(decideCabinet(active('client_owner', 'supplier'), '/c/home', 'supplier')).toEqual({ kind: 'allow' });
   });
-  it('после входа: диплинк поставщика на /c/* → /s/home (SC-01, критерии приёмки)', () => {
-    expect(destinationAfterLogin({ roles: ['supplier'] }, '/c/documents', null)).toEqual({ to: '/s/home', returned: false });
+  it('после входа: диплинк поставщика на /c/* → /s/documents (SC-01, критерии приёмки; TD-001 §12)', () => {
+    expect(destinationAfterLogin({ roles: ['supplier'] }, '/c/documents', null)).toEqual({ to: '/s/documents', returned: false });
   });
   it('после входа: внешний returnTo игнорируется', () => {
     expect(destinationAfterLogin({ roles: ['client_contact'] }, 'https://evil.example/c/home', null)).toEqual({ to: '/c/home', returned: false });
   });
   it('после входа dual без returnTo — последняя выбранная семья', () => {
-    expect(destinationAfterLogin({ roles: ['client_owner', 'supplier'] }, null, 'supplier')).toEqual({ to: '/s/home', returned: false });
+    expect(destinationAfterLogin({ roles: ['client_owner', 'supplier'] }, null, 'supplier')).toEqual({ to: '/s/documents', returned: false });
   });
 });

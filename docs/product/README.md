@@ -41,17 +41,17 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `1ixZjZu2kX9MhH--mXI8ddSRu1LfZYtKd` | 54021 | 2026-11-19 |
+| `00-decision-log.md` | `1mXVYX3V0t4b2XiEo3jlKsZwYvb3Wpjq_` | 60793 | 2026-11-24 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
-| `01-cabinet-structure.md` | `1hKjeE725kS6ygPO75YXujzkQuuCwfdmc` | 26158 | 2026-11-19 |
-| `01-entities.md` | `1pITUGuZnZS9iNefPk5kkChngNVa5fMlW` | 22966 | 2026-11-15 |
+| `01-cabinet-structure.md` | `1zvxjEz_S_Iu4v3B6BbHPhniqtmeVJrOp` | 27150 | 2026-11-24 |
+| `01-entities.md` | `1Ty6G_PVaOap53H4fou-kn3iQj88wGIal` | 24196 | 2026-11-24 |
 | `01-nfr-locale-brand.md` | `1nWl9j1MUxN6S3Rh869BlnFQKAXSa2NQA` | 49904 | 2026-11-15 |
-| `01-roles.md` | `1UCO6QMHF_Z1skPiHA4CuL0dtIBXS_WUq` | 18427 | 2026-11-15 |
-| `01-statuses.md` | `1JWyQ0jSQD25QJKoHe1KLZs8Yxm0bE31z` | 21970 | 2026-11-19 |
+| `01-roles.md` | `15uiBDtEkxyC_m5SMpbuZZkmIk4imO7jY` | 18809 | 2026-11-24 |
+| `01-statuses.md` | `1j_8F4mStJ2iIrQcxU25zrpJDYBcz_450` | 24736 | 2026-11-24 |
 | `04-metrics-and-events.md` | `1vhO94b122qIHJ98-fUrFy1VxZb6Hjtc-` | 28800 | 2026-11-19 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
-| `requirements-supplier.md` | `1m7p6aNOBqaZYZ7DDkHhjc6hMRziYxJAi` | 9923 | 2026-11-05 |
+| `requirements-supplier.md` | `1OlsWI4k2pjxvu-2fqDsNNrsG_XuU6ykr` | 13895 | 2026-11-24 |
 | `scenarios/SC-01-first-login.md` | `1PNXh2CjAh20FIxOBnyheoiFENlBA0JWe` | 18517 | 2026-11-11 |
 | `scenarios/SC-02-document-collection.md` | `1GThmMYZlec5oVF4CiS0GUrlq1VLZ1yBE` | 22135 | 2026-11-11 |
 | `scenarios/SC-03-document-rejected.md` | `1yiEiKa7CuOaKOBoZnrChKo0hHPOrVu9b` | 15093 | 2026-11-05 |
@@ -62,9 +62,9 @@
 | `scenarios/SC-08-application-closed.md` | `1KrxQawcS7rbPNlXYx6jIBa9mQy0N68gp` | 13936 | 2026-11-05 |
 | `scenarios/SC-09-returning-client.md` | `1Aa6SK1sG5CNr0oWvQHx8dNSTGjIEnIHF` | 11125 | 2026-11-05 |
 | `scenarios/SC-10-service-scenarios.md` | `12VeurQ1BMCUIRwN7Kq5Lmz8e3vtUgZaa` | 18491 | 2026-11-11 |
-| `scenarios/SP-01-supplier-login-and-home.md` | `1HD80cuXlQFZ3nvvxvH7FNXWUHO8cu8Vf` | 17521 | 2026-11-11 |
-| `scenarios/SP-02-referral-link-and-qr.md` | `1JaSL5c1u4-B20BrvkQF9S1QoE9GmUS-g` | 16075 | 2026-11-05 |
-| `scenarios/SP-03-supplier-documents.md` | `1NBLaNpq6aEGSc9jcoCC6izLbA85C5bBT` | 17597 | 2026-11-11 |
+| `scenarios/SP-01-supplier-login-and-home.md` | `1tc7Xe8JnGP4zfBNuQ6nQjnRVowTM9Mw2` | 18063 | 2026-11-24 |
+| `scenarios/SP-02-referral-link-and-qr.md` | `1qt2GPj5FPuV7tdmzESWRsu3ZrhRcW1BS` | 16300 | 2026-11-24 |
+| `scenarios/SP-03-supplier-documents.md` | `1CHoGZ0l0gD3zOrunSh1c_CDA8BUS20ew` | 19979 | 2026-11-24 |
 | `scenarios/SP-04-referred-clients.md` | `1gw1pSx0fkEx3xkpmg5zMcm1dY9qM2Xat` | 16893 | 2026-11-05 |
 | `scenarios/SP-05-offer-and-materials.md` | `1M8We-maaBRoZ_wd4iZSp41rdZvYeYMBH` | 15671 | 2026-11-05 |
 | `tov-lexicon.json` | `1W2G4zoLEu8kqJkmeGs3gZoK98GNXo1r7` | 27127 | 2026-11-05 |

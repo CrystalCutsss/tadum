@@ -51,19 +51,21 @@ describe('parseReleaseNotes', () => {
 });
 
 describe('метаданные Proto', () => {
-  it('ось «Сценарии и роли» в рамках Proto: ≤ 12 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
-    // Схема Proto: до 12 пунктов оси (Кирилл 2026-11-11, A-063; CrystalCutsss/proto#65 — merge до выпуска v15).
-    expect(PERSONA_ITEMS.length).toBeLessThanOrEqual(12);
+  it('ось «Сценарии и роли» в рамках Proto: вкладки ролей ≤ 12 пунктов, id через дефис, все — персоны мока; первый — обычный вход', () => {
+    // Схема Proto (ADR-0029): у каждого пункта вкладка, не больше 4 вкладок по 12 пунктов.
+    const groups = Map.groupBy(PERSONA_ITEMS, (i) => i.group);
+    expect([...groups.keys()]).toEqual(['Клиент', 'Поставщик']);
+    for (const items of groups.values()) expect(items.length).toBeLessThanOrEqual(12);
     expect(PERSONA_ITEMS[0].id).toBe('login');
-    for (const { id, title } of PERSONA_ITEMS) {
+    for (const { id, title, group } of PERSONA_ITEMS) {
       expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
       expect(title.length).toBeLessThanOrEqual(40);
+      expect(group.length).toBeLessThanOrEqual(20);
     }
-    // Первые два пункта — вход (обычный и с Business name, A-071), остальные — персоны мока.
+    // Первые два пункта — вход (обычный и с Business name, A-071), остальные — персоны мока своей роли.
     for (const { id } of PERSONA_ITEMS.slice(0, 2)) expect(Object.values(LOGIN_ITEMS)).toContain(personaFromParam(id));
     for (const { id } of PERSONA_ITEMS.slice(2)) expect(PERSONA_IDS).toContain(personaFromParam(id));
-    // v6: клиентские сценарии экрана документов вернулись в меню (SC-02…SC-04), «Поставщик» убран (Кирилл 2026-11-09).
-    // v14: все сценарии этапов после одобрения (A-063).
+    for (const { id } of groups.get('Поставщик')) expect(id.startsWith('supplier-')).toBe(true);
     expect(PERSONA_ITEMS.map((i) => i.id)).toEqual([
       'login',
       'login-business-name',
@@ -75,6 +77,12 @@ describe('метаданные Proto', () => {
       'client-signing-partial',
       'client-limit-cancelled',
       'client-active',
+      'supplier-new',
+      'supplier-review',
+      'supplier-contract',
+      'supplier-partner',
+      'supplier-declined',
+      'supplier-lost',
     ]);
   });
 

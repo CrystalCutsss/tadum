@@ -82,9 +82,9 @@ describe('SC-01 §1 — основной сценарий', () => {
     expect(destinationAfterLogin(session, authMemory.returnTo(), familyMemory.last())).toEqual({ to: '/c/home', returned: false });
     expect((await open('/')).pathname).toBe('/c/home');
   });
-  it('одна роль supplier → /s/home', async () => {
+  it('одна роль supplier → /s/documents', async () => {
     api.demo!.setPersona('supplier_active');
-    expect((await open('/')).pathname).toBe('/s/home');
+    expect((await open('/')).pathname).toBe('/s/documents'); // Вход поставщика — на экран «Заявка», пока нет главной (Кирилл 2026-11-24, TD-001 §12).
   });
 });
 
@@ -201,8 +201,8 @@ describe('SC-01 §2 — альтернативы', () => {
     api.demo!.setPersona('client_active');
     expect((await open('/login')).pathname).toBe('/c/home');
     api.demo!.setPersona('supplier_new');
-    expect((await open('/login')).pathname).toBe('/s/home');
-    expect((await open('/login/code')).pathname).toBe('/s/home');
+    expect((await open('/login')).pathname).toBe('/s/documents');
+    expect((await open('/login/code')).pathname).toBe('/s/documents');
   });
 
   it('A13: «Изменить номер» — к номеру с заполненным полем, старый код больше не используется', async () => {
@@ -224,12 +224,12 @@ describe('SC-01 §2 — альтернативы', () => {
 });
 
 describe('SC-01 §6 — критерии приёмки маршрутов', () => {
-  it('диплинк поставщика на /c/* после входа ведёт на /s/home', async () => {
+  it('диплинк поставщика на /c/* после входа ведёт на /s/documents', async () => {
     expect((await open('/c/documents')).pathname).toBe('/login');
     await api.auth.requestOtp(SUPPLIER);
     const session = await api.auth.verifyOtp(SUPPLIER, '0000');
-    expect(destinationAfterLogin(session, authMemory.returnTo(), null).to).toBe('/s/home');
-    expect((await open('/c/documents')).pathname).toBe('/s/home');
+    expect(destinationAfterLogin(session, authMemory.returnTo(), null).to).toBe('/s/documents');
+    expect((await open('/c/documents')).pathname).toBe('/s/documents');
   });
   it('клиент открыл /s/home → /c/home', async () => {
     api.demo!.setPersona('client_active');

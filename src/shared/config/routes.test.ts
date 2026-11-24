@@ -24,7 +24,7 @@ describe('семьи и returnTo', () => {
     expect(familyOfPath('/c/documents')).toBe('client');
     expect(familyOfPath('/s/home')).toBe('supplier');
     expect(familyOfPath('/login')).toBeNull();
-    expect(homeOf('supplier')).toBe('/s/home');
+    expect(homeOf('supplier')).toBe('/s/documents'); // TD-001 §12
   });
   it.each(['/c/documents', '/c/documents?tab=1', '/s/home'])('внутренний путь %s принимается', (p) => expect(safeReturnTo(p)).toBe(p));
   it.each(['https://evil.example/c/x', '//evil.example', '/login', '/\\evil', '/c/\u0000', 'c/home', '', 42, null])('%j отклоняется', (p) =>

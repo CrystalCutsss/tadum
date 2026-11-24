@@ -17,6 +17,7 @@ import { clientSigningPartial } from './client-signing-partial';
 import { clientSubmitted } from './client-submitted';
 import { supplierActive } from './supplier-active';
 import { supplierNew } from './supplier-new';
+import { supplierContract, supplierDeclined, supplierLost, supplierPartner, supplierReview } from './supplier-stages';
 import { unknownPhone } from './unknown-phone';
 
 export const PERSONAS: Readonly<Record<PersonaId, PersonaFixture>> = {
@@ -34,6 +35,11 @@ export const PERSONAS: Readonly<Record<PersonaId, PersonaFixture>> = {
   client_closed_rejected: clientClosedRejected,
   client_closed_lost: clientClosedLost,
   supplier_new: supplierNew,
+  supplier_review: supplierReview,
+  supplier_contract: supplierContract,
+  supplier_partner: supplierPartner,
   supplier_active: supplierActive,
+  supplier_declined: supplierDeclined,
+  supplier_lost: supplierLost,
   unknown_phone: unknownPhone,
 };

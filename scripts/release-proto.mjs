@@ -26,7 +26,7 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 /**
  * Ось меню просмотрщика «Сценарии и роли» — единственный способ сменить персону на витрине: демо-панели нет
- * (Кирилл 2026-11-06). Ограничения Proto: не больше 12 пунктов (до v14 — 6), id через дефис (Tadum принимает
+ * (Кирилл 2026-11-06). Ограничения Proto: не больше 12 пунктов во вкладке (до v14 — 6), id через дефис (Tadum принимает
  * ?persona=client-active так же, как client_active). Первый пункт — без персоны: обычный вход.
  * v6: вернулись клиентские сценарии экрана документов (SC-02…SC-04) — новая заявка, «Нужен новый файл»,
  * дозапрос. «Поставщик» (supplier-active) убран из меню (Кирилл 2026-11-09); кабинет поставщика открывается
@@ -37,19 +37,29 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
  * не понадобится (Кирилл 2026-11-11). Девять пунктов — больше 6, которые пускает схема Proto
  * (`packages/registry/schemas/version.schema.json`, axes.items.maxItems): правку Proto Кирилл пока не согласовал.
  * v23 (Кирилл 2026-11-19, A-071): два пункта входа — обычный и вариант с полем Business name
- * (`login-business-name`); оба не персоны, а начало с экрана входа. Десять пунктов из 12.
+ * (`login-business-name`); оба не персоны, а начало с экрана входа.
+ * v25 (Кирилл 2026-11-24, ADR-0029 Proto): вкладки ролей — «Клиент» и «Поставщик» (поле `group` пункта); внутри
+ * вкладки — её сценарии, без приставки роли в названии. Вход по номеру — во вкладке «Клиент». У поставщика — этапы
+ * экрана «Заявка» (TD-001); «Поставщик: активен» не показан — экран тот же, что у «Партнёр». Proto пускает до 4
+ * вкладок по 12 пунктов.
  */
 export const PERSONA_ITEMS = [
-  { id: 'login', title: 'Вход по номеру' },
-  { id: 'login-business-name', title: 'Вход: номер и Business name' },
-  { id: 'client-new', title: 'Клиент: новая заявка' },
-  { id: 'client-rejected', title: 'Клиент: нужен новый файл' },
-  { id: 'client-more-docs', title: 'Клиент: дозапрос документов' },
-  { id: 'client-offer-pending', title: 'Клиент: решение, условия' },
-  { id: 'client-approved-unsigned', title: 'Клиент: подписание' },
-  { id: 'client-signing-partial', title: 'Клиент: подписание, частично' },
-  { id: 'client-limit-cancelled', title: 'Клиент: лимит отменён' },
-  { id: 'client-active', title: 'Клиент: лимит одобрен' },
+  { id: 'login', title: 'Вход по номеру', group: 'Клиент' },
+  { id: 'login-business-name', title: 'Вход: номер и Business name', group: 'Клиент' },
+  { id: 'client-new', title: 'Новая заявка', group: 'Клиент' },
+  { id: 'client-rejected', title: 'Нужен новый файл', group: 'Клиент' },
+  { id: 'client-more-docs', title: 'Дозапрос документов', group: 'Клиент' },
+  { id: 'client-offer-pending', title: 'Решение, условия', group: 'Клиент' },
+  { id: 'client-approved-unsigned', title: 'Подписание', group: 'Клиент' },
+  { id: 'client-signing-partial', title: 'Подписание, частично', group: 'Клиент' },
+  { id: 'client-limit-cancelled', title: 'Лимит отменён', group: 'Клиент' },
+  { id: 'client-active', title: 'Лимит одобрен', group: 'Клиент' },
+  { id: 'supplier-new', title: 'Подача документов', group: 'Поставщик' },
+  { id: 'supplier-review', title: 'Документы на проверке', group: 'Поставщик' },
+  { id: 'supplier-contract', title: 'Остался договор', group: 'Поставщик' },
+  { id: 'supplier-partner', title: 'Партнёр, реферальная ссылка', group: 'Поставщик' },
+  { id: 'supplier-declined', title: 'Заявка отклонена', group: 'Поставщик' },
+  { id: 'supplier-lost', title: 'Работа приостановлена', group: 'Поставщик' },
 ];
 
 export const PROTOTYPE_META = {

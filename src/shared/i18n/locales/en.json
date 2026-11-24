@@ -162,6 +162,22 @@
       "received": "Uploaded",
       "rejected": "Needs a new file"
     },
+    "sup_cr": {
+      "hint": "Your company's commercial registration certificate",
+      "title": "Commercial registration (CR)"
+    },
+    "sup_iban_letter": {
+      "hint": "A bank letter confirming your company's IBAN, issued within the last 3 months",
+      "title": "IBAN letter"
+    },
+    "sup_national_address": {
+      "hint": "Your company's national address certificate from Saudi Post (SPL)",
+      "title": "National address"
+    },
+    "sup_vat": {
+      "hint": "Your company's VAT registration certificate from ZATCA, as a PDF",
+      "title": "VAT certificate"
+    },
     "vat": {
       "hint": "The registration certificate from the ZATCA portal, as a PDF",
       "title": "VAT certificate"
@@ -297,12 +313,13 @@
     "sign_documents": "Almost done — sign the documents to activate your limit",
     "submit_ready": "Everything is uploaded. Send the documents for review",
     "supplier": {
+      "contract_pending": "Your documents are accepted. One step left: the contract — our manager will contact you",
+      "declined": "Your application is no longer active",
+      "paused": "Work is paused. Contact us to continue",
       "reupload_rejected_one": "One document needs a new file",
       "reupload_rejected_other": "{count} documents need a new file",
-      "share_link": "You're active. Share your link with clients",
-      "under_review": "We're reviewing your documents. You can already share your link",
-      "under_review_eta_one": "We're reviewing your documents — usually up to {hours} hour. You can already share your link",
-      "under_review_eta_other": "We're reviewing your documents — usually up to {hours} hours. You can already share your link",
+      "share_link": "You're a Tadum partner. Share your link with clients",
+      "under_review": "We're reviewing your documents",
       "upload_documents": "Upload your documents so we can activate your account"
     },
     "under_review": "Our team is reviewing your documents. Nothing is needed from you right now",
@@ -327,6 +344,18 @@
     "warning": {
       "generic": "Double-check this file"
     }
+  },
+  "referral": {
+    "copied": "Copied",
+    "copy": "Copy link",
+    "copy_manual": "Press and hold the link to copy it",
+    "qr_alt": "QR code for {url}",
+    "qr_download": "Download QR code",
+    "qr_hint": "Print it and place it at the checkout. Clients scan it to apply",
+    "qr_long_press": "Press and hold the image to save it",
+    "qr_title": "QR code for your store",
+    "share_text": "Buy from {supplier} now and pay in parts with Tadum. Apply here:",
+    "share_whatsapp": "Share on WhatsApp"
   },
   "reject": {
     "bs": {
@@ -406,6 +435,30 @@
       "title": "This section is being prepared"
     }
   },
+  "supplier": {
+    "contact_us": "Contact us",
+    "contract": {
+      "body": "One step left: the contract. Our manager will contact you",
+      "title": "Your documents are accepted"
+    },
+    "declined": {
+      "body": "If you have questions, contact us",
+      "title": "Your application is no longer active"
+    },
+    "partner": {
+      "how_step1": "Send the link to your client",
+      "how_step2": "The client applies to buy now and pay in parts",
+      "how_step3": "Follow your clients' status in your account",
+      "how_title": "How it works",
+      "qr_button": "QR code",
+      "subtitle": "Clients who apply through your link are linked to you automatically",
+      "title": "You're a Tadum partner"
+    },
+    "paused": {
+      "body": "Contact us to continue",
+      "title": "Work is paused"
+    }
+  },
   "support": {
     "cta": {
       "question": "Have a question? Message us",
@@ -445,6 +498,13 @@
       "upcoming": "Next"
     },
     "step_of": "Step {n} of {total}",
+    "supplier": {
+      "documents": "Documents",
+      "inactive": "Not active",
+      "partner": "Partner",
+      "partner_active": "Active",
+      "review": "Review"
+    },
     "title": "Application progress"
   },
   "units": {

@@ -1,6 +1,7 @@
 // Публичный API сущности supplier.
 export type * from './model/types';
-export { deriveSupplierStatus } from './model/status';
+export { deriveSupplierStatus, isSupplierPartner } from './model/status';
+export { supplierApplicationStage, type SupplierApplicationStage } from './model/stage';
 export {
   SUPPLIER_PERMISSIONS,
   supplierCan,

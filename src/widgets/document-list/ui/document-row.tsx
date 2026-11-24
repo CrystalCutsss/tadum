@@ -29,15 +29,18 @@ export interface DocumentRowProps {
   /** Архив принятых документов: без бейджа статуса и без видео, примера и ссылок на сервисы. */
   archive?: boolean;
   onUploadingChange?: (portalKey: string, uploading: boolean) => void;
+  /** Чей комплект — для событий загрузки. */
+  owner?: 'client' | 'supplier';
 }
 
-export function DocumentRow({ doc, editable, highlighted = false, archive = false, onUploadingChange }: DocumentRowProps) {
+export function DocumentRow({ doc, editable, highlighted = false, archive = false, onUploadingChange, owner = 'client' }: DocumentRowProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
   const online = useOnline();
   const [picker, setPicker] = useState<{ replaceFileId?: string } | null>(null);
   const [sameFiles, setSameFiles] = useState<string[]>([]);
   const upload = useDocumentUpload(doc, {
+    owner,
     onSameFile: (names) => setSameFiles(names),
     onTooMany: (max) =>
       toast(t('upload.error.files_limit', { max: formatNumber(max) }), {
@@ -144,7 +147,8 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               {/* Заголовок документа крупнее заголовков файлов — блоки в длинном списке не сливаются (Кирилл 2026-11-11). */}
               <ItemTitle className="flex-wrap text-base font-semibold max-sm:w-full max-sm:flex-nowrap max-sm:items-start">
                 <span className="min-w-0">{title}</span>
-                {!doc.required ? (
+                {/* У поставщика пометки «необязательный» нет (Кирилл 2026-11-24). */}
+                {!doc.required && owner !== 'supplier' ? (
                   <Badge variant="secondary" className="font-normal">
                     {t('document.optional')}
                   </Badge>

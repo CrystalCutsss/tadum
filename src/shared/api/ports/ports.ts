@@ -86,6 +86,8 @@ export interface LimitPort {
 export interface SupplierPort {
   get(): Promise<Supplier>;
   getCounters(): Promise<SupplierCounters>;
+  /** Номер CR поставщика (D-093), как ApplicationPort.setCrNumber у клиента. */
+  setCrNumber(crNumber: string): Promise<Supplier>;
 }
 
 export interface ReferredClientsPort {
@@ -132,6 +134,14 @@ export interface DemoActions {
   uwApproveSupplierSet(): void;
   uwRejectSupplierDocument(portalKey: PortalKey, reasonTag?: string): void;
   odooRequireDocument(portalKey: PortalKey): void;
+  /** Поставщик: договор и данные получены — Need Contract → Interested (D-088, бриф TD-001 §5). */
+  salesSupplierContractDone(): void;
+  /** Поставщик: первая сделка — Interested → Activated. */
+  odooSupplierActivated(): void;
+  odooSupplierDecline(): void;
+  odooSupplierLost(): void;
+  /** Lost → Processing (кнопка Return to Processing в Odoo). */
+  returnToProcessing(): void;
   cancelLimit(): void;
   setPersona(personaId: string): void;
 }

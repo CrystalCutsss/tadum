@@ -56,7 +56,7 @@ export function normalize(g: PersonaGraph, d: MockDomain, landingUrl: string): P
   if (supplier) {
     const id = supplier.current_document_set_id;
     const set = g.document_sets.find((s) => s.id === id) ?? null;
-    const supplier_status = d.deriveSupplierStatus(set);
+    const supplier_status = d.deriveSupplierStatus(supplier.odoo_stage, set);
     supplier = {
       ...supplier,
       supplier_status,

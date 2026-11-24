@@ -1,6 +1,6 @@
 // Пункты бокового меню и заголовки страниц кабинета.
 // Решение Кирилла 2026-11-06: в основном меню только «Home» и «Documents», без вложенных страниц, у обеих ролей;
-// «Помощь и настройки» открываются из меню аккаунта. У поставщика /s/documents — заглушка до v3.
+// «Помощь и настройки» открываются из меню аккаунта. У поставщика /s/documents — экран «Заявка» (TD-001); /s/home — заглушка.
 // У клиента пункт называется «Application» (решение Кирилла 2026-11-10), маршрут прежний.
 // Иконка «Документы» в меню — простая, без строк текста (решение Кирилла 2026-11-09); в карточках документов — подробная.
 import { RiFileLine, RiHomeLine, type RemixiconComponentType } from '@remixicon/react';
@@ -22,7 +22,7 @@ export const NAV: Readonly<Record<Family, readonly NavItem[]>> = {
   ],
   supplier: [
     { to: ROUTES.supplierHome, labelKey: 'nav.home', icon: RiHomeLine },
-    { to: ROUTES.supplierDocuments, labelKey: 'nav.documents', icon: RiFileLine },
+    { to: ROUTES.supplierDocuments, labelKey: 'nav.application', icon: RiFileLine },
   ],
 };
 

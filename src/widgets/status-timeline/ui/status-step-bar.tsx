@@ -4,10 +4,10 @@
 import { cn } from 'cn';
 import { useTranslation } from 'react-i18next';
 
-import { CLIENT_TIMELINE_STEPS, type ClientTimelineStep, type TimelineStepState } from '@/entities/application';
+import type { TimelineStepState } from '@/entities/application';
 import { formatNumber } from '@/shared/i18n';
 
-import { stepLabel } from './status-timeline';
+import { orderedSteps, stateLabel, stepLabel, type TimelineSteps } from './status-timeline';
 
 const FILL: Record<TimelineStepState, string> = {
   done: 'bg-status-done',
@@ -19,29 +19,30 @@ const FILL: Record<TimelineStepState, string> = {
   cancelled: 'bg-muted-foreground/40',
 };
 
-export function StatusStepBar({ steps }: { steps: Record<ClientTimelineStep, TimelineStepState> }) {
+export function StatusStepBar(props: TimelineSteps) {
   const { t } = useTranslation();
+  const family = props.family ?? 'client';
+  const items = orderedSteps(props);
   // Текущий шаг — и при дозапросе (needs_attention на «Проверке»).
-  const index = CLIENT_TIMELINE_STEPS.findIndex((s) => steps[s] === 'current' || steps[s] === 'needs_attention' || steps[s] === 'cancelled');
-  const current = CLIENT_TIMELINE_STEPS[Math.max(0, index)] ?? 'documents';
+  const index = items.findIndex(({ state }) => state === 'current' || state === 'needs_attention' || state === 'cancelled');
+  const current = items[Math.max(0, index)] ?? { step: 'documents', state: 'current' as const };
   return (
     <div className="flex flex-col gap-2">
       <p className="flex items-baseline justify-between gap-2 text-sm">
         <span className="flex flex-col">
-          <span className="font-medium">{t(stepLabel(current, steps[current]))}</span>
-          {steps[current] === 'needs_attention' ? <span className="text-xs text-status-rejected">{t('timeline.needs_more_docs')}</span> : null}
+          <span className="font-medium">{t(stepLabel(family, current.step, current.state))}</span>
+          {current.state === 'needs_attention' ? <span className="text-xs text-status-rejected">{t('timeline.needs_more_docs')}</span> : null}
         </span>
         <span className="text-xs text-muted-foreground">
-          {t('timeline.step_of', { n: formatNumber(Math.max(0, index) + 1), total: formatNumber(CLIENT_TIMELINE_STEPS.length) })}
+          {t('timeline.step_of', { n: formatNumber(Math.max(0, index) + 1), total: formatNumber(items.length) })}
         </span>
       </p>
       <ol aria-label={t('timeline.title')} className="flex gap-1.5">
-        {CLIENT_TIMELINE_STEPS.map((step) => {
-          const state = steps[step];
+        {items.map(({ step, state }) => {
           return (
             <li key={step} aria-current={state === 'current' || state === 'needs_attention' || state === 'cancelled' ? 'step' : undefined} className={cn('h-1.5 flex-1 rounded-full', FILL[state])}>
               <span className="sr-only">
-                {t(stepLabel(step, state))} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}
+                {t(stepLabel(family, step, state))} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(stateLabel(family, step, state))}
               </span>
             </li>
           );

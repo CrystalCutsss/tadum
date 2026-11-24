@@ -65,6 +65,8 @@ async function hashOf(file: File): Promise<string | null> {
 }
 
 export interface UploadHandlers {
+  /** Чей комплект — для событий (SP-03 §5: те же события с owner: supplier). */
+  owner?: 'client' | 'supplier';
   /** Выбран тот же файл: он не загружается, показать предупреждение. */
   onSameFile?: (names: string[]) => void;
   /** Выбрано больше файлов, чем помещается в документ. */
@@ -73,6 +75,7 @@ export interface UploadHandlers {
 
 export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'status' | 'files' | 'rejected_file_hashes'>, handlers: UploadHandlers = {}) {
   const queryClient = useQueryClient();
+  const owner = handlers.owner ?? 'client';
   const [tasks, setTasks] = useState<FileTask[]>([]);
   const queue = useRef<Job[]>([]);
   const running = useRef(false);
@@ -90,9 +93,9 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
   const fail = useCallback(
     (key: string, portal_key: string, reason: FailReason, messageKey: string, messageValues?: Record<string, number>) => {
       patch(key, { state: 'failed', messageKey, ...(messageValues ? { messageValues } : {}) });
-      track('document_upload_failed', { owner: 'client', portal_key, reason });
+      track('document_upload_failed', { owner, portal_key, reason });
     },
-    [patch],
+    [owner, patch],
   );
 
   const runOne = useCallback(
@@ -107,7 +110,7 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
       if (!network.isOnline()) return fail(key, portal_key, 'offline', 'upload.error.offline');
 
       track('document_upload_started', {
-        owner: 'client',
+        owner,
         portal_key,
         size_kb: Math.round(file.size / 1024),
         mime: MIME_SHORT[file.type],
@@ -128,21 +131,21 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
           // Отменили, а файл успел сохраниться — убираем его, чтобы список совпадал с ожиданием клиента.
           const added = result.document.files.find((f) => !doc.files.some((old) => old.id === f.id));
           if (added) await api.documents.delete(doc.id, added.id).catch(() => undefined);
-          track('document_upload_failed', { owner: 'client', portal_key, reason: 'cancelled' });
+          track('document_upload_failed', { owner, portal_key, reason: 'cancelled' });
           return;
         }
         const pv = result.prevalidation;
         if (pv.state === 'failed') {
           const rule = pv.rule_keys[0] ?? 'prevalidation.failed.title';
-          track('document_prevalidation_failed', { owner: 'client', portal_key, rule_key: rule });
+          track('document_prevalidation_failed', { owner, portal_key, rule_key: rule });
           patch(key, { state: 'failed', messageKey: rule });
           return;
         }
         if (doc.status === 'rejected') {
-          track('rejected_document_reuploaded', { owner: 'client', portal_key, attempt: 1, hours_since_rejection: 0 });
+          track('rejected_document_reuploaded', { owner, portal_key, attempt: 1, hours_since_rejection: 0 });
         }
         track('document_upload_succeeded', {
-          owner: 'client',
+          owner,
           portal_key,
           prevalidation: pv.state === 'warning' ? 'warning' : 'passed',
           replace: Boolean(job.replaceFileId),
@@ -159,7 +162,7 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
         const e = uploadErrorOf(error);
         if (e.reason === 'same_file_rejected' && handlersRef.current.onSameFile) {
           // Сервер узнал тот же файл — то же окно, что и при проверке до отправки.
-          track('document_upload_failed', { owner: 'client', portal_key, reason: e.reason });
+          track('document_upload_failed', { owner, portal_key, reason: e.reason });
           setTasks((all) => all.filter((t) => t.key !== key));
           handlersRef.current.onSameFile([file.name]);
           return;
@@ -169,7 +172,7 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
         await queryClient.invalidateQueries({ queryKey: ['documents'] });
       }
     },
-    [doc, fail, patch, queryClient],
+    [doc, fail, owner, patch, queryClient],
   );
 
   const drain = useCallback(async () => {
@@ -205,7 +208,7 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
         const sha = await hashOf(file);
         if (sha && known.has(sha)) {
           same.push(file.name);
-          track('document_upload_failed', { owner: 'client', portal_key: doc.portal_key, reason: 'same_file_rejected' });
+          track('document_upload_failed', { owner, portal_key: doc.portal_key, reason: 'same_file_rejected' });
           continue;
         }
         if (sha) known.add(sha);
@@ -218,7 +221,7 @@ export function useDocumentUpload(doc: Pick<Document, 'id' | 'portal_key' | 'sta
       queue.current.push(...jobs);
       void drain();
     },
-    [doc.files, doc.portal_key, doc.rejected_file_hashes, drain, tasks],
+    [doc.files, doc.portal_key, doc.rejected_file_hashes, drain, owner, tasks],
   );
 
   const cancel = useCallback(

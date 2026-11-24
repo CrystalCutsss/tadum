@@ -1,4 +1,4 @@
-<!-- source: Drive 1pITUGuZnZS9iNefPk5kkChngNVa5fMlW, synced: 2026-11-15. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1Ty6G_PVaOap53H4fou-kn3iQj88wGIal, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -179,9 +179,11 @@ Supplier:
   id: string                       # odoo: tadum.supplier.id
   name: string
   slug: string                     # реферальная страница tadum.sa/s/{slug}; редактировать нельзя (SFL-850)
-  referral_url: string             # https://tadum.sa/s/{slug}
-  supplier_status: SupplierStatus  # docs_required | under_review | active; см. 01-statuses.md §3
+  referral_url: string             # https://tadum.sa/s/{slug}; показываем только при partner / active (D-087)
+  odoo_stage: SupplierOdooStage    # стадия записи поставщика в Odoo (D-088)
+  supplier_status: SupplierStatus  # из odoo_stage, см. 01-statuses.md §3
   next_step: NextStep
+  cr_number?: string               # Commercial Registration поставщика; 10 цифр, LTR; обязателен для отправки комплекта (D-093)
   current_document_set_id: string
   counters:
     referred_total: number         # все привязанные лиды
@@ -269,7 +271,8 @@ DocumentHint:                      # то, что реально показыв�
 | `OdooStage` | New lead, Processing lead, Document collection, Need more docs for UW, Ready for UW, Company risk assessment, Risk committee, Approved, Offer confirmation, Signing SPA & PN, Client Approved, Payment done, Rejected by UW, Lost | `01-statuses.md` §1 |
 | `ClientStatus` | `docs_required`, `under_review`, `approved`, `first_purchase`, `closed` | §2 |
 | `SupplierViewStatus` | `applied`, `collecting_docs`, `under_review`, `approved`, `first_purchase`, `closed` | §2 |
-| `SupplierStatus` | `docs_required`, `under_review`, `active` | §3 |
+| `SupplierOdooStage` | New Lead, Processing: Pending Docs, Processing: Need Contract, Interested, Activated, Declined, Lost | §3 |
+| `SupplierStatus` | `application_created`, `docs_required`, `under_review`, `contract_pending`, `partner`, `active`, `declined`, `paused` | §3 |
 | `DocumentSetStatus` | `draft`, `submitted`, `in_review`, `completed`, `superseded` | §4 |
 | `DocumentStatus` | `pending`, `received`, `rejected`, `approved` | §5 |
 | `LimitStatus` | `pending`, `ready`, `active`, `cancelled`, `rejected` | §6 |
@@ -311,7 +314,12 @@ DocumentHint:                      # то, что реально показыв�
 | `client_closed_rejected` | client_contact | `closed` (Rejected by UW), лимит `rejected` | SC-08 |
 | `client_closed_lost` | client_contact | `closed` (Lost) | SC-08 |
 | `supplier_new` | supplier | `docs_required`, 0 клиентов | SP-01, SP-03 |
+| `supplier_review` | supplier | `under_review`: комплект отправлен, ссылки нет | SP-03, TD-001 |
+| `supplier_contract` | supplier | `contract_pending` (Processing: Need Contract): документы приняты, остался договор, ссылки нет | SP-03, TD-001 (D-090) |
+| `supplier_partner` | supplier | `partner` (Interested): ссылка и QR открыты, 0 клиентов | SP-02, SP-03, TD-001 (D-087, D-089) |
 | `supplier_active` | supplier | `active`, 14 приведённых клиентов во всех статусах, обороты | SP-02, SP-04, SP-05 |
+| `supplier_declined` | supplier | `declined` (Declined): нейтральный экран без причины | TD-001 |
+| `supplier_lost` | supplier | `paused` (Lost): кабинет только для чтения | TD-001 |
 | `unknown_phone` | — | номер без заявки | SC-01 (ошибка) |
 
 Правила генерации: `faker` с фиксированным `seed` на персону; названия компаний — вымышленные, арабские и английские варианты; телефоны только вида `+966 5X XXX XXXX` из диапазона, не принадлежащего реальным номерам (`+966 50 000 0XXX`); суммы кратны 500 SAR; даты относительно «сегодня», чтобы персоны не устаревали.

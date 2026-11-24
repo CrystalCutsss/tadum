@@ -466,21 +466,57 @@ describe('демо-действия поставщика — каждое (SP-03
     return api.documents.getSet({ kind: 'supplier', id: s.id });
   }
 
-  it('uwApproveSupplierSet: отправленный комплект → completed, supplier_status active', async () => {
+  it('D-093: без номера CR комплект поставщика не отправить; номер — 10 цифр', async () => {
     const api = as('supplier_new');
     const set = await supplierSet(api);
     for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
+    await expect(api.documents.submit(set.id)).rejects.toMatchObject({ code: 'documents.submit_incomplete' });
+    await expect(api.supplier.setCrNumber('123')).rejects.toMatchObject({ code: 'company.cr_invalid' });
+    expect((await api.supplier.setCrNumber('1010123456')).cr_number).toBe('1010123456');
+    await expect(api.documents.submit(set.id)).resolves.toMatchObject({ locked: true });
+  });
+  it('uwApproveSupplierSet: отправленный комплект → completed, contract_pending без ссылки (D-088, D-090)', async () => {
+    const api = as('supplier_new');
+    const set = await supplierSet(api);
+    for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
+    await api.supplier.setCrNumber('1010123456');
     // SP-03 A5: необязательный sup_cr не мешает отправке.
     await api.documents.submit(set.id);
     expect((await api.supplier.get()).supplier_status).toBe('under_review');
     api.demo!.uwApproveSupplierSet();
     expect((await supplierSet(api)).status).toBe('completed');
-    expect(await api.supplier.get()).toMatchObject({ supplier_status: 'active', next_step: { text_key: 'next_step.supplier.share_link' } });
+    expect(await api.supplier.get()).toMatchObject({
+      odoo_stage: 'Processing: Need Contract',
+      supplier_status: 'contract_pending',
+      next_step: { owner: 'tadum', text_key: 'next_step.supplier.contract_pending' },
+    });
+  });
+  it('стадии поставщика: договор → partner → active; Declined; Lost и возврат (01-statuses.md §10, D-087)', async () => {
+    const api = as('supplier_new');
+    const set = await supplierSet(api);
+    for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
+    await api.supplier.setCrNumber('1010123456');
+    await api.documents.submit(set.id);
+    // Договор не готов — партнёром стать нельзя.
+    expect(() => api.demo!.salesSupplierContractDone()).toThrow();
+    api.demo!.uwApproveSupplierSet();
+    api.demo!.salesSupplierContractDone();
+    expect(await api.supplier.get()).toMatchObject({ supplier_status: 'partner', next_step: { owner: 'user', text_key: 'next_step.supplier.share_link' } });
+    api.demo!.odooSupplierActivated();
+    expect((await api.supplier.get()).supplier_status).toBe('active');
+    api.demo!.odooSupplierLost();
+    expect(await api.supplier.get()).toMatchObject({ supplier_status: 'paused', next_step: { owner: 'none' } });
+    api.demo!.returnToProcessing();
+    // Комплект принят и закрыт — по комплекту это «Проверка».
+    expect((await api.supplier.get()).supplier_status).toBe('under_review');
+    api.demo!.odooSupplierDecline();
+    expect((await api.supplier.get()).supplier_status).toBe('declined');
   });
   it('uwRejectSupplierDocument: документ rejected, комплект снова draft, docs_required (SP-03 A1)', async () => {
     const api = as('supplier_new');
     const set = await supplierSet(api);
     for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
+    await api.supplier.setCrNumber('1010123456');
     await api.documents.submit(set.id);
     api.demo!.uwApproveDocument(set.documents[0]!.id);
     api.demo!.uwRejectSupplierDocument('sup_iban_letter', 'reject.iban.unreadable');

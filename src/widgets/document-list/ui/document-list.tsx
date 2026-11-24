@@ -62,10 +62,11 @@ export function DocumentList({ set, editable, focusKey, header, crReady, crRequi
   if (order.round !== set.round) setOrder(initialOrder());
   const docs = stableOrder(set.documents, order.keys);
   const moreDocs = set.round > 1 && editable;
+  const owner = set.owner.kind === 'supplier' ? 'supplier' : 'client';
 
   useEffect(() => {
-    if (moreDocs) track('more_docs_banner_viewed', { owner: 'client', round: set.round, requested_count: set.documents.length, repeated_count: 0 });
-    if (!editable) track('documents_viewed_locked', { owner: 'client', documents_count: set.documents.length });
+    if (moreDocs) track('more_docs_banner_viewed', { owner, round: set.round, requested_count: set.documents.length, repeated_count: 0 });
+    if (!editable) track('documents_viewed_locked', { owner, documents_count: set.documents.length });
     // Один показ на раунд и режим.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [set.round, editable]);
@@ -103,6 +104,7 @@ export function DocumentList({ set, editable, focusKey, header, crReady, crRequi
             // Подсветка гаснет сама, когда документ загружен.
             highlighted={highlight.includes(doc.portal_key) && (doc.status === 'pending' || doc.status === 'rejected')}
             onUploadingChange={onUploadingChange}
+            owner={owner}
           />
         ))}
       </ul>

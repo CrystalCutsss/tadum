@@ -1,4 +1,4 @@
-<!-- source: Drive 1JWyQ0jSQD25QJKoHe1KLZs8Yxm0bE31z, synced: 2026-11-19. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1j_8F4mStJ2iIrQcxU25zrpJDYBcz_450, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -72,21 +72,26 @@ docs_required ──submit──▶ under_review ──approve──▶ approved
 
 ---
 
-## 3. Собственный статус поставщика (`SupplierStatus`) — предложение
+## 3. Собственный статус поставщика (`SupplierStatus`)
 
-В требованиях для поставщика задан таймлайн «Документы → Проверка → Активен», но не задан маппинг на стадии его собственной записи в Odoo. Предлагаемая модель до подтверждения (вопрос S-1):
+Статус берётся из стадии записи поставщика в Odoo (D-088, закрывает S-1). Шкала — «Документы → Проверка → Партнёр»; Need Contract — подсостояние шага «Проверка» (D-090).
 
 ```yaml
-SupplierStatus: docs_required | under_review | active
+SupplierStatus: application_created | docs_required | under_review | contract_pending | partner | active | declined | paused
 ```
 
-| `supplier_status` | Условие (предложение) | Шаг таймлайна | Следующий шаг |
-|---|---|---|---|
-| `docs_required` | у поставщика есть комплект с `pending`/`rejected` обязательными документами и он не отправлен | documents: current | «Загрузите недостающие документы» |
-| `under_review` | комплект отправлен (`locked`), не все документы `approved` | review: current | «Проверяем документы» |
-| `active` | все обязательные документы `approved` (или комплект не требуется) | active: current | «Вы активны: делитесь ссылкой» |
+| Стадия Odoo | `supplier_status` | Шаг шкалы | Следующий шаг (чей) | Документы | Ссылка и QR | Список клиентов |
+|---|---|---|---|---|---|---|
+| New Lead | `application_created` | documents: current | «Загрузите документы» (поставщик) | загрузка | — | — |
+| Processing: Pending Docs или rejected | `docs_required` | documents: current | «Загрузите недостающие документы» / «N документов нужен новый файл» (поставщик) | загрузка и замена | — | — |
+| комплект отправлен (`locked`), стадия ещё Processing | `under_review` | review: current | «Проверяем документы» (Tadum) | только чтение | — | — |
+| Processing: Need Contract, нет данных | `contract_pending` | review: current | «Остался договор — менеджер свяжется» (Tadum) | только чтение | — | — |
+| Interested | `partner` | partner: current | «Вы партнёр Tadum: делитесь ссылкой» (поставщик) | только чтение | да | да |
+| Activated | `active` | partner: current | «Делитесь ссылкой» (поставщик) | только чтение | да | да |
+| Declined | `declined` | partner: cancelled («Не активен») | нейтральная карточка без причины, «Связаться с нами» (D-092) | — | — | — |
+| Lost | `paused` | partner: cancelled («Не активен») | карточка «Работа приостановлена, свяжитесь с нами» (D-092) | — | — | — |
 
-Реферальная ссылка и список клиентов доступны в любом статусе (D-022). Закрытого статуса у поставщика в MVP нет.
+`under_review` выводится на фронтенде из `document_set.locked`, пока Odoo не перевёл запись (гонка, SP-01 A2). Реферальная ссылка, QR и список клиентов — только при `partner` и `active` (D-087, заменяет D-022). Материалы — на любой стадии. Возврат из `paused` — кнопка Return to Processing в Odoo.
 
 ---
 
@@ -188,7 +193,7 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | first_purchase | any | active | true | done | done | done | done | done |
 | closed | any | any | any | шкала скрыта, карточка «Заявка закрыта» | | | | |
 
-Для поставщика: `docs_required` → documents current; `under_review` → documents done, review current; `active` → все done, active current.
+Для поставщика (D-088, D-090): `application_created`, `docs_required` → documents current; `under_review`, `contract_pending` → documents done, review current; `partner`, `active` → все done, partner current с текстом состояния «Active»; `paused`, `declined` → documents done, review done, partner cancelled («Не активен», серый крестик — как отменённый лимит у клиента, D-092).
 
 ---
 
@@ -224,6 +229,13 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | `createApplication()` | только из `closed`: новая заявка `docs_required`, раунд 1, пустой комплект; старая остаётся `closed`; `resolveRoles` далее находит новую |
 | `expireSession()` | следующий вызов порта → `401` |
 | `setNetwork('offline' | 'slow' | 'error')` | имитация сети для состояний оболочки |
+| `uwApproveSupplierSet()` | комплект поставщика: `received → approved`, `completed`, `locked`; `odoo_stage` поставщика = Processing: Need Contract, `supplier_status = contract_pending` (D-090) |
+| `uwRejectSupplierDocument(portal_key, reason_tag?)` | документ поставщика → `rejected`; комплект снова `draft`, `locked = false`; `odoo_stage` = Processing: Pending Docs, `supplier_status = docs_required` (D-047) |
+| `odooRequireDocument(portal_key)` | новый обязательный документ поставщика `pending`, `supplier_status = docs_required` (D-048) |
+| `salesSupplierContractDone()` | договор и данные получены: `odoo_stage` поставщика = Interested, `supplier_status = partner` — открываются ссылка и QR (D-087) |
+| `odooSupplierActivated()` | первая сделка через поставщика: `odoo_stage` = Activated, `supplier_status = active` |
+| `odooSupplierDecline()` / `odooSupplierLost()` | `odoo_stage` = Declined / Lost, `supplier_status = declined` / `paused` |
+| `returnToProcessing()` | из Lost: `odoo_stage` = Processing: Pending Docs; `supplier_status` — по комплекту (`docs_required` или `under_review`) |
 
 Инварианты, которые мок обязан соблюдать (и которые покрыты тестами адаптера): после `submitted` любая попытка изменить файл → ошибка `document_set_locked`; `available` никогда < 0; новый комплект содержит только запрошенные ключи; `ReferredClient.turnover` считает только `payment_done`/`repaid` (D-012).
 
@@ -235,7 +247,7 @@ ChecklistItemStatus: pending | in_progress | done | failed
 
 | # | Вопрос | По умолчанию до ответа | Владелец |
 |---|---|---|---|
-| S-1 | Как в Odoo устроен статус самого поставщика (стадии записи `tadum.supplier`)? Нужен маппинг, аналогичный клиентскому | Модель из раздела 3 (вычисляем из состояния комплекта документов) | Бэкенд / SFL-846 |
+| S-1 | Как в Odoo устроен статус самого поставщика (стадии записи `tadum.supplier`)? Нужен маппинг, аналогичный клиентскому | Решено (D-088): маппинг стадий в разделе 3 | Бэкенд / SFL-846 |
 | S-2 | Есть ли статус `approved` у документа в Odoo (Doc Collection Engine упоминает pending / received / rejected), или «принят» = просто не отклонён после проверки? | Поддерживаем `approved`; если Odoo не отдаёт — все не-`rejected` после `completed` считаем `approved` | Бэкенд |
 | S-4 | Статус `cancelled` у лимита — когда возникает и что видит клиент? | Нейтральный текст + поддержка | Продукт |
 | S-5 | Нужен ли клиенту статус-экран для `Offer confirmation` («продажи свяжутся с вами»)? | Да, через `next_step` с owner = tadum, без отдельного экрана | Продукт |

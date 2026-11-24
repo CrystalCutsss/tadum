@@ -23,7 +23,7 @@ export function useSubmitDocuments(set: DocumentSet | undefined) {
     onSuccess: async () => {
       if (set) {
         track('document_set_submitted', {
-          owner: 'client',
+          owner: set.owner.kind === 'supplier' ? 'supplier' : 'client',
           documents_count: set.documents.filter((d) => d.files.length > 0).length,
           optional_uploaded: set.documents.some((d) => !d.required && d.files.length > 0),
           auto: false,
@@ -32,7 +32,7 @@ export function useSubmitDocuments(set: DocumentSet | undefined) {
         });
       }
       await queryClient.invalidateQueries({ queryKey: ['documents'] });
-      await queryClient.invalidateQueries({ queryKey: ['application'] });
+      await queryClient.invalidateQueries({ queryKey: [set?.owner.kind === 'supplier' ? 'supplier' : 'application'] });
     },
   });
 }

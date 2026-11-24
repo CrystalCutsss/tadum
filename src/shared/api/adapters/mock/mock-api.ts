@@ -45,8 +45,10 @@ import { hash, hashRange, sha256Hex } from './hash';
  * без сброса браузер показывал старое состояние персоны (уже отправленный комплект). 5 — подписание из двух шагов
  * (SPA и вексель, D-083) вместо трёх пунктов. 6 — сброс состояний на превью после правок подписания (2026-11-15).
  * 7 — сброс после демо-автоподписи договора: у `client_approved_unsigned` в браузере оставался «подписан» (2026-11-18).
+ * 8 — поставщик: номер CR вместо файла `sup_cr` (D-093); в браузере у `supplier_new` оставался файл CR рядом с блоком
+ * номера (2026-11-24).
  */
-export const MOCK_SCHEMA_VERSION = 7;
+export const MOCK_SCHEMA_VERSION = 8;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
@@ -315,6 +317,10 @@ export function createMockApi(options: MockApiOptions): Api {
 
   const clientSet = (g: PersonaGraph) => setById(g, currentApp(g).current_document_set_id);
 
+  const supplierOf = (g: PersonaGraph) => {
+    if (!g.supplier) throw new NotFound('supplier');
+    return g.supplier;
+  };
   const supplierSet = (g: PersonaGraph) => {
     if (!g.supplier) throw new NotFound('supplier');
     return setById(g, g.supplier.current_document_set_id);
@@ -577,6 +583,8 @@ export function createMockApi(options: MockApiOptions): Api {
             if (!allowed) throw new Forbidden();
             // Без номера CR комплект клиента не отправить (решение Кирилла 2026-11-10).
             if (set.owner.kind === 'application' && !g.company?.cr_number) throw new DomainError('documents.submit_incomplete');
+            // У поставщика тоже: без номера CR комплект не отправить (D-093).
+            if (set.owner.kind === 'supplier' && !g.supplier?.cr_number) throw new DomainError('documents.submit_incomplete');
             submitIn(g, set);
             return structuredClone(set);
           });
@@ -623,6 +631,17 @@ export function createMockApi(options: MockApiOptions): Api {
           const s = fresh(asSupplier().state).supplier;
           if (!s) throw new NotFound('supplier');
           return s.counters;
+        }),
+      setCrNumber: (crNumber) =>
+        io('supplier.setCrNumber', () => {
+          const { state } = asSupplier();
+          if (!/^\d{10}$/.test(crNumber)) throw new DomainError('company.cr_invalid');
+          commit(state, (g) => {
+            supplierOf(g).cr_number = crNumber;
+          });
+          const s = fresh(asSupplier().state).supplier;
+          if (!s) throw new NotFound('supplier');
+          return s;
         }),
     },
 
@@ -891,6 +910,8 @@ export function createMockApi(options: MockApiOptions): Api {
         for (const doc of set.documents) if (doc.status === 'received') doc.status = 'approved';
         set.status = 'completed';
         set.locked = true;
+        // D-090: документы приняты — остался договор.
+        supplierOf(g).odoo_stage = 'Processing: Need Contract';
       }),
     uwRejectSupplierDocument: (portalKey, reasonTag) =>
       act((g) => {
@@ -901,6 +922,7 @@ export function createMockApi(options: MockApiOptions): Api {
         // SP-03 A1: комплект снова открыт; approved остаются только для чтения.
         set.status = 'draft';
         set.locked = false;
+        supplierOf(g).odoo_stage = 'Processing: Pending Docs';
       }),
     odooRequireDocument: (portalKey) =>
       act((g, state) => {
@@ -913,6 +935,7 @@ export function createMockApi(options: MockApiOptions): Api {
           const setId = nextId(state, 'set');
           g.document_sets.push({ id: setId, owner: set.owner, round: set.round + 1, status: 'draft', locked: false, documents: [pendingDocument(setId, portalKey, t, [])] });
           supplier.current_document_set_id = setId;
+          supplier.odoo_stage = 'Processing: Pending Docs';
           return;
         }
         const existing = set.documents.find((x) => x.portal_key === portalKey);
@@ -920,6 +943,34 @@ export function createMockApi(options: MockApiOptions): Api {
         else set.documents.push(pendingDocument(set.id, portalKey, t, []));
         set.status = 'draft';
         set.locked = false;
+        supplier.odoo_stage = 'Processing: Pending Docs';
+      }),
+    // Стадии поставщика в Odoo (01-statuses.md §10, D-088).
+    salesSupplierContractDone: () =>
+      act((g) => {
+        const supplier = supplierOf(g);
+        if (supplier.odoo_stage !== 'Processing: Need Contract') throw new DomainError('not_allowed');
+        supplier.odoo_stage = 'Interested';
+      }),
+    odooSupplierActivated: () =>
+      act((g) => {
+        const supplier = supplierOf(g);
+        if (supplier.odoo_stage !== 'Interested') throw new DomainError('not_allowed');
+        supplier.odoo_stage = 'Activated';
+      }),
+    odooSupplierDecline: () =>
+      act((g) => {
+        supplierOf(g).odoo_stage = 'Declined';
+      }),
+    odooSupplierLost: () =>
+      act((g) => {
+        supplierOf(g).odoo_stage = 'Lost';
+      }),
+    returnToProcessing: () =>
+      act((g) => {
+        const supplier = supplierOf(g);
+        if (supplier.odoo_stage !== 'Lost') throw new DomainError('not_allowed');
+        supplier.odoo_stage = 'Processing: Pending Docs';
       }),
     cancelLimit: () =>
       act((g) => {

@@ -49,7 +49,7 @@ export const Supplier: Story = {
   loaders: [async () => ({ api: await signedIn('supplier_active') })],
   play: async ({ canvasElement }) => {
     const nav = await within(canvasElement).findByRole('navigation', { name: tr('nav.main') });
-    await expect(within(nav).getByRole('link', { name: tr('nav.documents') })).toHaveAttribute('data-active', 'true');
+    await expect(within(nav).getByRole('link', { name: tr('nav.application') })).toHaveAttribute('data-active', 'true');
     await expect(await account(canvasElement)).toHaveTextContent(tr('role.supplier'));
   },
 };
