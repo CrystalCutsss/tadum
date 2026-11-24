@@ -61,7 +61,8 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex min-h-11 items-center gap-2 rounded-lg border bg-background ps-3 pe-1">
+      {/* Кнопка копирования — с равным отступом 4 px сверху, снизу и с края поля (Кирилл 2026-11-24); цель касания 44 px. */}
+      <div className="flex items-center gap-2 rounded-lg border bg-background p-1 ps-3">
         <span ref={linkRef} className="min-w-0 flex-1 text-sm font-medium wrap-anywhere md:text-base" data-testid="referral-url">
           <Ltr>{url}</Ltr>
         </span>
