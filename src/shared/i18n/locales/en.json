@@ -446,12 +446,11 @@
       "title": "Your application is no longer active"
     },
     "partner": {
-      "documents_link": "Documents",
       "how_step1": "Send the link to your client",
       "how_step2": "The client applies to buy now and pay in parts",
       "how_step3": "Follow your clients' status in your account",
       "how_title": "How it works",
-      "qr_button": "QR code for your store",
+      "qr_button": "QR code",
       "subtitle": "Clients who apply through your link are linked to you automatically",
       "title": "You're a Tadum partner"
     },
@@ -501,7 +500,9 @@
     "step_of": "Step {n} of {total}",
     "supplier": {
       "documents": "Documents",
+      "inactive": "Not active",
       "partner": "Partner",
+      "partner_active": "Active",
       "review": "Review"
     },
     "title": "Application progress"

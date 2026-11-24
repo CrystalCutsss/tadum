@@ -46,7 +46,8 @@ test('@smoke supplier_partner: «Вы партнёр Tadum» — ссылка к
   if (browserName === 'chromium') await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.getByRole('button', { name: tr(LANG, 'referral.copy') }).click();
   if (browserName === 'chromium') {
-    await expect(page.getByRole('button', { name: tr(LANG, 'referral.copied') })).toBeVisible();
+    // «Скопировано» — тостом (D-092).
+    await expect(page.getByText(tr(LANG, 'referral.copied'), { exact: true })).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('https://tadum.sa/s/zahrat-al-madina');
   }
 
@@ -59,9 +60,10 @@ test('@smoke supplier_partner: «Вы партнёр Tadum» — ссылка к
   expect((await download).suggestedFilename()).toBe('tadum-zahrat-al-madina-qr.png');
   await page.keyboard.press('Escape');
 
-  // Документы — только чтение, в выдвижной панели.
-  await page.getByRole('button', { name: tr(LANG, 'supplier.partner.documents_link') }).click();
-  await expect(page.getByRole('dialog', { name: tr(LANG, 'supplier.partner.documents_link') })).toBeVisible();
+  // D-092: «Как это работает» — отдельный блок; шкала остаётся, у «Партнёр» — «Active»; кнопки «Документы» нет.
+  await expect(page.getByRole('heading', { name: tr(LANG, 'supplier.partner.how_title') })).toBeVisible();
+  await expect(page.getByText(tr(LANG, 'timeline.supplier.partner_active'), { exact: true }).first()).toBeAttached();
+  await expect(page.getByRole('button', { name: tr(LANG, 'nav.documents'), exact: true })).toHaveCount(0);
 });
 
 test('supplier_declined: нейтральный экран без причины и без документов', async ({ page }) => {
@@ -71,10 +73,11 @@ test('supplier_declined: нейтральный экран без причины
   await expect(shareButton(page)).toHaveCount(0);
 });
 
-test('supplier_lost: баннер «Работа приостановлена», документы только для чтения, ссылки нет', async ({ page }) => {
+test('supplier_lost: карточка «Работа приостановлена» как отменённый лимит у клиента, шаг «Не активен», ссылки нет (D-092)', async ({ page }) => {
   await openApplication(page, 'supplier_lost');
   await expect(page.getByRole('heading', { name: tr(LANG, 'supplier.paused.title') })).toBeVisible();
-  await expect(page.getByRole('list', { name: tr(LANG, 'documents.list_label') })).toBeVisible();
+  await expect(page.getByText(tr(LANG, 'timeline.supplier.inactive'), { exact: true }).first()).toBeAttached();
+  await expect(page.getByRole('link', { name: tr(LANG, 'supplier.contact_us') })).toBeVisible();
   await expect(shareButton(page)).toHaveCount(0);
 });
 

@@ -50,9 +50,17 @@ export function orderedSteps(props: TimelineSteps): { step: string; state: Timel
     : CLIENT_TIMELINE_STEPS.map((step) => ({ step, state: props.steps[step] }));
 }
 
-/** Название шага; отменённый лимит — «Лимит не активен» вместо «Лимит одобрен». */
+/** Название шага; отменённый лимит — «Лимит не активен», поставщик Lost/Declined — «Не активен» (Кирилл 2026-11-24). */
 export const stepLabel = (family: 'client' | 'supplier', step: string, state: TimelineStepState) =>
-  state === 'cancelled' ? 'timeline.client.limit_inactive' : (`timeline.${family}.${step}` as 'timeline.client.documents');
+  state === 'cancelled'
+    ? family === 'supplier'
+      ? 'timeline.supplier.inactive'
+      : 'timeline.client.limit_inactive'
+    : (`timeline.${family}.${step}` as 'timeline.client.documents');
+
+/** Состояние шага текстом; у поставщика текущий шаг «Партнёр» — «Active» вместо «In progress» (Кирилл 2026-11-24). */
+export const stateLabel = (family: 'client' | 'supplier', step: string, state: TimelineStepState) =>
+  family === 'supplier' && step === 'partner' && state === 'current' ? 'timeline.supplier.partner_active' : (`timeline.state.${state}` as const);
 
 /** `auto` — вертикально на телефоне, в строку с md; `vertical` — всегда столбиком (боковая панель экрана документов). */
 export type TimelineOrientation = 'auto' | 'vertical';
@@ -79,7 +87,7 @@ export function StatusTimeline({ orientation = 'auto', ...props }: TimelineSteps
                 {t(stepLabel(family, step, state))}
               </span>
               <span className={cn('text-xs', state === 'needs_attention' ? 'text-status-rejected' : 'text-muted-foreground')}>
-                {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}
+                {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(stateLabel(family, step, state))}
               </span>
             </div>
           </li>

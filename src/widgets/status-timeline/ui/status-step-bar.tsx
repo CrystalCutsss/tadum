@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import type { TimelineStepState } from '@/entities/application';
 import { formatNumber } from '@/shared/i18n';
 
-import { orderedSteps, stepLabel, type TimelineSteps } from './status-timeline';
+import { orderedSteps, stateLabel, stepLabel, type TimelineSteps } from './status-timeline';
 
 const FILL: Record<TimelineStepState, string> = {
   done: 'bg-status-done',
@@ -42,7 +42,7 @@ export function StatusStepBar(props: TimelineSteps) {
           return (
             <li key={step} aria-current={state === 'current' || state === 'needs_attention' || state === 'cancelled' ? 'step' : undefined} className={cn('h-1.5 flex-1 rounded-full', FILL[state])}>
               <span className="sr-only">
-                {t(stepLabel(family, step, state))} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(`timeline.state.${state}`)}
+                {t(stepLabel(family, step, state))} — {state === 'needs_attention' ? t('timeline.needs_more_docs') : t(stateLabel(family, step, state))}
               </span>
             </li>
           );

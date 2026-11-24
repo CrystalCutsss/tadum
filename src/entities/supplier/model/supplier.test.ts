@@ -46,22 +46,20 @@ describe('01-statuses.md §3 — deriveSupplierStatus по стадии Odoo, к
 describe('01-statuses.md §8 — шкала поставщика documents → review → partner', () => {
   const rule = section(statuses, '8.');
   it.each([
-    ['application_created', false, { documents: 'current', review: 'upcoming', partner: 'upcoming' }],
-    ['docs_required', false, { documents: 'current', review: 'upcoming', partner: 'upcoming' }],
-    ['under_review', true, { documents: 'done', review: 'current', partner: 'upcoming' }],
-    ['contract_pending', true, { documents: 'done', review: 'current', partner: 'upcoming' }],
-    ['partner', true, { documents: 'done', review: 'done', partner: 'current' }],
-    ['active', true, { documents: 'done', review: 'done', partner: 'current' }],
-    ['paused', true, { documents: 'done', review: 'current', partner: 'upcoming' }],
-    ['paused', false, { documents: 'current', review: 'upcoming', partner: 'upcoming' }],
-  ] as const)('%s (locked: %s)', (status, isLocked, expected) => {
-    expect(computeSupplierTimeline(status, isLocked)).toEqual(expected);
+    ['application_created', { documents: 'current', review: 'upcoming', partner: 'upcoming' }],
+    ['docs_required', { documents: 'current', review: 'upcoming', partner: 'upcoming' }],
+    ['under_review', { documents: 'done', review: 'current', partner: 'upcoming' }],
+    ['contract_pending', { documents: 'done', review: 'current', partner: 'upcoming' }],
+    ['partner', { documents: 'done', review: 'done', partner: 'current' }],
+    ['active', { documents: 'done', review: 'done', partner: 'current' }],
+    // D-092: Lost и Declined — последний шаг «Не активен», как отменённый лимит у клиента.
+    ['paused', { documents: 'done', review: 'done', partner: 'cancelled' }],
+    ['declined', { documents: 'done', review: 'done', partner: 'cancelled' }],
+  ] as const)('%s', (status, expected) => {
+    expect(computeSupplierTimeline(status)).toEqual(expected);
     expect(rule).toContain(`\`${status}\``);
   });
-  it('declined — шкалы нет', () => {
-    expect(computeSupplierTimeline('declined')).toBeNull();
-    expect(rule).toContain('`declined` — шкалы нет');
-  });
+  it('D-092: у Lost и Declined последний шаг cancelled', () => expect(rule).toContain('partner cancelled'));
 });
 
 describe('01-roles.md §5 — права поставщика, каждая строка', () => {

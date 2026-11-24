@@ -1,12 +1,11 @@
 // Реферальная ссылка и действия с ней (SP-02 §1, D-089): поле со ссылкой и копированием, «Поделиться в WhatsApp»,
 // «QR-код для магазина» (выдвижная панель грузится лениво — библиотека QR не попадает в первый чанк).
-import { RiCheckLine, RiFileCopyLine, RiQrCodeLine, RiWhatsappFill } from '@remixicon/react';
-import { cn } from 'cn';
+import { RiCheckLine, RiFileCopyLine, RiQrCodeLine, RiWhatsappLine } from '@remixicon/react';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { track } from '@/shared/analytics';
-import { Button, Icon, Ltr } from '@/shared/ui';
+import { Button, Icon, Ltr, toast } from '@/shared/ui';
 
 import { copyText, shareLink, shareMessage } from '../model/referral';
 
@@ -26,7 +25,6 @@ export interface ReferralActionsProps {
 export function ReferralActions({ url, slug, supplierName, source }: ReferralActionsProps) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const [manual, setManual] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const linkRef = useRef<HTMLSpanElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -34,7 +32,8 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
 
   async function onCopy() {
     if (await copyText(url)) {
-      setManual(false);
+      // «Скопировано» — тостом (Кирилл 2026-11-24); иконка на кнопке на 2 с меняется на галочку.
+      toast(t('referral.copied'));
       setCopied(true);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), COPIED_FOR);
@@ -50,7 +49,7 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
       selection.removeAllRanges();
       selection.addRange(range);
     }
-    setManual(true);
+    toast(t('referral.copy_manual'));
     track('referral_link_copied', { source, method: 'manual' });
   }
 
@@ -61,7 +60,7 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex min-h-11 items-center gap-2 rounded-lg border bg-background ps-3 pe-1">
         <span ref={linkRef} className="min-w-0 flex-1 text-sm font-medium wrap-anywhere md:text-base" data-testid="referral-url">
           <Ltr>{url}</Ltr>
@@ -70,16 +69,13 @@ export function ReferralActions({ url, slug, supplierName, source }: ReferralAct
           <Icon icon={copied ? RiCheckLine : RiFileCopyLine} />
         </Button>
       </div>
-      {/* Живой регион всегда в DOM (иначе скринридер пропустит «Скопировано»), но без текста не занимает места. */}
-      <p className={cn('text-sm text-muted-foreground', !copied && !manual && 'sr-only')} aria-live="polite">
-        {copied ? t('referral.copied') : manual ? t('referral.copy_manual') : ''}
-      </p>
+      {/* Телефон — кнопки друг под другом на всю ширину; с md — в строку по ширине текста (Кирилл 2026-11-24). Обе серые. */}
       <div className="flex flex-col gap-2 md:flex-row">
-        <Button type="button" variant="whatsapp" className="min-h-11 md:flex-1" onClick={() => void onShare()}>
-          <Icon icon={RiWhatsappFill} />
+        <Button type="button" variant="secondary" className="min-h-11 md:w-fit" onClick={() => void onShare()}>
+          <Icon icon={RiWhatsappLine} />
           {t('referral.share_whatsapp')}
         </Button>
-        <Button type="button" variant="secondary" className="min-h-11 md:flex-1" onClick={() => setQrOpen(true)}>
+        <Button type="button" variant="secondary" className="min-h-11 md:w-fit" onClick={() => setQrOpen(true)}>
           <Icon icon={RiQrCodeLine} />
           {t('supplier.partner.qr_button')}
         </Button>

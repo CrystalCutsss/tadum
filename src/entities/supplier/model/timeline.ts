@@ -2,7 +2,7 @@
 
 import type { SupplierStatus } from '@/shared/api';
 
-export type SupplierTimelineStepState = 'done' | 'current' | 'upcoming';
+export type SupplierTimelineStepState = 'done' | 'current' | 'upcoming' | 'cancelled';
 export const SUPPLIER_TIMELINE_STEPS = ['documents', 'review', 'partner'] as const;
 export type SupplierTimelineStep = (typeof SUPPLIER_TIMELINE_STEPS)[number];
 
@@ -11,11 +11,10 @@ type Steps = Record<SupplierTimelineStep, SupplierTimelineStepState>;
 const AT_DOCUMENTS: Steps = { documents: 'current', review: 'upcoming', partner: 'upcoming' };
 const AT_REVIEW: Steps = { documents: 'done', review: 'current', partner: 'upcoming' };
 const AT_PARTNER: Steps = { documents: 'done', review: 'done', partner: 'current' };
+/** Lost и Declined — последний шаг «Не активен» с серым крестиком, как отменённый лимит у клиента (Кирилл 2026-11-24). */
+const INACTIVE: Steps = { documents: 'done', review: 'done', partner: 'cancelled' };
 
-/**
- * null — шкалы нет (declined). paused (Lost) — шкала по последнему шагу: комплект отправлен — «Проверка», иначе «Документы».
- */
-export function computeSupplierTimeline(status: SupplierStatus, locked = false): Steps | null {
+export function computeSupplierTimeline(status: SupplierStatus): Steps {
   switch (status) {
     case 'application_created':
     case 'docs_required':
@@ -27,8 +26,7 @@ export function computeSupplierTimeline(status: SupplierStatus, locked = false):
     case 'active':
       return AT_PARTNER;
     case 'paused':
-      return locked ? AT_REVIEW : AT_DOCUMENTS;
     case 'declined':
-      return null;
+      return INACTIVE;
   }
 }

@@ -1,4 +1,4 @@
-<!-- source: Drive 1iyg3W531VsIjtA0XJagSw4lM5IYiogYd, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1j_8F4mStJ2iIrQcxU25zrpJDYBcz_450, synced: 2026-11-24. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -88,8 +88,8 @@ SupplierStatus: application_created | docs_required | under_review | contract_pe
 | Processing: Need Contract, нет данных | `contract_pending` | review: current | «Остался договор — менеджер свяжется» (Tadum) | только чтение | — | — |
 | Interested | `partner` | partner: current | «Вы партнёр Tadum: делитесь ссылкой» (поставщик) | только чтение | да | да |
 | Activated | `active` | partner: current | «Делитесь ссылкой» (поставщик) | только чтение | да | да |
-| Declined | `declined` | — | нейтральный экран без причины, поддержка | — | — | — |
-| Lost | `paused` | шкала только для чтения | «Работа приостановлена, свяжитесь с нами» | только чтение | — | — |
+| Declined | `declined` | partner: cancelled («Не активен») | нейтральная карточка без причины, «Связаться с нами» (D-092) | — | — | — |
+| Lost | `paused` | partner: cancelled («Не активен») | карточка «Работа приостановлена, свяжитесь с нами» (D-092) | — | — | — |
 
 `under_review` выводится на фронтенде из `document_set.locked`, пока Odoo не перевёл запись (гонка, SP-01 A2). Реферальная ссылка, QR и список клиентов — только при `partner` и `active` (D-087, заменяет D-022). Материалы — на любой стадии. Возврат из `paused` — кнопка Return to Processing в Odoo.
 
@@ -193,7 +193,7 @@ ChecklistItemStatus: pending | in_progress | done | failed
 | first_purchase | any | active | true | done | done | done | done | done |
 | closed | any | any | any | шкала скрыта, карточка «Заявка закрыта» | | | | |
 
-Для поставщика (D-088, D-090): `application_created`, `docs_required` → documents current; `under_review`, `contract_pending` → documents done, review current; `partner`, `active` → все done, partner current; `paused` — шкала по последнему шагу, только для чтения; `declined` — шкалы нет.
+Для поставщика (D-088, D-090): `application_created`, `docs_required` → documents current; `under_review`, `contract_pending` → documents done, review current; `partner`, `active` → все done, partner current с текстом состояния «Active»; `paused`, `declined` → documents done, review done, partner cancelled («Не активен», серый крестик — как отменённый лимит у клиента, D-092).
 
 ---
 

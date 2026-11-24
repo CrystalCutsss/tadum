@@ -147,7 +147,8 @@ export function DocumentRow({ doc, editable, highlighted = false, archive = fals
               {/* Заголовок документа крупнее заголовков файлов — блоки в длинном списке не сливаются (Кирилл 2026-11-11). */}
               <ItemTitle className="flex-wrap text-base font-semibold max-sm:w-full max-sm:flex-nowrap max-sm:items-start">
                 <span className="min-w-0">{title}</span>
-                {!doc.required ? (
+                {/* У поставщика пометки «необязательный» нет (Кирилл 2026-11-24). */}
+                {!doc.required && owner !== 'supplier' ? (
                   <Badge variant="secondary" className="font-normal">
                     {t('document.optional')}
                   </Badge>
