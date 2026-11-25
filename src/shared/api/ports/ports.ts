@@ -15,6 +15,7 @@ import type {
   PortalKey,
   Session,
   Supplier,
+  SupplierProfilePatch,
   SupplierViewStatus,
   UploadProgress,
 } from './schemas';
@@ -88,6 +89,8 @@ export interface SupplierPort {
   getCounters(): Promise<SupplierCounters>;
   /** Номер CR поставщика (D-093), как ApplicationPort.setCrNumber у клиента. */
   setCrNumber(crNumber: string): Promise<Supplier>;
+  /** Email, отрасль и город поставщика (A-075); неверное значение — DomainError `supplier.profile_invalid`. */
+  setProfile(patch: SupplierProfilePatch): Promise<Supplier>;
 }
 
 export interface ReferredClientsPort {

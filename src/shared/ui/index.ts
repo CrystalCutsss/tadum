@@ -9,6 +9,7 @@ export * from './card';
 export * from './checkbox';
 export * from './code-slots';
 export * from './collapsible';
+export * from './combobox';
 export * from './dialog';
 export * from './dropdown-menu';
 export * from './empty';

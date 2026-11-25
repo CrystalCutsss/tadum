@@ -36,7 +36,7 @@ export const RESPONSE_SCHEMAS: { [K in keyof Ports]: Schemas<Ports[K]> } = {
     download: DownloadLinkSchema,
   },
   limit: { get: LimitSchema, getChecklist: OnboardingChecklistSchema },
-  supplier: { get: SupplierSchema, getCounters: SupplierCountersSchema, setCrNumber: SupplierSchema },
+  supplier: { get: SupplierSchema, getCounters: SupplierCountersSchema, setCrNumber: SupplierSchema, setProfile: SupplierSchema },
   referredClients: { list: ReferredClientsPageSchema },
   offer: { get: OfferContentSchema },
 };

@@ -466,6 +466,12 @@ describe('демо-действия поставщика — каждое (SP-03
     return api.documents.getSet({ kind: 'supplier', id: s.id });
   }
 
+  /** CR и профиль поставщика — без них комплект не отправить (D-093, A-075). */
+  async function fillProfile(api: Api) {
+    await api.supplier.setCrNumber('1010123456');
+    await api.supplier.setProfile({ email: 'orders@zahrat.example', industry: 'Office supplies', city: 'Riyadh' });
+  }
+
   it('D-093: без номера CR комплект поставщика не отправить; номер — 10 цифр', async () => {
     const api = as('supplier_new');
     const set = await supplierSet(api);
@@ -473,13 +479,21 @@ describe('демо-действия поставщика — каждое (SP-03
     await expect(api.documents.submit(set.id)).rejects.toMatchObject({ code: 'documents.submit_incomplete' });
     await expect(api.supplier.setCrNumber('123')).rejects.toMatchObject({ code: 'company.cr_invalid' });
     expect((await api.supplier.setCrNumber('1010123456')).cr_number).toBe('1010123456');
+    // A-075: без профиля (email, отрасль, город) тоже не отправить; значения проверяются.
+    await expect(api.documents.submit(set.id)).rejects.toMatchObject({ code: 'documents.submit_incomplete' });
+    await expect(api.supplier.setProfile({ email: 'not-an-email' })).rejects.toMatchObject({ code: 'supplier.profile_invalid' });
+    await expect(api.supplier.setProfile({ city: 'R' })).rejects.toMatchObject({ code: 'supplier.profile_invalid' });
+    await api.supplier.setProfile({ email: 'orders@zahrat.example' });
+    await api.supplier.setProfile({ industry: 'Office supplies' });
+    await expect(api.documents.submit(set.id)).rejects.toMatchObject({ code: 'documents.submit_incomplete' });
+    expect(await api.supplier.setProfile({ city: 'Riyadh' })).toMatchObject({ email: 'orders@zahrat.example', industry: 'Office supplies', city: 'Riyadh' });
     await expect(api.documents.submit(set.id)).resolves.toMatchObject({ locked: true });
   });
   it('uwApproveSupplierSet: отправленный комплект → completed, contract_pending без ссылки (D-088, D-090)', async () => {
     const api = as('supplier_new');
     const set = await supplierSet(api);
     for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
-    await api.supplier.setCrNumber('1010123456');
+    await fillProfile(api);
     // SP-03 A5: необязательный sup_cr не мешает отправке.
     await api.documents.submit(set.id);
     expect((await api.supplier.get()).supplier_status).toBe('under_review');
@@ -495,7 +509,7 @@ describe('демо-действия поставщика — каждое (SP-03
     const api = as('supplier_new');
     const set = await supplierSet(api);
     for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
-    await api.supplier.setCrNumber('1010123456');
+    await fillProfile(api);
     await api.documents.submit(set.id);
     // Договор не готов — партнёром стать нельзя.
     expect(() => api.demo!.salesSupplierContractDone()).toThrow();
@@ -516,7 +530,7 @@ describe('демо-действия поставщика — каждое (SP-03
     const api = as('supplier_new');
     const set = await supplierSet(api);
     for (const d of set.documents.filter((x) => x.required)) await api.documents.upload(d.id, pdf(`${d.portal_key}.pdf`));
-    await api.supplier.setCrNumber('1010123456');
+    await fillProfile(api);
     await api.documents.submit(set.id);
     api.demo!.uwApproveDocument(set.documents[0]!.id);
     api.demo!.uwRejectSupplierDocument('sup_iban_letter', 'reject.iban.unreadable');

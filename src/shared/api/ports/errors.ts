@@ -70,6 +70,7 @@ export type DomainErrorCode =
   | 'upload.error.unsupported_type'
   | 'upload.error.too_many'
   | 'company.cr_invalid'
+  | 'supplier.profile_invalid'
   | 'documents.submit_incomplete'
   | 'application_not_closed'
   | 'limit_exceeded'

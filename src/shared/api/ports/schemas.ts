@@ -240,6 +240,10 @@ export const SupplierSchema = z.object({
   odoo_stage: SupplierOdooStageSchema,
   /** Номер CR поставщика: 10 цифр; без него комплект не отправить (D-093). */
   cr_number: z.string().regex(/^\d{10}$/).optional(),
+  /** Профиль компании поставщика (Кирилл 2026-11-25, A-075): без него комплект не отправить. */
+  email: z.email().optional(),
+  industry: z.string().min(2).max(60).optional(),
+  city: z.string().min(2).max(60).optional(),
   supplier_status: SupplierStatusSchema,
   next_step: NextStepSchema,
   current_document_set_id: z.string(),
@@ -316,6 +320,9 @@ export type Limit = z.infer<typeof LimitSchema>;
 export type DealStage = z.infer<typeof DealStageSchema>;
 export type Deal = z.infer<typeof DealSchema>;
 export type Supplier = z.infer<typeof SupplierSchema>;
+/** Поля профиля поставщика, которые он заполняет сам (A-075); сохраняются по одному. */
+export const SupplierProfilePatchSchema = SupplierSchema.pick({ email: true, industry: true, city: true });
+export type SupplierProfilePatch = z.infer<typeof SupplierProfilePatchSchema>;
 export type ReferredClient = z.infer<typeof ReferredClientSchema>;
 export type OfferMaterial = z.infer<typeof OfferMaterialSchema>;
 export type OfferContent = z.infer<typeof OfferContentSchema>;

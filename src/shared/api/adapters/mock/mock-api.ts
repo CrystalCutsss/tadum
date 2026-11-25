@@ -24,6 +24,7 @@ import {
   AcceptedMimeSchema,
   MAX_FILE_SIZE_BYTES,
   MAX_FILES_PER_DOCUMENT,
+  SupplierProfilePatchSchema,
   type Application,
   type Document,
   type DocumentSet,
@@ -584,7 +585,11 @@ export function createMockApi(options: MockApiOptions): Api {
             // Без номера CR комплект клиента не отправить (решение Кирилла 2026-11-10).
             if (set.owner.kind === 'application' && !g.company?.cr_number) throw new DomainError('documents.submit_incomplete');
             // У поставщика тоже: без номера CR комплект не отправить (D-093).
-            if (set.owner.kind === 'supplier' && !g.supplier?.cr_number) throw new DomainError('documents.submit_incomplete');
+            // И без профиля — email, отрасль, город (A-075).
+            const s = g.supplier;
+            if (set.owner.kind === 'supplier' && !(s?.cr_number && s.email && s.industry && s.city)) {
+              throw new DomainError('documents.submit_incomplete');
+            }
             submitIn(g, set);
             return structuredClone(set);
           });
@@ -638,6 +643,18 @@ export function createMockApi(options: MockApiOptions): Api {
           if (!/^\d{10}$/.test(crNumber)) throw new DomainError('company.cr_invalid');
           commit(state, (g) => {
             supplierOf(g).cr_number = crNumber;
+          });
+          const s = fresh(asSupplier().state).supplier;
+          if (!s) throw new NotFound('supplier');
+          return s;
+        }),
+      setProfile: (patch) =>
+        io('supplier.setProfile', () => {
+          const { state } = asSupplier();
+          const parsed = SupplierProfilePatchSchema.safeParse(patch);
+          if (!parsed.success) throw new DomainError('supplier.profile_invalid');
+          commit(state, (g) => {
+            Object.assign(supplierOf(g), parsed.data);
           });
           const s = fresh(asSupplier().state).supplier;
           if (!s) throw new NotFound('supplier');
