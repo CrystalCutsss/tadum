@@ -41,7 +41,7 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `16tlwViJclwT-l8eMOoyM0dQVQBI1gjV_` | 63644 | 2026-11-25 |
+| `00-decision-log.md` | `1HLCEAd4sr03BjyYnp9Vp0khZJnfrw8sw` | 64810 | 2026-11-25 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
 | `01-cabinet-structure.md` | `1DIAkrPrC5CLYiwr6wW3G9b195Kg2yELO` | 27521 | 2026-11-25 |
@@ -52,7 +52,7 @@
 | `04-metrics-and-events.md` | `1vhO94b122qIHJ98-fUrFy1VxZb6Hjtc-` | 28800 | 2026-11-19 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
 | `requirements-supplier.md` | `1OlsWI4k2pjxvu-2fqDsNNrsG_XuU6ykr` | 13895 | 2026-11-24 |
-| `scenarios/SC-01-first-login.md` | `1PNXh2CjAh20FIxOBnyheoiFENlBA0JWe` | 18517 | 2026-11-11 |
+| `scenarios/SC-01-first-login.md` | `1SGmiiH15qNip71H6nJwkcmhcSgu-GDAn` | 23633 | 2026-11-25 |
 | `scenarios/SC-02-document-collection.md` | `1GThmMYZlec5oVF4CiS0GUrlq1VLZ1yBE` | 22135 | 2026-11-11 |
 | `scenarios/SC-03-document-rejected.md` | `1yiEiKa7CuOaKOBoZnrChKo0hHPOrVu9b` | 15093 | 2026-11-05 |
 | `scenarios/SC-04-more-docs-requested.md` | `1vYqiAgrrhbuagTwIUxDXiF15_jAovM0A` | 13958 | 2026-11-05 |
