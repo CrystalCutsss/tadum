@@ -14,6 +14,8 @@ export interface PendingLogin {
 export interface ContactDetails {
   contactName: string;
   businessName: string;
+  /** Чекбокс «Join as a supplier» (Кирилл 2026-11-25). */
+  joinAsSupplier: boolean;
 }
 
 let pending: PendingLogin | null = null;

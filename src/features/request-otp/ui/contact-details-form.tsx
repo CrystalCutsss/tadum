@@ -39,6 +39,8 @@ const BUSINESS_ERRORS = {
   too_short: 'auth.details.too_short',
 } as const satisfies Record<Exclude<DetailsFieldError, 'letters_only'>, DetailsMessageKey>;
 
+const EMPTY_DETAILS: ContactDetails = { contactName: '', businessName: '', joinAsSupplier: false };
+
 interface DetailsFieldProps {
   label: string;
   autoComplete: string;
@@ -74,16 +76,14 @@ function DetailsField({ label, autoComplete, value, error, disabled, onChange, o
 
 export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportSlot }: ContactDetailsFormProps) {
   const { t } = useTranslation();
-  const saved = loginFlow.details();
-  const [contactName, setContactName] = useState(saved?.contactName ?? '');
-  const [businessName, setBusinessName] = useState(saved?.businessName ?? '');
+  const [details, setDetails] = useState<ContactDetails>(() => loginFlow.details() ?? EMPTY_DETAILS);
+  const { contactName, businessName } = details;
   const [touched, setTouched] = useState({ contact: false, business: false });
   // Введённое сохраняется сразу (Кирилл 2026-11-25): «Change number» и возврат с экрана кода его не теряют.
   const update = (next: Partial<ContactDetails>) => {
-    const details = { contactName, businessName, ...next };
-    setContactName(details.contactName);
-    setBusinessName(details.businessName);
-    loginFlow.saveDetails(details);
+    const merged = { ...details, ...next };
+    setDetails(merged);
+    loginFlow.saveDetails(merged);
   };
   const { tick, activeError, waiting, pending, send } = useRequestOtp(onRequested);
 

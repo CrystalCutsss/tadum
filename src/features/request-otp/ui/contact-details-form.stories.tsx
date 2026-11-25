@@ -103,7 +103,7 @@ export const ChangePhone: Story = {
     await userEvent.click(within(canvasElement).getByRole('button', { name: tr('auth.otp.change_phone') }));
     await expect(args.onChangePhone).toHaveBeenCalledTimes(1);
     // Кирилл 2026-11-25: данные второго шага не теряются, даже если форма ещё не отправлена.
-    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim' });
+    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim', joinAsSupplier: false });
   },
 };
 
@@ -112,7 +112,7 @@ export const Prefilled: Story = {
   // Декоратор, а не загрузчик: загрузчики идут параллельно, и freshMock из meta сбросил бы сохранённое.
   decorators: [
     (Story) => {
-      if (!loginFlow.details()) loginFlow.saveDetails({ contactName: 'Ahmed Al-Harbi', businessName: 'Rimal Al Sharq' });
+      if (!loginFlow.details()) loginFlow.saveDetails({ contactName: 'Ahmed Al-Harbi', businessName: 'Rimal Al Sharq', joinAsSupplier: true });
       return <Story />;
     },
   ],
