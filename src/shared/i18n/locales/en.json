@@ -46,6 +46,8 @@
       "contact_name": "Contact name",
       "contact_name_letters": "Use only letters in the name",
       "contact_name_required": "Enter the contact name",
+      "join_supplier": "Join as a supplier",
+      "join_supplier_hint": "Invite your clients to buy now and pay in parts through Tadum",
       "subtitle": "Next, we'll send you a code to sign in",
       "title": "Tell us about you",
       "too_short": "Enter at least {min} characters"

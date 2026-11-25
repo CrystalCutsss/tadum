@@ -160,6 +160,8 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await expect(page.getByText(tr('en', 'auth.details.business_name_required'))).toBeVisible();
   await expect(getCode()).toBeDisabled();
   await business().fill('Rimal Al Sharq');
+  const joinSupplier = () => page.getByRole('checkbox', { name: tr('en', 'auth.details.join_supplier') });
+  await joinSupplier().check();
   // «Change number» со второго шага: номер, имя и название сохранены (Кирилл 2026-11-25).
   await page.getByRole('button', { name: tr('en', 'auth.otp.change_phone') }).click();
   await expect(page).toHaveURL(/\/login$/);
@@ -167,6 +169,7 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await page.getByRole('button', { name: tr('en', 'auth.phone.continue') }).click();
   await expect(contact()).toHaveValue('Ahmed Al-Harbi');
   await expect(business()).toHaveValue('Rimal Al Sharq');
+  await expect(joinSupplier()).toBeChecked();
   await getCode().click();
   await enterCode(page, 'en');
   await expect(page).toHaveURL(/\/c\/home$/);

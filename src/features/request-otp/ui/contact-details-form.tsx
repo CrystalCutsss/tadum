@@ -6,7 +6,19 @@ import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { loginFlow, type ContactDetails } from '@/entities/session';
-import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Spinner } from '@/shared/ui';
+import {
+  Button,
+  Checkbox,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+  Input,
+  Spinner,
+} from '@/shared/ui';
 
 import { businessNameError, contactNameError, DETAILS_MIN_LENGTH, type DetailsFieldError } from '../model/contact-details';
 import { phoneErrorMessage } from '../model/errors';
@@ -74,6 +86,30 @@ function DetailsField({ label, autoComplete, value, error, disabled, onChange, o
   );
 }
 
+/** Чекбокс «Join as a supplier» под полями — карточка shadcn Checkbox с пояснением роли (Кирилл 2026-11-25). */
+function JoinSupplierField({ checked, disabled, onChange }: { checked: boolean; disabled: boolean; onChange: (v: boolean) => void }) {
+  const { t } = useTranslation();
+  const ids = { box: useId(), title: useId(), hint: useId() };
+  return (
+    <FieldLabel htmlFor={ids.box}>
+      <Field orientation="horizontal">
+        <Checkbox
+          id={ids.box}
+          checked={checked}
+          onCheckedChange={(v) => onChange(v === true)}
+          disabled={disabled}
+          aria-labelledby={ids.title}
+          aria-describedby={ids.hint}
+        />
+        <FieldContent>
+          <FieldTitle id={ids.title}>{t('auth.details.join_supplier')}</FieldTitle>
+          <FieldDescription id={ids.hint}>{t('auth.details.join_supplier_hint')}</FieldDescription>
+        </FieldContent>
+      </Field>
+    </FieldLabel>
+  );
+}
+
 export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportSlot }: ContactDetailsFormProps) {
   const { t } = useTranslation();
   const [details, setDetails] = useState<ContactDetails>(() => loginFlow.details() ?? EMPTY_DETAILS);
@@ -126,6 +162,11 @@ export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportS
           disabled={pending}
           onChange={(businessName) => update({ businessName })}
           onBlur={() => setTouched((v) => ({ ...v, business: true }))}
+        />
+        <JoinSupplierField
+          checked={details.joinAsSupplier}
+          disabled={pending}
+          onChange={(joinAsSupplier) => update({ joinAsSupplier })}
         />
         <Field>
           {message ? <FieldError>{t(message.key, message.values)}</FieldError> : null}

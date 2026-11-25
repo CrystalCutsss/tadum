@@ -269,6 +269,19 @@ pnpm dlx shadcn@4.23.0 init --preset b1ZQ7Gl9c --base radix --rtl --pointer -y -
 - `status="error"` — «осушение» ячеек справа налево, затем компонент сам вызывает `onChange('')`; `status="success"` — заливка ряда и галочка, ввод не принимается. reduced-motion — без анимации.
 - Тексты (подпись, ошибки) — в форме (`features/verify-otp`), компонент строк не содержит. Истории — `shared/ui/CodeSlots`: Empty, Typing, Keyboard, Paste, ArabicDigits, ErrorClears, Invalid, Success, Success (static), Disabled.
 
+### Checkbox и карточка выбора (2026-11-25)
+
+Задача Кирилла 2026-11-25: чекбокс «Join as a supplier» на экране входа, карточкой с заголовком и описанием (пример «Enable notifications» из документации shadcn). `pnpm dlx shadcn@latest add checkbox` (реестр `radix-maia`) — новый `checkbox.tsx`, внесён в `SHADCN_GENERATED` в `eslint.config.js`. Новых токенов нет, A-019 не затронут. Вариант `data-checked:` даёт `shadcn/tailwind.css`, он соответствует `data-state="checked"` у Radix.
+
+| Что | Адаптация |
+| --- | --- |
+| Радиус `rounded-[6px]` пресета | `rounded-[calc(var(--radius)*0.4)]` (≈ 5.6px, от токена) |
+| Зона касания `after:-inset-x-3 after:-inset-y-2` (40 × 32) | `after:-inset-3.5` — 44 × 44 вокруг квадрата 16px |
+| Галочка `RiCheckLine` напрямую | через `Icon` (нейтральная, не зеркалится) |
+| `FieldLabel`, выбранная карточка, светлая тема | `has-data-checked:border-primary` без заливки: заливка пресета `bg-primary/5` опускала `FieldDescription` (`muted-foreground`) до 4.26:1 < AA. Тёмная — пресет (`border-primary/20`, `bg-primary/10`), AA проходит |
+
+Разметка карточки: `FieldLabel htmlFor={id}` > `Field orientation="horizontal"` > `Checkbox id={id} aria-labelledby={titleId} aria-describedby={hintId}` + `FieldContent` > `FieldTitle id={titleId}` + `FieldDescription id={hintId}`. Имя задаётся через `aria-labelledby`: подпись внутри `div[role=group]`, и через label axe имя не находит (`button-name`). Истории — `shared/ui/Checkbox`: Default, Checked, Disabled (axe `color-contrast` отключён: неактивный элемент, WCAG 1.4.3), Card (play: клик по описанию отмечает чекбокс), CardChecked.
+
 ## 5. Шрифты
 
 Латиница — Geist из пресета (совпадает с D-004), арабский — всегда IBM Plex Sans Arabic. Фактические имена семейств пакетов: `"Geist Variable"` и `"IBM Plex Sans Arabic"` (A-016). `:lang(ar)` — интерлиньяж тела 1.625, заголовков 1.3. Словесный знак `Wordmark` — всегда Geist латиницей: по умолчанию 600 «Tadum» (D-052), в сайдбаре — `variant="dot"`, 700 «tadum.» (§4a). Тест истории `shared/ui/Typography/Fonts` проверяет `document.fonts.check` для обоих семейств и что арабский текст не падает в системный шрифт.

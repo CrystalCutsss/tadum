@@ -33,6 +33,8 @@ export const Normal: Story = {
     await expect(contact(canvasElement)).toBeRequired();
     await expect(contact(canvasElement)).toHaveAttribute('autocomplete', 'name');
     await expect(business(canvasElement)).toHaveAttribute('autocomplete', 'organization');
+    await expect(joinSupplier(canvasElement)).not.toBeChecked();
+    await expect(within(canvasElement).getByText(tr('auth.details.join_supplier_hint'))).toBeVisible();
     await expect(submit(canvasElement)).toBeDisabled();
   },
 };
@@ -95,15 +97,21 @@ export const ServerError: Story = {
   },
 };
 
+const joinSupplier = (el: HTMLElement) => within(el).getByRole('checkbox', { name: tr('auth.details.join_supplier') });
+
 export const ChangePhone: Story = {
-  name: '«Изменить номер» → назад к номеру, введённое сохранено',
+  name: '«Изменить номер» → назад к номеру, введённое и чекбокс сохранены',
   play: async ({ canvasElement, args }) => {
     await userEvent.type(contact(canvasElement), 'Ahmed');
     await userEvent.type(business(canvasElement), 'Rim');
+    await expect(joinSupplier(canvasElement)).not.toBeChecked();
+    // Клик по пояснению в карточке тоже отмечает чекбокс.
+    await userEvent.click(within(canvasElement).getByText(tr('auth.details.join_supplier_hint')));
+    await expect(joinSupplier(canvasElement)).toBeChecked();
     await userEvent.click(within(canvasElement).getByRole('button', { name: tr('auth.otp.change_phone') }));
     await expect(args.onChangePhone).toHaveBeenCalledTimes(1);
     // Кирилл 2026-11-25: данные второго шага не теряются, даже если форма ещё не отправлена.
-    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim', joinAsSupplier: false });
+    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim', joinAsSupplier: true });
   },
 };
 
@@ -119,6 +127,7 @@ export const Prefilled: Story = {
   play: async ({ canvasElement }) => {
     await expect(contact(canvasElement)).toHaveValue('Ahmed Al-Harbi');
     await expect(business(canvasElement)).toHaveValue('Rimal Al Sharq');
+    await expect(joinSupplier(canvasElement)).toBeChecked();
     await expect(submit(canvasElement)).toBeEnabled();
   },
 };
