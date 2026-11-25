@@ -114,6 +114,7 @@ pnpm dev
 | `VITE_ANALYTICS` | `console` | `console` / `posthog` |
 | `VITE_PROTO_VERSION` | — | подпись версии на витрине (`v1`) |
 | `VITE_SUPPORT_WHATSAPP`, `VITE_SUPPORT_EMAIL` | см. `.env.example` | контакты поддержки |
+| `VITE_PRIVACY_URL` | `https://tadum.sa/privacy` | ссылка «privacy policy» в согласии при регистрации |
 | `VITE_LANDING_URL` | `https://tadum.sa` | куда ведёт «Подать заявку» |
 
 Сборка под витрину:

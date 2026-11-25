@@ -41,9 +41,11 @@ export interface SubmitBarProps {
   onBlocked: (portalKeys: string[]) => void;
   /** Нет номера CR: показать ошибку у поля и перейти к нему. */
   onCrMissing: () => void;
+  /** Что за блок над документами: номер CR клиента или профиль компании поставщика (A-075) — от этого тексты панели. */
+  crBlock?: 'cr' | 'supplier_profile';
 }
 
-export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlocked, onCrMissing }: SubmitBarProps) {
+export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlocked, onCrMissing, crBlock = 'cr' }: SubmitBarProps) {
   const { t } = useTranslation();
   const online = useOnline();
   const submit = useSubmitDocuments(set);
@@ -59,7 +61,9 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
     done: formatNumber(state.segments.filter(Boolean).length),
     total: formatNumber(state.segments.length),
   };
-  const label = state.copy === 'cr_only' ? t('documents.progress_cr_only') : t('documents.progress', counts);
+  const profile = crBlock === 'supplier_profile';
+  const crOnly = profile ? t('supplier.profile.progress_only') : t('documents.progress_cr_only');
+  const label = state.copy === 'cr_only' ? crOnly : t('documents.progress', counts);
 
   const onSend = () => {
     if (!online) {
@@ -71,7 +75,7 @@ export function SubmitBar({ set, uploading, crReady, crRequired = false, onBlock
       return;
     }
     if (documentsReady && !crReady) {
-      toast(t('cr.missing'), { position: 'top-center' });
+      toast(profile ? t('supplier.profile.submit_missing') : t('cr.missing'), { position: 'top-center' });
       onCrMissing();
       return;
     }

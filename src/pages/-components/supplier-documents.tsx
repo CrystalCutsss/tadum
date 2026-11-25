@@ -7,9 +7,8 @@ import { cn } from 'cn';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { isValidCr } from '@/entities/application';
 import { documentSetQuery } from '@/entities/document';
-import { CompanyCrCard } from '@/features/edit-company-cr';
+import { SupplierProfileCard } from '@/features/edit-supplier-profile';
 import { computeSupplierTimeline, supplierApplicationStage, supplierCan, supplierQuery, type SupplierStatus } from '@/entities/supplier';
 import { track } from '@/shared/analytics';
 import { useStatusPolling } from '@/shared/api';
@@ -48,10 +47,10 @@ export function SupplierDocuments() {
   const status = data?.supplier_status;
   const locked = set.data?.locked ?? true;
   const editable = status ? supplierCan('upload_or_replace_file', { supplier_status: status, locked }) : false;
-  // Номер CR — как у клиента (D-093): карточка над документами, без номера комплект не отправить; попытка отправить
-  // без него подсвечивает поле, неполный номер в поле сразу возвращает панель отправки в исходный вид.
-  const [crAttention, setCrAttention] = useState(0);
-  const [crDraft, setCrDraft] = useState<string | null>(null);
+  // Блок «About your business» (A-075): CR (D-093), email, отрасль, город — над документами, без него комплект
+  // не отправить; в панели отправки — один сегмент. Попытка отправить без него подсвечивает поля.
+  const [profileAttention, setProfileAttention] = useState(0);
+  const [profileReady, setProfileReady] = useState(false);
 
   useEffect(() => {
     if (!set.data) return;
@@ -82,7 +81,7 @@ export function SupplierDocuments() {
     );
   }
 
-  // Как у клиента: блок CR — только при первом сборе документов; после возврата с проверки номер уже сохранён.
+  // Как у клиента: блок над документами — только при первом сборе; после возврата с проверки данные уже сохранены.
   const reviewed = set.data.round > 1 || set.data.documents.some((d) => d.rejected_file_hashes.length > 0 || d.status === 'rejected');
   const crStage = editable && !reviewed;
   const stage = supplierApplicationStage(status);
@@ -123,11 +122,14 @@ export function SupplierDocuments() {
             set={set.data}
             editable={editable}
             header={
-              crStage ? <CompanyCrCard owner="supplier" company={data} editable={editable} attention={crAttention} onDraftChange={setCrDraft} /> : null
+              crStage ? (
+                <SupplierProfileCard supplier={data} editable={editable} attention={profileAttention} onReadyChange={setProfileReady} />
+              ) : null
             }
-            crReady={!crStage || (isValidCr(data.cr_number) && (crDraft === null || isValidCr(crDraft)))}
+            crReady={!crStage || profileReady}
             crRequired={crStage}
-            onCrMissing={() => setCrAttention((n) => n + 1)}
+            crBlock="supplier_profile"
+            onCrMissing={() => setProfileAttention((n) => n + 1)}
           />
           {!editable ? (
             <Card className="rounded-xl">

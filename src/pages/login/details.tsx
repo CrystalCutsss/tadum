@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 
 import { ContactDetailsForm } from '@/features/request-otp';
 import { decideAuthScreen, familyMemory, loadSessionState, loginFlow } from '@/entities/session';
-import { demoLoginVariant } from '@/shared/api';
 
 import { AuthLayout } from '../-components/auth-layout';
 import { SupportLink } from '../-components/support-link';
@@ -20,7 +19,6 @@ function DetailsPage() {
     <AuthLayout title={t('auth.details.title')} subtitle={t('auth.details.subtitle')}>
       <ContactDetailsForm
         phone={phone}
-        defaultJoinAsSupplier={demoLoginVariant.get() === 'new_supplier'}
         onRequested={() => void navigate({ to: '/login/code' })}
         onChangePhone={() => {
           loginFlow.changePhone();

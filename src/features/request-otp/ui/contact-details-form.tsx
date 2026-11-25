@@ -3,9 +3,10 @@
 // из поля или попытки отправить. Значения хранятся только в памяти вкладки (loginFlow) с первого ввода — «Change number»
 // их не теряет — и на бэкенд не уходят.
 import { useId, useState, type FormEvent } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { loginFlow, type ContactDetails } from '@/entities/session';
+import { PRIVACY_POLICY_URL } from '@/shared/config';
 import {
   Button,
   Checkbox,
@@ -29,8 +30,6 @@ export interface ContactDetailsFormProps {
   phone: string;
   /** Код запрошен — перейти на экран кода. */
   onRequested: () => void;
-  /** Чекбокс «Join as a supplier» отмечен сразу (пункт меню витрины «Вход: новый поставщик»). */
-  defaultJoinAsSupplier?: boolean;
   /** Вернуться к номеру. */
   onChangePhone: () => void;
   /** Ссылка на поддержку при ошибке сервера (A10). */
@@ -53,7 +52,8 @@ const BUSINESS_ERRORS = {
   too_short: 'auth.details.too_short',
 } as const satisfies Record<Exclude<DetailsFieldError, 'letters_only'>, DetailsMessageKey>;
 
-const EMPTY_DETAILS: ContactDetails = { contactName: '', businessName: '', joinAsSupplier: false };
+// По умолчанию согласие отмечено, «Join as a supplier» — нет (Кирилл 2026-11-25).
+const EMPTY_DETAILS: ContactDetails = { contactName: '', businessName: '', joinAsSupplier: false, consent: true };
 
 interface DetailsFieldProps {
   label: string;
@@ -88,9 +88,18 @@ function DetailsField({ label, autoComplete, value, error, disabled, onChange, o
   );
 }
 
-/** Чекбокс «Join as a supplier» под полями — карточка shadcn Checkbox с пояснением роли (Кирилл 2026-11-25). */
-function JoinSupplierField({ checked, disabled, onChange }: { checked: boolean; disabled: boolean; onChange: (v: boolean) => void }) {
-  const { t } = useTranslation();
+interface CheckboxCardProps {
+  checked: boolean;
+  disabled: boolean;
+  onChange: (v: boolean) => void;
+  title: React.ReactNode;
+  hint?: string;
+  /** Длинный текст (согласие) — обычным начертанием, а не полужирным заголовком. */
+  plain?: boolean;
+}
+
+/** Чекбокс-карточка shadcn Checkbox: «Join as a supplier» и согласие на обработку данных (Кирилл 2026-11-25). */
+function CheckboxCard({ checked, disabled, onChange, title, hint, plain = false }: CheckboxCardProps) {
   const ids = { box: useId(), title: useId(), hint: useId() };
   return (
     <FieldLabel htmlFor={ids.box}>
@@ -101,11 +110,13 @@ function JoinSupplierField({ checked, disabled, onChange }: { checked: boolean; 
           onCheckedChange={(v) => onChange(v === true)}
           disabled={disabled}
           aria-labelledby={ids.title}
-          aria-describedby={ids.hint}
+          aria-describedby={hint ? ids.hint : undefined}
         />
         <FieldContent>
-          <FieldTitle id={ids.title}>{t('auth.details.join_supplier')}</FieldTitle>
-          <FieldDescription id={ids.hint}>{t('auth.details.join_supplier_hint')}</FieldDescription>
+          <FieldTitle id={ids.title} className={plain ? 'block font-normal leading-normal' : undefined}>
+            {title}
+          </FieldTitle>
+          {hint ? <FieldDescription id={ids.hint}>{hint}</FieldDescription> : null}
         </FieldContent>
       </Field>
     </FieldLabel>
@@ -117,11 +128,10 @@ export function ContactDetailsForm({
   onRequested,
   onChangePhone,
   supportSlot,
-  defaultJoinAsSupplier = false,
 }: ContactDetailsFormProps) {
   const { t } = useTranslation();
   const [details, setDetails] = useState<ContactDetails>(
-    () => loginFlow.details() ?? { ...EMPTY_DETAILS, joinAsSupplier: defaultJoinAsSupplier },
+    () => loginFlow.details() ?? EMPTY_DETAILS,
   );
   const { contactName, businessName } = details;
   const [touched, setTouched] = useState({ contact: false, business: false });
@@ -137,7 +147,7 @@ export function ContactDetailsForm({
   const businessError = businessNameError(businessName);
   const message = activeError ? phoneErrorMessage(activeError, tick) : null;
   const retryable = activeError?.kind === 'offline' || activeError?.kind === 'server';
-  const invalid = contactError !== null || businessError !== null;
+  const invalid = contactError !== null || businessError !== null || !details.consent;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -173,10 +183,34 @@ export function ContactDetailsForm({
           onChange={(businessName) => update({ businessName })}
           onBlur={() => setTouched((v) => ({ ...v, business: true }))}
         />
-        <JoinSupplierField
+        <CheckboxCard
           checked={details.joinAsSupplier}
           disabled={pending}
           onChange={(joinAsSupplier) => update({ joinAsSupplier })}
+          title={t('auth.details.join_supplier')}
+          hint={t('auth.details.join_supplier_hint')}
+        />
+        {/* Согласие обязательно: без него код не запросить (Кирилл 2026-11-25). Ссылка открывается в новой вкладке. */}
+        <CheckboxCard
+          checked={details.consent}
+          disabled={pending}
+          onChange={(consent) => update({ consent })}
+          plain
+          title={
+            <Trans
+              i18nKey="auth.details.consent"
+              components={[
+                // Текст ссылки подставляет Trans из <0>…</0> в строке перевода.
+                <a
+                  key="policy"
+                  href={PRIVACY_POLICY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-4"
+                />,
+              ]}
+            />
+          }
         />
         <Field>
           {message ? <FieldError>{t(message.key, message.values)}</FieldError> : null}

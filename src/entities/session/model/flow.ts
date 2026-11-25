@@ -16,6 +16,8 @@ export interface ContactDetails {
   businessName: string;
   /** Чекбокс «Join as a supplier» (Кирилл 2026-11-25). */
   joinAsSupplier: boolean;
+  /** Согласие на обработку персональных данных — обязательно для запроса кода (Кирилл 2026-11-25). */
+  consent: boolean;
 }
 
 let pending: PendingLogin | null = null;

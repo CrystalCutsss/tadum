@@ -44,7 +44,7 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
  * вкладок по 12 пунктов.
  * v26 (Кирилл 2026-11-25, A-074): третий пункт входа — новый клиент (`login-new-client`): номер → Contact name
  * и Business name → код. Развилка «Join as a supplier» — пункт `login-new-supplier` во вкладке «Поставщик»: та же
- * форма с отмеченным чекбоксом, после кода — кабинет поставщика.
+ * форма; с отметкой «Join as a supplier» после кода — кабинет поставщика (по умолчанию чекбокс снят).
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру', group: 'Клиент' },

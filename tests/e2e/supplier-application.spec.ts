@@ -23,6 +23,40 @@ test('@smoke supplier_new: вход по коду → экран «Заявка�
   await expect(shareButton(page)).toHaveCount(0);
 });
 
+test('supplier_new: блок «About your business» — 4 поля с проверкой, подсказки списка, значения сохраняются (A-075)', async ({ page }) => {
+  await openApplication(page, 'supplier_new');
+  const block = page.getByRole('region', { name: tr(LANG, 'supplier.profile.title') });
+  await expect(block.getByText(tr(LANG, 'supplier.profile.hint'))).toBeVisible();
+  const field = (key: string) => block.getByLabel(tr(LANG, key), { exact: true });
+  // Проверка: неполный CR, email без домена, город с цифрами.
+  await field('supplier.profile.cr_label').fill('12345');
+  await field('supplier.profile.email_label').fill('orders@zahrat');
+  await field('supplier.profile.email_label').blur();
+  await expect(block.getByText(tr(LANG, 'supplier.profile.error.cr_length'))).toBeVisible();
+  await expect(block.getByText(tr(LANG, 'supplier.profile.error.email_invalid'))).toBeVisible();
+  await field('supplier.profile.city_label').fill('Riyadh 2');
+  await field('supplier.profile.city_label').blur();
+  await expect(block.getByText(tr(LANG, 'supplier.profile.error.city_letters'))).toBeVisible();
+  // Верные значения; отрасль и город — из подсказок списка.
+  await field('supplier.profile.cr_label').fill('1010123456');
+  await field('supplier.profile.email_label').fill('orders@zahrat.example');
+  await field('supplier.profile.industry_label').fill('stat');
+  await page.getByRole('option', { name: tr(LANG, 'supplier.profile.industry.options.office') }).click();
+  await field('supplier.profile.city_label').fill('riy');
+  await page.getByRole('option', { name: tr(LANG, 'supplier.profile.city.options.riyadh') }).click();
+  await field('supplier.profile.city_label').blur();
+  await expect(block.getByRole('alert')).toHaveCount(0);
+  await expect(block.locator('[aria-invalid="true"]')).toHaveCount(0);
+  // Блок готов, когда все четыре поля сохранены: в панели отправки закрашен его сегмент (документов ещё нет).
+  await expect(page.getByText(/^1 of \d+ done$/)).toBeVisible();
+  // Значения сохранены в мок: после перезагрузки они на месте.
+  await page.reload();
+  await expect(field('supplier.profile.city_label')).toHaveValue(tr(LANG, 'supplier.profile.city.options.riyadh'));
+  await expect(field('supplier.profile.cr_label')).toHaveValue('1010123456');
+  await expect(field('supplier.profile.email_label')).toHaveValue('orders@zahrat.example');
+  await expect(field('supplier.profile.industry_label')).toHaveValue(tr(LANG, 'supplier.profile.industry.options.office'));
+});
+
 test('supplier_review: документы на проверке, файлы не меняются, ссылки нет; срок проверки не показан (D-091)', async ({ page }) => {
   await openApplication(page, 'supplier_review');
   await expect(page.getByText(tr(LANG, 'documents.locked.title'))).toBeVisible();

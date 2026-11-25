@@ -21,18 +21,16 @@ export interface CompanyCrCardProps {
   attention?: number;
   /** Значение в поле изменилось: панель отправки сразу возвращается в исходный вид, если номер стал неполным (Кирилл 2026-11-12). */
   onDraftChange?: (value: string) => void;
-  /** Чей номер сохраняем: клиента или поставщика (D-093). */
-  owner?: 'client' | 'supplier';
 }
 
-export function CompanyCrCard({ company, editable, attention = 0, onDraftChange, owner = 'client' }: CompanyCrCardProps) {
+export function CompanyCrCard({ company, editable, attention = 0, onDraftChange }: CompanyCrCardProps) {
   const { t } = useTranslation();
   const ids = { input: useId(), help: useId(), title: useId() };
   const saved = company?.cr_number ?? '';
   const [value, setValue] = useState(saved);
   const [touched, setTouched] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-  const save = useSaveCr(owner);
+  const save = useSaveCr();
 
   // Номер пришёл с сервера позже первого рендера — подставляем, если клиент ещё ничего не ввёл.
   const [seen, setSeen] = useState(saved);

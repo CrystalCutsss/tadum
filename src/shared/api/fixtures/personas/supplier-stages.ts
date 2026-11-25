@@ -52,6 +52,10 @@ function stagePersona(spec: StageSpec): PersonaFixture {
         referral_url: `https://tadum.sa/s/${spec.slug}`,
         odoo_stage: spec.odoo_stage,
         cr_number: `10104${String(spec.phone).padStart(5, '0')}`,
+        // Профиль заполнен до отправки документов (A-075); адрес вымышленный.
+        email: `orders@${spec.slug}.example`,
+        industry: 'Office supplies',
+        city: 'Riyadh',
         supplier_status: spec.supplier_status,
         next_step: spec.next_step,
         current_document_set_id: setId,

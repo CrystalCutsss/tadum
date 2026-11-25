@@ -162,6 +162,12 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await business().fill('Rimal Al Sharq');
   const joinSupplier = () => page.getByRole('checkbox', { name: tr('en', 'auth.details.join_supplier') });
   await joinSupplier().check();
+  // Согласие отмечено по умолчанию и обязательно (Кирилл 2026-11-25): сняли — код не запросить.
+  const consent = () => page.getByRole('checkbox').nth(1);
+  await expect(consent()).toBeChecked();
+  await consent().uncheck();
+  await expect(getCode()).toBeDisabled();
+  await consent().check();
   // «Change number» со второго шага: номер, имя и название сохранены (Кирилл 2026-11-25).
   await page.getByRole('button', { name: tr('en', 'auth.otp.change_phone') }).click();
   await expect(page).toHaveURL(/\/login$/);
@@ -181,17 +187,22 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await contact().fill('Ahmed Al-Harbi');
   await business().fill('Rimal Al Sharq');
   await expect(joinSupplier()).not.toBeChecked();
+  await consent().check();
   await getCode().click();
   await enterCode(page, 'en');
   await expect(page).toHaveURL(/\/c\/home$/);
 });
 
-test('меню витрины: «Вход: новый поставщик» — чекбокс уже отмечен, после кода кабинет поставщика (A-074)', async ({ page }) => {
+test('меню витрины: «Вход: новый поставщик» — согласие отмечено, поставщик — нет; с отметкой после кода кабинет поставщика (A-074)', async ({ page }) => {
   await asPersona(page, 'login-new-supplier');
   await expect(page).toHaveURL(/\/login$/);
   await page.getByRole('main').getByRole('textbox', { name: tr('en', 'auth.phone.label') }).fill('500000001');
   await page.getByRole('button', { name: tr('en', 'auth.phone.continue') }).click();
-  await expect(page.getByRole('checkbox', { name: tr('en', 'auth.details.join_supplier') })).toBeChecked();
+  // По умолчанию «Join as a supplier» снят, согласие отмечено (Кирилл 2026-11-25).
+  const joinSupplier = page.getByRole('checkbox', { name: tr('en', 'auth.details.join_supplier') });
+  await expect(joinSupplier).not.toBeChecked();
+  await expect(page.getByRole('checkbox').nth(1)).toBeChecked();
+  await joinSupplier.check();
   await page.getByRole('textbox', { name: tr('en', 'auth.details.contact_name') }).fill('Ahmed Al-Harbi');
   await page.getByRole('textbox', { name: tr('en', 'auth.details.business_name') }).fill('Rimal Al Sharq');
   await page.getByRole('button', { name: tr('en', 'auth.phone.submit') }).click();

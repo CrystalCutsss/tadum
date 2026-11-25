@@ -59,6 +59,7 @@
 | `get` | `get(): Promise<Supplier>` | `01-entities.md` §2.10 | — |
 | `getCounters` | `getCounters(): Promise<SupplierCounters>` | `01-entities.md` §2.10 (`counters`) | — |
 | `setCrNumber` | `setCrNumber(crNumber: string): Promise<Supplier>` | `01-entities.md` §2.10 | Номер CR поставщика (D-093), как ApplicationPort.setCrNumber у клиента. |
+| `setProfile` | `setProfile(patch: SupplierProfilePatch): Promise<Supplier>` | `01-entities.md` §2.10 | Email, отрасль и город поставщика (A-075); неверное значение — DomainError `supplier.profile_invalid`. |
 
 ### `referredClients` — `ReferredClientsPort`
 
@@ -145,7 +146,7 @@ const REFERRED_CLIENTS_PAGE_SIZE = 20;
 | `DomainError` | `domain` | предложение: 409 / 422 с телом `{ "code": DomainErrorCode, "details"?: Record<string, number> }` | Бизнес-отказ (4xx с кодом). `details` — числа для текста (попытки, секунды). |
 
 Коды бизнес-отказов (`DomainError.code`) — ключи ошибок из сценариев и `01-roles.md` §3:
-`otp_invalid`, `otp_expired`, `otp_too_many_attempts`, `otp_rate_limited`, `otp_resend_too_early`, `phone_unknown`, `document_set_locked`, `document.same_file_rejected`, `upload.error.too_large`, `upload.error.unsupported_type`, `upload.error.too_many`, `company.cr_invalid`, `documents.submit_incomplete`, `application_not_closed`, `limit_exceeded`, `not_allowed`.
+`otp_invalid`, `otp_expired`, `otp_too_many_attempts`, `otp_rate_limited`, `otp_resend_too_early`, `phone_unknown`, `document_set_locked`, `document.same_file_rejected`, `upload.error.too_large`, `upload.error.unsupported_type`, `upload.error.too_many`, `company.cr_invalid`, `supplier.profile_invalid`, `documents.submit_incomplete`, `application_not_closed`, `limit_exceeded`, `not_allowed`.
 
 ## 4. Вход и сессия
 

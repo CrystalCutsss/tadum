@@ -92,6 +92,9 @@ const supplier: SupplierPort = {
   async setCrNumber() {
     return todo('supplier', 'setCrNumber');
   },
+  async setProfile() {
+    return todo('supplier', 'setProfile');
+  },
 };
 
 const referredClients: ReferredClientsPort = {

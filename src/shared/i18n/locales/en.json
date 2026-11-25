@@ -43,6 +43,7 @@
     "details": {
       "business_name": "Business name",
       "business_name_required": "Enter the business name",
+      "consent": "I agree to the collection and processing of my personal data in accordance with the <0>privacy policy</0>.",
       "contact_name": "Contact name",
       "contact_name_letters": "Use only letters in the name",
       "contact_name_required": "Enter the contact name",
@@ -106,6 +107,7 @@
   "common": {
     "cached_at": "Shown as of {time}",
     "cancel": "Cancel",
+    "clear": "Clear",
     "close": "Close",
     "copy_link": "Copy link",
     "load_error": "We couldn't load this page",
@@ -470,6 +472,64 @@
     "paused": {
       "body": "We are not prepared to continue the partnership at this time",
       "title": "Work is paused"
+    },
+    "profile": {
+      "city": {
+        "options": {
+          "abha": "Abha",
+          "al_ahsa": "Al-Ahsa",
+          "buraidah": "Buraidah",
+          "dammam": "Dammam",
+          "dhahran": "Dhahran",
+          "hail": "Hail",
+          "jazan": "Jazan",
+          "jeddah": "Jeddah",
+          "khobar": "Al Khobar",
+          "mecca": "Makkah",
+          "medina": "Madinah",
+          "najran": "Najran",
+          "riyadh": "Riyadh",
+          "tabuk": "Tabuk",
+          "taif": "Taif",
+          "yanbu": "Yanbu"
+        }
+      },
+      "city_label": "City",
+      "city_placeholder": "Choose or type",
+      "cr_label": "CR number",
+      "email_label": "Email",
+      "email_placeholder": "name@company.com",
+      "error": {
+        "city_letters": "Use only letters in the city name",
+        "city_required": "Choose or enter your city",
+        "cr_length": "Enter all 10 digits of your CR number",
+        "cr_required": "Enter your CR number",
+        "email_invalid": "Enter an email like name@company.com",
+        "email_required": "Enter your email",
+        "industry_required": "Choose or enter your industry",
+        "save": "We couldn't save your business details. Try again",
+        "too_short": "Enter at least {min} characters"
+      },
+      "hint": "We'll use these details to verify your company and contact you about your application",
+      "industry": {
+        "options": {
+          "apparel": "Clothing and textiles",
+          "auto": "Auto parts",
+          "beauty": "Beauty and personal care",
+          "construction": "Building materials",
+          "electronics": "Electronics and appliances",
+          "food": "Food and beverages",
+          "furniture": "Furniture and home goods",
+          "medical": "Medical supplies",
+          "office": "Stationery and office supplies",
+          "other": "Other"
+        }
+      },
+      "industry_label": "Industry",
+      "industry_placeholder": "Choose or type",
+      "progress_only": "Only your business details are left",
+      "submit_missing": "Fill in your business details to send for review",
+      "title": "About your business"
     }
   },
   "support": {
