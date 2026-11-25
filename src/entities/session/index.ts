@@ -12,7 +12,7 @@ export {
   type SessionKind,
 } from './model/roles';
 export { SESSION_QUERY_KEY, loadSessionState, sessionQuery, type SessionState } from './api/session-query';
-export { authMemory, loginFlow, type LoginSource, type PendingLogin } from './model/flow';
+export { authMemory, loginFlow, type ContactDetails, type LoginSource, type PendingLogin } from './model/flow';
 export {
   activeFamily,
   decideAuthScreen,

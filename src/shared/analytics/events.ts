@@ -45,6 +45,7 @@ export type ScreenViewedProps =
   | { screen_id: 'supplier.clients'; total_bucket: CountBucket; by_status: Record<SupplierViewStatus, number> }
   | { screen_id: 'supplier.offer'; tab: 'terms' | 'materials' }
   | { screen_id: 'auth.phone' }
+  | { screen_id: 'auth.details' }
   | { screen_id: 'auth.otp' }
   | { screen_id: 'auth.not_found' }
   | { screen_id: 'auth.expired' }

@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
 import { freshMock, tr } from '../../../../.storybook/story-helpers';
+import { loginFlow } from '@/entities/session';
 import { getApi } from '@/shared/api';
 import { Button } from '@/shared/ui';
 
@@ -95,9 +96,29 @@ export const ServerError: Story = {
 };
 
 export const ChangePhone: Story = {
-  name: '«Изменить номер» → назад к номеру',
+  name: '«Изменить номер» → назад к номеру, введённое сохранено',
   play: async ({ canvasElement, args }) => {
+    await userEvent.type(contact(canvasElement), 'Ahmed');
+    await userEvent.type(business(canvasElement), 'Rim');
     await userEvent.click(within(canvasElement).getByRole('button', { name: tr('auth.otp.change_phone') }));
     await expect(args.onChangePhone).toHaveBeenCalledTimes(1);
+    // Кирилл 2026-11-25: данные второго шага не теряются, даже если форма ещё не отправлена.
+    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim' });
+  },
+};
+
+export const Prefilled: Story = {
+  name: 'Возврат на экран → поля заполнены сохранённым',
+  // Декоратор, а не загрузчик: загрузчики идут параллельно, и freshMock из meta сбросил бы сохранённое.
+  decorators: [
+    (Story) => {
+      if (!loginFlow.details()) loginFlow.saveDetails({ contactName: 'Ahmed Al-Harbi', businessName: 'Rimal Al Sharq' });
+      return <Story />;
+    },
+  ],
+  play: async ({ canvasElement }) => {
+    await expect(contact(canvasElement)).toHaveValue('Ahmed Al-Harbi');
+    await expect(business(canvasElement)).toHaveValue('Rimal Al Sharq');
+    await expect(submit(canvasElement)).toBeEnabled();
   },
 };

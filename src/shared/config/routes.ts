@@ -2,6 +2,7 @@
 /** screen_id из 01-cabinet-structure.md §1 (единый список для маршрутов и аналитики). */
 export type ScreenId =
   | 'auth.phone'
+  | 'auth.details'
   | 'auth.otp'
   | 'auth.not_found'
   | 'auth.expired'
@@ -24,6 +25,7 @@ export type ScreenId =
 export const ROUTES = {
   root: '/',
   login: '/login',
+  loginDetails: '/login/details',
   loginCode: '/login/code',
   notFound: '/not-found',
   sessionExpired: '/session-expired',
@@ -42,6 +44,7 @@ export type Family = 'client' | 'supplier';
 /** screen_id по пути; у `/` экрана нет (только редирект). */
 export const SCREEN_IDS: Readonly<Partial<Record<RoutePath, ScreenId>>> = {
   [ROUTES.login]: 'auth.phone',
+  [ROUTES.loginDetails]: 'auth.details',
   [ROUTES.loginCode]: 'auth.otp',
   [ROUTES.notFound]: 'auth.not_found',
   [ROUTES.sessionExpired]: 'auth.expired',

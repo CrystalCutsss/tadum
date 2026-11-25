@@ -1,10 +1,11 @@
 // Экран «Contact name и Business name» нового клиента (Кирилл 2026-11-25, A-074): между номером и кодом.
 // Оба поля обязательные (model/contact-details.ts): пока поле неверное, «Get code» неактивна, ошибка — после ухода
-// из поля или попытки отправить. Значения хранятся только в памяти вкладки (loginFlow) и на бэкенд не уходят.
+// из поля или попытки отправить. Значения хранятся только в памяти вкладки (loginFlow) с первого ввода — «Change number»
+// их не теряет — и на бэкенд не уходят.
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { loginFlow } from '@/entities/session';
+import { loginFlow, type ContactDetails } from '@/entities/session';
 import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Spinner } from '@/shared/ui';
 
 import { businessNameError, contactNameError, DETAILS_MIN_LENGTH, type DetailsFieldError } from '../model/contact-details';
@@ -77,6 +78,13 @@ export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportS
   const [contactName, setContactName] = useState(saved?.contactName ?? '');
   const [businessName, setBusinessName] = useState(saved?.businessName ?? '');
   const [touched, setTouched] = useState({ contact: false, business: false });
+  // Введённое сохраняется сразу (Кирилл 2026-11-25): «Change number» и возврат с экрана кода его не теряют.
+  const update = (next: Partial<ContactDetails>) => {
+    const details = { contactName, businessName, ...next };
+    setContactName(details.contactName);
+    setBusinessName(details.businessName);
+    loginFlow.saveDetails(details);
+  };
   const { tick, activeError, waiting, pending, send } = useRequestOtp(onRequested);
 
   const contactError = contactNameError(contactName);
@@ -89,7 +97,6 @@ export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportS
     e.preventDefault();
     setTouched({ contact: true, business: true });
     if (invalid || pending || waiting) return;
-    loginFlow.saveDetails({ contactName: contactName.trim(), businessName: businessName.trim() });
     send(phone);
   };
   const shownError = <E extends DetailsFieldError>(error: E | null, map: Record<E, DetailsMessageKey>, show: boolean) =>
@@ -108,7 +115,7 @@ export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportS
           value={contactName}
           error={shownError(contactError, CONTACT_ERRORS, touched.contact)}
           disabled={pending}
-          onChange={setContactName}
+          onChange={(contactName) => update({ contactName })}
           onBlur={() => setTouched((v) => ({ ...v, contact: true }))}
         />
         <DetailsField
@@ -117,7 +124,7 @@ export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportS
           value={businessName}
           error={shownError(businessError, BUSINESS_ERRORS, touched.business)}
           disabled={pending}
-          onChange={setBusinessName}
+          onChange={(businessName) => update({ businessName })}
           onBlur={() => setTouched((v) => ({ ...v, business: true }))}
         />
         <Field>
