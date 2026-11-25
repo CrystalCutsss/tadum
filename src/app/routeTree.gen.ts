@@ -20,6 +20,7 @@ import { Route as CHelpRouteImport } from './../pages/c/help'
 import { Route as CHomeRouteImport } from './../pages/c/home'
 import { Route as LoginIndexRouteImport } from './../pages/login/index'
 import { Route as LoginCodeRouteImport } from './../pages/login/code'
+import { Route as LoginDetailsRouteImport } from './../pages/login/details'
 import { Route as SIndexRouteImport } from './../pages/s/index'
 import { Route as SDocumentsRouteImport } from './../pages/s/documents'
 import { Route as SHelpRouteImport } from './../pages/s/help'
@@ -81,6 +82,11 @@ const LoginCodeRoute = LoginCodeRouteImport.update({
   path: '/login/code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginDetailsRoute = LoginDetailsRouteImport.update({
+  id: '/login/details',
+  path: '/login/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SIndexRoute = SIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
   '/login/code': typeof LoginCodeRoute
+  '/login/details': typeof LoginDetailsRoute
   '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
   '/s/home': typeof SHomeRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
   '/login/code': typeof LoginCodeRoute
+  '/login/details': typeof LoginDetailsRoute
   '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
   '/s/home': typeof SHomeRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/c/help': typeof CHelpRoute
   '/c/home': typeof CHomeRoute
   '/login/code': typeof LoginCodeRoute
+  '/login/details': typeof LoginDetailsRoute
   '/s/documents': typeof SDocumentsRoute
   '/s/help': typeof SHelpRoute
   '/s/home': typeof SHomeRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/c/help'
     | '/c/home'
     | '/login/code'
+    | '/login/details'
     | '/s/documents'
     | '/s/help'
     | '/s/home'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/c/help'
     | '/c/home'
     | '/login/code'
+    | '/login/details'
     | '/s/documents'
     | '/s/help'
     | '/s/home'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/c/help'
     | '/c/home'
     | '/login/code'
+    | '/login/details'
     | '/s/documents'
     | '/s/help'
     | '/s/home'
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   NotFoundRoute: typeof NotFoundRoute
   SessionExpiredRoute: typeof SessionExpiredRoute
   LoginCodeRoute: typeof LoginCodeRoute
+  LoginDetailsRoute: typeof LoginDetailsRoute
   LoginIndexRoute: typeof LoginIndexRoute
 }
 
@@ -302,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/login/code'
       fullPath: '/login/code'
       preLoaderRoute: typeof LoginCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/details': {
+      id: '/login/details'
+      path: '/login/details'
+      fullPath: '/login/details'
+      preLoaderRoute: typeof LoginDetailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/s/': {
@@ -385,6 +405,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotFoundRoute: NotFoundRoute,
   SessionExpiredRoute: SessionExpiredRoute,
   LoginCodeRoute: LoginCodeRoute,
+  LoginDetailsRoute: LoginDetailsRoute,
   LoginIndexRoute: LoginIndexRoute,
 }
 export const routeTree = rootRouteImport

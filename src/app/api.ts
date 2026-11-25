@@ -11,7 +11,6 @@ import { initialActiveRole, resolveRoles } from '@/entities/session';
 import { deriveSupplierStatus, supplierNextStep } from '@/entities/supplier';
 import { setAnalyticsContext } from '@/shared/analytics';
 import {
-  LOGIN_ITEMS,
   PERSONA_IDS,
   configureApi,
   demoLoginVariant,
@@ -51,9 +50,10 @@ export const landingUrl: string = import.meta.env.VITE_LANDING_URL ?? 'https://t
 async function applyPersonaFromUrl(): Promise<void> {
   const persona = personaFromParam(new URL(window.location.href).searchParams.get('persona'));
   if (!persona) return;
-  // Любой пункт меню витрины задаёт вариант формы входа: с полем Business name — только свой пункт (A-071).
-  demoLoginVariant.set(persona === LOGIN_ITEMS.businessName);
-  if (persona === LOGIN_ITEMS.plain || persona === LOGIN_ITEMS.businessName) {
+  // Любой пункт меню витрины задаёт вариант входа: особые варианты — только у своих пунктов (A-071, A-074).
+  const loginVariant = demoLoginVariant.fromItem(persona);
+  demoLoginVariant.set(loginVariant ?? 'plain');
+  if (loginVariant) {
     // Пункты входа начинают с экрана входа, даже если в этом браузере уже открыт кабинет другой персоны.
     await (await getApi()).auth.logout();
     return;

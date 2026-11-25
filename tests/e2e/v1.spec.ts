@@ -136,6 +136,35 @@ test('client_signing_partial → Supplier → Client: демо-переключ�
   await expect(page.getByRole('link', { name: tr('en', 'signing.cta') })).toBeVisible();
 });
 
+test('@smoke меню витрины: «Вход: новый клиент» — номер → Contact name и Business name → код (A-074)', async ({ page }) => {
+  const phone = () => page.getByRole('main').getByRole('textbox', { name: tr('en', 'auth.phone.label') });
+  const contact = () => page.getByRole('textbox', { name: tr('en', 'auth.details.contact_name') });
+  const business = () => page.getByRole('textbox', { name: tr('en', 'auth.details.business_name') });
+  const getCode = () => page.getByRole('button', { name: tr('en', 'auth.phone.submit') });
+  await asPersona(page, 'login-new-client');
+  await expect(page).toHaveURL(/\/login$/);
+  // Первый экран — только номер; код ещё не запрашивается.
+  await expect(page.getByRole('textbox', { name: tr('en', 'auth.phone.business_name') })).toHaveCount(0);
+  await phone().fill('500000001');
+  await page.getByRole('button', { name: tr('en', 'auth.phone.continue') }).click();
+  await expect(page).toHaveURL(/\/login\/details$/);
+  await expect(page.getByRole('heading', { name: tr('en', 'auth.details.title') })).toBeVisible();
+  // Простая проверка ввода: оба поля обязательные, в имени — только буквы.
+  await expect(getCode()).toBeDisabled();
+  await contact().fill('Ahmed 2');
+  await contact().blur();
+  await expect(page.getByText(tr('en', 'auth.details.contact_name_letters'))).toBeVisible();
+  await contact().fill('Ahmed Al-Harbi');
+  await business().fill(' ');
+  await business().blur();
+  await expect(page.getByText(tr('en', 'auth.details.business_name_required'))).toBeVisible();
+  await expect(getCode()).toBeDisabled();
+  await business().fill('Rimal Al Sharq');
+  await getCode().click();
+  await enterCode(page, 'en');
+  await expect(page).toHaveURL(/\/c\/home$/);
+});
+
 test('@smoke меню витрины: «Вход: номер и Business name» и «Вход по номеру» (A-071)', async ({ page }) => {
   const business = () => page.getByRole('textbox', { name: tr('en', 'auth.phone.business_name') });
   const phone = () => page.getByRole('main').getByRole('textbox', { name: tr('en', 'auth.phone.label') });

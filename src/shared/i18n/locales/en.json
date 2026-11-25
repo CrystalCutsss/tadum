@@ -40,6 +40,16 @@
       "sms": "SMS",
       "whatsapp": "WhatsApp"
     },
+    "details": {
+      "business_name": "Business name",
+      "business_name_required": "Enter the business name",
+      "contact_name": "Contact name",
+      "contact_name_letters": "Use only letters in the name",
+      "contact_name_required": "Enter the contact name",
+      "subtitle": "Next, we'll send you a code to sign in",
+      "title": "Tell us about you",
+      "too_short": "Enter at least {min} characters"
+    },
     "expired": {
       "body": "For your security, please sign in again",
       "login": "Sign in",
@@ -68,6 +78,7 @@
     "phone": {
       "business_name": "Business name",
       "business_name_required": "Enter the business name",
+      "continue": "Continue",
       "invalid_format": "Enter a Saudi mobile number starting with 5",
       "label": "Mobile number",
       "placeholder": "5X XXX XXXX",
@@ -315,7 +326,7 @@
     "supplier": {
       "contract_pending": "Your documents are accepted. One step left: the contract — our manager will contact you",
       "declined": "Your application is no longer active",
-      "paused": "Work is paused. Contact us to continue",
+      "paused": "Work is paused. We are not prepared to continue the partnership at this time",
       "reupload_rejected_one": "One document needs a new file",
       "reupload_rejected_other": "{count} documents need a new file",
       "share_link": "You're a Tadum partner. Share your link with clients",
@@ -455,7 +466,7 @@
       "title": "You're a Tadum partner"
     },
     "paused": {
-      "body": "Contact us to continue",
+      "body": "We are not prepared to continue the partnership at this time",
       "title": "Work is paused"
     }
   },

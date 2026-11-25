@@ -62,13 +62,14 @@ describe('метаданные Proto', () => {
       expect(title.length).toBeLessThanOrEqual(40);
       expect(group.length).toBeLessThanOrEqual(20);
     }
-    // Первые два пункта — вход (обычный и с Business name, A-071), остальные — персоны мока своей роли.
-    for (const { id } of PERSONA_ITEMS.slice(0, 2)) expect(Object.values(LOGIN_ITEMS)).toContain(personaFromParam(id));
-    for (const { id } of PERSONA_ITEMS.slice(2)) expect(PERSONA_IDS).toContain(personaFromParam(id));
+    // Первые три пункта — вход (обычный, с Business name и новый клиент; A-071, A-074), остальные — персоны мока.
+    for (const { id } of PERSONA_ITEMS.slice(0, 3)) expect(Object.values(LOGIN_ITEMS)).toContain(personaFromParam(id));
+    for (const { id } of PERSONA_ITEMS.slice(3)) expect(PERSONA_IDS).toContain(personaFromParam(id));
     for (const { id } of groups.get('Поставщик')) expect(id.startsWith('supplier-')).toBe(true);
     expect(PERSONA_ITEMS.map((i) => i.id)).toEqual([
       'login',
       'login-business-name',
+      'login-new-client',
       'client-new',
       'client-rejected',
       'client-more-docs',

@@ -1,7 +1,7 @@
 // Этапы экрана «Заявка» поставщика после отправки документов (D-087–D-090; бриф TD-001 §2–§3, §7).
 // «Вы партнёр Tadum» — карточка с реферальной ссылкой вместо карточки лимита (D-089, вариант A бенчмарка Mobbin):
 // заголовок с галочкой, поле со ссылкой, WhatsApp и QR; «Как это работает» — отдельным блоком (Кирилл 2026-11-24).
-// Lost и Declined — нейтральная карточка как «Лимит не активен» у клиента: текст без причины и «Связаться с нами».
+// Lost и Declined — нейтральная карточка как «Лимит не активен» у клиента: текст без причины; «Связаться с нами» — только у Declined.
 import { RiCheckLine, RiWhatsappLine } from '@remixicon/react';
 import { useTranslation } from 'react-i18next';
 
@@ -86,7 +86,10 @@ export function ContractPendingCard() {
   );
 }
 
-/** Declined или Lost (D-088): нейтральная карточка без причины и «Связаться с нами», как отменённый лимит у клиента. */
+/**
+ * Declined или Lost (D-088): нейтральная карточка без причины, как отменённый лимит у клиента.
+ * «Связаться с нами» — только у Declined: у Lost кнопки нет (Кирилл 2026-11-25).
+ */
 export function SupplierInactiveCard({ kind }: { kind: 'declined' | 'paused' }) {
   const { t } = useTranslation();
   return (
@@ -95,12 +98,14 @@ export function SupplierInactiveCard({ kind }: { kind: 'declined' | 'paused' }) 
         <h2 className="text-base font-semibold">{t(`supplier.${kind}.title`)}</h2>
         <p className="text-sm text-muted-foreground">{t(`supplier.${kind}.body`)}</p>
       </div>
-      <Button asChild className="min-h-11">
-        <a href={supportWhatsappUrl()} target="_blank" rel="noopener noreferrer">
-          <Icon icon={RiWhatsappLine} data-icon="inline-start" />
-          {t('supplier.contact_us')}
-        </a>
-      </Button>
+      {kind === 'declined' ? (
+        <Button asChild className="min-h-11">
+          <a href={supportWhatsappUrl()} target="_blank" rel="noopener noreferrer">
+            <Icon icon={RiWhatsappLine} data-icon="inline-start" />
+            {t('supplier.contact_us')}
+          </a>
+        </Button>
+      ) : null}
     </section>
   );
 }

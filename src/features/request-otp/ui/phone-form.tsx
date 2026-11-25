@@ -1,21 +1,20 @@
 // Экран auth.phone (SC-01 §1, A1, A2, A9, A10, A13): поле номера с маской, «Получить код».
 // Вариант с полем Business name (Кирилл 2026-11-19, A-071): поле обязательное — пустое (или из одних пробелов)
 // не пускает дальше, после ухода из поля — ошибка; значение никуда не уходит.
+// Вариант «новый клиент» (A-074): форма не запрашивает код, а отдаёт номер в onPhoneEntered — код запросит
+// следующий экран, «Contact name и Business name».
 // Разметка — блок shadcn login-05 (FieldGroup → Field → кнопка во всю ширину).
-import { useMutation } from '@tanstack/react-query';
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { authMemory, loginFlow } from '@/entities/session';
-import { track } from '@/shared/analytics';
-import { getApi, type OtpChallenge } from '@/shared/api';
-import { formatNationalInput, nationalDigits, now, toKsaMobile, useNow } from '@/shared/lib';
+import { loginFlow } from '@/entities/session';
+import { formatNationalInput, nationalDigits, toKsaMobile } from '@/shared/lib';
 import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Spinner } from '@/shared/ui';
 
-import { phoneErrorActive, phoneErrorFrom, phoneErrorMessage, phoneFailReason, type PhoneFormError } from '../model/errors';
+import { phoneErrorMessage, type PhoneFormError } from '../model/errors';
+import { useRequestOtp } from '../model/use-request-otp';
 
 const KSA_PREFIX = '+966';
-const isOnline = () => typeof navigator === 'undefined' || navigator.onLine !== false;
 
 export interface PhoneFormProps {
   /** Код запрошен — перейти на экран кода. */
@@ -24,52 +23,35 @@ export interface PhoneFormProps {
   supportSlot?: React.ReactNode;
   /** Вариант входа с полем Business name под номером (A-071). */
   withBusinessName?: boolean;
+  /** Новый клиент (A-074): номер введён — перейти к экрану имени и компании, код не запрашивать. */
+  onPhoneEntered?: () => void;
 }
 
-export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }: PhoneFormProps) {
+export function PhoneForm({ onRequested, supportSlot, withBusinessName = false, onPhoneEntered }: PhoneFormProps) {
   const { t } = useTranslation();
   const ids = { input: useId(), error: useId(), label: useId(), prefix: useId(), business: useId(), businessError: useId() };
   const [businessName, setBusinessName] = useState('');
   const [businessBlurred, setBusinessBlurred] = useState(false);
   const [digits, setDigits] = useState(() => nationalDigits(loginFlow.lastPhone() ?? ''));
   const [blurred, setBlurred] = useState(false);
-  const [error, setError] = useState<PhoneFormError | null>(null);
-  // useNow отдаёт новое время только раз в секунду, а первое значение — время монтирования формы;
-  // без now() сразу после ошибки с таймером обратный отсчёт показывал бы на минуту больше.
-  const tick = Math.max(useNow(error && 'until' in error ? 1000 : null), now());
+  const { tick, error, setError, activeError, waiting, pending, send } = useRequestOtp(onRequested);
 
   const phone = toKsaMobile(digits);
   // A1: инлайн-ошибка, если номер не с 5 или (после ухода из поля) неполный.
   const formatInvalid = digits.length > 0 && (digits[0] !== '5' || (blurred && !phone));
-  const activeError = phoneErrorActive(error, tick) ? error : null;
   const shown: PhoneFormError | null = formatInvalid ? { kind: 'invalid_format' } : activeError;
-
-  const request = useMutation({
-    mutationFn: async (value: string): Promise<OtpChallenge> => (await getApi()).auth.requestOtp(value),
-    onSuccess: (challenge, value) => {
-      loginFlow.start({ phone: value, challenge });
-      track('auth_otp_requested', { channel: challenge.channel, resend: false, source: authMemory.source() });
-      onRequested();
-    },
-    onError: (e) => {
-      const next = phoneErrorFrom(e, now(), isOnline());
-      setError(next);
-      const reason = phoneFailReason(next);
-      if (reason) track('auth_otp_failed', { reason });
-    },
-  });
 
   const businessMissing = withBusinessName && businessName.trim() === '';
   const businessInvalid = businessMissing && businessBlurred;
-  const blocked =
-    !phone || formatInvalid || businessMissing || request.isPending || (activeError !== null && 'until' in activeError);
+  const blocked = !phone || formatInvalid || businessMissing || pending || waiting;
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setBusinessBlurred(true);
-    if (phone && !blocked) {
-      setError(null);
-      request.mutate(phone);
-    }
+    if (!phone || blocked) return;
+    if (onPhoneEntered) {
+      loginFlow.enterPhone(phone);
+      onPhoneEntered();
+    } else send(phone);
   };
   const message = shown ? phoneErrorMessage(shown, tick) : null;
   const retryable = shown?.kind === 'offline' || shown?.kind === 'server';
@@ -103,7 +85,7 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
                 if (error?.kind === 'invalid_format') setError(null);
               }}
               onBlur={() => setBlurred(true)}
-              disabled={request.isPending}
+              disabled={pending}
               aria-invalid={shown !== null}
               aria-describedby={message ? `${ids.prefix} ${ids.error}` : ids.prefix}
             />
@@ -121,7 +103,7 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
               onBlur={() => setBusinessBlurred(true)}
-              disabled={request.isPending}
+              disabled={pending}
               required
               aria-invalid={businessInvalid}
               aria-describedby={businessInvalid ? ids.businessError : undefined}
@@ -136,14 +118,14 @@ export function PhoneForm({ onRequested, supportSlot, withBusinessName = false }
               variant="secondary"
               size="lg"
               className="h-12 w-full text-base"
-              disabled={!phone || businessMissing || request.isPending}
+              disabled={!phone || businessMissing || pending}
             >
               {t('common.retry')}
             </Button>
           ) : (
-            <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={blocked} aria-busy={request.isPending}>
-              {request.isPending ? <Spinner aria-label={t('common.loading')} /> : null}
-              {t('auth.phone.submit')}
+            <Button type="submit" size="lg" className="h-12 w-full text-base" disabled={blocked} aria-busy={pending}>
+              {pending ? <Spinner aria-label={t('common.loading')} /> : null}
+              {onPhoneEntered ? t('auth.phone.continue') : t('auth.phone.submit')}
             </Button>
           )}
           {shown?.kind === 'server' ? supportSlot : null}

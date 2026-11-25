@@ -190,3 +190,17 @@ export const WithBusinessNameEmpty: Story = {
     await expect(submit(canvasElement)).toBeEnabled();
   },
 };
+
+// Вариант «новый клиент» (Кирилл 2026-11-25, A-074): номер → экран имени и компании; код здесь не запрашивается.
+export const NewClient: Story = {
+  name: 'Новый клиент · «Continue» отдаёт номер, код не запрошен',
+  args: { onPhoneEntered: fn() },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.type(phoneField(canvasElement), '500000001');
+    await userEvent.click(within(canvasElement).getByRole('button', { name: tr('auth.phone.continue') }));
+    await expect(args.onPhoneEntered).toHaveBeenCalledTimes(1);
+    await expect(args.onRequested).not.toHaveBeenCalled();
+    await expect(loginFlow.enteredPhone()).toBe(PHONE);
+    await expect(loginFlow.get()).toBeNull();
+  },
+};

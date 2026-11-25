@@ -17,17 +17,33 @@ export function personaFromParam(value: string | null): string | null {
 }
 
 /**
- * Пункты меню витрины «Вход по номеру» (`login`) и «Вход: номер и Business name» (`login-business-name`) —
- * не персоны, а начало с экрана входа (Кирилл 2026-11-19, A-071). Второй включает вариант формы входа
- * с полем Business name; флаг живёт до выбора другого пункта меню.
+ * Пункты меню витрины «Вход по номеру» (`login`), «Вход: номер и Business name» (`login-business-name`)
+ * и «Вход: новый клиент» (`login-new-client`) — не персоны, а начало с экрана входа (Кирилл 2026-11-19, A-071;
+ * 2026-11-25, A-074). Второй включает поле Business name под номером, третий — экран «Contact name и Business name»
+ * между номером и кодом; вариант живёт до выбора другого пункта меню.
  */
-export const LOGIN_ITEMS = { plain: 'login', businessName: 'login_business_name' } as const;
+export const LOGIN_ITEMS = {
+  plain: 'login',
+  businessName: 'login_business_name',
+  newClient: 'login_new_client',
+} as const;
+
+export type LoginVariant = 'plain' | 'business_name' | 'new_client';
 
 const LOGIN_VARIANT_KEY = 'demo:login_variant';
+const VARIANT_BY_ITEM: Readonly<Record<string, LoginVariant>> = {
+  [LOGIN_ITEMS.plain]: 'plain',
+  [LOGIN_ITEMS.businessName]: 'business_name',
+  [LOGIN_ITEMS.newClient]: 'new_client',
+};
 
 export const demoLoginVariant = {
-  /** Вариант входа с полем Business name. */
-  businessName: (): boolean => storage.get(LOGIN_VARIANT_KEY) === 'business_name',
-  set: (businessName: boolean): void =>
-    businessName ? storage.set(LOGIN_VARIANT_KEY, 'business_name') : storage.remove(LOGIN_VARIANT_KEY),
+  get: (): LoginVariant => {
+    const v = storage.get(LOGIN_VARIANT_KEY);
+    return v === 'business_name' || v === 'new_client' ? v : 'plain';
+  },
+  set: (variant: LoginVariant): void =>
+    variant === 'plain' ? storage.remove(LOGIN_VARIANT_KEY) : storage.set(LOGIN_VARIANT_KEY, variant),
+  /** Пункт меню витрины → вариант входа; `null` — это персона, а не пункт входа. */
+  fromItem: (persona: string): LoginVariant | null => VARIANT_BY_ITEM[persona] ?? null,
 };
