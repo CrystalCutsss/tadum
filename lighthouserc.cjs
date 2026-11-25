@@ -1,5 +1,7 @@
 // Lighthouse CI (01-nfr-locale-brand.md §2.2, D-054): мобильный профиль Lighthouse по умолчанию —
-// Slow 4G и CPU 4× (симуляция). Первая загрузка /c/home и /s/home: вход персоной мок-режима (?persona=).
+// Slow 4G и CPU 4× (симуляция). Первая загрузка кабинетов: вход персоной мок-режима (?persona=) сразу на экране —
+// не через `/`: корень перенаправляет в кабинет, и на повторном прогоне Lighthouse считал загрузку прерванной
+// (FAILED_DOCUMENT_REQUEST, net::ERR_ABORTED; Кирилл 2026-11-25). Поставщик входит на «Заявку» (/s/documents, TD-001).
 // v1 — уровень 'warn' (отчёт без блокировки); с v2 переключить LEVEL на 'error'.
 const LEVEL = 'warn';
 
@@ -8,7 +10,10 @@ module.exports = {
     collect: {
       startServerCommand: 'pnpm preview --port 4173 --strictPort',
       startServerReadyPattern: 'Local',
-      url: ['http://localhost:4173/?persona=client_active', 'http://localhost:4173/?persona=supplier_active'],
+      url: [
+        'http://localhost:4173/c/home?persona=client_active',
+        'http://localhost:4173/s/documents?persona=supplier_active',
+      ],
       numberOfRuns: 3,
       settings: { chromeFlags: '--no-sandbox --headless=new' },
     },
