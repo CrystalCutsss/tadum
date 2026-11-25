@@ -73,11 +73,12 @@ test('supplier_declined: нейтральный экран без причины
   await expect(shareButton(page)).toHaveCount(0);
 });
 
-test('supplier_lost: карточка «Работа приостановлена» как отменённый лимит у клиента, шаг «Не активен», ссылки нет (D-092)', async ({ page }) => {
+test('supplier_lost: карточка «Работа приостановлена» без «Contact us», шаг «Не активен», ссылки нет (D-092, Кирилл 2026-11-25)', async ({ page }) => {
   await openApplication(page, 'supplier_lost');
   await expect(page.getByRole('heading', { name: tr(LANG, 'supplier.paused.title') })).toBeVisible();
   await expect(page.getByText(tr(LANG, 'timeline.supplier.inactive'), { exact: true }).first()).toBeAttached();
-  await expect(page.getByRole('link', { name: tr(LANG, 'supplier.contact_us') })).toBeVisible();
+  await expect(page.getByText(tr(LANG, 'supplier.paused.body'), { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: tr(LANG, 'supplier.contact_us') })).toHaveCount(0);
   await expect(shareButton(page)).toHaveCount(0);
 });
 

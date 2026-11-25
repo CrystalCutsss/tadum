@@ -9,8 +9,8 @@ import { NotFoundScreen } from './-components/not-found-screen';
 import type { RouterContext } from './-router-context';
 
 /** Экраны без собственных данных: screen_viewed отправляет корень. Экраны с данными (§3.6) — сами, когда данные готовы. */
-type SimpleScreen = Extract<ScreenViewedProps, { screen_id: 'auth.phone' | 'auth.otp' | 'auth.not_found' | 'auth.expired' | 'client.help' | 'supplier.help' }>;
-const SIMPLE: ReadonlySet<string> = new Set<SimpleScreen['screen_id']>(['auth.phone', 'auth.otp', 'auth.not_found', 'auth.expired', 'client.help', 'supplier.help']);
+type SimpleScreen = Extract<ScreenViewedProps, { screen_id: 'auth.phone' | 'auth.details' | 'auth.otp' | 'auth.not_found' | 'auth.expired' | 'client.help' | 'supplier.help' }>;
+const SIMPLE: ReadonlySet<string> = new Set<SimpleScreen['screen_id']>(['auth.phone', 'auth.details', 'auth.otp', 'auth.not_found', 'auth.expired', 'client.help', 'supplier.help']);
 const isSimple = (id: string | null): id is SimpleScreen['screen_id'] => id !== null && SIMPLE.has(id);
 
 function Root() {

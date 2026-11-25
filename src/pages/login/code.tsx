@@ -1,5 +1,6 @@
 // /login/code — auth.otp (SC-01). Гард: телефон введён на этом шаге (номер — только в памяти вкладки).
 import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router';
+import { useState } from 'react';
 
 import { OtpForm } from '@/features/verify-otp';
 import {
@@ -13,20 +14,36 @@ import {
   loginFlow,
 } from '@/entities/session';
 import { setAnalyticsContext, track } from '@/shared/analytics';
-import type { Session } from '@/shared/api';
+import { demoPersona, getApi, type Session } from '@/shared/api';
 import { familyOfPath } from '@/shared/config';
 
 import { AuthLayout } from '../-components/auth-layout';
 import { SupportLink } from '../-components/support-link';
 import { enforce, routeOf } from '../-guard';
 
+/**
+ * Демо (A-074): бэкенда регистрации поставщика нет, поэтому вход «как поставщик» — это персона мока `supplier_new`
+ * (заявка поставщика, документы не загружены). Без демо (`VITE_DEMO_PANEL=0`) — обычная сессия.
+ */
+async function signInAsNewSupplier(fallback: Session): Promise<Session> {
+  const api = await getApi();
+  if (!api.demo) return fallback;
+  api.demo.setPersona('supplier_new');
+  demoPersona.set('supplier_new');
+  return (await api.auth.getSession()) ?? fallback;
+}
+
 function CodePage() {
   const navigate = useNavigate();
   const router = useRouter();
   const pending = loginFlow.get();
+  // Новый клиент отметил «Join as a supplier» (Кирилл 2026-11-25, A-074): после кода — сразу кабинет поставщика.
+  // Запоминаем до проверки кода: после неё loginFlow очищается.
+  const [joinAsSupplier] = useState(() => loginFlow.details()?.joinAsSupplier === true);
   if (!pending) return null;
 
-  const onVerified = (session: Session) => {
+  const onVerified = async (verified: Session) => {
+    const session = joinAsSupplier ? await signInAsNewSupplier(verified) : verified;
     router.options.context.queryClient.setQueryData(SESSION_QUERY_KEY, session);
     const { to, returned } = destinationAfterLogin(session, authMemory.returnTo(), familyMemory.last());
     const family = familyOfPath(to) ?? 'client';
@@ -49,7 +66,7 @@ function CodePage() {
     <AuthLayout>
       <OtpForm
         pending={pending}
-        onVerified={onVerified}
+        onVerified={(session) => void onVerified(session)}
         onUnknown={() => void navigate({ to: '/not-found', replace: true })}
         onChangePhone={() => {
           loginFlow.changePhone();

@@ -1,4 +1,4 @@
-// /login — auth.phone (SC-01). ?returnTo= принимает только внутренние пути; ?src=landing — вход с лендинга (D-039).
+// /login — auth.phone (SC-01); вариант «новый клиент» ведёт с номера на /login/details (A-074). ?returnTo= принимает только внутренние пути; ?src=landing — вход с лендинга (D-039).
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -20,12 +20,16 @@ interface LoginSearch {
 function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const variant = demoLoginVariant.get();
   return (
     <AuthLayout title={t('auth.phone.title')} subtitle={t('auth.phone.subtitle')}>
       <PhoneForm
         onRequested={() => void navigate({ to: '/login/code' })}
         supportSlot={<SupportLink context="error" />}
-        withBusinessName={demoLoginVariant.businessName()}
+        withBusinessName={variant === 'business_name'}
+        {...(variant === 'new_client' || variant === 'new_supplier'
+          ? { onPhoneEntered: () => void navigate({ to: '/login/details' }) }
+          : {})}
       />
     </AuthLayout>
   );

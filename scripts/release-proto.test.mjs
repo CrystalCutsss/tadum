@@ -62,13 +62,16 @@ describe('метаданные Proto', () => {
       expect(title.length).toBeLessThanOrEqual(40);
       expect(group.length).toBeLessThanOrEqual(20);
     }
-    // Первые два пункта — вход (обычный и с Business name, A-071), остальные — персоны мока своей роли.
-    for (const { id } of PERSONA_ITEMS.slice(0, 2)) expect(Object.values(LOGIN_ITEMS)).toContain(personaFromParam(id));
-    for (const { id } of PERSONA_ITEMS.slice(2)) expect(PERSONA_IDS).toContain(personaFromParam(id));
-    for (const { id } of groups.get('Поставщик')) expect(id.startsWith('supplier-')).toBe(true);
+    // Пункты входа (обычный, с Business name, новый клиент и новый поставщик; A-071, A-074) — варианты формы входа,
+    // остальные — персоны мока. Вход идёт первым в своей вкладке.
+    const isLogin = (id) => id.startsWith('login');
+    for (const { id } of PERSONA_ITEMS.filter((i) => isLogin(i.id))) expect(Object.values(LOGIN_ITEMS)).toContain(personaFromParam(id));
+    for (const { id } of PERSONA_ITEMS.filter((i) => !isLogin(i.id))) expect(PERSONA_IDS).toContain(personaFromParam(id));
+    for (const { id } of groups.get('Поставщик').slice(1)) expect(id.startsWith('supplier-')).toBe(true);
     expect(PERSONA_ITEMS.map((i) => i.id)).toEqual([
       'login',
       'login-business-name',
+      'login-new-client',
       'client-new',
       'client-rejected',
       'client-more-docs',
@@ -77,6 +80,7 @@ describe('метаданные Proto', () => {
       'client-signing-partial',
       'client-limit-cancelled',
       'client-active',
+      'login-new-supplier',
       'supplier-new',
       'supplier-review',
       'supplier-contract',

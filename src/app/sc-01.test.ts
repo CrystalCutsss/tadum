@@ -74,6 +74,16 @@ describe('SC-01 §1 — основной сценарий', () => {
   it('/login/code без введённого номера → /login', async () => {
     expect((await open('/login/code')).pathname).toBe('/login');
   });
+  it('A-074: /login/details без введённого номера → /login; с номером — экран открыт, кода ещё нет', async () => {
+    expect((await open('/login/details')).pathname).toBe('/login');
+    loginFlow.enterPhone(PHONE);
+    expect((await open('/login/details')).pathname).toBe('/login/details');
+    expect(loginFlow.get()).toBeNull();
+    expect((await open('/login/code')).pathname).toBe('/login');
+    loginFlow.changePhone();
+    expect(loginFlow.enteredPhone()).toBeNull();
+    expect(loginFlow.lastPhone()).toBe(PHONE);
+  });
   it('номер → код 0000 → сессия на 30 дней → /c/home', async () => {
     const challenge = await api.auth.requestOtp(PHONE);
     loginFlow.start({ phone: PHONE, challenge });

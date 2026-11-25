@@ -57,6 +57,8 @@ const SHADCN_GENERATED = [
   'breadcrumb', 'sidebar',
   // Экран «Ваши документы» (2026-11-09).
   'alert-dialog', 'collapsible', 'drawer', 'empty', 'field', 'item', 'label', 'spinner',
+  // Экран входа, «Join as a supplier» (2026-11-25).
+  'checkbox',
 ].map((name) => `src/shared/ui/${name}.tsx`);
 
 // Аналитика: имя события — только литерал из EventName (04-metrics-and-events.md §4).
