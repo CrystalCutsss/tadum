@@ -172,6 +172,17 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await expect(joinSupplier()).toBeChecked();
   await getCode().click();
   await enterCode(page, 'en');
+  // Отмечен «Join as a supplier» — сразу кабинет поставщика, экран «Заявка» (Кирилл 2026-11-25).
+  await expect(page).toHaveURL(/\/s\/documents/);
+  // Без отметки — кабинет клиента.
+  await asPersona(page, 'login-new-client');
+  await phone().fill('500000001');
+  await page.getByRole('button', { name: tr('en', 'auth.phone.continue') }).click();
+  await contact().fill('Ahmed Al-Harbi');
+  await business().fill('Rimal Al Sharq');
+  await expect(joinSupplier()).not.toBeChecked();
+  await getCode().click();
+  await enterCode(page, 'en');
   await expect(page).toHaveURL(/\/c\/home$/);
 });
 
