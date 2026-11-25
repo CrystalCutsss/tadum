@@ -17,3 +17,14 @@ export {
   type SupplierTimelineStepState,
 } from './model/timeline';
 export { supplierQuery } from './api/queries';
+export {
+  cityError,
+  emailError,
+  industryError,
+  isSupplierProfileComplete,
+  PROFILE_TEXT_MAX,
+  type CityError,
+  type EmailError,
+  type ProfileTextError,
+  type SupplierProfileValues,
+} from './model/profile';

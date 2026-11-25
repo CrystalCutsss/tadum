@@ -43,7 +43,7 @@
     "details": {
       "business_name": "Business name",
       "business_name_required": "Enter the business name",
-      "consent": "I agree to the collection and processing of my personal data in accordance with the <policy>privacy policy</policy>.",
+      "consent": "I agree to the collection and processing of my personal data in accordance with the <0>privacy policy</0>.",
       "contact_name": "Contact name",
       "contact_name_letters": "Use only letters in the name",
       "contact_name_required": "Enter the contact name",
@@ -526,6 +526,7 @@
       },
       "industry_label": "Industry",
       "industry_placeholder": "Choose or type",
+      "progress_only": "Only your business details are left",
       "submit_missing": "Fill in your business details to send for review",
       "title": "About your business"
     }

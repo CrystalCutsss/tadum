@@ -201,17 +201,16 @@ export function ContactDetailsForm({
           title={
             <Trans
               i18nKey="auth.details.consent"
-              components={{
-                policy: (
-                  // Текст ссылки подставляет Trans из <policy>…</policy> в строке перевода.
-                  <a
-                    href={PRIVACY_POLICY_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary underline underline-offset-4"
-                  />
-                ),
-              }}
+              components={[
+                // Текст ссылки подставляет Trans из <0>…</0> в строке перевода.
+                <a
+                  key="policy"
+                  href={PRIVACY_POLICY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-4"
+                />,
+              ]}
             />
           }
         />
