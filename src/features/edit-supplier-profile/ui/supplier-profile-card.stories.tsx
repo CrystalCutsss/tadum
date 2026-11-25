@@ -96,6 +96,15 @@ export const ClearButtons: Story = {
     await userEvent.click(clear()[0]!);
     await expect(email).toHaveValue('');
     await expect(email).toHaveFocus();
+    // После очистки ошибка не показывается, пока не ушли из поля (Кирилл 2026-11-25) — даже после попытки отправить.
+    await userEvent.type(email, 'bad');
+    await userEvent.tab();
+    await expect(within(canvasElement).getByText(tr('supplier.profile.error.email_invalid'))).toBeVisible();
+    await userEvent.click(clear()[0]!);
+    await expect(email).toHaveFocus();
+    await expect(within(canvasElement).queryByText(tr('supplier.profile.error.email_invalid'))).toBeNull();
+    await expect(within(canvasElement).queryByText(tr('supplier.profile.error.email_required'))).toBeNull();
+    await expect(email).toHaveAttribute('aria-invalid', 'false');
     // Подпись — не <label>: клик по ней не переносит фокус в поле.
     await userEvent.click(within(canvasElement).getByText(tr('supplier.profile.city_label'), { exact: true }));
     await expect(field(canvasElement, 'supplier.profile.city_label')).not.toHaveFocus();

@@ -99,6 +99,8 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
   const saved = fromSupplier(supplier);
   const [values, setValues] = useState<Values>(saved);
   const [touched, setTouched] = useState<Record<ProfileField, boolean>>({ cr_number: false, email: false, industry: false, city: false });
+  // Поле очищено (крестиком или стёрто до пустого): ошибку не показываем, пока пользователь не уйдёт из поля (Кирилл 2026-11-25).
+  const [cleared, setCleared] = useState<Record<ProfileField, boolean>>({ cr_number: false, email: false, industry: false, city: false });
   const inputs = useRef<Partial<Record<ProfileField, HTMLInputElement | null>>>({});
   const timers = useRef<Partial<Record<ProfileField, ReturnType<typeof setTimeout>>>>({});
   const save = useSaveProfile();
@@ -108,7 +110,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
   const [seen, setSeen] = useState(savedKey);
   if (seen !== savedKey) {
     setSeen(savedKey);
-    setValues((v) => Object.fromEntries(FIELDS.map((f) => [f, touched[f] ? v[f] : saved[f]])) as Values);
+    setValues((v) => Object.fromEntries(FIELDS.map((f) => [f, touched[f] || cleared[f] ? v[f] : saved[f]])) as Values);
   }
 
   const ready =
@@ -138,6 +140,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
 
   const change = (field: ProfileField, value: string, { now = false } = {}) => {
     setValues((v) => ({ ...v, [field]: value }));
+    if (value === '') setCleared((v) => ({ ...v, [field]: true }));
     if (save.isError) save.reset();
     clearTimeout(timers.current[field]);
     if (now) {
@@ -148,12 +151,13 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
 
   const blur = (field: ProfileField) => {
     setTouched((v) => ({ ...v, [field]: true }));
+    setCleared((v) => ({ ...v, [field]: false }));
     commit(field, values[field]);
   };
 
   const fieldError = (field: ProfileField) => {
     // После попытки отправить ошибки видны во всех полях, как у блока CR.
-    const key = touched[field] || attention > 0 ? errorKey(field, values[field]) : null;
+    const key = !cleared[field] && (touched[field] || attention > 0) ? errorKey(field, values[field]) : null;
     if (key === null) return null;
     return key === 'supplier.profile.error.too_short' ? t(key, { min: 2 }) : t(key);
   };
