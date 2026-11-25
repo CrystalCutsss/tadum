@@ -1,4 +1,4 @@
-<!-- source: Drive 1j_8F4mStJ2iIrQcxU25zrpJDYBcz_450, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1CvqwKNA9Mgl-vbQT_X3Cb4z3vA-ygRhG, synced: 2026-11-25. Не редактировать — источник в Drive. -->
 # 01 · Статусы и переходы
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -89,7 +89,7 @@ SupplierStatus: application_created | docs_required | under_review | contract_pe
 | Interested | `partner` | partner: current | «Вы партнёр Tadum: делитесь ссылкой» (поставщик) | только чтение | да | да |
 | Activated | `active` | partner: current | «Делитесь ссылкой» (поставщик) | только чтение | да | да |
 | Declined | `declined` | partner: cancelled («Не активен») | нейтральная карточка без причины, «Связаться с нами» (D-092) | — | — | — |
-| Lost | `paused` | partner: cancelled («Не активен») | карточка «Работа приостановлена, свяжитесь с нами» (D-092) | — | — | — |
+| Lost | `paused` | partner: cancelled («Не активен») | карточка «Работа приостановлена», без «Связаться с нами» (D-092, D-094) | — | — | — |
 
 `under_review` выводится на фронтенде из `document_set.locked`, пока Odoo не перевёл запись (гонка, SP-01 A2). Реферальная ссылка, QR и список клиентов — только при `partner` и `active` (D-087, заменяет D-022). Материалы — на любой стадии. Возврат из `paused` — кнопка Return to Processing в Odoo.
 
