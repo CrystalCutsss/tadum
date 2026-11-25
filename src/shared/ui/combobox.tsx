@@ -198,10 +198,16 @@ function Combobox({
               label={clearLabel!}
               // Перед шевроном: шеврон занимает end-4…end-9, крестик (с зоной касания) — от end-11.
               className="end-11"
+              // Правка Кирилла 2026-11-25: очистка не убирает список — открытый остаётся, закрытый открывается
+              // со всеми пунктами (пустой запрос); активный пункт сброшен, фокус в поле. Крестик внутри anchorRef,
+              // поэтому Popover не считает клик по нему «снаружи»; mousedown отменён в ClearButton — blur нет.
               onClear={() => {
                 onValueChange("")
                 setActive(-1)
-                inputRef.current?.focus()
+                const input = inputRef.current
+                if (!input) return
+                input.focus()
+                openList(input)
               }}
             />
           )}
@@ -228,7 +234,8 @@ function Combobox({
         // Фокус остаётся в поле: список не забирает его ни при открытии, ни при закрытии.
         onOpenAutoFocus={(event) => event.preventDefault()}
         onCloseAutoFocus={(event) => event.preventDefault()}
-        // Клик по самому полю не считается «снаружи» — его обрабатывает onClick поля.
+        // Клик по самому полю и по крестику (оба внутри anchorRef) не считается «снаружи» — его обрабатывают
+        // onClick поля и onClear.
         onInteractOutside={(event) => {
           if (anchorRef.current?.contains(event.target as Node)) event.preventDefault()
         }}

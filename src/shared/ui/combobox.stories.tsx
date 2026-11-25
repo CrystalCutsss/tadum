@@ -201,14 +201,20 @@ export const ReclickKeepsOpen: Story = {
   },
 };
 
-/** Крестик очистки: нет при пустом поле, появляется с первым символом, очищает значение, фокус в поле. */
+/**
+ * Крестик очистки: нет при пустом поле, появляется с первым символом, очищает значение, фокус в поле.
+ * Правка Кирилла 2026-11-25: открытый список после крестика остаётся открытым и показывает все пункты.
+ */
 export const Clearable: Story = {
   render: (args) => <Demo clearLabel="clear" onValueChange={args.onValueChange} />,
   play: async ({ canvasElement, args }) => {
     const input = inputOf(canvasElement);
     const clear = () => panel(canvasElement).querySelector<HTMLElement>('[data-slot="clear-button"]');
     await expect(clear()).toBeNull();
-    await userEvent.type(input, 'R');
+    await userEvent.type(input, 'Ri');
+    await waitFor(() => expect(optionLabels()).toEqual(['Riyadh']));
+    await userEvent.keyboard('{ArrowDown}');
+    await expect(input).toHaveAttribute('aria-activedescendant');
     await expect(clear()).not.toBeNull();
     await expect(clear()).toHaveAttribute('type', 'button');
     // Зона касания ≥ 44 px (псевдоэлемент after:-inset-1.5 вокруг size-8).
@@ -222,6 +228,33 @@ export const Clearable: Story = {
     await expect(args.onValueChange).toHaveBeenLastCalledWith('');
     await expect(document.activeElement).toBe(input);
     await expect(clear()).toBeNull();
+    // Список не закрылся: все пункты, активный пункт сброшен.
+    await expect(input).toHaveAttribute('aria-expanded', 'true');
+    await waitFor(() => expect(optionLabels()).toHaveLength(6));
+    await expect(input).not.toHaveAttribute('aria-activedescendant');
+  },
+};
+
+/** Список был закрыт (Escape) → крестик → список открыт со всеми пунктами, фокус в поле. */
+export const ClearReopensList: Story = {
+  render: () => <Demo clearLabel="clear" />,
+  play: async ({ canvasElement }) => {
+    const input = inputOf(canvasElement);
+    const clear = () => panel(canvasElement).querySelector<HTMLElement>('[data-slot="clear-button"]');
+    await userEvent.type(input, 'Jed');
+    await waitFor(() => expect(optionLabels()).toEqual(['Jeddah']));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+    await waitFor(() => expect(listbox()).toBeNull());
+    await userEvent.click(clear()!);
+    await expect(input).toHaveValue('');
+    await expect(document.activeElement).toBe(input);
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'));
+    await waitFor(() => expect(optionLabels()).toHaveLength(6));
+    await expect(input).not.toHaveAttribute('aria-activedescendant');
+    // Закрывает по-прежнему клик вне поля.
+    await userEvent.click(document.body);
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
   },
 };
 
@@ -233,6 +266,14 @@ export const ClearableArabic: Story = {
     const clear = p.querySelector<HTMLElement>('[data-slot="clear-button"]')!.getBoundingClientRect();
     const chevron = p.querySelector('[data-slot="combobox-chevron"]')!.getBoundingClientRect();
     await expect(clear.left).toBeGreaterThanOrEqual(chevron.right);
+    // Крестик в RTL: поле пустое, список открыт с арабскими пунктами в rtl, фокус в поле.
+    const input = inputOf(canvasElement, 'ar light');
+    await userEvent.click(p.querySelector<HTMLElement>('[data-slot="clear-button"]')!);
+    await expect(input).toHaveValue('');
+    await expect(document.activeElement).toBe(input);
+    await waitFor(() => expect(optionLabels()).toHaveLength(6));
+    await expect(optionLabels()).toContain('الرياض');
+    await expect(listbox()).toHaveAttribute('dir', 'rtl');
   },
 };
 
