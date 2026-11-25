@@ -53,7 +53,7 @@ const meta = {
   title: 'shared/ui/Combobox',
   component: Combobox,
   ...matrix,
-  args: { value: '', options: CITIES.en, onValueChange: fn() },
+  args: { value: '', options: CITIES.en, onValueChange: fn(), onBlur: fn() },
 } satisfies Meta<typeof Combobox>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -136,7 +136,7 @@ export const CustomText: Story = {
 
 /** Клавиатура: ввод фильтрует без учёта регистра, стрелки двигают активный пункт, Enter ставит label. */
 export const Keyboard: Story = {
-  render: (args) => <Demo onValueChange={args.onValueChange} />,
+  render: (args) => <Demo onValueChange={args.onValueChange} onBlur={args.onBlur} />,
   play: async ({ canvasElement, args }) => {
     const input = inputOf(canvasElement);
     await userEvent.type(input, 'DA');
@@ -152,7 +152,9 @@ export const Keyboard: Story = {
     await expect(input).toHaveValue('Dammam');
     await expect(args.onValueChange).toHaveBeenLastCalledWith('Dammam');
     await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+    // Выбор Enter фокус оставляет в поле (A-076): blur не было.
     await expect(document.activeElement).toBe(input);
+    await expect(args.onBlur).not.toHaveBeenCalled();
   },
 };
 
@@ -169,17 +171,37 @@ export const KeyboardArabic: Story = {
   },
 };
 
-/** Клик: по полю открывается список, клик по пункту ставит label и закрывает список, фокус остаётся в поле. */
+/**
+ * Клик: по полю открывается список, клик по пункту ставит label и закрывает список.
+ * Правка Кирилла 2026-11-25: после выбора указателем поле в default — фокус снят, onBlur вызван с новым значением.
+ */
+// Значение поля в момент blur (event.target.value читается в обработчике, а не после).
+const blurValue = fn<(value: string) => void>();
+
 export const Click: Story = {
-  render: () => <Demo />,
-  play: async ({ canvasElement }) => {
+  render: (args) => (
+    <Demo
+      onBlur={(event) => {
+        blurValue(event.target.value);
+        args.onBlur?.(event);
+      }}
+    />
+  ),
+  play: async ({ canvasElement, args }) => {
+    blurValue.mockClear();
     const input = inputOf(canvasElement);
     await userEvent.click(input);
     const list = await within(document.body).findByRole('listbox');
     await userEvent.click(within(list).getByRole('option', { name: 'Makkah' }));
     await expect(input).toHaveValue('Makkah');
     await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
-    await expect(document.activeElement).toBe(input);
+    await waitFor(() => expect(listbox()).toBeNull());
+    await expect(document.activeElement).not.toBe(input);
+    await expect(input).not.toHaveFocus();
+    await expect(args.onBlur).toHaveBeenCalledTimes(1);
+    // К моменту blur в поле уже выбранный label — фича сохраняет именно его.
+    await expect(blurValue).toHaveBeenCalledTimes(1);
+    await expect(blurValue).toHaveBeenCalledWith('Makkah');
   },
 };
 

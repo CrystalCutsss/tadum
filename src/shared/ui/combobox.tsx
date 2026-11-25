@@ -1,4 +1,5 @@
 import * as React from "react"
+import { flushSync } from "react-dom"
 import { RiArrowDownSLine } from "@remixicon/react"
 import { cn } from "cn"
 import { Direction } from "radix-ui"
@@ -104,9 +105,21 @@ function Combobox({
     setActive(-1)
   }
 
-  const select = (option: ComboboxOption) => {
-    onValueChange(option.label)
-    close()
+  // Правка Кирилла 2026-11-25: после выбора кликом/тапом поле возвращается в default — без рамки фокуса,
+  // поэтому выбор указателем снимает фокус (blur вызывает onBlur поля: фича по нему сохраняет и проверяет).
+  // flushSync — чтобы к blur в DOM уже стояло новое значение (event.target.value в onBlur — выбранный label).
+  // Выбор Enter фокус оставляет: клавиатурный пользователь не теряет позицию (A-076).
+  const select = (option: ComboboxOption, { blur = false }: { blur?: boolean } = {}) => {
+    if (!blur) {
+      onValueChange(option.label)
+      close()
+      return
+    }
+    flushSync(() => {
+      onValueChange(option.label)
+      close()
+    })
+    inputRef.current?.blur()
   }
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -256,7 +269,7 @@ function Combobox({
             onMouseMove={() => {
               if (active !== index) setActive(index)
             }}
-            onClick={() => select(option)}
+            onClick={() => select(option, { blur: true })}
           >
             {option.label}
           </div>
