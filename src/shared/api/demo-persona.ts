@@ -20,7 +20,8 @@ export function personaFromParam(value: string | null): string | null {
  * Пункты меню витрины «Вход по номеру» (`login`), «Вход: номер и Business name» (`login-business-name`)
  * и «Вход: новый клиент» (`login-new-client`) — не персоны, а начало с экрана входа (Кирилл 2026-11-19, A-071;
  * 2026-11-25, A-074). Второй включает поле Business name под номером, третий — экран «Contact name и Business name»
- * между номером и кодом; «Вход: новый поставщик» (`login-new-supplier`) — тот же экран с отмеченным «Join as a supplier».
+ * между номером и кодом; «Вход: новый поставщик» (`login-new-supplier`) — тот же экран во вкладке «Поставщик»
+ * (чекбокс «Join as a supplier» по умолчанию снят, как у клиента — Кирилл 2026-11-25).
  * Вариант живёт до выбора другого пункта меню.
  */
 export const LOGIN_ITEMS = {
@@ -30,7 +31,7 @@ export const LOGIN_ITEMS = {
   newSupplier: 'login_new_supplier',
 } as const;
 
-/** `new_supplier` — та же форма нового клиента, но «Join as a supplier» уже отмечен (развилка в кабинет поставщика). */
+/** `new_supplier` — та же форма нового клиента, пункт во вкладке «Поставщик» (развилка в кабинет поставщика). */
 export type LoginVariant = 'plain' | 'business_name' | 'new_client' | 'new_supplier';
 
 const LOGIN_VARIANT_KEY = 'demo:login_variant';

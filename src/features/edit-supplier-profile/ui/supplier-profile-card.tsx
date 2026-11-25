@@ -14,7 +14,7 @@ import {
   Combobox,
   Field,
   FieldError,
-  FieldLabel,
+  FieldTitle,
   Icon,
   Input,
   Item,
@@ -157,13 +157,21 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
     return key === 'supplier.profile.error.too_short' ? t(key, { min: 2 }) : t(key);
   };
 
-  const field = (name: ProfileField, label: string, control: (a11y: { id: string; describedBy?: string; invalid: boolean }) => ReactNode) => {
+  const field = (
+    name: ProfileField,
+    label: string,
+    control: (a11y: { id: string; labelledBy: string; describedBy?: string; invalid: boolean }) => ReactNode,
+  ) => {
     const error = fieldError(name);
     const help = `${ids[name]}-error`;
+    const labelId = `${ids[name]}-label`;
     return (
       <Field data-invalid={error !== null}>
-        <FieldLabel htmlFor={ids[name]}>{label}</FieldLabel>
-        {control({ id: ids[name], invalid: error !== null, ...(error ? { describedBy: help } : {}) })}
+        {/* Подпись — не <label>: клик по ней не ставит фокус в поле (Кирилл 2026-11-25); имя поля — через aria-labelledby. */}
+        <FieldTitle id={labelId}>
+          {label}
+        </FieldTitle>
+        {control({ id: ids[name], labelledBy: labelId, invalid: error !== null, ...(error ? { describedBy: help } : {}) })}
         {error ? <FieldError id={help}>{error}</FieldError> : null}
       </Field>
     );
@@ -203,6 +211,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
             autoComplete="off"
             value={values.cr_number}
             readOnly={!editable}
+            aria-labelledby={a.labelledBy}
             aria-invalid={a.invalid}
             aria-describedby={a.describedBy}
             onChange={(e) => {
@@ -227,6 +236,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
             placeholder={t('supplier.profile.email_placeholder')}
             value={values.email}
             readOnly={!editable}
+            aria-labelledby={a.labelledBy}
             aria-invalid={a.invalid}
             aria-describedby={a.describedBy}
             onChange={(e) => change('email', e.target.value)}
@@ -243,6 +253,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
             placeholder={t('supplier.profile.industry_placeholder')}
             value={values.industry}
             readOnly={!editable}
+            aria-labelledby={a.labelledBy}
             aria-invalid={a.invalid}
             aria-describedby={a.describedBy}
             onValueChange={(v) => change('industry', v)}
@@ -260,6 +271,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
             autoComplete="address-level2"
             value={values.city}
             readOnly={!editable}
+            aria-labelledby={a.labelledBy}
             aria-invalid={a.invalid}
             aria-describedby={a.describedBy}
             onValueChange={(v) => change('city', v)}

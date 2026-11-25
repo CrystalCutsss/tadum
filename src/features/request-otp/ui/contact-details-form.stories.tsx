@@ -28,8 +28,8 @@ const contact = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr(
 const business = (el: HTMLElement) => within(el).getByRole('textbox', { name: tr('auth.details.business_name') });
 const submit = (el: HTMLElement) => within(el).getByRole('button', { name: tr('auth.phone.submit') });
 const consent = (el: HTMLElement) => within(el).getAllByRole('checkbox')[1]!;
-/** Согласие на обработку данных обязательно (Кирилл 2026-11-25). */
-const agree = async (el: HTMLElement) => userEvent.click(consent(el));
+/** Согласие отмечено по умолчанию и обязательно (Кирилл 2026-11-25): сняли — код не запросить. */
+const toggleConsent = async (el: HTMLElement) => userEvent.click(consent(el));
 
 export const Normal: Story = {
   play: async ({ canvasElement }) => {
@@ -64,9 +64,12 @@ export const RequestsCode: Story = {
   play: async ({ canvasElement, args }) => {
     await userEvent.type(contact(canvasElement), 'أحمد الحربي');
     await userEvent.type(business(canvasElement), 'Rimal Al Sharq');
-    // Без согласия код не запросить.
+    // Согласие отмечено по умолчанию; без него код не запросить.
+    await expect(consent(canvasElement)).toBeChecked();
+    await expect(submit(canvasElement)).toBeEnabled();
+    await toggleConsent(canvasElement);
     await expect(submit(canvasElement)).toBeDisabled();
-    await agree(canvasElement);
+    await toggleConsent(canvasElement);
     await expect(submit(canvasElement)).toBeEnabled();
     await userEvent.click(submit(canvasElement));
     await waitFor(() => expect(args.onRequested).toHaveBeenCalledTimes(1));
@@ -79,7 +82,7 @@ export const Consent: Story = {
     const link = within(canvasElement).getByRole('link', { name: /privacy|الخصوصية/i });
     await expect(link).toHaveAttribute('target', '_blank');
     await expect(link).toHaveAttribute('href', expect.stringMatching(/^https:\/\//));
-    await expect(consent(canvasElement)).not.toBeChecked();
+    await expect(consent(canvasElement)).toBeChecked();
   },
 };
 
@@ -90,7 +93,6 @@ export const Offline: Story = {
     api.demo!.setNetwork('offline');
     await userEvent.type(contact(canvasElement), 'Ahmed');
     await userEvent.type(business(canvasElement), 'Rimal');
-    await agree(canvasElement);
     await userEvent.click(submit(canvasElement));
     await waitFor(() => expect(within(canvasElement).getByText(tr('common.offline_retry'))).toBeVisible());
     await expect(contact(canvasElement)).toHaveValue('Ahmed');
@@ -107,7 +109,6 @@ export const ServerError: Story = {
     api.demo!.setNetwork('error');
     await userEvent.type(contact(canvasElement), 'Ahmed');
     await userEvent.type(business(canvasElement), 'Rimal');
-    await agree(canvasElement);
     await userEvent.click(submit(canvasElement));
     await waitFor(() => expect(within(canvasElement).getByText(tr('common.server_error_retry'))).toBeVisible());
     await expect(within(canvasElement).getByRole('button', { name: 'support' })).toBeVisible();
@@ -129,7 +130,7 @@ export const ChangePhone: Story = {
     await userEvent.click(within(canvasElement).getByRole('button', { name: tr('auth.otp.change_phone') }));
     await expect(args.onChangePhone).toHaveBeenCalledTimes(1);
     // Кирилл 2026-11-25: данные второго шага не теряются, даже если форма ещё не отправлена.
-    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim', joinAsSupplier: true, consent: false });
+    await expect(loginFlow.details()).toEqual({ contactName: 'Ahmed', businessName: 'Rim', joinAsSupplier: true, consent: true });
   },
 };
 

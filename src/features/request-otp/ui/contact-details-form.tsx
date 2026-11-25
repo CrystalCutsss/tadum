@@ -30,8 +30,6 @@ export interface ContactDetailsFormProps {
   phone: string;
   /** Код запрошен — перейти на экран кода. */
   onRequested: () => void;
-  /** Чекбокс «Join as a supplier» отмечен сразу (пункт меню витрины «Вход: новый поставщик»). */
-  defaultJoinAsSupplier?: boolean;
   /** Вернуться к номеру. */
   onChangePhone: () => void;
   /** Ссылка на поддержку при ошибке сервера (A10). */
@@ -54,7 +52,8 @@ const BUSINESS_ERRORS = {
   too_short: 'auth.details.too_short',
 } as const satisfies Record<Exclude<DetailsFieldError, 'letters_only'>, DetailsMessageKey>;
 
-const EMPTY_DETAILS: ContactDetails = { contactName: '', businessName: '', joinAsSupplier: false, consent: false };
+// По умолчанию согласие отмечено, «Join as a supplier» — нет (Кирилл 2026-11-25).
+const EMPTY_DETAILS: ContactDetails = { contactName: '', businessName: '', joinAsSupplier: false, consent: true };
 
 interface DetailsFieldProps {
   label: string;
@@ -129,11 +128,10 @@ export function ContactDetailsForm({
   onRequested,
   onChangePhone,
   supportSlot,
-  defaultJoinAsSupplier = false,
 }: ContactDetailsFormProps) {
   const { t } = useTranslation();
   const [details, setDetails] = useState<ContactDetails>(
-    () => loginFlow.details() ?? { ...EMPTY_DETAILS, joinAsSupplier: defaultJoinAsSupplier },
+    () => loginFlow.details() ?? EMPTY_DETAILS,
   );
   const { contactName, businessName } = details;
   const [touched, setTouched] = useState({ contact: false, business: false });
