@@ -15,7 +15,9 @@ module.exports = {
         'http://localhost:4173/s/documents?persona=supplier_active',
       ],
       numberOfRuns: 3,
-      settings: { chromeFlags: '--no-sandbox --headless=new' },
+      // В контейнере CI /dev/shm — 64 МБ: вкладка Chrome падала на повторном прогоне («Target closed»,
+      // ERR_ABORTED). --disable-dev-shm-usage переносит общую память в /tmp (Кирилл 2026-11-25).
+      settings: { chromeFlags: '--no-sandbox --headless=new --disable-dev-shm-usage' },
     },
     assert: {
       assertions: {
