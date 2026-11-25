@@ -1,4 +1,4 @@
-<!-- source: Drive 1Ty6G_PVaOap53H4fou-kn3iQj88wGIal, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1uWX0ONK8n99fCk-vF8a943kEi-gsSyno, synced: 2026-11-25. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -184,6 +184,9 @@ Supplier:
   supplier_status: SupplierStatus  # из odoo_stage, см. 01-statuses.md §3
   next_step: NextStep
   cr_number?: string               # Commercial Registration поставщика; 10 цифр, LTR; обязателен для отправки комплекта (D-093)
+  email?: string                   # e-mail компании, вида name@company.com, LTR; обязателен для отправки комплекта (D-096)
+  industry?: string                # отрасль: подсказка из списка или свой текст, 2–60 знаков; обязательна для отправки (D-096)
+  city?: string                    # город: подсказка из списка городов KSA или свой текст, 2–60 знаков, только буквы; обязателен для отправки (D-096)
   current_document_set_id: string
   counters:
     referred_total: number         # все привязанные лиды
