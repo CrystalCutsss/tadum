@@ -43,7 +43,8 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
  * экрана «Заявка» (TD-001); «Поставщик: активен» не показан — экран тот же, что у «Партнёр». Proto пускает до 4
  * вкладок по 12 пунктов.
  * v26 (Кирилл 2026-11-25, A-074): третий пункт входа — новый клиент (`login-new-client`): номер → Contact name
- * и Business name → код.
+ * и Business name → код. Развилка «Join as a supplier» — пункт `login-new-supplier` во вкладке «Поставщик»: та же
+ * форма с отмеченным чекбоксом, после кода — кабинет поставщика.
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру', group: 'Клиент' },
@@ -57,6 +58,7 @@ export const PERSONA_ITEMS = [
   { id: 'client-signing-partial', title: 'Подписание, частично', group: 'Клиент' },
   { id: 'client-limit-cancelled', title: 'Лимит отменён', group: 'Клиент' },
   { id: 'client-active', title: 'Лимит одобрен', group: 'Клиент' },
+  { id: 'login-new-supplier', title: 'Вход: новый поставщик', group: 'Поставщик' },
   { id: 'supplier-new', title: 'Подача документов', group: 'Поставщик' },
   { id: 'supplier-review', title: 'Документы на проверке', group: 'Поставщик' },
   { id: 'supplier-contract', title: 'Остался договор', group: 'Поставщик' },

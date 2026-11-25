@@ -29,6 +29,8 @@ export interface ContactDetailsFormProps {
   phone: string;
   /** Код запрошен — перейти на экран кода. */
   onRequested: () => void;
+  /** Чекбокс «Join as a supplier» отмечен сразу (пункт меню витрины «Вход: новый поставщик»). */
+  defaultJoinAsSupplier?: boolean;
   /** Вернуться к номеру. */
   onChangePhone: () => void;
   /** Ссылка на поддержку при ошибке сервера (A10). */
@@ -110,9 +112,17 @@ function JoinSupplierField({ checked, disabled, onChange }: { checked: boolean; 
   );
 }
 
-export function ContactDetailsForm({ phone, onRequested, onChangePhone, supportSlot }: ContactDetailsFormProps) {
+export function ContactDetailsForm({
+  phone,
+  onRequested,
+  onChangePhone,
+  supportSlot,
+  defaultJoinAsSupplier = false,
+}: ContactDetailsFormProps) {
   const { t } = useTranslation();
-  const [details, setDetails] = useState<ContactDetails>(() => loginFlow.details() ?? EMPTY_DETAILS);
+  const [details, setDetails] = useState<ContactDetails>(
+    () => loginFlow.details() ?? { ...EMPTY_DETAILS, joinAsSupplier: defaultJoinAsSupplier },
+  );
   const { contactName, businessName } = details;
   const [touched, setTouched] = useState({ contact: false, business: false });
   // Введённое сохраняется сразу (Кирилл 2026-11-25): «Change number» и возврат с экрана кода его не теряют.

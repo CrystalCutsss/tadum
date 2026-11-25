@@ -186,6 +186,19 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await expect(page).toHaveURL(/\/c\/home$/);
 });
 
+test('меню витрины: «Вход: новый поставщик» — чекбокс уже отмечен, после кода кабинет поставщика (A-074)', async ({ page }) => {
+  await asPersona(page, 'login-new-supplier');
+  await expect(page).toHaveURL(/\/login$/);
+  await page.getByRole('main').getByRole('textbox', { name: tr('en', 'auth.phone.label') }).fill('500000001');
+  await page.getByRole('button', { name: tr('en', 'auth.phone.continue') }).click();
+  await expect(page.getByRole('checkbox', { name: tr('en', 'auth.details.join_supplier') })).toBeChecked();
+  await page.getByRole('textbox', { name: tr('en', 'auth.details.contact_name') }).fill('Ahmed Al-Harbi');
+  await page.getByRole('textbox', { name: tr('en', 'auth.details.business_name') }).fill('Rimal Al Sharq');
+  await page.getByRole('button', { name: tr('en', 'auth.phone.submit') }).click();
+  await enterCode(page, 'en');
+  await expect(page).toHaveURL(/\/s\/documents/);
+});
+
 test('@smoke меню витрины: «Вход: номер и Business name» и «Вход по номеру» (A-071)', async ({ page }) => {
   const business = () => page.getByRole('textbox', { name: tr('en', 'auth.phone.business_name') });
   const phone = () => page.getByRole('main').getByRole('textbox', { name: tr('en', 'auth.phone.label') });

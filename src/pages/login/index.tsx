@@ -27,7 +27,9 @@ function LoginPage() {
         onRequested={() => void navigate({ to: '/login/code' })}
         supportSlot={<SupportLink context="error" />}
         withBusinessName={variant === 'business_name'}
-        {...(variant === 'new_client' ? { onPhoneEntered: () => void navigate({ to: '/login/details' }) } : {})}
+        {...(variant === 'new_client' || variant === 'new_supplier'
+          ? { onPhoneEntered: () => void navigate({ to: '/login/details' }) }
+          : {})}
       />
     </AuthLayout>
   );
