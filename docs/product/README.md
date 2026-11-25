@@ -41,11 +41,11 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `1FXRUpqC7JWSZNE1mf8ngXOIWv4l62KXO` | 62468 | 2026-11-25 |
+| `00-decision-log.md` | `16tlwViJclwT-l8eMOoyM0dQVQBI1gjV_` | 63644 | 2026-11-25 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
 | `01-cabinet-structure.md` | `1DIAkrPrC5CLYiwr6wW3G9b195Kg2yELO` | 27521 | 2026-11-25 |
-| `01-entities.md` | `1Ty6G_PVaOap53H4fou-kn3iQj88wGIal` | 24196 | 2026-11-24 |
+| `01-entities.md` | `1uWX0ONK8n99fCk-vF8a943kEi-gsSyno` | 24788 | 2026-11-25 |
 | `01-nfr-locale-brand.md` | `1c5vF5E0SNTLI-yIhiEPzmO-4PSEmhXWz` | 49920 | 2026-11-25 |
 | `01-roles.md` | `15uiBDtEkxyC_m5SMpbuZZkmIk4imO7jY` | 18809 | 2026-11-24 |
 | `01-statuses.md` | `1CvqwKNA9Mgl-vbQT_X3Cb4z3vA-ygRhG` | 24754 | 2026-11-25 |
@@ -64,7 +64,7 @@
 | `scenarios/SC-10-service-scenarios.md` | `12VeurQ1BMCUIRwN7Kq5Lmz8e3vtUgZaa` | 18491 | 2026-11-11 |
 | `scenarios/SP-01-supplier-login-and-home.md` | `1tc7Xe8JnGP4zfBNuQ6nQjnRVowTM9Mw2` | 18063 | 2026-11-24 |
 | `scenarios/SP-02-referral-link-and-qr.md` | `1qt2GPj5FPuV7tdmzESWRsu3ZrhRcW1BS` | 16300 | 2026-11-24 |
-| `scenarios/SP-03-supplier-documents.md` | `15mO5F3GIpR2jHXvkKB-YmaIiDofqtA-i` | 20035 | 2026-11-25 |
+| `scenarios/SP-03-supplier-documents.md` | `1xS0gpWP0-JPbwlB-e8tWjkJt0ckDZnho` | 20373 | 2026-11-25 |
 | `scenarios/SP-04-referred-clients.md` | `1gw1pSx0fkEx3xkpmg5zMcm1dY9qM2Xat` | 16893 | 2026-11-05 |
 | `scenarios/SP-05-offer-and-materials.md` | `1M8We-maaBRoZ_wd4iZSp41rdZvYeYMBH` | 15671 | 2026-11-05 |
 | `tov-lexicon.json` | `1W2G4zoLEu8kqJkmeGs3gZoK98GNXo1r7` | 27127 | 2026-11-05 |
