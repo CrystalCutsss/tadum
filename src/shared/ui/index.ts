@@ -7,6 +7,7 @@ export * from './breadcrumb';
 export * from './button';
 export * from './card';
 export * from './checkbox';
+export * from './clearable-input';
 export * from './code-slots';
 export * from './collapsible';
 export * from './combobox';

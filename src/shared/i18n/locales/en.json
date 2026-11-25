@@ -107,6 +107,7 @@
   "common": {
     "cached_at": "Shown as of {time}",
     "cancel": "Cancel",
+    "clear": "Clear",
     "close": "Close",
     "copy_link": "Copy link",
     "load_error": "We couldn't load this page",

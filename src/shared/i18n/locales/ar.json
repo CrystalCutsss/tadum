@@ -119,6 +119,7 @@
   "common": {
     "cached_at": "البيانات كما في {time}",
     "cancel": "إلغاء",
+    "clear": "مسح",
     "close": "إغلاق",
     "copy_link": "نسخ الرابط",
     "load_error": "تعذّر تحميل هذه الصفحة",

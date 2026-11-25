@@ -84,3 +84,20 @@ export const FillAndSave: Story = {
     );
   },
 };
+
+export const ClearButtons: Story = {
+  name: 'Крестик очистки — с первого символа, очищает поле; подпись поля не кликабельна',
+  play: async ({ canvasElement }) => {
+    const clear = () => within(canvasElement).queryAllByRole('button', { name: tr('common.clear') });
+    await expect(clear()).toHaveLength(0);
+    const email = field(canvasElement, 'supplier.profile.email_label');
+    await userEvent.type(email, 'o');
+    await expect(clear()).toHaveLength(1);
+    await userEvent.click(clear()[0]!);
+    await expect(email).toHaveValue('');
+    await expect(email).toHaveFocus();
+    // Подпись — не <label>: клик по ней не переносит фокус в поле.
+    await userEvent.click(within(canvasElement).getByText(tr('supplier.profile.city_label'), { exact: true }));
+    await expect(field(canvasElement, 'supplier.profile.city_label')).not.toHaveFocus();
+  },
+};

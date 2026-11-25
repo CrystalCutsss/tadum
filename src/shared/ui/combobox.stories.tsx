@@ -183,6 +183,66 @@ export const Click: Story = {
   },
 };
 
+/** Повторный клик по полю и клик по шеврону список не закрывают; закрывает клик вне поля. */
+export const ReclickKeepsOpen: Story = {
+  render: () => <Demo />,
+  play: async ({ canvasElement }) => {
+    const input = inputOf(canvasElement);
+    await userEvent.click(input);
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'));
+    await userEvent.click(input);
+    await expect(input).toHaveAttribute('aria-expanded', 'true');
+    await expect(listbox()).not.toBeNull();
+    // Шеврон — pointer-events-none: клик по нему приходится в поле и тоже не закрывает.
+    const chevron = panel(canvasElement).querySelector<HTMLElement>('[data-slot="combobox-chevron"]')!;
+    await expect(getComputedStyle(chevron).pointerEvents).toBe('none');
+    await userEvent.click(document.body);
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+  },
+};
+
+/** Крестик очистки: нет при пустом поле, появляется с первым символом, очищает значение, фокус в поле. */
+export const Clearable: Story = {
+  render: (args) => <Demo clearLabel="clear" onValueChange={args.onValueChange} />,
+  play: async ({ canvasElement, args }) => {
+    const input = inputOf(canvasElement);
+    const clear = () => panel(canvasElement).querySelector<HTMLElement>('[data-slot="clear-button"]');
+    await expect(clear()).toBeNull();
+    await userEvent.type(input, 'R');
+    await expect(clear()).not.toBeNull();
+    await expect(clear()).toHaveAttribute('type', 'button');
+    // Зона касания ≥ 44 px (псевдоэлемент after:-inset-1.5 вокруг size-8).
+    const after = getComputedStyle(clear()!, '::after');
+    await expect(clear()!.offsetWidth - 2 * parseFloat(after.left)).toBeGreaterThanOrEqual(44);
+    // Крестик — перед шевроном и не перекрывает его.
+    const chevron = panel(canvasElement).querySelector('[data-slot="combobox-chevron"]')!.getBoundingClientRect();
+    await expect(clear()!.getBoundingClientRect().right).toBeLessThanOrEqual(chevron.left);
+    await userEvent.click(clear()!);
+    await expect(input).toHaveValue('');
+    await expect(args.onValueChange).toHaveBeenLastCalledWith('');
+    await expect(document.activeElement).toBe(input);
+    await expect(clear()).toBeNull();
+  },
+};
+
+/** Крестик в RTL — тоже перед шевроном, на стороне end (слева от текста). */
+export const ClearableArabic: Story = {
+  render: () => <Demo clearLabel="clear" initial="الرياض" />,
+  play: async ({ canvasElement }) => {
+    const p = panel(canvasElement, 'ar light');
+    const clear = p.querySelector<HTMLElement>('[data-slot="clear-button"]')!.getBoundingClientRect();
+    const chevron = p.querySelector('[data-slot="combobox-chevron"]')!.getBoundingClientRect();
+    await expect(clear.left).toBeGreaterThanOrEqual(chevron.right);
+  },
+};
+
+export const ClearableReadOnly: Story = {
+  render: () => <Demo clearLabel="clear" initial="Riyadh" readOnly />,
+  play: async ({ canvasElement }) => {
+    await expect(panel(canvasElement).querySelector('[data-slot="clear-button"]')).toBeNull();
+  },
+};
+
 export const Invalid: Story = {
   render: () => <Demo initial="Riy" aria-invalid />,
   play: async ({ canvasElement }) => {

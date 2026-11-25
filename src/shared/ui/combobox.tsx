@@ -3,6 +3,7 @@ import { RiArrowDownSLine } from "@remixicon/react"
 import { cn } from "cn"
 import { Direction } from "radix-ui"
 
+import { ClearButton } from "./clear-button"
 import { Icon } from "./icon/icon"
 import { Input } from "./input"
 import { Popover, PopoverAnchor, PopoverContent } from "./popover"
@@ -39,6 +40,8 @@ export interface ComboboxProps
   value: string
   onValueChange: (value: string) => void
   options: readonly ComboboxOption[]
+  /** aria-label крестика очистки; задан — крестик виден, пока в поле есть текст (не в readOnly/disabled). */
+  clearLabel?: string
 }
 
 /** Фильтр подсказок: вхождение без учёта регистра; пустой запрос — все пункты. */
@@ -57,6 +60,7 @@ function Combobox({
   readOnly,
   onBlur,
   ref,
+  clearLabel,
   ...inputProps
 }: ComboboxProps) {
   const listboxId = React.useId()
@@ -64,6 +68,7 @@ function Combobox({
   const dir = Direction.useDirection()
   const anchorRef = React.useRef<HTMLDivElement>(null)
   const listRef = React.useRef<HTMLDivElement>(null)
+  const inputRef = React.useRef<HTMLInputElement | null>(null)
   const [wantOpen, setWantOpen] = React.useState(false)
   const [active, setActive] = React.useState(-1)
   // Имя списка (axe aria-input-field-name): aria-labelledby/aria-label поля, иначе текст его <label>.
@@ -73,6 +78,13 @@ function Combobox({
   const open = wantOpen && filtered.length > 0 && !disabled && !readOnly
   const optionId = (index: number) => `${listboxId}-option-${index}`
   const activeIndex = open && active < filtered.length ? active : -1
+  const showClear = Boolean(clearLabel) && value.length > 0 && !disabled && !readOnly
+
+  const setRefs = (node: HTMLInputElement | null) => {
+    inputRef.current = node
+    if (typeof ref === "function") ref(node)
+    else if (ref) ref.current = node
+  }
 
   // Активный пункт держим в видимой области прокручиваемого списка.
   React.useEffect(() => {
@@ -151,7 +163,7 @@ function Combobox({
         <div ref={anchorRef} data-slot="combobox" className="relative w-full">
           <Input
             {...inputProps}
-            ref={ref}
+            ref={setRefs}
             type="text"
             size="lg"
             role="combobox"
@@ -163,16 +175,17 @@ function Combobox({
             disabled={disabled}
             readOnly={readOnly}
             value={value}
-            className={cn("rounded-lg pe-11", className)}
+            className={cn("rounded-lg", showClear ? "pe-20" : "pe-11", className)}
             onChange={(event) => {
               onValueChange(event.target.value)
               openList(event.currentTarget)
               setActive(-1)
             }}
+            // Клик (и по шеврону — он pointer-events-none) только открывает список; повторный клик его не закрывает.
+            // Закрывают Escape, выбор пункта, Tab/blur и клик вне поля.
             onClick={(event) => {
               if (disabled || readOnly) return
-              if (wantOpen) close()
-              else openList(event.currentTarget)
+              if (!wantOpen) openList(event.currentTarget)
             }}
             onKeyDown={onKeyDown}
             onBlur={(event) => {
@@ -180,6 +193,18 @@ function Combobox({
               onBlur?.(event)
             }}
           />
+          {showClear && (
+            <ClearButton
+              label={clearLabel!}
+              // Перед шевроном: шеврон занимает end-4…end-9, крестик (с зоной касания) — от end-11.
+              className="end-11"
+              onClear={() => {
+                onValueChange("")
+                setActive(-1)
+                inputRef.current?.focus()
+              }}
+            />
+          )}
           <Icon
             icon={RiArrowDownSLine}
             data-slot="combobox-chevron"

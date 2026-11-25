@@ -1,6 +1,7 @@
 // Блок «About your business» над документами поставщика (Кирилл 2026-11-25, A-075): CR, email, отрасль, город —
 // по два поля в ряд (на телефоне — одно), слева направо и сверху вниз. Шапка — как у блока CR и документов (иконка,
 // заголовок, пояснение). Каждое поле проверяется; ошибка — под полем после ухода из него или попытки отправить.
+// У каждого поля — крестик очистки, как только введён первый символ (Кирилл 2026-11-25).
 // Значение сохраняется, как только оно верное: CR — при 10 цифрах, остальное — через паузу в наборе и при уходе с поля.
 // В панели отправки блок — один сегмент: готов, когда все четыре поля сохранены и верны.
 import { RiBuildingLine } from '@remixicon/react';
@@ -11,12 +12,12 @@ import { crDigits, crError, CR_LENGTH, isValidCr } from '@/entities/application'
 import { cityError, emailError, industryError, isSupplierProfileComplete } from '@/entities/supplier';
 import type { Supplier } from '@/shared/api';
 import {
+  ClearableInput,
   Combobox,
   Field,
   FieldError,
   FieldTitle,
   Icon,
-  Input,
   Item,
   ItemContent,
   ItemDescription,
@@ -199,7 +200,9 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
       {/* Поля выровнены по тексту шапки, как поле CR (отступ = квадрат 40 px + зазор 14 px); на телефоне — во всю ширину. */}
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:ps-13.5">
         {field('cr_number', t('supplier.profile.cr_label'), (a) => (
-          <Input
+          <ClearableInput
+            clearLabel={t('common.clear')}
+            onClear={() => change('cr_number', '')}
             ref={(el) => {
               inputs.current.cr_number = el;
             }}
@@ -222,7 +225,9 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
           />
         ))}
         {field('email', t('supplier.profile.email_label'), (a) => (
-          <Input
+          <ClearableInput
+            clearLabel={t('common.clear')}
+            onClear={() => change('email', '')}
             ref={(el) => {
               inputs.current.email = el;
             }}
@@ -245,6 +250,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
         ))}
         {field('industry', t('supplier.profile.industry_label'), (a) => (
           <Combobox
+            clearLabel={t('common.clear')}
             ref={(el) => {
               inputs.current.industry = el;
             }}
@@ -262,6 +268,7 @@ export function SupplierProfileCard({ supplier, editable, attention = 0, onReady
         ))}
         {field('city', t('supplier.profile.city_label'), (a) => (
           <Combobox
+            clearLabel={t('common.clear')}
             ref={(el) => {
               inputs.current.city = el;
             }}
