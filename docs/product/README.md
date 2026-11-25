@@ -44,7 +44,7 @@
 | `00-decision-log.md` | `1mXVYX3V0t4b2XiEo3jlKsZwYvb3Wpjq_` | 60793 | 2026-11-24 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
-| `01-cabinet-structure.md` | `1zvxjEz_S_Iu4v3B6BbHPhniqtmeVJrOp` | 27150 | 2026-11-24 |
+| `01-cabinet-structure.md` | `1DIAkrPrC5CLYiwr6wW3G9b195Kg2yELO` | 27521 | 2026-11-25 |
 | `01-entities.md` | `1Ty6G_PVaOap53H4fou-kn3iQj88wGIal` | 24196 | 2026-11-24 |
 | `01-nfr-locale-brand.md` | `1nWl9j1MUxN6S3Rh869BlnFQKAXSa2NQA` | 49904 | 2026-11-15 |
 | `01-roles.md` | `15uiBDtEkxyC_m5SMpbuZZkmIk4imO7jY` | 18809 | 2026-11-24 |
