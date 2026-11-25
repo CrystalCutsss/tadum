@@ -1,11 +1,11 @@
-<!-- source: Drive 1PNXh2CjAh20FIxOBnyheoiFENlBA0JWe, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1SGmiiH15qNip71H6nJwkcmhcSgu-GDAn, synced: 2026-11-25. Не редактировать — источник в Drive. -->
 # SC-01 · Первый вход
 
 | Поле | Значение |
 |---|---|
 | **ID** | `SC-01` |
 | **Роли** | `client_contact`, `client_owner`, `supplier`, `dual`, `unknown` (вход общий для всех) |
-| **Экраны** | `auth.phone` (`/login`), `auth.otp` (`/login/code`), `auth.not_found` (`/not-found`), `auth.expired` (`/session-expired`) |
+| **Экраны** | `auth.phone` (`/login`), `auth.details` (`/login/details`, вариант «новый клиент», D-097), `auth.otp` (`/login/code`), `auth.not_found` (`/not-found`), `auth.expired` (`/session-expired`) |
 | **Предусловие** | Сессии нет (или истекла). Пользователь пришёл по ссылке из WhatsApp (`?lang=`) или нажал «Войти» на лендинге |
 | **Статусы** | Любой `client_status`; результат входа — кабинет роли по `resolveRoles(phone)` |
 | **Цель** | Клиент без пароля и регистрации попадает в кабинет за два экрана и сразу видит статус заявки |
@@ -42,6 +42,25 @@
 Тогда: экран auth.not_found с действиями «Подать заявку» и «Связаться с поддержкой»; сессия не создаётся
 ```
 
+### 1a. Вариант «новый клиент» — регистрация (D-097)
+
+```
+Дано:  вариант входа «новый клиент»; экран auth.phone
+Когда: пользователь вводит номер и нажимает «Continue» (код на этом шаге не отправляется)
+Тогда: переход на /login/details (auth.details): поля Contact name и Business name, чекбокс «Join as a supplier»
+       с пояснением роли (по умолчанию снят), чекбокс согласия на обработку персональных данных со ссылкой
+       «privacy policy» (по умолчанию отмечен)
+
+Дано:  экран auth.details
+Когда: пользователь заполняет оба поля (обязательные, не короче 2 знаков; в имени — только буквы) и нажимает «Get code»
+Тогда: событие auth_otp_requested; переход на /login/code — дальше как в основном сценарии
+
+Дано:  код подтверждён
+Тогда: отмечен «Join as a supplier» — кабинет поставщика (/s/documents); не отмечен — кабинет клиента
+```
+
+Без согласия «Get code» неактивна. Имя, название компании, отметки чекбоксов хранятся только в памяти вкладки и сохраняются при «Change number»; на бэкенд пока не уходят — поля в контракте появятся вместе с регистрацией на бэкенде.
+
 Шаги с точки зрения UI: 2 экрана до кабинета в счастливом пути; ввод кода — без кнопки «Подтвердить» (автоотправка), кнопка «Подтвердить» появляется только если автоотправка не сработала (вставка из буфера, экранная клавиатура без событий).
 
 ---
@@ -64,6 +83,9 @@
 | A12 | Пользователь уже с сессией открывает `/login` | Редирект на `home` активной роли | — | — |
 | A13 | «Изменить номер» на экране кода | Возврат на `auth.phone` с заполненным номером; старый код инвалидируется | — | — |
 | A14 | Диплинк `/c/documents?lang=en` без сессии | Язык переключается на `en` до показа `/login`; после входа — `/c/documents` | — | `language_changed {to: en, source: url}` |
+| A15 | Регистрация (D-097): поле пустое, короче 2 знаков или в имени цифры/символы | Ошибка под полем после ухода из него (`auth.details.*_required`, `auth.details.too_short`, `auth.details.contact_name_letters`); «Get code» неактивна | исправить поле | — |
+| A16 | Регистрация: согласие на обработку данных снято | «Get code» неактивна | отметить согласие | — |
+| A17 | Регистрация: «Change number» на экране `auth.details` или `auth.otp` | Возврат на `auth.phone` с номером; при возврате на `auth.details` поля и отметки сохранены | — | — |
 
 Канал доставки кода (SMS или WhatsApp) выбирает бэкенд; UI показывает, куда отправлен код (`auth.otp.sent_to {channel}`), в моке канал задаётся персоной.
 
@@ -76,6 +98,8 @@
 | `auth.phone` | normal | Логотип, заголовок, поле номера, кнопка «Получить код», переключатель языка, SupportBar |
 | `auth.phone` | loading | Кнопка в состоянии загрузки, поле заблокировано |
 | `auth.phone` | error (A1, A2, A9, A10) | Инлайн-ошибка под полем или над кнопкой; поле остаётся заполненным |
+| `auth.details` | normal | Заголовок, Contact name, Business name, «Join as a supplier» (снят), согласие (отмечено), «Get code», «Change number» |
+| `auth.details` | error (A15, A2, A9, A10) | Ошибка под полем; ошибки запроса кода — над кнопкой, как на `auth.phone` |
 | `auth.otp` | normal | Маскированный номер, 4 ячейки кода, таймер повтора, «Изменить номер» |
 | `auth.otp` | loading | Ячейки заблокированы, индикатор проверки |
 | `auth.otp` | error (A3–A5) | Текст ошибки, ячейки с состоянием ошибки, фокус на первой |
@@ -99,6 +123,18 @@
 | `auth.phone.submit` | Get code | إرسال الرمز | |
 | `auth.phone.invalid_format` | Enter a Saudi mobile number starting with 5 | أدخل رقم جوال سعودي يبدأ بالرقم 5 | |
 | `auth.phone.too_many_requests` | Too many attempts. Try again in {minutes} min | محاولات كثيرة. حاول مجددًا بعد {minutes} دقيقة | Множественное число — формы `_one/_two/_few/_many/_other` |
+| `auth.phone.continue` | Continue | متابعة | Вариант «новый клиент»: код на этом шаге не отправляется (D-097) |
+| `auth.details.title` | Tell us about you | عرّفنا بنفسك | |
+| `auth.details.subtitle` | Next, we'll send you a code to sign in | بعد ذلك سنرسل إليك رمزًا لتسجيل الدخول | |
+| `auth.details.contact_name` | Contact name | اسم مسؤول التواصل | |
+| `auth.details.business_name` | Business name | الاسم التجاري | |
+| `auth.details.contact_name_required` | Enter the contact name | أدخل اسم مسؤول التواصل | |
+| `auth.details.contact_name_letters` | Use only letters in the name | استخدم الأحرف فقط في الاسم | |
+| `auth.details.business_name_required` | Enter the business name | أدخل الاسم التجاري | |
+| `auth.details.too_short` | Enter at least {min} characters | الحد الأدنى لعدد الأحرف: {min} | `{min}` = 2 |
+| `auth.details.join_supplier` | Join as a supplier | الانضمام كمورّد | |
+| `auth.details.join_supplier_hint` | Invite your clients to buy now and pay in parts through Tadum | ادعُ عملاءك إلى الشراء الآن والسداد على دفعات عبر تدوم | |
+| `auth.details.consent` | I agree to the collection and processing of my personal data in accordance with the <0>privacy policy</0>. | أوافق على جمع بياناتي الشخصية ومعالجتها وفق <0>سياسة الخصوصية</0>. | `<0>` — ссылка на политику конфиденциальности, новая вкладка |
 | `auth.otp.title` | Enter the code | أدخل الرمز | |
 | `auth.otp.sent_to` | We sent a 4-digit code to {phone} via {channel} | أرسلنا رمزًا من 4 أرقام إلى {phone} عبر {channel} | `{channel}` → `auth.channel.sms` / `auth.channel.whatsapp` |
 | `auth.channel.sms` | SMS | رسالة نصية | |
@@ -155,6 +191,7 @@
 - [ ] axe без нарушений на трёх экранах входа в обеих локалях; порядок фокуса: поле → кнопка → язык → поддержка; у ячеек кода одна общая подпись (заголовок экрана) и `aria-live` для ошибок.
 - [ ] Истории Storybook: `auth.phone` (normal, loading, invalid, rate_limited, offline), `auth.otp` (normal, loading, invalid, expired, too_many, resend_ready), `auth.not_found`, `auth.expired` — каждая в AR и EN, light и dark.
 - [ ] Playwright: счастливый путь, A3, A4, A5, A8, A11, A14 — в проектах `android-chrome` и `iphone-safari`.
+- [ ] Регистрация (D-097): номер → «Continue» → `auth.details` → «Get code» → код; согласие по умолчанию отмечено и обязательно, «Join as a supplier» по умолчанию снят; с отметкой — кабинет поставщика, без — клиента; поля и отметки сохраняются при «Change number»; у `auth.details` свой `screen_viewed`.
 
 ---
 
