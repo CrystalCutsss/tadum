@@ -1,4 +1,4 @@
-<!-- source: Drive 1CHoGZ0l0gD3zOrunSh1c_CDA8BUS20ew, synced: 2026-11-24. Не редактировать — источник в Drive. -->
+<!-- source: Drive 15mO5F3GIpR2jHXvkKB-YmaIiDofqtA-i, synced: 2026-11-25. Не редактировать — источник в Drive. -->
 # SP-03 · Документы поставщика
 
 | Поле | Значение |
@@ -60,8 +60,8 @@
        «Связаться с нами», как отменённый лимит у клиента (D-092); документов и ссылки нет
 
 Дано:  odoo_stage = Lost (мок: odooSupplierLost()); возврат — Return to Processing (мок: returnToProcessing())
-Тогда: supplier_status = paused; шкала — как при declined; карточка «Работа приостановлена, свяжитесь с нами» и «Связаться
-       с нами» (D-092); документов и ссылки нет
+Тогда: supplier_status = paused; шкала — как при declined; карточка «Работа приостановлена» с текстом «We are not
+       prepared to continue the partnership at this time», без «Связаться с нами» (D-094); документов и ссылки нет
 ```
 
 Все правила загрузки, валидации, замены и удаления файлов, автоотправки и блокировки — из `SC-02`; здесь описаны только отличия поставщика.
