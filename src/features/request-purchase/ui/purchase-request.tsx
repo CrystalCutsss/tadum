@@ -113,6 +113,8 @@ export function PurchaseRequest({ limit, available, company, triggerVariant = 'd
               <Input
                 id={ids.supplier}
                 size="lg"
+                // Название латиницей — LTR, арабское — RTL (точка в «Co.» не уходит в начало).
+                dir="auto"
                 autoComplete="organization"
                 maxLength={SUPPLIER_MAX}
                 value={draft.supplier}

@@ -64,7 +64,10 @@ export const SCREENS: readonly Screen[] = [
   persona('client.home', 'client_active', '/', heading('limit.available')),
   persona('client.home.purchase', 'client_active', '/c/home', async (page, lang) => {
     await page.getByRole('button', { name: tr(lang, 'home.purchase.cta') }).click();
-    await expect(page.getByRole('dialog', { name: tr(lang, 'home.purchase.title') })).toBeVisible();
+    const dialog = page.getByRole('dialog', { name: tr(lang, 'home.purchase.title') });
+    await expect(dialog).toBeVisible();
+    // Снимок — после анимации появления (на 768 окно иначе снималось полупрозрачным).
+    await dialog.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
   }),
   persona('client.documents', 'client_new', '/c/documents', heading('documents.title')),
   // Этапы «Заявки» после одобрения (A-063): «Решение», «Подписание», «Лимит одобрен» и подробности заявки.

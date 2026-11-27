@@ -6,7 +6,7 @@ import { expect, within } from 'storybook/test';
 
 import { matrix } from '../../../../.storybook/decorators';
 import { setAnalyticsProviders, type CapturedEvent } from '@/shared/analytics';
-import { createI18n, formatPercent } from '@/shared/i18n';
+import { createI18n, formatPercent, formatTime } from '@/shared/i18n';
 import { now } from '@/shared/lib';
 
 import { LimitOverview, type LimitOverviewProps } from './limit-overview';
@@ -136,7 +136,7 @@ export const Offline: Story = {
   render: () => render({ limit: limit(150_000, 42_500), forceOffline: true }),
   play: async ({ canvasElement }) => {
     for (const { c, t } of panels(canvasElement)) {
-      await expect(c.getByText(t('common.cached_at', { time: t('relative.minutes_ago', { count: 5 }) }))).toBeVisible();
+      await expect(c.getByText(t('common.cached_at', { time: formatTime(now() - 5 * 60_000) }))).toBeVisible();
     }
   },
 };

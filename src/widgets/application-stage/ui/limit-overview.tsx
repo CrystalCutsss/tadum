@@ -3,19 +3,20 @@
 // Под суммой одна главная кнопка: «Новая покупка»; лимит выбран полностью — «Написать менеджеру» (SC-07 A2).
 // Лимит отменён после активации — суммы остаются, под блоком нейтральная плашка и «Связаться с нами» (A4, D-086).
 import { RiWhatsappLine } from '@remixicon/react';
-import { type ReactNode, useEffect, useId } from 'react';
+import { Fragment, type ReactNode, useEffect, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { availableOf, limitShare, type Limit } from '@/entities/limit';
 import { PurchaseRequest } from '@/features/request-purchase';
 import { track } from '@/shared/analytics';
 import { supportWhatsappUrl } from '@/shared/config';
-import { formatMoney, formatPercent, formatRelative, isLanguage } from '@/shared/i18n';
+import { formatMoney, formatPercent, formatRelative, formatTime, isLanguage } from '@/shared/i18n';
 import { useNow, useOnline } from '@/shared/lib';
 import { Button, Icon, Ltr, Progress } from '@/shared/ui';
 import { LimitAmount, LimitSurface } from './application-stage-card';
 
 const MINUTE = 60_000;
+const NBSP = '\u00a0';
 
 export interface LimitOverviewProps {
   limit: Pick<Limit, 'status' | 'approved' | 'used' | 'available'>;
@@ -90,7 +91,7 @@ export function LimitOverview({ limit, company, updatedAt, forceOffline = false 
         </dl>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {action ? <div>{action}</div> : null}
-          <p className="text-xs text-primary-foreground">{online ? t('limit.updated_at', { time }) : t('common.cached_at', { time })}</p>
+          <p className="text-xs text-primary-foreground">{online ? t('limit.updated_at', { time }) : t('common.cached_at', { time: formatTime(updatedAt) })}</p>
         </div>
       </LimitSurface>
       {cancelled ? <CancelledNotice /> : null}
@@ -103,7 +104,13 @@ function Amount({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-0.5">
       <dt className="text-sm text-primary-foreground">{label}</dt>
       <dd className="tabular-nums">
-        <Ltr>{value}</Ltr>
+        {/* Изолируется только число: валюта остаётся в направлении текста (AR «150,000 ر.س», как у крупной суммы). */}
+        {value.split(NBSP).map((part, i) => (
+          <Fragment key={part}>
+            {i > 0 ? NBSP : null}
+            {/\d/.test(part) ? <Ltr>{part}</Ltr> : part}
+          </Fragment>
+        ))}
       </dd>
     </div>
   );
