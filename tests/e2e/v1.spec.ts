@@ -4,17 +4,23 @@ import type { Page } from '@playwright/test';
 
 import { asPersona, enterCode, expect, openAccountMenu, openSidebar, signIn, test, tr } from './fixtures';
 
-// /c/home до проработки разделов показывает заглушку (Кирилл 2026-11-06, A-055): персона проверяется по названию
-// компании в аккаунте сайдбара, шкала и «следующий шаг» — в историях ClientHome и unit-тестах.
-const stub = (lang: 'ar' | 'en') => ({ name: tr(lang, 'stub.coming_soon.title') });
+// Главная клиента — только при активном лимите (D-098, TD-002): клиент без него после входа попадает в «Заявку»
+// (/c/documents), пункта «Home» в меню нет. Персона проверяется по названию компании в аккаунте сайдбара.
+const application = (lang: 'ar' | 'en') => ({ name: tr(lang, 'documents.title'), level: 1 });
+const homeNav = (page: Page, lang: 'ar' | 'en') => page.getByRole('navigation', { name: tr(lang, 'nav.main') }).getByRole('link', { name: tr(lang, 'nav.home') });
 const account = (page: Page, lang: 'ar' | 'en') => page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
 
-test('@smoke client_new → вход (0000) → /c/home: заглушка и компания в аккаунте', async ({ page }) => {
+test('@smoke client_new → вход (0000) → /c/documents: «Заявка», без пункта Home, компания в аккаунте', async ({ page }) => {
   await signIn(page, 'ar', '500000001');
-  await expect(page).toHaveURL(/\/c\/home$/);
-  await expect(page.getByRole('heading', stub('ar'))).toBeVisible();
+  await expect(page).toHaveURL(/\/c\/documents$/);
+  await expect(page.getByRole('heading', application('ar'))).toBeVisible();
   await openSidebar(page, 'ar');
   await expect(account(page, 'ar')).toContainText('رمال الشرق للتجارة');
+  await expect(homeNav(page, 'ar')).toHaveCount(0);
+  // Прямой переход на главную без активного лимита — тоже «Заявка», без ошибки (SC-07 A11).
+  await page.goto('/c/home');
+  await expect(page).toHaveURL(/\/c\/documents$/);
+  await expect(page.getByRole('heading', application('ar'))).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
 });
 
@@ -27,8 +33,8 @@ const personas = [
 for (const p of personas) {
   test(`@smoke ?persona=${p.id} открывает кабинет этой компании`, async ({ page }) => {
     await asPersona(page, p.id);
-    await expect(page).toHaveURL(/\/c\/home/);
-    await expect(page.getByRole('heading', stub('en'))).toBeVisible();
+    await expect(page).toHaveURL(/\/c\/documents/);
+    await expect(page.getByRole('heading', application('en'))).toBeVisible();
     await openSidebar(page, 'en');
     await expect(account(page, 'en')).toContainText(p.company);
   });
@@ -36,7 +42,7 @@ for (const p of personas) {
 
 test('?persona= через дефис (меню просмотрщика Proto) открывает ту же персону', async ({ page }) => {
   await asPersona(page, 'client-submitted');
-  await expect(page).toHaveURL(/\/c\/home/);
+  await expect(page).toHaveURL(/\/c\/documents/);
   await openSidebar(page, 'en');
   await expect(account(page, 'en')).toContainText('Danah Medical Supplies');
 });
@@ -131,8 +137,8 @@ test('client_signing_partial → Supplier → Client: демо-переключ�
   await expect(account(page, 'en')).toContainText('Bayt Al Khayr Wholesale');
   await openAccountMenu(page, 'en');
   await page.getByRole('menuitemradio', { name: tr('en', 'role.client') }).click();
-  await expect(page).toHaveURL(/\/c\/home\?persona=client_signing_partial/);
-  await page.goto(page.url().replace(/\/c\/home/, '/c/documents'));
+  // Лимит ещё не активен — главной нет, клиент возвращается в «Заявку» своей персоны (D-098).
+  await expect(page).toHaveURL(/\/c\/documents/);
   await expect(page.getByRole('link', { name: tr('en', 'signing.cta') })).toBeVisible();
 });
 
@@ -190,7 +196,7 @@ test('@smoke меню витрины: «Вход: новый клиент» — 
   await consent().check();
   await getCode().click();
   await enterCode(page, 'en');
-  await expect(page).toHaveURL(/\/c\/home$/);
+  await expect(page).toHaveURL(/\/c\/documents$/);
 });
 
 test('меню витрины: «Вход: новый поставщик» — согласие отмечено, поставщик — нет; с отметкой после кода кабинет поставщика (A-074)', async ({ page }) => {
@@ -225,7 +231,7 @@ test('@smoke меню витрины: «Вход: номер и Business name» 
   await business().fill('Rimal Al Sharq');
   await submit.click();
   await enterCode(page, 'en');
-  await expect(page).toHaveURL(/\/c\/home$/);
+  await expect(page).toHaveURL(/\/c\/documents$/);
   // Обычный вход — без поля.
   await asPersona(page, 'login');
   await expect(page).toHaveURL(/\/login$/);

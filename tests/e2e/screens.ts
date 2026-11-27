@@ -60,8 +60,12 @@ export const SCREENS: readonly Screen[] = [
       await heading('notfound.title')(page, lang);
     },
   },
-  // /c/home до проработки разделов — заглушка (Кирилл 2026-11-06, A-055); состояния главной — в историях ClientHome.
-  persona('client.home', 'client_new', '/', heading('stub.coming_soon.title')),
+  // /c/home — главная активного клиента (D-098, TD-002); клиент без активного лимита попадает в «Заявку».
+  persona('client.home', 'client_active', '/', heading('limit.available')),
+  persona('client.home.purchase', 'client_active', '/c/home', async (page, lang) => {
+    await page.getByRole('button', { name: tr(lang, 'home.purchase.cta') }).click();
+    await expect(page.getByRole('dialog', { name: tr(lang, 'home.purchase.title') })).toBeVisible();
+  }),
   persona('client.documents', 'client_new', '/c/documents', heading('documents.title')),
   // Этапы «Заявки» после одобрения (A-063): «Решение», «Подписание», «Лимит одобрен» и подробности заявки.
   persona('client.application.decision', 'client_offer_pending', '/c/documents', heading('documents.title')),
