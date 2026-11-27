@@ -143,6 +143,11 @@ export type AnalyticsEvent =
   | { name: 'limit_fully_used_viewed'; props: Record<string, never> }
   | { name: 'how_to_buy_viewed'; props: Record<string, never> }
   | { name: 'how_to_buy_whatsapp_clicked'; props: { used_share_bucket: UsedShareBucket } }
+  | { name: 'purchase_request_opened'; props: { used_share_bucket: UsedShareBucket } }
+  | { name: 'purchase_request_whatsapp_opened'; props: { amount_bucket: AmountBucket; used_share_bucket: UsedShareBucket } }
+  | { name: 'home_welcome_viewed'; props: Record<string, never> }
+  | { name: 'home_welcome_dismissed'; props: Record<string, never> }
+  | { name: 'how_to_buy_toggled'; props: { open: boolean } }
   | { name: 'closed_reapply_clicked'; props: Record<string, never> }
   | { name: 'reapply_submitted'; props: Record<string, never> }
   | { name: 'reapply_pending_viewed'; props: Record<string, never> }
@@ -225,6 +230,11 @@ export const EVENT_VERSIONS = {
   limit_fully_used_viewed: 'v4',
   how_to_buy_viewed: 'v4',
   how_to_buy_whatsapp_clicked: 'v4',
+  purchase_request_opened: 'v4',
+  purchase_request_whatsapp_opened: 'v4',
+  home_welcome_viewed: 'v4',
+  home_welcome_dismissed: 'v4',
+  how_to_buy_toggled: 'v4',
   closed_reapply_clicked: 'v4',
   reapply_submitted: 'v4',
   reapply_pending_viewed: 'v4',
