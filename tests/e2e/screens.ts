@@ -67,7 +67,7 @@ export const SCREENS: readonly Screen[] = [
   persona('client.home.repayment_details', 'client_first_purchase', '/c/home', async (page, lang) => {
     await page.locator('#repayments').getByRole('button', { name: /10,000/ }).first().click();
     const panel = page.getByRole('dialog', { name: tr(lang, 'repayments.details.title') });
-    await expect(panel.getByRole('heading', { name: tr(lang, 'repayments.how_to_pay.title') })).toBeVisible();
+    await expect(panel.getByRole('link', { name: tr(lang, 'repayments.how_to_pay.cta') })).toBeVisible();
     await panel.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
   }),
   persona('client.home.purchase', 'client_active', '/c/home', async (page, lang) => {

@@ -13,6 +13,7 @@ import { clientNew } from './client-new';
 import { clientOfferPending } from './client-offer-pending';
 import { clientPartial } from './client-partial';
 import { clientRejected } from './client-rejected';
+import { clientRepaying } from './client-repaying';
 import { clientSigningPartial } from './client-signing-partial';
 import { clientSubmitted } from './client-submitted';
 import { supplierActive } from './supplier-active';
@@ -32,6 +33,7 @@ export const PERSONAS: Readonly<Record<PersonaId, PersonaFixture>> = {
   client_limit_cancelled: clientLimitCancelled,
   client_active: clientActive,
   client_first_purchase: clientFirstPurchase,
+  client_repaying: clientRepaying,
   client_closed_rejected: clientClosedRejected,
   client_closed_lost: clientClosedLost,
   supplier_new: supplierNew,

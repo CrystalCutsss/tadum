@@ -5,7 +5,7 @@
 import { MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
 import { now as clockNow, storage, toDate } from '@/shared/lib';
 
-import { CLIENT_BASE_KEYS, DEMO_PAYMENT_DETAILS, checklist, installmentsFor } from '../../fixtures/build';
+import { CLIENT_BASE_KEYS, checklist, installmentsFor } from '../../fixtures/build';
 import { PERSONAS } from '../../fixtures/personas';
 import { PersonaGraphSchema } from '../../fixtures/schema';
 import { PERSONA_IDS, type PersonaGraph, type PersonaId } from '../../fixtures/types';
@@ -620,7 +620,7 @@ export function createMockApi(options: MockApiOptions): Api {
           const app = currentApp(g);
           const deals = new Set(g.deals.filter((x) => x.application_id === app.id).map((x) => x.id));
           const installments = (g.installments ?? []).filter((i) => deals.has(i.deal_id)).sort((a, b) => a.due_date.localeCompare(b.due_date));
-          return { installments, payment_details: DEMO_PAYMENT_DETAILS };
+          return { installments };
         }),
     },
     limit: {

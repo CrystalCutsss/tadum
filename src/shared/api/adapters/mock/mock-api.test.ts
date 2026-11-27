@@ -395,10 +395,9 @@ describe('демо-действия клиента — каждое (01-statuses
     const api = as('client_active');
     expect((await api.repayment.getSchedule()).installments).toEqual([]);
     api.demo!.payDeal(api.demo!.createDeal(sar(7_500), 'sup_ext_01'));
-    const { installments, payment_details } = await api.repayment.getSchedule();
+    const { installments } = await api.repayment.getSchedule();
     expect(installments.map((i) => i.status)).toEqual(['upcoming', 'upcoming', 'upcoming']);
     expect(installments.reduce((sum, i) => sum + i.amount.amount_minor, 0)).toBe(sar(7_500).amount_minor);
-    expect(payment_details.iban).toMatch(/^SA\d{22}$/);
   });
   it('D-102: client_first_purchase — оплачен, срок прошёл, два впереди; остаток = использовано лимита', async () => {
     const api = withValidation(as('client_first_purchase'));

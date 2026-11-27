@@ -56,7 +56,7 @@
 
 | Метод | Сигнатура | Ответ описан в | Примечание |
 |---|---|---|---|
-| `getSchedule` | `getSchedule(): Promise<RepaymentSchedule>` | `01-entities.md` §2.9a | D-102: все взносы по сделкам текущей заявки и реквизиты Tadum для оплаты; статус взноса считает бэкенд. До оплаты первой сделки поставщику — `installments: []`. Только клиент; поставщику — `Forbidden`. |
+| `getSchedule` | `getSchedule(): Promise<RepaymentSchedule>` | `01-entities.md` §2.9a | D-102, D-104: все взносы по сделкам текущей заявки; статус взноса считает бэкенд. Реквизитов оплаты нет. До оплаты первой сделки поставщику — `installments: []`. Только клиент; поставщику — `Forbidden`. |
 
 ### `supplier` — `SupplierPort`
 

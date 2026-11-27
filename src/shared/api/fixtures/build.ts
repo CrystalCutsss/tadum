@@ -1,7 +1,7 @@
 // Помощники для рукописных фикстур: даты от «сейчас», деньги в SAR, документы и файлы.
 
 import { toDate } from '@/shared/lib';
-import type { Deal, Document, DocumentSet, DocumentStatus, FileAsset, Installment, Money, PaymentDetails, PortalKey, PrevalidationResult } from '../ports/schemas';
+import type { Deal, Document, DocumentSet, DocumentStatus, FileAsset, Installment, Money, PortalKey, PrevalidationResult } from '../ports/schemas';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -28,13 +28,6 @@ export const ZERO: Money = sar(0);
 
 /** Дата `YYYY-MM-DD` по Эр-Рияду (UTC+3) для момента `ms`. */
 const riyadhDate = (ms: number): string => toDate(ms + 3 * HOUR).toISOString().slice(0, 10);
-
-/** Реквизиты Tadum для оплаты взносов в демо (A-081: способ оплаты — допущение, реквизиты вымышленные). */
-export const DEMO_PAYMENT_DETAILS: PaymentDetails = {
-  beneficiary: 'Tadum Trading Company',
-  bank_name: 'Demo Bank',
-  iban: 'SA4420000001234567891234',
-};
 
 /**
  * Взносы по сделке (D-102): `count` помесячных взносов (каждые 30 дней от оплаты поставщику), последний забирает

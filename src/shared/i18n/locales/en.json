@@ -433,9 +433,6 @@
     "minutes_ago_other": "{count} minutes ago"
   },
   "repayments": {
-    "copied": "Copied",
-    "copy_iban": "Copy IBAN",
-    "copy_reference": "Copy payment number",
     "details": {
       "back": "Back to payment history",
       "due_date": "Payment date",
@@ -455,11 +452,7 @@
     "history": "Payment history",
     "history_empty": "No payments yet",
     "how_to_pay": {
-      "bank": "Bank",
-      "beneficiary": "Beneficiary",
-      "body": "Transfer the amount to Tadum's account and add the payment number to the transfer description",
-      "iban": "IBAN",
-      "title": "How to pay"
+      "cta": "How to pay"
     },
     "next": "Next payment",
     "overdue": "Payment date has passed",
@@ -626,6 +619,7 @@
       "purchase_request": "Hello, I'd like to make a purchase through Tadum for {company}. Supplier: {supplier}. Amount: {amount}.",
       "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
       "repayment": "Hello, I have a question about payment {reference} for {company}.",
+      "repayment_pay": "Hello, I'd like to pay payment {reference} for {company}.",
       "under_review": "Hello, I have a question about my Tadum application for {company}."
     },
     "whatsapp": "WhatsApp"

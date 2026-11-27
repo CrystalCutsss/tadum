@@ -1,7 +1,7 @@
 // Панель графика платежей (D-102): «История платежей» — все взносы группами (срок прошёл, предстоящие, оплаченные)
-// и детали взноса с «Как оплатить» (реквизиты Tadum и номер платежа). На компьютере — боковая панель, на телефоне —
+// и детали взноса с кнопкой «Как оплатить» — точкой входа в WhatsApp (D-104, способ оплаты не прорабатывается). На компьютере — боковая панель, на телефоне —
 // шторка снизу, как «Открыть заявку» (D-082).
-import { RiArrowLeftSLine, RiFileCopyLine, RiWhatsappLine } from '@remixicon/react';
+import { RiArrowLeftSLine, RiWhatsappLine } from '@remixicon/react';
 import { useTranslation } from 'react-i18next';
 
 import { groupSchedule, type Installment, type RepaymentSchedule } from '@/entities/repayment';
@@ -18,7 +18,6 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
   SideDrawer,
-  toast,
 } from '@/shared/ui';
 
 import { InstallmentRow, MoneyText, OverdueBadge, useDueText, useMoneyAndDate } from './parts';
@@ -45,7 +44,6 @@ export function RepaymentPanel({ schedule, company, view, onViewChange }: Repaym
   const body = item ? (
     <Details
       item={item}
-      schedule={schedule}
       company={company}
       onBack={view?.view === 'details' && view.from === 'history' ? () => onViewChange({ view: 'history' }) : undefined}
     />
@@ -102,29 +100,12 @@ function History({ schedule, onOpen }: { schedule: RepaymentSchedule; onOpen: (i
   );
 }
 
-async function copy(text: string): Promise<boolean> {
-  if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) return false;
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function Details({ item, schedule, company, onBack }: { item: Installment; schedule: RepaymentSchedule; company: string; onBack: (() => void) | undefined }) {
+function Details({ item, company, onBack }: { item: Installment; company: string; onBack: (() => void) | undefined }) {
   const { t } = useTranslation();
   const { money, date } = useMoneyAndDate();
   const due = useDueText();
   const overdue = item.status === 'overdue';
   const paid = item.status === 'paid';
-  const copyField = async (field: 'iban' | 'reference', value: string) => {
-    if (await copy(value)) {
-      track('repayment_details_copied', { field });
-      toast(t('repayments.copied'));
-    }
-  };
-  const details = schedule.payment_details;
 
   return (
     <div className="flex flex-col gap-6">
@@ -150,7 +131,7 @@ function Details({ item, schedule, company, onBack }: { item: Installment; sched
         <Row label={t('repayments.details.supplier')}>
           <bdi>{item.supplier_name}</bdi>
         </Row>
-        <Row label={t('repayments.details.reference')} onCopy={() => void copyField('reference', item.reference)} copyLabel={t('repayments.copy_reference')}>
+        <Row label={t('repayments.details.reference')}>
           <Ltr>{item.reference}</Ltr>
         </Row>
       </dl>
@@ -170,39 +151,29 @@ function Details({ item, schedule, company, onBack }: { item: Installment; sched
           </Button>
         </div>
       ) : null}
-      {paid ? null : (
-        <section className="flex flex-col gap-3 rounded-xl border p-4">
-          <h3 className="text-base font-semibold">{t('repayments.how_to_pay.title')}</h3>
-          <p className="text-sm">{t('repayments.how_to_pay.body')}</p>
-          <dl className="flex flex-col gap-3 text-sm">
-            <Row label={t('repayments.how_to_pay.beneficiary')}>
-              <bdi>{details.beneficiary}</bdi>
-            </Row>
-            <Row label={t('repayments.how_to_pay.bank')}>
-              <bdi>{details.bank_name}</bdi>
-            </Row>
-            <Row label={t('repayments.how_to_pay.iban')} onCopy={() => void copyField('iban', details.iban)} copyLabel={t('repayments.copy_iban')}>
-              <Ltr className="break-all">{details.iban}</Ltr>
-            </Row>
-          </dl>
-        </section>
+      {/* «Как оплатить» — только точка входа (D-104): способ оплаты не прорабатывается, кнопка ведёт в WhatsApp Tadum. */}
+      {item.status === 'paid' ? null : (
+        <Button asChild className="min-h-11 w-full sm:w-auto sm:self-start">
+          <a
+            href={supportWhatsappUrl(t('support.prefill.repayment_pay', { reference: item.reference, company }))}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track('repayment_pay_clicked', { status: item.status === 'overdue' ? 'overdue' : 'upcoming' })}
+          >
+            <Icon icon={RiWhatsappLine} data-icon="inline-start" />
+            {t('repayments.how_to_pay.cta')}
+          </a>
+        </Button>
       )}
     </div>
   );
 }
 
-function Row({ label, children, onCopy, copyLabel }: { label: string; children: React.ReactNode; onCopy?: () => void; copyLabel?: string }) {
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="flex min-h-6 items-center justify-between gap-3 font-medium">
-        <span className="min-w-0">{children}</span>
-        {onCopy && copyLabel ? (
-          <Button type="button" variant="ghost" size="icon" className="-my-2 size-11 shrink-0" aria-label={copyLabel} onClick={onCopy}>
-            <Icon icon={RiFileCopyLine} />
-          </Button>
-        ) : null}
-      </dd>
+      <dd className="font-medium">{children}</dd>
     </div>
   );
 }

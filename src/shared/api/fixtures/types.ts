@@ -14,6 +14,7 @@ export const PERSONA_IDS = [
   'client_limit_cancelled',
   'client_active',
   'client_first_purchase',
+  'client_repaying',
   'client_closed_rejected',
   'client_closed_lost',
   'supplier_new',

@@ -25,10 +25,9 @@ const item = (n: number, days: number, status: Installment['status']): Installme
   status,
   ...(status === 'paid' ? { paid_at: toDate(now() + (days - 2) * DAY).toISOString() } : {}),
 });
-const details = { beneficiary: 'Tadum Trading Company', bank_name: 'Demo Bank', iban: 'SA4420000001234567891234' };
-const withOverdue: RepaymentSchedule = { installments: [item(1, -35, 'paid'), item(2, -5, 'overdue'), item(3, 25, 'upcoming'), item(4, 55, 'upcoming')], payment_details: details };
-const onlyUpcoming: RepaymentSchedule = { installments: [item(1, 12, 'upcoming'), item(2, 42, 'upcoming'), item(3, 72, 'upcoming')], payment_details: details };
-const empty: RepaymentSchedule = { installments: [], payment_details: details };
+const withOverdue: RepaymentSchedule = { installments: [item(1, -35, 'paid'), item(2, -5, 'overdue'), item(3, 25, 'upcoming'), item(4, 55, 'upcoming')] };
+const onlyUpcoming: RepaymentSchedule = { installments: [item(1, 12, 'upcoming'), item(2, 42, 'upcoming'), item(3, 72, 'upcoming')] };
+const empty: RepaymentSchedule = { installments: [] };
 
 const meta = { title: 'widgets/RepaymentSchedule', component: RepaymentsCard, args: { schedule: withOverdue, company: 'Marjan Cosmetics' } } satisfies Meta<typeof RepaymentsCard>;
 export default meta;
@@ -83,7 +82,7 @@ export const Empty: Story = {
 };
 
 export const HistoryAndDetails: Story = {
-  name: 'История платежей → детали взноса с «Как оплатить», копирование',
+  name: 'История платежей → детали взноса с «Как оплатить» (точка входа, D-104)',
   loaders: [
     () => {
       const events: CapturedEvent[] = [];
@@ -107,9 +106,10 @@ export const HistoryAndDetails: Story = {
       await expect(d.getByRole('heading', { name: tr('repayments.groups.paid') })).toBeVisible();
       await expect(d.getAllByRole('button', { name: new RegExp('10,000') })).toHaveLength(4);
       await userEvent.click(d.getAllByRole('button', { name: new RegExp('10,000') })[0]!);
-      await waitFor(() => expect(d.getByRole('heading', { name: tr('repayments.how_to_pay.title') })).toBeVisible());
-      await expect(dialog).toHaveTextContent('SA4420000001234567891234');
-      await expect(dialog).toHaveTextContent('DEAL-1-2');
+      // «Как оплатить» — точка входа в WhatsApp с номером платежа (D-104), без реквизитов.
+      const pay = await d.findByRole('link', { name: tr('repayments.how_to_pay.cta') });
+      await expect(decodeURIComponent(pay.getAttribute('href') ?? '')).toContain('DEAL-1-2');
+      await expect(dialog).not.toHaveTextContent(/IBAN|SA\d{20}/);
       await expect(d.getByRole('button', { name: tr('repayments.details.back') })).toBeVisible();
       const names = events.map((e) => e.name);
       await expect(names).toContain('repayment_history_opened');

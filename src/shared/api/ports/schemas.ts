@@ -247,15 +247,9 @@ export const InstallmentSchema = z.object({
   paid_at: DateTimeSchema.optional(),
 });
 
-export const PaymentDetailsSchema = z.object({
-  beneficiary: z.string(),
-  bank_name: z.string(),
-  iban: z.string(),
-});
-
+// Способ оплаты не прорабатывается (D-104): реквизитов в данных нет.
 export const RepaymentScheduleSchema = z.object({
   installments: z.array(InstallmentSchema),
-  payment_details: PaymentDetailsSchema,
 });
 
 // ---------- 2.10 Supplier ----------
@@ -349,7 +343,6 @@ export type DealStage = z.infer<typeof DealStageSchema>;
 export type Deal = z.infer<typeof DealSchema>;
 export type InstallmentStatus = z.infer<typeof InstallmentStatusSchema>;
 export type Installment = z.infer<typeof InstallmentSchema>;
-export type PaymentDetails = z.infer<typeof PaymentDetailsSchema>;
 export type RepaymentSchedule = z.infer<typeof RepaymentScheduleSchema>;
 export type Supplier = z.infer<typeof SupplierSchema>;
 /** Поля профиля поставщика, которые он заполняет сам (A-075); сохраняются по одному. */

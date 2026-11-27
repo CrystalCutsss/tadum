@@ -151,7 +151,7 @@ export type AnalyticsEvent =
   | { name: 'repayments_viewed'; props: { upcoming_count_bucket: CountBucket; has_overdue: boolean } }
   | { name: 'repayment_history_opened'; props: { has_overdue: boolean } }
   | { name: 'repayment_details_opened'; props: { status: 'upcoming' | 'overdue' | 'paid'; source: 'home' | 'history' } }
-  | { name: 'repayment_details_copied'; props: { field: 'iban' | 'reference' } }
+  | { name: 'repayment_pay_clicked'; props: { status: 'upcoming' | 'overdue' } }
   | { name: 'repayment_overdue_contact_clicked'; props: Record<string, never> }
   | { name: 'closed_reapply_clicked'; props: Record<string, never> }
   | { name: 'reapply_submitted'; props: Record<string, never> }
@@ -243,7 +243,7 @@ export const EVENT_VERSIONS = {
   repayments_viewed: 'v4',
   repayment_history_opened: 'v4',
   repayment_details_opened: 'v4',
-  repayment_details_copied: 'v4',
+  repayment_pay_clicked: 'v4',
   repayment_overdue_contact_clicked: 'v4',
   closed_reapply_clicked: 'v4',
   reapply_submitted: 'v4',
