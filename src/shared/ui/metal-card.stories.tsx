@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useTranslation } from 'react-i18next';
-import { expect, waitFor } from 'storybook/test';
+import { expect, userEvent, waitFor } from 'storybook/test';
 
 import { matrix } from '../../../.storybook/decorators';
 import { T } from '../../../.storybook/t';
 import { formatMoney, type Language } from '../i18n';
+import { Button } from './button';
 import { Ltr } from './ltr';
 import { MetalCard } from './metal-card';
 
@@ -149,5 +150,30 @@ export const Tall: Story = {
     const card = canvasElement.querySelector<HTMLElement>('[data-slot="metal-card"]')!;
     const rect = card.getBoundingClientRect();
     await expect(rect.height).toBeGreaterThan(rect.width);
+  },
+};
+
+/**
+ * Фокус на карточке (a11y-ревью TD-002, WCAG 1.4.11 / 2.4.7): кнопка в фокусе с клавиатуры получает сплошную
+ * обводку --primary-foreground со смещением (globals.css `.metal-card :focus-visible`), кольцо пресета на синем не видно.
+ */
+export const FocusedButton: Story = {
+  render: () => (
+    <MetalCard className="max-w-sm">
+      <Button variant="secondary">
+        <T k="common.cancel" />
+      </Button>
+    </MetalCard>
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.tab();
+    const button = canvasElement.querySelector<HTMLElement>('[data-slot="metal-card"] [data-slot="button"]')!;
+    await expect(button).toHaveFocus();
+    const style = getComputedStyle(button);
+    await expect(style.outlineStyle).toBe('solid');
+    await expect(style.outlineWidth).toBe('2px');
+    await expect(style.outlineOffset).toBe('2px');
+    const fg = getComputedStyle(canvasElement.querySelector('[data-slot="metal-card"]')!).color;
+    await expect(style.outlineColor).toBe(fg);
   },
 };

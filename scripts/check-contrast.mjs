@@ -81,6 +81,17 @@ export const REQUIRED = [
     { fg: '--primary-foreground', bg, min: 4.5, what: 'текст на глубоком синем панели' },
     { fg: '--primary-inverse', bg, min: 3, what: 'белая кнопка видна на глубоком синем панели (1.4.11)' },
   ]),
+  // Обводка фокуса на MetalCard (a11y-ревью TD-002, globals.css `.metal-card :focus-visible`): --primary-foreground
+  // со смещением против поверхности карточки — слои основы и они же под бликом --metal-glare (1.4.11, 2.4.7).
+  ...[['--metal-deep'], ['--metal-mid'], ['--metal-steel'], ['--metal-mid', '--metal-glare'], ['--metal-steel', '--metal-glare']].map(
+    (on) => ({
+      fg: '--primary-foreground',
+      bg: on.at(-1),
+      on: on.slice(0, -1),
+      min: 3,
+      what: `обводка фокуса на MetalCard: ${on.join(' + ')} (1.4.11)`,
+    })
+  ),
   // Progress tone="inverse" (TD-002, полоса лимита на MetalCard и на bg-primary): индикатор --primary-foreground
   // против дорожки --primary-foreground/25 поверх поверхности. Поверхности — слои основы MetalCard и они же
   // под рассеянным бликом --metal-glare (самые светлые точки карточки), плюс сплошной --primary.
