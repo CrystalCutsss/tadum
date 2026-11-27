@@ -1,4 +1,4 @@
-<!-- source: Drive 1yiEiKa7CuOaKOBoZnrChKo0hHPOrVu9b, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1fZ6uUpH3UTQ67Trvm4IexKFeVi00hJm7, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-03 · Документ отклонён
 
 | Поле | Значение |
@@ -23,7 +23,7 @@
 ```
 Дано:  client_status = docs_required; в комплекте документ bs со статусом rejected,
        reject_reason_text = { ar: "...", en: "..." }; остальные документы received
-Когда: клиент открывает /c/home
+Когда: клиент открывает /c/documents (D-098)
 Тогда: шкала: «Документы» current (round 1) или needs_attention (round > 1, см. SC-04);
        карточка next_step.reupload_rejected {count: 1} с CTA → /c/documents;
        событие screen_viewed

@@ -1,4 +1,4 @@
-<!-- source: Drive 1AsDtblK9cnPAZynjX8W180tNx50acj92, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1fBuhPbsSemDhooBvoSZ8j8XRs2IPERaI, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-05 · Ожидание проверки
 
 | Поле | Значение |
@@ -21,7 +21,7 @@
 
 ```
 Дано:  client_status = under_review; комплект locked
-Когда: клиент открывает /c/home
+Когда: клиент открывает /c/documents (D-098)
 Тогда: шкала: «Документы» done, «Проверка» current, остальные upcoming;
        карточка следующего шага с owner = tadum: next_step.under_review
        (+ next_step.under_review_eta {hours}, только если review_eta_hours пришёл из данных);

@@ -1,4 +1,4 @@
-<!-- source: Drive 1KrxQawcS7rbPNlXYx6jIBa9mQy0N68gp, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1BNvSUhGlbB67aL6lC9w-MqudC5Ab37nh, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-08 · Заявка закрыта (cancelled, rejected)
 
 | Поле | Значение |
@@ -35,7 +35,7 @@
 
 Когда: клиент нажимает «Создать заявку» на /c/reapply
 Тогда: мок создаёт новую заявку для этого номера (старая остаётся closed; правило «1 активная заявка
-       на пользователя» соблюдено); client_status новой заявки = docs_required; редирект на /c/home
+       на пользователя» соблюдено); client_status новой заявки = docs_required; редирект на /c/documents (D-098)
        (SC-02); событие reapply_submitted. С бэкендом: вызов порта createApplication(), содержимое формы
        определим позже — пока без полей
 

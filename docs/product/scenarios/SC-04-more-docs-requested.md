@@ -1,4 +1,4 @@
-<!-- source: Drive 1vYqiAgrrhbuagTwIUxDXiF15_jAovM0A, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1MPGX6sZMM4DKAZTWSoJIHx4LBUXWwB1p, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-04 · Дозапрос документов после проверки
 
 | Поле | Значение |
@@ -23,7 +23,7 @@
 Дано:  раунд 1 отправлен (SC-02), заявка была under_review (SC-05);
        UW вызвал uwRequestMoreDocs([vat_sales, ch_owner]) → новый комплект round 2 в draft,
        старый комплект superseded, client_status = docs_required
-Когда: клиент открывает /c/home (по WhatsApp-ссылке или сам)
+Когда: клиент открывает /c/documents (по WhatsApp-ссылке или сам; D-098)
 Тогда: шкала НЕ откатывается (D-008): «Документы» в состоянии needs_attention с меткой
        timeline.needs_more_docs, «Проверка» остаётся current;
        карточка next_step.more_docs_requested {count: 2} с CTA → /c/documents;

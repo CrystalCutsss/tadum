@@ -1,11 +1,11 @@
-<!-- source: Drive 1GThmMYZlec5oVF4CiS0GUrlq1VLZ1yBE, synced: 2026-11-11. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1wXKgO29p_JrocTKw5Q2240s-KKr7b1G2, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-02 · Сбор документов
 
 | Поле | Значение |
 |---|---|
 | **ID** | `SC-02` |
 | **Роли** | `client_contact`, `client_owner` (поставщик — тот же механизм, см. `SP-03`) |
-| **Экраны** | `client.home` (`/c/home`), `client.documents` (`/c/documents`), `client.document` (`/c/documents/:portalKey`) |
+| **Экраны** | `client.documents` (`/c/documents`; главная `/c/home` до активации лимита недоступна, D-098), `client.document` (`/c/documents/:portalKey`) |
 | **Предусловие** | `client_status = docs_required`, `permission_state = collecting`, текущий `DocumentSet.status = draft`, `round = 1` |
 | **Статусы** | Odoo: New lead / Processing lead / Document collection |
 | **Цель** | Клиент за один заход понимает, какие документы нужны, загружает их с подсказками и отправляет комплект на проверку |
@@ -21,7 +21,7 @@
 
 ```
 Дано:  клиент вошёл, client_status = docs_required, комплект round 1 в draft, все документы pending
-Когда: открывается /c/home
+Когда: открывается /c/documents (D-098)
 Тогда: шкала прогресса: «Документы» current; карточка следующего шага next_step.upload_documents {count: N}
        с CTA → /c/documents; событие screen_viewed {screen_id: client.home}
 
@@ -49,7 +49,7 @@
        кнопка активна только после валидации комплекта)
 Тогда: DocumentSet → submitted, locked = true; все действия загрузки скрыты; экран документов
        показывает баннер documents.submitted_banner; через задержку мока client_status → under_review;
-       редирект на /c/home, где шкала: «Документы» done, «Проверка» current (→ SC-05);
+       клиент остаётся на /c/documents (D-098), где шкала: «Документы» done, «Проверка» current (→ SC-05);
        событие document_set_submitted {documents_count, duration_from_first_upload}
 ```
 

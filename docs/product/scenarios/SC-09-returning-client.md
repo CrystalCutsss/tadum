@@ -1,4 +1,4 @@
-<!-- source: Drive 1Aa6SK1sG5CNr0oWvQHx8dNSTGjIEnIHF, synced: 2026-11-05. Не редактировать — источник в Drive. -->
+<!-- source: Drive 11F1uBqDQqfEziklBs_IbYt8hrg0WJjoV, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-09 · Повторный клиент
 
 | Поле | Значение |
@@ -23,7 +23,7 @@
 Дано:  у номера есть активная заявка (client_status ∈ {docs_required, under_review, approved, first_purchase})
 Когда: клиент на лендинге нажимает «Подать заявку» и вводит этот номер (форма лендинга — вне портала)
 Тогда: лендинг (бэкенд) определяет, что активная заявка есть, и вместо создания новой
-       перенаправляет на /login?returnTo=/c/home&src=landing&lang=… портала (D-039);
+       перенаправляет на /login?returnTo=/c/documents&src=landing&lang=… портала (D-039);
        клиент проходит OTP (SC-01) и попадает в существующий кабинет — обычный home с заявкой и её
        статусом; отдельного экрана или баннера «у вас уже есть заявка» нет (D-040);
        событие returning_redirected_to_cabinet {from: landing}
@@ -98,7 +98,7 @@
 - [ ] Признак перенаправления с лендинга (`?src=landing`) используется только для аналитики, не для UI; передаётся без PII.
 - [ ] Тексты в `ar` и `en`; баннер доступен и закрывается с клавиатуры.
 - [ ] Storybook: `client.reapply` stub / submitting; `client.closed` reapply-pending × AR/EN × light/dark.
-- [ ] Playwright: вход `client_partial` с `?src=landing` → обычный `home`, событие отправлено; `client_closed_lost` → `/c/closed` → `/c/reapply` → «Создать заявку» → `/c/home` новой заявки.
+- [ ] Playwright: вход `client_partial` с `?src=landing` → обычный `home`, событие отправлено; `client_closed_lost` → `/c/closed` → `/c/reapply` → «Создать заявку» → `/c/documents` новой заявки (D-098).
 
 ---
 
