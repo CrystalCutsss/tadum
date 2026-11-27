@@ -32,6 +32,9 @@ describe('числа и деньги', () => {
   });
   it('EN: SAR, неразрывный пробел, число', () => {
     expect(formatMoney(150000, 'en')).toBe(`SAR${NBSP}150,000`);
+    expect(formatMoney(25000.5, 'en', { cents: true })).toBe(`SAR${NBSP}25,000.50`);
+    expect(formatMoney(25000.5, 'ar', { cents: true })).toBe(`25,000.50${NBSP}ر.س`);
+    expect(formatMoney(25000, 'en', { cents: true })).toBe(`SAR${NBSP}25,000`);
   });
 });
 

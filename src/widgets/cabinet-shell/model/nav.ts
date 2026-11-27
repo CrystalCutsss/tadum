@@ -2,6 +2,7 @@
 // Решение Кирилла 2026-11-06: в основном меню только «Home» и «Documents», без вложенных страниц, у обеих ролей;
 // «Помощь и настройки» открываются из меню аккаунта. У поставщика /s/documents — экран «Заявка» (TD-001); /s/home — заглушка.
 // У клиента пункт называется «Application» (решение Кирилла 2026-11-10), маршрут прежний.
+// Пункт «Home» у клиента — только при активном лимите, первым (D-098, бриф TD-002).
 // Иконка «Документы» в меню — простая, без строк текста (решение Кирилла 2026-11-09); в карточках документов — подробная.
 import { RiFileLine, RiHomeLine, type RemixiconComponentType } from '@remixicon/react';
 
@@ -25,6 +26,17 @@ export const NAV: Readonly<Record<Family, readonly NavItem[]>> = {
     { to: ROUTES.supplierDocuments, labelKey: 'nav.application', icon: RiFileLine },
   ],
 };
+
+export interface NavOptions {
+  /** Клиенту доступна главная (hasClientHome, D-098). */
+  clientHome: boolean;
+}
+
+/** Пункты меню семьи: у клиента без активного лимита «Home» скрыт, первым остаётся «Application» (D-098). */
+export function navFor(family: Family, { clientHome }: NavOptions): readonly NavItem[] {
+  if (family === 'client' && !clientHome) return NAV.client.filter((n) => n.to !== ROUTES.clientHome);
+  return NAV[family];
+}
 
 /** Крошка шапки: последняя — текущая страница; предыдущие (на будущее) — ссылки. */
 export interface Crumb {

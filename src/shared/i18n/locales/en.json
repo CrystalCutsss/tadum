@@ -279,13 +279,54 @@
     "version": "Version {version}"
   },
   "home": {
+    "docs_link": "Agreement and documents",
     "documents_summary_one": "1 document sent",
     "documents_summary_other": "{count} documents sent",
-    "documents_view": "View"
+    "documents_view": "View",
+    "manager": {
+      "cta": "Message your manager"
+    },
+    "purchase": {
+      "amount": "Amount",
+      "amount_error": "Enter the purchase amount",
+      "amount_hint": "You have {amount} available",
+      "amount_over": "This is more than your available amount. Enter up to {amount}",
+      "cta": "New purchase",
+      "submit": "Send on WhatsApp",
+      "supplier": "Supplier",
+      "supplier_error": "Enter the supplier's name",
+      "title": "New purchase"
+    },
+    "welcome": {
+      "dismiss": "Got it",
+      "item1": "See how much is available for your next purchase",
+      "item2": "Start a purchase from your supplier in a few taps",
+      "item3": "Find your agreement and documents in Application",
+      "title": "Your trade limit is active"
+    }
+  },
+  "how_to_buy": {
+    "hide": "Hide",
+    "show": "How to make a purchase",
+    "step1": "Agree on the goods and price with your supplier",
+    "step2": "Ask the supplier for a quotation in your company's name",
+    "step3": "Send the quotation to us on WhatsApp. Tadum buys the goods from your supplier, and you pay in parts",
+    "title": "How to make a purchase"
   },
   "lang": {
     "switch_to_ar": "العربية",
     "switch_to_en": "English"
+  },
+  "limit": {
+    "approved": "Approved",
+    "available": "Available",
+    "cancelled": "Your trade limit is not active right now",
+    "fully_used": "Your limit is fully used",
+    "fully_used_hint": "As payments are made, the available amount will grow again",
+    "not_used_yet": "You haven't used your limit yet. Your full amount is available",
+    "updated_at": "Updated {time}",
+    "used": "Used",
+    "used_share": "{percent} used"
   },
   "nav": {
     "account": "Account",
@@ -541,6 +582,8 @@
     "email": "Email",
     "prefill": {
       "closed": "Hello, I have a question about my Tadum application for {company}.",
+      "limit_full": "Hello, the trade limit for {company} is fully used. I'd like to discuss my next purchase.",
+      "purchase_request": "Hello, I'd like to make a purchase through Tadum for {company}. Supplier: {supplier}. Amount: {amount}.",
       "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
       "under_review": "Hello, I have a question about my Tadum application for {company}."
     },

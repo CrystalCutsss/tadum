@@ -19,6 +19,7 @@ const clean = (value: string): string => value.replace(DIRECTION_MARKS, '');
 
 const integerFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const fractionFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+const centsFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const shortDateFormat = new Intl.DateTimeFormat('en-GB', {
   timeZone: TIME_ZONE,
@@ -47,9 +48,12 @@ export function formatNumber(value: number): string {
   return clean(integerFormat.format(value));
 }
 
-/** Деньги: AR `150,000 ر.س`, EN `SAR 150,000` (неразрывный пробел). */
-export function formatMoney(value: number, lang: Language): string {
-  const amount = formatNumber(value);
+/**
+ * Деньги: AR `150,000 ر.س`, EN `SAR 150,000` (неразрывный пробел). `cents` — сумма, введённая клиентом (форма покупки,
+ * TD-002): дробная часть, если она есть, показывается двумя знаками (`SAR 25,000.50`), целая сумма — без неё.
+ */
+export function formatMoney(value: number, lang: Language, { cents = false }: { cents?: boolean } = {}): string {
+  const amount = cents && !Number.isInteger(Math.round(value * 100) / 100) ? clean(centsFormat.format(value)) : formatNumber(value);
   return lang === 'ar' ? `${amount}${NBSP}ر.س` : `SAR${NBSP}${amount}`;
 }
 

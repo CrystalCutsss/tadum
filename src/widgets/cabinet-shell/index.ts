@@ -6,4 +6,4 @@ export { AppSidebar, type AppSidebarProps } from './ui/app-sidebar';
 export { NavAccount, type NavAccountProps } from './ui/nav-account';
 export { OfflineBanner, StorageBanner } from './ui/banners';
 export { LoadError } from './ui/load-error';
-export { NAV, crumbsFor, type Crumb, type NavItem } from './model/nav';
+export { NAV, crumbsFor, navFor, type Crumb, type NavItem } from './model/nav';
