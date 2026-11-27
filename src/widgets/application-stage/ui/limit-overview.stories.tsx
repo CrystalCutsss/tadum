@@ -50,7 +50,9 @@ export const Active: Story = {
       await expect(el).toHaveTextContent('107,500');
       await expect(el).toHaveTextContent('150,000');
       await expect(el).toHaveTextContent('42,500');
-      await expect(c.getByText(t('limit.used_share', { percent: formatPercent(28, lang) }))).toBeVisible();
+      await expect(c.getByRole('progressbar')).toHaveAttribute('aria-label', t('limit.used_share', { percent: formatPercent(28, lang) }));
+      // toHaveTextContent сводит неразрывный пробел к обычному в тексте, но не в ожидании.
+      await expect(el).toHaveTextContent(t('limit.used_share', { percent: formatPercent(28, lang) }).replace(/\u00a0/g, ' '));
       await expect(c.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String((42_500 / 150_000) * 100));
       await expect(c.getByText(t('limit.updated_at', { time: t('relative.minutes_ago', { count: 5 }) }))).toBeVisible();
       // Под суммой одна главная кнопка.
@@ -101,7 +103,7 @@ export const UsedExceedsApproved: Story = {
     try {
       for (const { el, c } of panels(canvasElement)) {
         await expect(c.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
-        await expect(el.querySelector('section')).toHaveTextContent(/\b0\b/);
+        await expect(el.querySelector('section')).toHaveTextContent(/(^|\D)0(\D|$)/);
       }
       await expect(names(events, 'data_inconsistency').map((e) => e.props)).toEqual(Array(4).fill({ kind: 'used_exceeds_approved' }));
     } finally {

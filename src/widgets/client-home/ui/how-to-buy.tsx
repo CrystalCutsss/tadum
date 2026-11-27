@@ -60,7 +60,7 @@ export function HowToBuy() {
               t('how_to_buy.title')
             ) : (
               <CollapsibleTrigger asChild>
-                <Button variant="link" className="h-auto min-h-11 px-0 text-base font-semibold whitespace-normal">
+                <Button variant="ghost" className="-ms-2 h-auto min-h-11 px-2 text-base font-semibold whitespace-normal">
                   {t('how_to_buy.show')}
                 </Button>
               </CollapsibleTrigger>

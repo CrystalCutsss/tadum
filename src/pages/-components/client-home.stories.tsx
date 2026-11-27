@@ -113,16 +113,28 @@ export const LoadFailed: Story = {
 };
 
 export const Loading: Story = {
-  name: 'Загрузка — скелетон',
+  name: 'Загрузка — скелетон (ответ лимита придержан)',
   loaders: [
     async () => {
       const api = await signedIn('client_active');
-      api.demo!.setNetwork('slow');
-      return { api };
+      // В Storybook мок без задержек: придерживаем LimitPort.get до конца play.
+      const limitPort = api.limit as unknown as { get: () => Promise<unknown> };
+      const original = limitPort.get;
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => (release = resolve));
+      limitPort.get = async () => {
+        await gate;
+        return original.call(api.limit);
+      };
+      return { api, restore: () => ((limitPort.get = original), release()) };
     },
   ],
   play: async ({ canvasElement, loaded }) => {
-    await expect(canvasElement.querySelector('[aria-busy="true"]')).not.toBeNull();
-    (loaded as { api: { demo?: { setNetwork: (m: 'ok') => void } } }).api.demo!.setNetwork('ok');
+    try {
+      await waitFor(() => expect(canvasElement.querySelector('[aria-busy="true"]')).not.toBeNull());
+      await expect(within(canvasElement).queryByRole('heading', { name: tr('limit.available') })).toBeNull();
+    } finally {
+      (loaded as { restore: () => void }).restore();
+    }
   },
 };
