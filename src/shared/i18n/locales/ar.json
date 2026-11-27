@@ -521,7 +521,6 @@
       "title": "طريقة السداد"
     },
     "next": "الدفعة القادمة",
-    "open_details": "تفاصيل الدفعة: {date}، {amount}",
     "overdue": "مضى موعد الدفعة",
     "overdue_days_zero": "منذ {count} يوم",
     "overdue_days_one": "منذ يوم",

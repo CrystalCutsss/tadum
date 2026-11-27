@@ -457,7 +457,6 @@
       "title": "How to pay"
     },
     "next": "Next payment",
-    "open_details": "Payment details: {date}, {amount}",
     "overdue": "Payment date has passed",
     "overdue_days_one": "{count} day ago",
     "overdue_days_other": "{count} days ago",

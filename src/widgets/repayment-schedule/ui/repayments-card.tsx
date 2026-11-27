@@ -96,19 +96,18 @@ function Featured({ item, company, onOpen }: { item: Installment; company: strin
       <button
         type="button"
         onClick={onOpen}
-        aria-label={t('repayments.open_details', { date: date(item.due_date), amount: money(item) })}
         className="flex flex-col items-start gap-1.5 rounded-md text-start outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        {overdue ? <OverdueBadge /> : <span className="text-xs font-medium text-muted-foreground">{t('repayments.next')}</span>}
+        {overdue ? <OverdueBadge /> : <span className="text-xs font-medium">{t('repayments.next')}</span>}
         <span className="text-2xl font-medium tabular-nums">
           <MoneyText value={money(item)} />
         </span>
         <span className="text-sm">
           <bdi>{date(item.due_date)}</bdi>
           {' · '}
-          <span className={overdue ? 'text-status-rejected' : 'text-muted-foreground'}>{due(item)}</span>
+          <span className={overdue ? 'font-medium text-status-rejected' : undefined}>{due(item)}</span>
         </span>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs">
           <bdi>{item.supplier_name}</bdi>
         </span>
       </button>

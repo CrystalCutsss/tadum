@@ -193,16 +193,16 @@ function Details({ item, schedule, company, onBack }: { item: Installment; sched
 
 function Row({ label, children, onCopy, copyLabel }: { label: string; children: React.ReactNode; onCopy?: () => void; copyLabel?: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <dt className="text-muted-foreground">{label}</dt>
-        <dd className="font-medium">{children}</dd>
-      </div>
-      {onCopy && copyLabel ? (
-        <Button type="button" variant="ghost" size="icon" className="size-11 shrink-0" aria-label={copyLabel} onClick={onCopy}>
-          <Icon icon={RiFileCopyLine} />
-        </Button>
-      ) : null}
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="flex min-h-6 items-center justify-between gap-3 font-medium">
+        <span className="min-w-0">{children}</span>
+        {onCopy && copyLabel ? (
+          <Button type="button" variant="ghost" size="icon" className="-my-2 size-11 shrink-0" aria-label={copyLabel} onClick={onCopy}>
+            <Icon icon={RiFileCopyLine} />
+          </Button>
+        ) : null}
+      </dd>
     </div>
   );
 }

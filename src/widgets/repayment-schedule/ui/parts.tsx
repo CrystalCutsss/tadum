@@ -69,7 +69,6 @@ export function InstallmentRow({ item, onOpen }: { item: Installment; onOpen: ()
       <button
         type="button"
         onClick={onOpen}
-        aria-label={t('repayments.open_details', { date: date(item.due_date), amount: money(item) })}
         className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-2.5 text-start outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
