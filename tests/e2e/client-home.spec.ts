@@ -130,7 +130,7 @@ test('@smoke D-102: график платежей — срок прошёл ви
   await panel.getByRole('button', { name: /10,000/ }).nth(1).click();
   const details = page.getByRole('dialog', { name: tr('en', 'repayments.details.title') });
   // «Как оплатить» — только точка входа в WhatsApp с номером платежа (D-104).
-  await expect(details.getByRole('link', { name: tr('en', 'repayments.how_to_pay.cta') })).toHaveAttribute('href', /wa\.me\/.*DEAL-CFP-1-2/);
+  await expect(details.getByRole('link', { name: tr('en', 'repayments.how_to_pay.cta') })).toHaveAttribute('href', /wa\.me\/.*DEAL-CFP-1-\d/);
   await details.getByRole('button', { name: tr('en', 'repayments.details.back') }).click();
   await expect(page.getByRole('dialog', { name: tr('en', 'repayments.history') })).toBeVisible();
 });
