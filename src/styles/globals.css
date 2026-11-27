@@ -324,6 +324,13 @@
       backface-visibility: hidden;
     }
   }
+  /* Фокус на синем металле (a11y-ревью TD-002, WCAG 1.4.11 / 2.4.7): кольцо пресета ring/50 на карточке почти
+     не видно. Любому потомку с :focus-visible (кнопки, ссылки-кнопки, поля) — сплошная обводка
+     --primary-foreground со смещением: соседний цвет обводки — поверхность карточки, контраст к ней ≥ 3:1
+     (пары в scripts/check-contrast.mjs). Селектор .metal-card :focus-visible сильнее outline-none пресета. */
+  & :focus-visible {
+    @apply outline-2 outline-offset-2 outline-solid outline-primary-foreground;
+  }
   /* Режим высокой контрастности: градиенты и тени скрыты системой — граница карточки системным цветом. */
   @media (forced-colors: active) {
     outline: var(--metal-rim-width) solid CanvasText;

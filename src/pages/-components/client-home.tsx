@@ -87,7 +87,8 @@ export function ClientHome() {
   }
   if (!app.data || limit.isPending) {
     return (
-      <div className="flex flex-col gap-4" aria-busy="true" aria-label={t('common.loading')}>
+      <div className="flex flex-col gap-4" role="status" aria-busy="true">
+        <span className="sr-only">{t('common.loading')}</span>
         <Skeleton className="h-64 w-full rounded-xl" />
         <Skeleton className="h-40 w-full rounded-xl" />
       </div>
@@ -103,7 +104,7 @@ export function ClientHome() {
     <div className="flex flex-col gap-4">
       <h1 className="sr-only">{t('nav.home')}</h1>
       {notice.kind === 'banner' ? <StatusBanner to={notice.to} onDismiss={dismiss} /> : null}
-      {cancelled ? null : <WelcomeCard limitId={lim.id} />}
+      {cancelled ? null : <WelcomeCard limitId={lim.id} onDismissed={() => document.getElementById('limit')?.querySelector<HTMLElement>('h2')?.focus()} />}
       <LimitOverview limit={lim} company={companyName} updatedAt={limit.dataUpdatedAt} />
       {cancelled ? null : <HowToBuy />}
       {/* Менеджер и договор (A-077): ссылка — внизу колонки, на ≥ 1024 px — в боковой колонке. Блок поддержки — только на

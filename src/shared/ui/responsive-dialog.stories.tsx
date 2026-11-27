@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useTranslation } from 'react-i18next';
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import { T } from '../../../.storybook/t';
 import { Button } from './button';
@@ -120,5 +120,58 @@ export const Mobile: Story = {
     await expect(dialog).toHaveAttribute('dir', en ? 'ltr' : 'rtl');
     const close = within(dialog).getByRole('button', { name: en ? 'Close' : 'إغلاق' });
     await expect(close).toBeVisible();
+  },
+};
+
+/**
+ * Фокус в шторке (a11y-ревью TD-002, WCAG 2.4.3): на телефоне открытие с триггера переводит фокус внутрь
+ * Drawer (vaul autoFocus), Escape закрывает шторку и возвращает фокус на триггер.
+ */
+export const MobileFocus: Story = {
+  globals: { viewport: { value: 'mobile360', isRotated: false } },
+  render: function MobileFocusDemo() {
+    const { t } = useTranslation();
+    return (
+      <ResponsiveDialog>
+        <ResponsiveDialogTrigger asChild>
+          <Button>
+            <T k="nav.more" />
+          </Button>
+        </ResponsiveDialogTrigger>
+        <ResponsiveDialogContent closeLabel={t('common.close')}>
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle>
+              <T k="nav.more" />
+            </ResponsiveDialogTitle>
+            <ResponsiveDialogDescription>
+              <T k="support.cta.question" />
+            </ResponsiveDialogDescription>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogFooter>
+            <ResponsiveDialogClose asChild>
+              <Button variant="outline">
+                <T k="common.cancel" />
+              </Button>
+            </ResponsiveDialogClose>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('button');
+    // Пока Drawer грузится лениво, корень — закрытый Dialog и клик не открывает окно: повторяем до открытия.
+    const dialog = await waitFor(
+      async () => {
+        await userEvent.click(trigger);
+        return within(document.body).getByRole('dialog');
+      },
+      { timeout: 3000 }
+    );
+    await expect(dialog.getAttribute('data-mode')).toBe('drawer');
+    await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true));
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(within(document.body).queryByRole('dialog')).toBeNull(), { timeout: 3000 });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
   },
 };

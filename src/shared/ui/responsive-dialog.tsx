@@ -49,7 +49,10 @@ function ResponsiveDialog({ children, ...props }: ResponsiveDialogProps) {
   const mode: Mode = isMobile && drawer !== "failed" ? drawer : null
   let root: React.ReactNode
   if (mode === "pending") root = <Dialog open={false}>{children}</Dialog>
-  else if (mode) root = <mode.Drawer {...props}>{children}</mode.Drawer>
+  // autoFocus (a11y-ревью TD-002, WCAG 2.4.3): vaul 1.1.x по умолчанию (autoFocus=false) отменяет
+  // onOpenAutoFocus Radix Dialog — фокус оставался на триггере под aria-hidden. С autoFocus фокус при открытии
+  // уходит в шторку (первый фокусируемый элемент, как у Dialog), при закрытии Radix возвращает его на триггер.
+  else if (mode) root = <mode.Drawer autoFocus {...props}>{children}</mode.Drawer>
   else root = <Dialog {...props}>{children}</Dialog>
   return (
     <ResponsiveDialogContext.Provider value={mode}>

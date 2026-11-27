@@ -50,7 +50,7 @@ export const Active: Story = {
       await expect(el).toHaveTextContent('107,500');
       await expect(el).toHaveTextContent('150,000');
       await expect(el).toHaveTextContent('42,500');
-      await expect(c.getByRole('progressbar')).toHaveAttribute('aria-label', t('limit.used_share', { percent: formatPercent(28, lang) }));
+      await expect(c.getByRole('progressbar')).toHaveAttribute('aria-valuetext', t('limit.used_share', { percent: formatPercent(28, lang) }));
       // toHaveTextContent сводит неразрывный пробел к обычному в тексте, но не в ожидании.
       await expect(el).toHaveTextContent(t('limit.used_share', { percent: formatPercent(28, lang) }).replace(/\u00a0/g, ' '));
       await expect(c.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String((42_500 / 150_000) * 100));

@@ -11,7 +11,8 @@ import { homeFlags } from '../model/home-flags';
 
 const ITEMS = ['home.welcome.item1', 'home.welcome.item2', 'home.welcome.item3'] as const;
 
-export function WelcomeCard({ limitId }: { limitId: string }) {
+/** onDismissed — куда перевести фокус после «Понятно» (карточка исчезает вместе с кнопкой, WCAG 2.4.3). */
+export function WelcomeCard({ limitId, onDismissed }: { limitId: string; onDismissed?: () => void }) {
   const { t } = useTranslation();
   const titleId = useId();
   const [visible, setVisible] = useState(() => !homeFlags.welcomeDismissed(limitId));
@@ -27,6 +28,7 @@ export function WelcomeCard({ limitId }: { limitId: string }) {
     homeFlags.dismissWelcome(limitId);
     track('home_welcome_dismissed', {});
     setVisible(false);
+    onDismissed?.();
   };
 
   return (

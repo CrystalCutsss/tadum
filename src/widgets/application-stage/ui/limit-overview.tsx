@@ -68,7 +68,7 @@ export function LimitOverview({ limit, company, updatedAt, forceOffline = false 
     <div className="flex flex-col gap-3">
       <LimitSurface id="limit" aria-labelledby={titleId} className="scroll-mt-4 gap-5">
         <div className="flex flex-col gap-3">
-          <h2 id={titleId} className="font-heading text-base font-medium">
+          <h2 id={titleId} tabIndex={-1} className="font-heading text-base font-medium outline-none">
             {t('limit.available')}
           </h2>
           <LimitAmount value={available} />
@@ -78,11 +78,14 @@ export function LimitOverview({ limit, company, updatedAt, forceOffline = false 
               белые на синей карточке, как текст на ней. */}
           <Progress
             value={share.share * 100}
-            aria-label={usage}
+            aria-label={t('limit.used')}
+            getValueLabel={() => usage}
             tone="inverse"
             className="h-2"
           />
-          <p className="text-sm text-primary-foreground">{usage}</p>
+          <p className="text-sm text-primary-foreground" aria-hidden="true">
+            {usage}
+          </p>
           {fullyUsed ? <p className="text-sm text-primary-foreground">{t('limit.fully_used_hint')}</p> : null}
         </div>
         <dl className="flex flex-wrap gap-x-10 gap-y-3">

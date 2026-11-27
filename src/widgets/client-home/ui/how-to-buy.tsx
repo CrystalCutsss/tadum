@@ -21,6 +21,14 @@ export function HowToBuy() {
   const [open, setOpen] = useState(() => linked || !homeFlags.howToBuyCollapsed());
   const [wasLinked, setWasLinked] = useState(linked);
   const ref = useRef<HTMLElement>(null);
+  // Кнопка переключения меняется («Скрыть» ↔ заголовок-кнопка): после нажатия фокус переносится на новую (WCAG 2.4.3).
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const focusTrigger = useRef(false);
+  useEffect(() => {
+    if (!focusTrigger.current) return;
+    focusTrigger.current = false;
+    triggerRef.current?.focus();
+  }, [open]);
   // Ссылка на блок при открытом экране — раскрыть свёрнутый (корректировка состояния во время рендера).
   if (linked !== wasLinked) {
     setWasLinked(linked);
@@ -47,6 +55,7 @@ export function HowToBuy() {
 
   const toggle = (next: boolean) => {
     setOpen(next);
+    focusTrigger.current = true;
     homeFlags.setHowToBuyCollapsed(!next);
     track('how_to_buy_toggled', { open: next });
   };
@@ -60,7 +69,7 @@ export function HowToBuy() {
               t('how_to_buy.title')
             ) : (
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="-ms-2 h-auto min-h-11 px-2 text-base font-semibold whitespace-normal">
+                <Button ref={triggerRef} variant="ghost" className="-ms-2 h-auto min-h-11 px-2 text-base font-semibold whitespace-normal">
                   {t('how_to_buy.show')}
                 </Button>
               </CollapsibleTrigger>
@@ -68,7 +77,7 @@ export function HowToBuy() {
           </h2>
           {open ? (
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="min-h-11 shrink-0">
+              <Button ref={triggerRef} variant="ghost" className="min-h-11 shrink-0" aria-describedby={titleId}>
                 {t('how_to_buy.hide')}
               </Button>
             </CollapsibleTrigger>

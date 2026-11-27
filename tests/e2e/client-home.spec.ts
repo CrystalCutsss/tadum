@@ -47,21 +47,26 @@ test('@smoke форма покупки: ошибки блокируют отпр
   const supplier = dialog.getByRole('textbox', { name: tr('en', 'home.purchase.supplier') });
   const submit = dialog.getByRole('button', { name: tr('en', 'home.purchase.submit') });
 
-  await amount.focus();
-  await amount.blur();
+  // Фокус — в форме; Enter в пустой форме показывает обе ошибки и ведёт в поле суммы (WCAG 3.3.1).
+  await expect(amount).toBeFocused();
+  await amount.press('Enter');
   await expect(dialog.getByText(tr('en', 'home.purchase.amount_error'))).toBeVisible();
+  await expect(dialog.getByText(tr('en', 'home.purchase.supplier_error'))).toBeVisible();
+  await expect(amount).toBeFocused();
   await amount.fill('200000');
   await expect(dialog.getByText(tr('en', 'home.purchase.amount_over', { amount: 'SAR 107,500' }))).toBeVisible();
-  await expect(submit).toBeDisabled();
+  await expect(submit).toHaveAttribute('aria-disabled', 'true');
   await supplier.fill('A');
   await supplier.blur();
   await expect(dialog.getByText(tr('en', 'home.purchase.supplier_error'))).toBeVisible();
 
   await amount.fill('25000');
   await supplier.fill('Al Noor Trading');
-  await expect(submit).toBeEnabled();
+  await expect(submit).toHaveAttribute('aria-disabled', 'false');
   await submit.click();
   await expect(dialog).toBeHidden();
+  // Фокус возвращается на «Новая покупка».
+  await expect(page.getByRole('button', { name: tr('en', 'home.purchase.cta') })).toBeFocused();
   const urls = await opened();
   expect(urls).toHaveLength(1);
   const url = new URL(urls[0]!);

@@ -33,7 +33,7 @@ export const Errors: Story = {
     const amount = d.getByLabelText(tr('home.purchase.amount'));
     const supplier = d.getByLabelText(tr('home.purchase.supplier'));
     const submit = d.getByRole('button', { name: tr('home.purchase.submit') });
-    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveAttribute('aria-disabled', 'true');
 
     // Пустая сумма — после ухода из поля.
     await userEvent.click(amount);
@@ -44,13 +44,13 @@ export const Errors: Story = {
     // Больше доступной — сразу, отправка недоступна.
     await userEvent.type(amount, '200000');
     await expect(d.getByText(/107,500/, { selector: '[data-slot=field-error]' })).toBeVisible();
-    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveAttribute('aria-disabled', 'true');
 
     // Короткое имя поставщика.
     await userEvent.type(supplier, 'A');
     await userEvent.tab();
     await expect(d.getByText(tr('home.purchase.supplier_error'))).toBeVisible();
-    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveAttribute('aria-disabled', 'true');
   },
 };
 
