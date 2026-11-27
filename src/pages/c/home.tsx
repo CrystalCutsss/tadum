@@ -1,8 +1,24 @@
-// /c/home — главная клиента (SC-05 для home, 01-cabinet-structure.md §5–6).
-// Решение Кирилла 2026-11-06: до проработки разделов Home показывает только текст-заглушку, как Documents.
-// Экран v1 (ClientHome: шкала, «следующий шаг», сводка документов) сохранён в pages/-components вместе с историями и тестами (A-055).
-import { createFileRoute } from '@tanstack/react-router';
+// /c/home — главная активного клиента (D-098, бриф TD-002). Гард: без активного лимита (и без лимита, отменённого
+// после активации) — редирект в «Заявку» без ошибки. Лимит, заявка и компания запрашиваются параллельно (A-047):
+// гарду нужен только лимит, остальное грузится вместе с ним.
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import { ComingSoon } from '../-components/coming-soon';
+import { applicationQuery, companyQuery } from '@/entities/application';
+import { hasClientHome, limitQuery } from '@/entities/limit';
+import { ROUTES } from '@/shared/config';
 
-export const Route = createFileRoute('/c/home')({ component: ComingSoon });
+import { ClientHome } from '../-components/client-home';
+
+export const Route = createFileRoute('/c/home')({
+  beforeLoad: async ({ context: { queryClient } }) => {
+    void queryClient.prefetchQuery(applicationQuery);
+    void queryClient.prefetchQuery(companyQuery);
+    // Ошибка лимита — не редирект: экран покажет «Повторить» и поддержку.
+    const limit = await queryClient.ensureQueryData(limitQuery).catch(() => undefined);
+    if (limit !== undefined && !hasClientHome(limit)) {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- redirect() TanStack Router бросается по контракту
+      throw redirect({ to: ROUTES.clientDocuments, replace: true });
+    }
+  },
+  component: ClientHome,
+});

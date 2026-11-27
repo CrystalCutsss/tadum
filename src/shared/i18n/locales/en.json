@@ -280,8 +280,6 @@
   },
   "home": {
     "docs_link": "Agreement and documents",
-    "documents_summary_one": "1 document sent",
-    "documents_summary_other": "{count} documents sent",
     "documents_view": "View",
     "manager": {
       "cta": "Message your manager"

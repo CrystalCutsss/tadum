@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
 
 import { matrix } from '../../../.storybook/decorators';
+import { MetalCard } from './metal-card';
 import { Progress } from './progress';
 
 const meta = { title: 'shared/ui/Progress', component: Progress, ...matrix } satisfies Meta<typeof Progress>;
@@ -31,3 +32,33 @@ export const Partial: Story = {
 };
 
 export const Full: Story = { args: { value: 100, 'aria-label': 'progress' } };
+
+/** На синей поверхности (MetalCard, bg-primary): дорожка primary-foreground/25, индикатор primary-foreground. */
+export const Inverse: Story = {
+  args: { value: 60, tone: 'inverse', 'aria-label': 'progress' },
+  decorators: [
+    (Story) => (
+      <div className="rounded-xl bg-primary p-4 text-primary-foreground">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const root = canvasElement.querySelector('[data-matrix="ar light"] [data-slot="progress"]')!;
+    await expect(root.getAttribute('data-tone')).toBe('inverse');
+    const fill = root.querySelector('[data-slot="progress-indicator"]')!;
+    await expect(getComputedStyle(fill).backgroundColor).not.toBe(getComputedStyle(root).backgroundColor);
+  },
+};
+
+/** Inverse на MetalCard — как полоса лимита на главной клиента (TD-002). */
+export const InverseOnMetalCard: Story = {
+  args: { value: 35, tone: 'inverse', 'aria-label': 'progress' },
+  decorators: [
+    (Story) => (
+      <MetalCard className="text-primary-foreground">
+        <Story />
+      </MetalCard>
+    ),
+  ],
+};

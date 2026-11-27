@@ -13,7 +13,7 @@ import { supportWhatsappUrl } from '@/shared/config';
 import { formatMoney, formatPercent, formatRelative, isLanguage } from '@/shared/i18n';
 import { useNow, useOnline } from '@/shared/lib';
 import { Button, Icon, Ltr, Progress } from '@/shared/ui';
-import { LimitAmount, LimitSurface } from '@/widgets/application-stage';
+import { LimitAmount, LimitSurface } from './application-stage-card';
 
 const MINUTE = 60_000;
 
@@ -77,25 +77,15 @@ export function LimitOverview({ limit, company, updatedAt, forceOffline = false 
           <Progress
             value={share.share * 100}
             aria-label={usage}
-            className="h-2 bg-primary-foreground/25 [&_[data-slot=progress-indicator]]:bg-primary-foreground"
+            tone="inverse"
+            className="h-2"
           />
           <p className="text-sm text-primary-foreground">{usage}</p>
           {fullyUsed ? <p className="text-sm text-primary-foreground">{t('limit.fully_used_hint')}</p> : null}
         </div>
         <dl className="flex flex-wrap gap-x-10 gap-y-3">
-          {(
-            [
-              ['limit.approved', limit.approved],
-              ['limit.used', limit.used],
-            ] as const
-          ).map(([key, value]) => (
-            <div key={key} className="flex flex-col gap-0.5">
-              <dt className="text-sm text-primary-foreground">{t(key)}</dt>
-              <dd className="tabular-nums">
-                <Ltr>{money(value)}</Ltr>
-              </dd>
-            </div>
-          ))}
+          <Amount label={t('limit.approved')} value={money(limit.approved)} />
+          <Amount label={t('limit.used')} value={money(limit.used)} />
         </dl>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {action ? <div>{action}</div> : null}
@@ -103,6 +93,17 @@ export function LimitOverview({ limit, company, updatedAt, forceOffline = false 
         </div>
       </LimitSurface>
       {cancelled ? <CancelledNotice /> : null}
+    </div>
+  );
+}
+
+function Amount({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-sm text-primary-foreground">{label}</dt>
+      <dd className="tabular-nums">
+        <Ltr>{value}</Ltr>
+      </dd>
     </div>
   );
 }

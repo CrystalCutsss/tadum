@@ -1,5 +1,6 @@
 // Публичный API виджета application-stage: этапы «Решение», «Подписание» и «Лимит одобрен» на экране «Заявка»
-// (SC-06, SC-07; решения Кирилла 2026-11-11, A-063).
+// (SC-06, SC-07; решения Кирилла 2026-11-11, A-063) и блок #limit главной активного клиента (TD-002).
 export { CancelledLimitCard, LimitAmount, LimitCard, LimitSurface } from './ui/application-stage-card';
 export { ApplicationSummaryCard, ApplicationFacts, type ApplicationFactsProps } from './ui/application-summary';
 export { trackLimitTransition } from './model/limit-events';
+export { LimitOverview, type LimitOverviewProps } from './ui/limit-overview';

@@ -1,50 +1,23 @@
-// /c/home (SC-05 для home, 01-cabinet-structure.md §5–6): шкала, «следующий шаг», сводка документов,
-// уведомление о смене статуса (D-034), опрос (D-035). Блоки #limit и #how-to-buy — v4.
+// /c/home — главная активного клиента (D-098…D-101, бриф TD-002, SC-07): блок лимита с кнопкой новой покупки,
+// «Как оформить покупку», карточка первого визита, менеджер и ссылка на договор. Доступна только при активном лимите
+// (и при отменённом после активации); остальных гард маршрута ведёт в «Заявку». Шкала, «следующий шаг» и сводка
+// документов на главной не показываются — они на экране «Заявка» (D-081, D-098). Статус и лимит опрашиваются (D-035),
+// смена статуса — баннер и тост (D-034).
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { Navigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import {
-  applicationQuery,
-  companyQuery,
-  computeClientTimeline,
-  statusMemory,
-  statusNoticeOnEnter,
-  type StatusNotice,
-} from '@/entities/application';
-import { documentSetQuery } from '@/entities/document';
-import { limitQuery } from '@/entities/limit';
-import { track, usedShareBucket, type ScreenViewedProps } from '@/shared/analytics';
-import { useStatusPolling, type Application, type ClientStatus, type DocumentSet, type Limit } from '@/shared/api';
-import { now, toDate } from '@/shared/lib';
-import { Button, Card, CardDescription, CardFooter, CardHeader, CardTitle, Skeleton, toast } from '@/shared/ui';
-import { LoadError } from '@/widgets/cabinet-shell';
-import { NextStepCard } from '@/widgets/next-step-card';
+import { applicationQuery, companyQuery, statusMemory, statusNoticeOnEnter, type StatusNotice } from '@/entities/application';
+import { hasClientHome, limitQuery } from '@/entities/limit';
+import { track, usedShareBucket } from '@/shared/analytics';
+import { useStatusPolling, type ClientStatus } from '@/shared/api';
+import { Skeleton, toast } from '@/shared/ui';
+import { LimitOverview } from '@/widgets/application-stage';
+import { CabinetAside, LoadError } from '@/widgets/cabinet-shell';
+import { HomeAside, HowToBuy, WelcomeCard } from '@/widgets/client-home';
 import { StatusBanner } from '@/widgets/status-banner';
-import { StatusTimeline } from '@/widgets/status-timeline';
 import { SupportBar } from '@/widgets/support-bar';
-
-const HOUR = 3_600_000;
-
-function hoursSinceSubmit(set: DocumentSet | undefined): number | undefined {
-  return set?.submitted_at ? Math.max(0, Math.round((now() - toDate(set.submitted_at).getTime()) / HOUR)) : undefined;
-}
-
-/** screen_viewed{client.home} — контекст §3.6; только корзины и счётчики, без сумм. */
-function homeViewProps(app: Application, set: DocumentSet | undefined, limit: Limit | null | undefined): Extract<ScreenViewedProps, { screen_id: 'client.home' }> {
-  const hours = app.client_status === 'under_review' ? hoursSinceSubmit(set) : undefined;
-  return {
-    screen_id: 'client.home',
-    status: app.client_status,
-    ...(set ? { round: set.round } : {}),
-    ...(app.client_status === 'docs_required' && set && set.round > 1 ? { requested_count: set.documents.length } : {}),
-    ...(app.client_status === 'under_review' ? { has_eta: app.review_eta_hours !== undefined } : {}),
-    ...(hours !== undefined ? { hours_since_submit: hours } : {}),
-    ...(limit ? { limit_status: limit.status, checklist_done_count: limit.checklist.items.filter((i) => i.status === 'done').length } : {}),
-    ...(limit?.status === 'active' ? { used_share_bucket: usedShareBucket(limit.used, limit.approved) } : {}),
-  };
-}
 
 /** Тост при смене статуса на открытом экране и баннер при входе (D-034). */
 function useStatusChangeNotice(status: ClientStatus | undefined) {
@@ -90,88 +63,56 @@ function useStatusChangeNotice(status: ClientStatus | undefined) {
 export function ClientHome() {
   const { t, i18n } = useTranslation();
   const app = useStatusPolling(applicationQuery);
-  const status = app.data?.client_status;
-  const owner = { kind: 'application' as const, id: app.data?.id ?? '' };
-  const set = useQuery({ ...documentSetQuery(owner), enabled: Boolean(app.data) });
-  // Лимит нужен шкале с одобрения; опрашивается так же, как статус (D-035).
-  const limit = useStatusPolling({ ...limitQuery, enabled: status === 'approved' || status === 'first_purchase' });
+  const limit = useStatusPolling(limitQuery);
   const company = useQuery(companyQuery);
+  const status = app.data?.client_status;
   const { notice, dismiss } = useStatusChangeNotice(status);
-
-  const data = app.data;
-  const overdue =
-    data?.client_status === 'under_review' && data.review_eta_hours !== undefined && (hoursSinceSubmit(set.data) ?? 0) > data.review_eta_hours;
+  const lim = limit.data;
 
   useEffect(() => {
-    if (data && set.data) track('screen_viewed', homeViewProps(data, set.data, limit.data));
-    // Один просмотр на статус: опрос не плодит события.
+    if (!status || !lim) return;
+    track('screen_viewed', {
+      screen_id: 'client.home',
+      status,
+      limit_status: lim.status,
+      ...(lim.status === 'active' ? { used_share_bucket: usedShareBucket(lim.used, lim.approved) } : {}),
+    });
+    // Один просмотр на статус заявки и лимита: опрос не плодит события.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.client_status, Boolean(set.data)]);
+  }, [status, lim?.status]);
 
-  useEffect(() => {
-    if (overdue && data?.review_eta_hours !== undefined) {
-      track('review_overdue_viewed', { hours_over: (hoursSinceSubmit(set.data) ?? 0) - data.review_eta_hours });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [overdue]);
-
-  if (app.isError) return <LoadError onRetry={() => void app.refetch()} support={<SupportBar context="error" />} />;
-  // Шкала одобренной заявки зависит от лимита: пока он грузится, не показываем промежуточное состояние.
-  const waitingLimit = (status === 'approved' || status === 'first_purchase') && limit.isPending;
-  if (!data || waitingLimit) {
+  if (app.isError || limit.isError) {
+    const retry = app.isError ? app.refetch : limit.refetch;
+    return <LoadError onRetry={() => void retry()} support={<SupportBar context="error" />} />;
+  }
+  if (!app.data || limit.isPending) {
     return (
-      <div className="flex flex-col gap-4" aria-busy="true">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-32 w-full" />
+      <div className="flex flex-col gap-4" aria-busy="true" aria-label={t('common.loading')}>
+        <Skeleton className="h-64 w-full rounded-xl" />
+        <Skeleton className="h-40 w-full rounded-xl" />
       </div>
     );
   }
+  // Лимит перестал быть доступным при открытом экране (гард маршрута это уже проверил при входе).
+  if (!lim || !hasClientHome(lim)) return <Navigate to="/c/documents" replace />;
 
-  const timeline = computeClientTimeline({ client_status: data.client_status, round: set.data?.round ?? 1, limit: limit.data ?? null });
   const companyName = (i18n.language === 'ar' ? company.data?.name_ar : undefined) ?? company.data?.name ?? '';
-  const sent = set.data?.documents.filter((d) => d.status === 'received' || d.status === 'approved').length ?? 0;
-  const prefill = data.client_status === 'under_review' || data.client_status === 'closed' ? { key: data.client_status, company: companyName } : undefined;
+  const cancelled = lim.status === 'cancelled';
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="sr-only">{t('nav.home')}</h1>
       {notice.kind === 'banner' ? <StatusBanner to={notice.to} onDismiss={dismiss} /> : null}
-
-      {timeline.hidden ? (
-        // closed: шкала заменяется нейтральной карточкой (§5); причину не называем.
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('closed.title')}</CardTitle>
-            <CardDescription>{t('closed.body')}</CardDescription>
-          </CardHeader>
-          {data.next_step.cta?.external_url ? (
-            <CardFooter>
-              <Button asChild>
-                <a href={data.next_step.cta.external_url} rel="noopener" onClick={() => track('next_step_cta_clicked', { step: 'next_step.closed' })}>
-                  {t('next_step.cta.apply')}
-                </a>
-              </Button>
-            </CardFooter>
-          ) : null}
-        </Card>
-      ) : (
-        <>
-          <section aria-live="polite">
-            <StatusTimeline steps={timeline.steps} />
-          </section>
-          <NextStepCard step={data.next_step} overdue={overdue} />
-        </>
-      )}
-
-      {data.client_status !== 'docs_required' && sent > 0 ? (
-        <div className="flex items-center justify-between gap-2 rounded-lg border px-4 py-3">
-          <span className="text-sm">{t('home.documents_summary', { count: sent })}</span>
-          <Button asChild variant="ghost" className="px-0">
-            <Link to="/c/documents">{t('home.documents_view')}</Link>
-          </Button>
-        </div>
-      ) : null}
-
-      <SupportBar {...(prefill ? { prefill } : {})} status={data.client_status} {...(prefill ? { context: prefill.key } : {})} />
+      {cancelled ? null : <WelcomeCard limitId={lim.id} />}
+      <LimitOverview limit={lim} company={companyName} updatedAt={limit.dataUpdatedAt} />
+      {cancelled ? null : <HowToBuy />}
+      {/* Менеджер и договор: на телефоне и планшете — внизу колонки, на ≥ 1024 px — в боковой колонке. */}
+      <div className="lg:hidden">
+        <HomeAside support={<SupportBar status={app.data.client_status} />} />
+      </div>
+      <CabinetAside>
+        <HomeAside support={<SupportBar status={app.data.client_status} />} />
+      </CabinetAside>
     </div>
   );
 }

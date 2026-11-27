@@ -52,11 +52,11 @@ function resolve(vars, name, seen = new Set()) {
   return resolve(vars, m[1], seen);
 }
 
-/** Цвет токена в sRGB; полупрозрачный — накладывается на фон. */
-function color(vars, name, backdrop) {
+/** Цвет токена в sRGB; полупрозрачный — накладывается на фон. opacity — модификатор Tailwind (`/25` → 0.25). */
+function color(vars, name, backdrop, opacity = 1) {
   const c = toRgb(parse(resolve(vars, name)));
   if (!c) throw new Error(`не цвет: ${name}`);
-  const a = c.alpha ?? 1;
+  const a = (c.alpha ?? 1) * opacity;
   if (a >= 1 || !backdrop) return c;
   return { mode: 'rgb', r: c.r * a + backdrop.r * (1 - a), g: c.g * a + backdrop.g * (1 - a), b: c.b * a + backdrop.b * (1 - a) };
 }
@@ -81,6 +81,19 @@ export const REQUIRED = [
     { fg: '--primary-foreground', bg, min: 4.5, what: 'текст на глубоком синем панели' },
     { fg: '--primary-inverse', bg, min: 3, what: 'белая кнопка видна на глубоком синем панели (1.4.11)' },
   ]),
+  // Progress tone="inverse" (TD-002, полоса лимита на MetalCard и на bg-primary): индикатор --primary-foreground
+  // против дорожки --primary-foreground/25 поверх поверхности. Поверхности — слои основы MetalCard и они же
+  // под рассеянным бликом --metal-glare (самые светлые точки карточки), плюс сплошной --primary.
+  ...[['--primary'], ['--metal-deep'], ['--metal-mid'], ['--metal-steel'], ['--metal-mid', '--metal-glare'], ['--metal-steel', '--metal-glare']].map(
+    (on) => ({
+      fg: '--primary-foreground',
+      bg: '--primary-foreground',
+      bgOpacity: 0.25,
+      on,
+      min: 3,
+      what: `индикатор Progress inverse против дорожки /25 на ${on.join(' + ')} (1.4.11)`,
+    })
+  ),
 ];
 
 /**
@@ -109,7 +122,9 @@ export function check(themes, pairs) {
   for (const [theme, vars] of Object.entries(themes)) {
     const page = color(vars, '--background');
     for (const p of pairs) {
-      const bg = color(vars, p.bg, page);
+      // on — слои поверхности под парой, снизу вверх, поверх фона страницы.
+      const surface = (p.on ?? []).reduce((acc, name) => color(vars, name, acc), page);
+      const bg = color(vars, p.bg, surface, p.bgOpacity);
       const fg = color(vars, p.fg, bg);
       const ratio = wcagContrast(fg, bg);
       rows.push({ theme, ...p, ratio, ok: ratio >= p.min });
@@ -120,7 +135,7 @@ export function check(themes, pairs) {
 
 function main() {
   const themes = parseThemes(readFileSync(FILE, 'utf8'));
-  const fmt = (r) => `${r.ok ? 'ok  ' : 'FAIL'} ${r.theme.padEnd(5)} ${r.fg} на ${r.bg}: ${r.ratio.toFixed(2)} (нужно ≥ ${r.min})${r.what ? ` — ${r.what}` : ''}`;
+  const fmt = (r) => `${r.ok ? 'ok  ' : 'FAIL'} ${r.theme.padEnd(5)} ${r.fg} на ${r.bg}${r.bgOpacity ? `/${r.bgOpacity * 100}` : ''}: ${r.ratio.toFixed(2)} (нужно ≥ ${r.min})${r.what ? ` — ${r.what}` : ''}`;
   console.log('Токены Tadum (обязательно):');
   const required = check(themes, REQUIRED);
   required.forEach((r) => console.log(`  ${fmt(r)}`));

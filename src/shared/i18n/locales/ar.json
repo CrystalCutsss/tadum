@@ -308,12 +308,6 @@
   },
   "home": {
     "docs_link": "الاتفاقية والمستندات",
-    "documents_summary_zero": "تم إرسال {count} مستند",
-    "documents_summary_one": "تم إرسال مستند واحد",
-    "documents_summary_two": "تم إرسال مستندين",
-    "documents_summary_few": "تم إرسال {count} مستندات",
-    "documents_summary_many": "تم إرسال {count} مستندًا",
-    "documents_summary_other": "تم إرسال {count} مستند",
     "documents_view": "عرض",
     "manager": {
       "cta": "راسل مديرك"

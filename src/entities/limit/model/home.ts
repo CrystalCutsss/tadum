@@ -45,8 +45,8 @@ const ARABIC_DIGITS = /[٠-٩۰-۹]/g;
 export function parseAmount(input: string): Money | null {
   const western = input
     .replace(ARABIC_DIGITS, (d) => String((d.charCodeAt(0) & 0xf) % 10))
-    .replace(/[\s,٬ ]/g, '')
-    .replace('٫', '.');
+    .replace(/[\s,\u066c\u00a0]/g, '')
+    .replace('\u066b', '.');
   if (!/^\d{1,12}(\.\d{1,2})?$/.test(western)) return null;
   const [whole = '0', fraction = ''] = western.split('.');
   const minor = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));

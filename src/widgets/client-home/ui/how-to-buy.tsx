@@ -18,13 +18,17 @@ export function HowToBuy() {
   const hash = useRouterState({ select: (s) => s.location.hash });
   const linked = hash === HOW_TO_BUY_ID;
   const [open, setOpen] = useState(() => linked || !homeFlags.howToBuyCollapsed());
+  const [wasLinked, setWasLinked] = useState(linked);
   const ref = useRef<HTMLElement>(null);
+  // Ссылка на блок при открытом экране — раскрыть свёрнутый (корректировка состояния во время рендера).
+  if (linked !== wasLinked) {
+    setWasLinked(linked);
+    if (linked) setOpen(true);
+  }
 
-  // Ссылка на блок: раскрыть (если свёрнут) и прокрутить к нему.
+  // Ссылка на блок: прокрутить к нему.
   useEffect(() => {
-    if (!linked) return;
-    setOpen(true);
-    ref.current?.scrollIntoView({ block: 'start' });
+    if (linked) ref.current?.scrollIntoView({ block: 'start' });
   }, [linked]);
 
   // how_to_buy_viewed — один раз, когда блок попал в область видимости.

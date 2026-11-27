@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { storage } from '@/shared/lib';
+
 import { homeFlags } from './home-flags';
 
 describe('homeFlags', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    storage.remove('home:welcome_dismissed:lim_1');
+    storage.remove('home:how_to_buy_collapsed');
+  });
 
   it('карточка первого визита закрывается для своего лимита и не возвращается', () => {
     expect(homeFlags.welcomeDismissed('lim_1')).toBe(false);
