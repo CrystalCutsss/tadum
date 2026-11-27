@@ -487,6 +487,52 @@
     "minutes_ago_many": "منذ {count} دقيقة",
     "minutes_ago_other": "منذ {count} دقيقة"
   },
+  "repayments": {
+    "copied": "تم النسخ",
+    "copy_iban": "نسخ الآيبان",
+    "copy_reference": "نسخ رقم الدفعة",
+    "details": {
+      "back": "العودة إلى سجل الدفعات",
+      "due_date": "تاريخ الدفعة",
+      "reference": "رقم الدفعة",
+      "supplier": "المورّد",
+      "title": "الدفعة"
+    },
+    "due_in_days_zero": "بعد {count} يوم",
+    "due_in_days_one": "بعد يوم",
+    "due_in_days_two": "بعد يومين",
+    "due_in_days_few": "بعد {count} أيام",
+    "due_in_days_many": "بعد {count} يومًا",
+    "due_in_days_other": "بعد {count} يوم",
+    "due_today": "مستحقة اليوم",
+    "empty": "سيظهر جدول دفعاتك بعد أن تدفع تدوم لمورّدك قيمة عملية الشراء",
+    "groups": {
+      "overdue": "مضى موعدها",
+      "paid": "المدفوعة",
+      "upcoming": "القادمة"
+    },
+    "history": "سجل الدفعات",
+    "history_empty": "لا توجد دفعات بعد",
+    "how_to_pay": {
+      "bank": "البنك",
+      "beneficiary": "المستفيد",
+      "body": "حوّل المبلغ إلى حساب تدوم، واكتب رقم الدفعة في بيان التحويل",
+      "iban": "رقم الآيبان",
+      "title": "طريقة السداد"
+    },
+    "next": "الدفعة القادمة",
+    "open_details": "تفاصيل الدفعة: {date}، {amount}",
+    "overdue": "مضى موعد الدفعة",
+    "overdue_days_zero": "منذ {count} يوم",
+    "overdue_days_one": "منذ يوم",
+    "overdue_days_two": "منذ يومين",
+    "overdue_days_few": "منذ {count} أيام",
+    "overdue_days_many": "منذ {count} يومًا",
+    "overdue_days_other": "منذ {count} يوم",
+    "overdue_hint": "إذا كنت قد سدّدت الدفعة، فلا حاجة لأي إجراء آخر منك. وإذا كان لديك سؤال، راسل مديرك",
+    "paid_on": "تم السداد في {date}",
+    "title": "جدول الدفعات"
+  },
   "role": {
     "client": "عميل",
     "hint_dismiss": "فهمت",
@@ -643,6 +689,7 @@
       "limit_full": "مرحبًا، تم استخدام الحد التجاري لشركة {company} بالكامل. أرغب في مناقشة عملية الشراء التالية.",
       "purchase_request": "مرحبًا، أرغب في إجراء عملية شراء عبر تدوم لشركة {company}. المورّد: {supplier}. المبلغ: {amount}.",
       "quotation": "مرحبًا، أرغب في إجراء عملية شراء عبر تدوم لشركة {company}. إليكم عرض السعر:",
+      "repayment": "مرحبًا، لديّ سؤال بخصوص الدفعة رقم {reference} لشركة {company}.",
       "under_review": "مرحبًا، لديّ سؤال بخصوص طلبي في تدوم لشركة {company}."
     },
     "whatsapp": "واتساب"

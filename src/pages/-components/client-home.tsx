@@ -10,12 +10,14 @@ import { useTranslation } from 'react-i18next';
 
 import { applicationQuery, companyQuery, statusMemory, statusNoticeOnEnter, type StatusNotice } from '@/entities/application';
 import { hasClientHome, limitQuery } from '@/entities/limit';
+import { repaymentScheduleQuery } from '@/entities/repayment';
 import { track, usedShareBucket } from '@/shared/analytics';
 import { useStatusPolling, type ClientStatus } from '@/shared/api';
-import { Skeleton, toast } from '@/shared/ui';
+import { Button, Skeleton, toast } from '@/shared/ui';
 import { LimitOverview } from '@/widgets/application-stage';
 import { CabinetAside, LoadError } from '@/widgets/cabinet-shell';
 import { HomeAside, HowToBuy, WelcomeCard } from '@/widgets/client-home';
+import { RepaymentsCard } from '@/widgets/repayment-schedule';
 import { StatusBanner } from '@/widgets/status-banner';
 import { SupportBar } from '@/widgets/support-bar';
 
@@ -65,6 +67,7 @@ export function ClientHome() {
   const app = useStatusPolling(applicationQuery);
   const limit = useStatusPolling(limitQuery);
   const company = useQuery(companyQuery);
+  const repayments = useStatusPolling(repaymentScheduleQuery);
   const status = app.data?.client_status;
   const { notice, dismiss } = useStatusChangeNotice(status);
   const lim = limit.data;
@@ -106,6 +109,19 @@ export function ClientHome() {
       {notice.kind === 'banner' ? <StatusBanner to={notice.to} onDismiss={dismiss} /> : null}
       {cancelled ? null : <WelcomeCard limitId={lim.id} onDismissed={() => document.getElementById('limit')?.querySelector<HTMLElement>('h2')?.focus()} />}
       <LimitOverview limit={lim} company={companyName} updatedAt={limit.dataUpdatedAt} />
+      {/* График платежей (D-102) — под лимитом; ошибка блока не роняет главную. */}
+      {repayments.data ? (
+        <RepaymentsCard schedule={repayments.data} company={companyName} />
+      ) : repayments.isError ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border p-4 text-sm">
+          <span>{t('common.load_error')}</span>
+          <Button type="button" variant="outline" className="min-h-11" onClick={() => void repayments.refetch()}>
+            {t('common.retry')}
+          </Button>
+        </div>
+      ) : (
+        <Skeleton className="h-40 w-full rounded-xl" />
+      )}
       {cancelled ? null : <HowToBuy />}
       {/* Менеджер и договор (A-077): ссылка — внизу колонки, на ≥ 1024 px — в боковой колонке. Блок поддержки — только на
           телефоне (< 768 px), где сайдбар скрыт в шторке; шире он постоянно виден в сайдбаре, второй такой же не нужен. */}

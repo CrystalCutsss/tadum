@@ -427,6 +427,44 @@
     "minutes_ago_one": "{count} minute ago",
     "minutes_ago_other": "{count} minutes ago"
   },
+  "repayments": {
+    "copied": "Copied",
+    "copy_iban": "Copy IBAN",
+    "copy_reference": "Copy payment number",
+    "details": {
+      "back": "Back to payment history",
+      "due_date": "Payment date",
+      "reference": "Payment number",
+      "supplier": "Supplier",
+      "title": "Payment"
+    },
+    "due_in_days_one": "In {count} day",
+    "due_in_days_other": "In {count} days",
+    "due_today": "Due today",
+    "empty": "Your payment schedule will appear once we pay your supplier for your purchase",
+    "groups": {
+      "overdue": "Payment date has passed",
+      "paid": "Paid",
+      "upcoming": "Upcoming"
+    },
+    "history": "Payment history",
+    "history_empty": "No payments yet",
+    "how_to_pay": {
+      "bank": "Bank",
+      "beneficiary": "Beneficiary",
+      "body": "Transfer the amount to Tadum's account and add the payment number to the transfer description",
+      "iban": "IBAN",
+      "title": "How to pay"
+    },
+    "next": "Next payment",
+    "open_details": "Payment details: {date}, {amount}",
+    "overdue": "Payment date has passed",
+    "overdue_days_one": "{count} day ago",
+    "overdue_days_other": "{count} days ago",
+    "overdue_hint": "If you've already paid, nothing else is needed from you. If you have a question, message your manager",
+    "paid_on": "Paid on {date}",
+    "title": "Payment schedule"
+  },
   "role": {
     "client": "Client",
     "hint_dismiss": "Got it",
@@ -583,6 +621,7 @@
       "limit_full": "Hello, the trade limit for {company} is fully used. I'd like to discuss my next purchase.",
       "purchase_request": "Hello, I'd like to make a purchase through Tadum for {company}. Supplier: {supplier}. Amount: {amount}.",
       "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
+      "repayment": "Hello, I have a question about payment {reference} for {company}.",
       "under_review": "Hello, I have a question about my Tadum application for {company}."
     },
     "whatsapp": "WhatsApp"
