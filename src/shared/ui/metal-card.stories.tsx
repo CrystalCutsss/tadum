@@ -169,6 +169,9 @@ export const FocusedButton: Story = {
     await userEvent.tab();
     const button = canvasElement.querySelector<HTMLElement>('[data-slot="metal-card"] [data-slot="button"]')!;
     await expect(button).toHaveFocus();
+    // У Button transition-all: ширина и смещение обводки анимируются от 0 — под нагрузкой (полный прогон)
+    // проверка попадала в середину перехода (1px). Ждём окончания переходов, затем проверяем конечные значения.
+    await Promise.all(button.getAnimations().map((a) => a.finished));
     const style = getComputedStyle(button);
     await expect(style.outlineStyle).toBe('solid');
     await expect(style.outlineWidth).toBe('2px');

@@ -21,14 +21,27 @@ type Story = StoryObj<typeof meta>;
 
 const body = () => within(document.body);
 
+/**
+ * Открыть форму. На телефонной ширине шторка (vaul) грузится лениво: пока модуль не загружен, клик по триггеру
+ * ничего не открывает — кликаем повторно, пока окно не появится (как в истории ResponsiveDialog/MobileFocus).
+ */
+async function openForm(canvasElement: HTMLElement): Promise<HTMLElement> {
+  const cta = within(canvasElement).getByRole('button', { name: tr('home.purchase.cta') });
+  return waitFor(
+    async () => {
+      if (!body().queryByRole('dialog')) await userEvent.click(cta);
+      return body().getByRole('dialog');
+    },
+    { timeout: 5000 },
+  );
+}
+
 export const Closed: Story = { name: 'Кнопка «Новая покупка»' };
 
 export const Errors: Story = {
   name: 'Ошибки: пустая сумма, больше доступной, короткое имя поставщика',
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole('button', { name: tr('home.purchase.cta') }));
-    const dialog = await body().findByRole('dialog');
-    const d = within(dialog);
+    const d = within(await openForm(canvasElement));
     await expect(d.getByText(/107,500/, { selector: '[data-slot=field-description]' })).toBeVisible();
     const amount = d.getByLabelText(tr('home.purchase.amount'));
     const supplier = d.getByLabelText(tr('home.purchase.supplier'));
@@ -77,8 +90,7 @@ export const SubmitOpensWhatsapp: Story = {
   play: async ({ canvasElement, loaded }) => {
     const { events, opened, restore } = loaded as { events: CapturedEvent[]; opened: string[]; restore: () => void };
     try {
-      await userEvent.click(within(canvasElement).getByRole('button', { name: tr('home.purchase.cta') }));
-      const d = within(await body().findByRole('dialog'));
+      const d = within(await openForm(canvasElement));
       await userEvent.type(d.getByLabelText(tr('home.purchase.amount')), '25000');
       await userEvent.type(d.getByLabelText(tr('home.purchase.supplier')), 'Al Noor Trading');
       await userEvent.click(d.getByRole('button', { name: tr('home.purchase.submit') }));
