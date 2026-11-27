@@ -1,4 +1,4 @@
-<!-- source: Drive 1vhO94b122qIHJ98-fUrFy1VxZb6Hjtc-, synced: 2026-11-19. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1rI6L1w2YsCLHsqW_fmAe_MOMGoEcpSu4, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # Метрики и словарь событий — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** все вопросы закрыты (D-057…D-059).
@@ -185,6 +185,11 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 | `limit_fully_used_viewed` | доступный = 0 | `{}` | SC-07 | v4 |
 | `how_to_buy_viewed` | блок в области видимости | `{}` | SC-07 | v4 |
 | `how_to_buy_whatsapp_clicked` | нажата кнопка WhatsApp в инструкции | `{ used_share_bucket }` | SC-07 | v4 |
+| `purchase_request_opened` | открыта форма новой покупки на главной | `{ used_share_bucket }` | SC-07 | v4 |
+| `purchase_request_whatsapp_opened` | нажата отправка в форме покупки (открыт WhatsApp) | `{ amount_bucket, used_share_bucket }` | SC-07 | v4 |
+| `home_welcome_viewed` | показана карточка первого визита | `{}` | SC-07 | v4 |
+| `home_welcome_dismissed` | карточка первого визита закрыта | `{}` | SC-07 | v4 |
+| `how_to_buy_toggled` | блок «Как оформить покупку» свёрнут или развёрнут | `{ open: boolean }` | SC-07 | v4 |
 | `closed_reapply_clicked` | «Подать новую заявку» на `/c/closed` | `{}` | SC-08, SC-09 | v4 |
 | `reapply_submitted` | «Создать заявку» на `/c/reapply` (D-038) | `{}` | SC-08 | v4 |
 | `reapply_pending_viewed` | показано состояние «заявка создаётся» | `{}` | SC-09 | v4 |

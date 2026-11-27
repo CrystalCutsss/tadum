@@ -1,4 +1,4 @@
-<!-- source: Drive 1vvB1EXQGTV6vluA_dSUEf4-xICyOhkIV, synced: 2026-11-12. Не редактировать — источник в Drive. -->
+<!-- source: Drive 15cilpmvq6k74IdAJ92f2NVIGK1jAAAVQ, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-07 · Лимит одобрен
 
 | Поле | Значение |
@@ -19,27 +19,38 @@
 
 ## 1. Основной сценарий
 
-На экране «Заявка» при лимите `active` — карточка «Your limit»: сумма, «Limit approved» с датой, «Sent for review» с датой, «Open application» → выдвижная панель с подробностями заявки (D-082). Блоки главной — отдельной задачей.
+На экране «Заявка» при лимите `active` — карточка «Your limit»: сумма, «Limit approved» с датой, «Sent for review» с датой, «Open application» → выдвижная панель с подробностями заявки (D-082). Главная (`/c/home`) доступна только при активном лимите (D-098); её состав — D-099…D-101, бриф TD-002.
 
 ```
 Дано:  лимит active: approved 150 000, used 42 500, available 107 500 (SAR); client_status = approved
-Когда: клиент открывает /c/home
-Тогда: шкала: все шаги done, «Лимит активен» current; карточка next_step.how_to_buy (owner = user)
-       с CTA → #how-to-buy;
-       блок #limit в режиме active: три величины — одобренный, использованный, доступный — и
-       горизонтальная полоса доли использованного (D-037); суммы через formatMoney;
-       блок #how-to-buy: три шага текстом и кнопка «Написать в WhatsApp» с предзаполненным текстом;
+Когда: клиент входит в кабинет или открывает /c/home
+Тогда: в меню первым пунктом «Home» (D-098); шкалы и карточки следующего шага на home нет (они в «Заявке»);
+       блок #limit: доступная сумма крупно, горизонтальная полоса доли использованного (D-037), подписи
+       «одобрено» и «использовано», «обновлено {time}»; суммы через formatMoney;
+       под суммой одна главная кнопка «Новая покупка» (D-099);
+       блок #how-to-buy: три шага текстом, без собственной кнопки, сворачивается ссылкой «Скрыть»;
+       менеджер и ссылка «Договор и документы» → /c/documents;
        событие screen_viewed {status: approved, limit_status: active, used_share_bucket}
 
-Когда: клиент нажимает «Написать в WhatsApp» в блоке #how-to-buy
-Тогда: открывается wa.me/966579768881 с текстом support.prefill.quotation {company};
-       событие how_to_buy_whatsapp_clicked
+Дано:  клиент впервые открывает home после активации лимита
+Тогда: над блоком #limit карточка «Что теперь можно» (три строки) с кнопкой «Понятно» (D-101);
+       событие home_welcome_viewed
+Когда: клиент нажимает «Понятно»
+Тогда: карточка исчезает и больше не показывается; событие home_welcome_dismissed
+
+Когда: клиент нажимает «Новая покупка»
+Тогда: открывается форма из двух полей — «Сумма» и «Поставщик» (D-100); над суммой подсказка о доступной сумме;
+       пустые поля и сумма больше доступной блокируют отправку с подсказкой;
+       событие purchase_request_opened
+Когда: клиент заполняет поля и нажимает «Отправить в WhatsApp»
+Тогда: открывается wa.me/966579768881 с текстом support.prefill.purchase_request {company, supplier, amount};
+       на бэкенд форма ничего не отправляет; событие purchase_request_whatsapp_opened
 
 Дано:  первая сделка дошла до оплаты (мок: createDeal(25000, supplier) → payDeal); odoo_stage = Payment done;
        client_status = first_purchase; used пересчитан
 Когда: клиент открывает /c/home
-Тогда: шкала полностью done; карточка next_step.first_purchase_done (owner = none) с поздравлением без
-       пафоса; блок #limit обновлён; блок #how-to-buy остаётся (следующие покупки — так же);
+Тогда: home тот же: блок #limit обновлён, блок #how-to-buy остаётся (следующие покупки — так же);
+       о смене статуса сообщает баннер (D-034);
        событие screen_viewed {status: first_purchase}
 ```
 
@@ -52,13 +63,15 @@
 | # | Условие | Что видит (ключ) | Действие | Событие |
 |---|---|---|---|---|
 | A1 | `used = 0` | Вместо пустого графика — текст `limit.not_used_yet`; доступный = одобренный | — | — |
-| A2 | `available = 0` (лимит выбран полностью) | Визуализация 100 %, текст `limit.fully_used`; «Как оформить покупку» остаётся, но с подписью `limit.fully_used_hint` | поддержка | `limit_fully_used_viewed` |
+| A2 | `available = 0` (лимит выбран полностью) | Визуализация 100 %, текст `limit.fully_used`; «Как оформить покупку» остаётся, с подписью `limit.fully_used_hint`; вместо «Новая покупка» — «Написать менеджеру» (`support.prefill.limit_full`) | поддержка | `limit_fully_used_viewed` |
 | A3 | `used > approved` (ошибка данных) | `available` показываем как 0, визуализация 100 %; событие несогласованности; UI не падает | — | `data_inconsistency {kind: used_exceeds_approved}` |
-| A4 | Лимит `cancelled` после активации | Блок `#limit` → `limit.cancelled`; `#how-to-buy` скрыт; шкала остаётся done до «Подписание», «Лимит активен» → `closed` | поддержка | `limit_cancelled_viewed` |
+| A4 | Лимит `cancelled` после активации | Главная остаётся доступной (D-099): под блоком `#limit` нейтральная плашка `limit.cancelled` и «Связаться с нами» (D-086); `#how-to-buy` и кнопка покупки скрыты | поддержка | `limit_cancelled_viewed` |
 | A5 | Клиент открывает `/c/documents` | Режим чтения, баннер `documents.approved_banner` | — | — |
 | A6 | Офлайн | Последние известные суммы из кэша с подписью `common.cached_at {time}`; кнопка WhatsApp работает (внешняя) | — | — |
 | A7 | Очень большие суммы (≥ 10 000 000) | Форматирование с разделителями групп, без сокращений «M»; макет не ломается на 360 px | — | — |
 | A8 | Английский интерфейс | Валюта «SAR 107,500»; арабский — «107,500 ر.س» (D-006), цифры западные | — | — |
+| A10 | Форма покупки: сумма пустая, ноль или больше доступной; поставщик короче 2 знаков | Ошибка под полем (`home.purchase.amount_error`, `home.purchase.amount_over {amount}`, `home.purchase.supplier_error`); отправка недоступна (D-100) | исправить | — |
+| A11 | Клиент без активного лимита открывает `/c/home` | Редирект на `/c/documents`; пункта «Home» в меню нет (D-098) | — | — |
 | A9 | `dual`: клиент — ещё и поставщик | В `#how-to-buy` без изменений; переключение в кабинет поставщика — через шапку | — | — |
 
 ---
@@ -72,9 +85,12 @@
 | `#limit` | active-fully-used (A2) | 100 %, подсказка |
 | `#limit` | loading | Скелетон трёх сумм |
 | `#limit` | cancelled (A4) | Нейтральный текст |
-| `#how-to-buy` | normal | Три шага, кнопка WhatsApp, подпись про сроки отсутствует |
+| `#how-to-buy` | normal | Три шага, без собственной кнопки (D-100), ссылка «Скрыть»; подпись про сроки отсутствует |
+| `#how-to-buy` | collapsed | Только заголовок и ссылка «Показать»; состояние запоминается |
+| форма покупки | normal / ошибки | Два поля, подсказка о доступной сумме, три ошибки (A10) |
+| карточка первого визита | shown / dismissed | Три строки и «Понятно» (D-101) |
 | `#how-to-buy` | fully-used | То же + подпись |
-| `client.home` | first-purchase | Шкала завершена, карточка «первая покупка прошла» |
+| `client.home` | first-purchase | Тот же экран, суммы обновлены; баннер смены статуса (D-034) |
 | все | длинный арабский текст | Шаги инструкции до 3 строк каждый |
 | все | RTL / LTR, light / dark | Полоса прогресса зеркалится по направлению заполнения; подписи сумм выровнены по началу строки; цвета визуализации — из токенов, контраст проверен в тёмной теме |
 
@@ -102,6 +118,18 @@
 | `how_to_buy.whatsapp` | Send a quotation on WhatsApp | إرسال عرض السعر عبر واتساب | |
 | `support.prefill.quotation` | Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation: | مرحبًا، أرغب في إجراء عملية شراء عبر تدوم لشركة {company}. إليكم عرض السعر: | |
 | `common.cached_at` | Shown as of {time} | البيانات كما في {time} | A6 |
+| `home.purchase.cta` | New purchase | — | главная кнопка под суммой (D-099); AR — в брифе TD-002 |
+| `home.purchase.amount` / `.supplier` / `.submit` | Amount / Supplier / Send on WhatsApp | — | форма (D-100) |
+| `home.purchase.amount_hint` | You have {amount} available | — | над полем суммы |
+| `home.purchase.amount_error` | Enter the purchase amount | — | A10 |
+| `home.purchase.amount_over` | This is more than your available amount. Enter up to {amount} | — | A10; блокирует отправку |
+| `home.purchase.supplier_error` | Enter the supplier's name | — | A10 |
+| `support.prefill.purchase_request` | Hello, I'd like to make a purchase through Tadum for {company}. Supplier: {supplier}. Amount: {amount}. | — | D-100 |
+| `support.prefill.limit_full` | Hello, the trade limit for {company} is fully used. I'd like to discuss my next purchase. | — | A2 |
+| `home.welcome.title` / `.item1…3` / `.dismiss` | Your trade limit is active / … / Got it | — | D-101; тексты строк — в брифе TD-002 |
+| `how_to_buy.hide` / `how_to_buy.show` | Hide / How to make a purchase | — | |
+| `limit.cancelled` | Your trade limit is not active right now | — | A4; без причины |
+| `home.docs_link` | Agreement and documents | — | → `/c/documents` |
 
 Проверка TOV: «торговый лимит», «купите сейчас — платите частями», «Tadum покупает товар у вашего поставщика» — из разрешённого списка; нет «кредит / процент / BNPL».
 
@@ -114,11 +142,15 @@
 | `screen_viewed` | `home` с активным лимитом | `{ screen_id, status, limit_status: 'active', used_share_bucket: '0' \| '1-25' \| '26-50' \| '51-75' \| '76-99' \| '100' }` |
 | `how_to_buy_viewed` | блок попал в область видимости | `{}` |
 | `how_to_buy_whatsapp_clicked` | нажата кнопка WhatsApp | `{ used_share_bucket }` |
+| `purchase_request_opened` | открыта форма покупки | `{ used_share_bucket }` |
+| `purchase_request_whatsapp_opened` | нажата отправка в форме | `{ amount_bucket, used_share_bucket }` |
+| `home_welcome_viewed` / `home_welcome_dismissed` | показана / закрыта карточка первого визита | `{}` |
+| `how_to_buy_toggled` | блок свёрнут или развёрнут | `{ open }` |
 | `limit_fully_used_viewed` | показано состояние A2 | `{}` |
 | `limit_cancelled_viewed` | показано A4 | `{}` |
 | `data_inconsistency` | A3 | `{ kind }` |
 
-Суммы в события не отправляем — только корзины долей.
+Суммы и название поставщика в события не отправляем — только корзины. `how_to_buy_whatsapp_clicked` с D-100 не используется: кнопки в блоке нет.
 
 ---
 
