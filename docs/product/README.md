@@ -41,15 +41,15 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `14rFD612jlIzbDl__Q4kK9Ai9Sz35v6bZ` | 68789 | 2026-11-27 |
+| `00-decision-log.md` | `1_4AFAumIK2pwHc9CqHSSyl8r72wzl0Et` | 71428 | 2026-11-27 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
 | `01-cabinet-structure.md` | `15VB3iGa-1rE-HnlrTv_OxUG5cy6jzBzk` | 28053 | 2026-11-27 |
-| `01-entities.md` | `1uWX0ONK8n99fCk-vF8a943kEi-gsSyno` | 24788 | 2026-11-25 |
+| `01-entities.md` | `1gkIFke1xV1f-YruGjiwKqMB8nYbENNpb` | 26494 | 2026-11-27 |
 | `01-nfr-locale-brand.md` | `1c5vF5E0SNTLI-yIhiEPzmO-4PSEmhXWz` | 49920 | 2026-11-25 |
 | `01-roles.md` | `1lC5-bx9fNZON8t35VC119J-vmg8EwouD` | 18880 | 2026-11-27 |
 | `01-statuses.md` | `1CvqwKNA9Mgl-vbQT_X3Cb4z3vA-ygRhG` | 24754 | 2026-11-25 |
-| `04-metrics-and-events.md` | `1rI6L1w2YsCLHsqW_fmAe_MOMGoEcpSu4` | 29497 | 2026-11-27 |
+| `04-metrics-and-events.md` | `1yQY2Qrdzd1LD4aHNoG1sxWY_MY-sw0n7` | 30329 | 2026-11-27 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
 | `requirements-supplier.md` | `1OlsWI4k2pjxvu-2fqDsNNrsG_XuU6ykr` | 13895 | 2026-11-24 |
 | `scenarios/SC-01-first-login.md` | `1afkiCjuGVV8jju2PukPkQ5Gh7b3OTU4l` | 23830 | 2026-11-27 |

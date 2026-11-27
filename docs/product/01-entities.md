@@ -1,4 +1,4 @@
-<!-- source: Drive 1uWX0ONK8n99fCk-vF8a943kEi-gsSyno, synced: 2026-11-25. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1gkIFke1xV1f-YruGjiwKqMB8nYbENNpb, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -170,6 +170,31 @@ Deal:
   paid_at?: datetime
 # Правила (D-012): в turnover поставщика входят сделки со stage ∈ {payment_done, repaid};
 # в Limit.used — сделки с outstanding > 0.
+```
+
+### 2.9a Installment и RepaymentSchedule (график платежей, D-102)
+
+Взносы клиента по оплаченным сделкам текущей заявки; на главной — блок «График платежей», полный список — в боковой панели «История платежей».
+
+```yaml
+Installment:                       # взнос по сделке
+  id: string
+  deal_id: string
+  reference: string                # номер платежа — клиент указывает его в назначении перевода
+  supplier_name: string            # название поставщика сделки — для строки графика
+  due_date: date                   # дата платежа (Asia/Riyadh)
+  amount: Money
+  status: 'upcoming' | 'overdue' | 'paid'   # присылает бэкенд (Odoo)
+  paid_at?: datetime               # для paid
+RepaymentSchedule:
+  installments: Installment[]      # все взносы по сделкам текущей заявки, по due_date
+  payment_details:                 # реквизиты Tadum для оплаты взноса (детали платежа, «Как оплатить»)
+    beneficiary: string
+    bank_name: string
+    iban: string
+# Правила: сначала overdue (по due_date), затем ближайшие upcoming; paid — только в истории.
+# Σ amount по overdue и upcoming = Σ Deal.outstanding; расхождение — data_inconsistency {kind: repayments_mismatch}.
+# До оплаты первой сделки поставщику взносов нет — installments пустой.
 ```
 
 ### 2.10 Supplier

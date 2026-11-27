@@ -1,4 +1,4 @@
-<!-- source: Drive 1rI6L1w2YsCLHsqW_fmAe_MOMGoEcpSu4, synced: 2026-11-27. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1yQY2Qrdzd1LD4aHNoG1sxWY_MY-sw0n7, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # Метрики и словарь событий — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** все вопросы закрыты (D-057…D-059).
@@ -104,7 +104,7 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 |---|---|---|
 | `amount_bucket` (SAR) | `'<50k' \| '50-100k' \| '100-250k' \| '250-500k' \| '500k+'` | `limit_activated` |
 | `used_share_bucket` | `'0' \| '1-25' \| '26-50' \| '51-75' \| '76-99' \| '100'` | `screen_viewed{client.home}`, `how_to_buy_whatsapp_clicked` |
-| `referred_bucket` / `total_bucket` | `'0' \| '1-5' \| '6-10' \| '11-25' \| '26+'` | `screen_viewed{supplier.home / supplier.clients}` |
+| `referred_bucket` / `total_bucket` / `upcoming_count_bucket` | `'0' \| '1-5' \| '6-10' \| '11-25' \| '26+'` | `screen_viewed{supplier.home / supplier.clients}`, `repayments_viewed` |
 | `size_kb` | число, округлено до 100 КБ | `document_upload_started` |
 | длительности | `duration_ms` (точно), часы — число, округлено до 1 ч | загрузка, статусы |
 
@@ -190,6 +190,11 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 | `home_welcome_viewed` | показана карточка первого визита | `{}` | SC-07 | v4 |
 | `home_welcome_dismissed` | карточка первого визита закрыта | `{}` | SC-07 | v4 |
 | `how_to_buy_toggled` | блок «Как оформить покупку» свёрнут или развёрнут | `{ open: boolean }` | SC-07 | v4 |
+| `repayments_viewed` | блок «График платежей» в области видимости (D-102) | `{ upcoming_count_bucket, has_overdue: boolean }` | SC-07 | v4 |
+| `repayment_history_opened` | открыта панель «История платежей» | `{ has_overdue: boolean }` | SC-07 | v4 |
+| `repayment_details_opened` | открыты детали взноса | `{ status: 'upcoming' \| 'overdue' \| 'paid', source: 'home' \| 'history' }` | SC-07 | v4 |
+| `repayment_details_copied` | скопированы реквизиты в деталях взноса | `{ field: 'iban' \| 'reference' }` | SC-07 | v4 |
+| `repayment_overdue_contact_clicked` | «Написать менеджеру» у просроченного взноса | `{}` | SC-07 | v4 |
 | `closed_reapply_clicked` | «Подать новую заявку» на `/c/closed` | `{}` | SC-08, SC-09 | v4 |
 | `reapply_submitted` | «Создать заявку» на `/c/reapply` (D-038) | `{}` | SC-08 | v4 |
 | `reapply_pending_viewed` | показано состояние «заявка создаётся» | `{}` | SC-09 | v4 |
