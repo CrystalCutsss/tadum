@@ -41,15 +41,15 @@
 
 | Файл | Drive ID | Байт | Дата синхронизации |
 | :--- | :--- | ---: | :--- |
-| `00-decision-log.md` | `1LFYYQxO-lnxO4ht9y_x6K9rMNKtFedJd` | 72151 | 2026-11-27 |
+| `00-decision-log.md` | `1X5uMPQO_bj4ISIW49aLKYK7GkVHuzVce` | 73474 | 2026-11-27 |
 | `00-project-plan.md` | `1bKuGU_8yPYRjrjtCg6dveYTCz6b0jAbt` | 80539 | 2026-11-05 |
 | `00-roadmap.md` | `1G6lT0bt9sdm8n_VM4nnWAkrfETiUvdRh` | 15602 | 2026-11-15 |
 | `01-cabinet-structure.md` | `15VB3iGa-1rE-HnlrTv_OxUG5cy6jzBzk` | 28053 | 2026-11-27 |
-| `01-entities.md` | `1gkIFke1xV1f-YruGjiwKqMB8nYbENNpb` | 26494 | 2026-11-27 |
+| `01-entities.md` | `19mRZ77LijWZY9JMixDL8DR8bphXVYXLB` | 27038 | 2026-11-27 |
 | `01-nfr-locale-brand.md` | `1uWpEeEPNkJOaZlGgA7Ld-_cCuu1eI8Xz` | 49920 | 2026-11-27 |
 | `01-roles.md` | `1lC5-bx9fNZON8t35VC119J-vmg8EwouD` | 18880 | 2026-11-27 |
 | `01-statuses.md` | `1CvqwKNA9Mgl-vbQT_X3Cb4z3vA-ygRhG` | 24754 | 2026-11-25 |
-| `04-metrics-and-events.md` | `1yQY2Qrdzd1LD4aHNoG1sxWY_MY-sw0n7` | 30329 | 2026-11-27 |
+| `04-metrics-and-events.md` | `1IGWXtH9hB3Zf_naV8nzCD6GJUgQZOQuU` | 30336 | 2026-11-27 |
 | `requirements-client.md` | `1RhWLbD8PIPTYq5HcjOaSifV9JgLN2128` | 21795 | 2026-11-05 |
 | `requirements-supplier.md` | `1OlsWI4k2pjxvu-2fqDsNNrsG_XuU6ykr` | 13895 | 2026-11-24 |
 | `scenarios/SC-01-first-login.md` | `1afkiCjuGVV8jju2PukPkQ5Gh7b3OTU4l` | 23830 | 2026-11-27 |
@@ -58,7 +58,7 @@
 | `scenarios/SC-04-more-docs-requested.md` | `1MPGX6sZMM4DKAZTWSoJIHx4LBUXWwB1p` | 13970 | 2026-11-27 |
 | `scenarios/SC-05-under-review.md` | `1fBuhPbsSemDhooBvoSZ8j8XRs2IPERaI` | 14133 | 2026-11-27 |
 | `scenarios/SC-06-approval-and-limit-setup.md` | `1rdRLqJ8m3SLOyvYgf-dq4X57yTtKWmRp` | 24608 | 2026-11-19 |
-| `scenarios/SC-07-limit-active.md` | `15cilpmvq6k74IdAJ92f2NVIGK1jAAAVQ` | 18866 | 2026-11-27 |
+| `scenarios/SC-07-limit-active.md` | `1I3bib6B4BngVmpTUfzmjy5VQxLH2pA7k` | 24228 | 2026-11-27 |
 | `scenarios/SC-08-application-closed.md` | `1BNvSUhGlbB67aL6lC9w-MqudC5Ab37nh` | 13949 | 2026-11-27 |
 | `scenarios/SC-09-returning-client.md` | `11F1uBqDQqfEziklBs_IbYt8hrg0WJjoV` | 11143 | 2026-11-27 |
 | `scenarios/SC-10-service-scenarios.md` | `12VeurQ1BMCUIRwN7Kq5Lmz8e3vtUgZaa` | 18491 | 2026-11-11 |

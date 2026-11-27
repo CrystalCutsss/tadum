@@ -1,4 +1,4 @@
-<!-- source: Drive 15cilpmvq6k74IdAJ92f2NVIGK1jAAAVQ, synced: 2026-11-27. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1I3bib6B4BngVmpTUfzmjy5VQxLH2pA7k, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-07 · Лимит одобрен
 
 | Поле | Значение |
@@ -11,7 +11,7 @@
 | **Цель** | Клиент видит, сколько у него есть и сколько доступно, и понимает, как оформить покупку у поставщика через Tadum |
 | **Метрика** | Доля клиентов с активным лимитом, совершивших первую покупку за 30 дней (Client Approved → Payment done); доля открытий «Как оформить покупку» и переходов в WhatsApp из него |
 | **Версия прототипа** | v4 |
-| **Персоны мока** | `client_active` (150 000 SAR, использовано 42 500), `client_first_purchase` (одна сделка `payment_done`), вариант `used = 0` |
+| **Персоны мока** | `client_active` (150 000 SAR, использовано 42 500, графика платежей нет), `client_first_purchase` (одна сделка `payment_done`, график: оплачен, срок прошёл, два впереди), `client_repaying` (две сделки, клиент платит по графику, D-104), вариант `used = 0` |
 | **Связанные документы** | `01-cabinet-structure.md` §1 (D-023), §5–6; `01-entities.md` §2.7, §2.9; `01-statuses.md` §6, §8 |
 | **Статус** | черновик — живой каркас (вопросы закрыты) |
 
@@ -54,7 +54,23 @@
        событие screen_viewed {status: first_purchase}
 ```
 
-Раздел сделок, график платежей и загрузка квотации — вне MVP (фаза 2); здесь только агрегаты лимита и инструкция.
+```
+Дано:  у клиента есть взносы по сделкам, оплаченным поставщику (D-102)
+Когда: клиент открывает /c/home
+Тогда: под блоком #limit — блок #repayments «График платежей»: ближайший взнос крупно (сумма, дата, срок словами,
+       поставщик), ещё два строками; взносы, у которых прошёл срок, — всегда первыми, с меткой «Срок платежа прошёл»
+       и кнопкой «Написать нам» (WhatsApp, support.prefill.repayment {reference, company});
+       событие repayments_viewed {upcoming_count_bucket, has_overdue}
+Когда: клиент нажимает «История платежей»
+Тогда: боковая панель (на телефоне — снизу): группы «срок прошёл», «предстоящие», «оплаченные»;
+       событие repayment_history_opened
+Когда: клиент нажимает на взнос
+Тогда: детали взноса: сумма, срок, дата, поставщик, номер платежа; кнопка «Как оплатить» — точка входа (D-104):
+       открывает WhatsApp Tadum с готовым текстом и номером платежа; способ оплаты на экране не объясняется;
+       события repayment_details_opened {status, source}, repayment_pay_clicked {status}
+```
+
+Раздел сделок, история покупок и загрузка квотации — вне MVP (фаза 2); способ оплаты взноса не прорабатывается (D-104).
 
 ---
 
@@ -70,7 +86,9 @@
 | A6 | Офлайн | Последние известные суммы из кэша с подписью `common.cached_at {time}`; кнопка WhatsApp работает (внешняя) | — | — |
 | A7 | Очень большие суммы (≥ 10 000 000) | Форматирование с разделителями групп, без сокращений «M»; макет не ломается на 360 px | — | — |
 | A8 | Английский интерфейс | Валюта «SAR 107,500»; арабский — «107,500 ر.س» (D-006), цифры западные | — | — |
-| A10 | Форма покупки: сумма пустая, ноль или больше доступной; поставщик короче 2 знаков | Ошибка под полем (`home.purchase.amount_error`, `home.purchase.amount_over {amount}`, `home.purchase.supplier_error`); отправка недоступна (D-100) | исправить | — |
+| A10 | Форма покупки: сумма пустая; ноль или не число; больше доступной; поставщик пустой; поставщик из 1 знака | Ошибка под полем (`home.purchase.amount_error`, `home.purchase.amount_invalid`, `home.purchase.amount_over {amount}`, `home.purchase.supplier_error`, `home.purchase.supplier_short`); отправка недоступна (D-100) | исправить | — |
+| A12 | Взносов нет (покупка ещё не оплачена поставщику) | В блоке #repayments одна строка `repayments.empty`; ссылки «История платежей» нет | — | — |
+| A13 | У взноса прошёл срок | Взнос первым в блоке, метка `repayments.overdue` (тёплый цвет статуса, не красный), «Написать нам»; в деталях — подсказка `repayments.overdue_hint` | WhatsApp | `repayment_overdue_contact_clicked` |
 | A11 | Клиент без активного лимита открывает `/c/home` | Редирект на `/c/documents`; пункта «Home» в меню нет (D-098) | — | — |
 | A9 | `dual`: клиент — ещё и поставщик | В `#how-to-buy` без изменений; переключение в кабинет поставщика — через шапку | — | — |
 
@@ -91,6 +109,10 @@
 | карточка первого визита | shown / dismissed | Три строки и «Понятно» (D-101) |
 | `#how-to-buy` | fully-used | То же + подпись |
 | `client.home` | first-purchase | Тот же экран, суммы обновлены; баннер смены статуса (D-034) |
+| `#repayments` | empty (A12) | Заголовок и одна строка |
+| `#repayments` | upcoming | «Ближайший платёж» крупно, ещё два строками, «История платежей» |
+| `#repayments` | overdue (A13) | Взнос со сроком в прошлом первым, метка и «Написать нам» |
+| панель истории | history / details | Группы взносов; детали взноса с «Как оплатить» (D-104) |
 | все | длинный арабский текст | Шаги инструкции до 3 строк каждый |
 | все | RTL / LTR, light / dark | Полоса прогресса зеркалится по направлению заполнения; подписи сумм выровнены по началу строки; цвета визуализации — из токенов, контраст проверен в тёмной теме |
 
@@ -114,22 +136,32 @@
 | `how_to_buy.title` | How to make a purchase | كيف تتم عملية الشراء | |
 | `how_to_buy.step1` | Agree on the goods and price with your supplier | اتفق مع مورّدك على البضاعة والسعر | |
 | `how_to_buy.step2` | Ask the supplier for a quotation in your company's name | اطلب من المورّد عرض سعر باسم شركتك | |
-| `how_to_buy.step3` | Send the quotation to us on WhatsApp. Tadum buys the goods from your supplier, and you pay in parts | أرسل عرض السعر إلينا عبر واتساب. تشتري تدوم البضاعة من مورّدك وتسدد أنت على دفعات | разрешённые формулировки: «Tadum покупает товар у вашего поставщика», «платите частями» |
+| `how_to_buy.step3` | Tap New purchase and send the details on WhatsApp. Tadum buys the goods from your supplier, and you pay in parts | اضغط على «عملية شراء جديدة» وأرسل التفاصيل عبر واتساب. تشتري تدوم البضاعة من مورّدك وتسدد أنت على دفعات | решение Кирилла 2026-11-27 (D-100: покупка начинается с формы); разрешённые формулировки: «Tadum покупает товар у вашего поставщика», «платите частями» |
 | `how_to_buy.whatsapp` | Send a quotation on WhatsApp | إرسال عرض السعر عبر واتساب | |
 | `support.prefill.quotation` | Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation: | مرحبًا، أرغب في إجراء عملية شراء عبر تدوم لشركة {company}. إليكم عرض السعر: | |
 | `common.cached_at` | Shown as of {time} | البيانات كما في {time} | A6 |
 | `home.purchase.cta` | New purchase | — | главная кнопка под суммой (D-099); AR — в брифе TD-002 |
 | `home.purchase.amount` / `.supplier` / `.submit` | Amount / Supplier / Send on WhatsApp | — | форма (D-100) |
 | `home.purchase.amount_hint` | You have {amount} available | — | над полем суммы |
-| `home.purchase.amount_error` | Enter the purchase amount | — | A10 |
+| `home.purchase.amount_error` | Enter the purchase amount | — | A10; поле пустое |
+| `home.purchase.amount_invalid` | Enter an amount greater than 0 | — | A10; ноль или не число |
 | `home.purchase.amount_over` | This is more than your available amount. Enter up to {amount} | — | A10; блокирует отправку |
-| `home.purchase.supplier_error` | Enter the supplier's name | — | A10 |
+| `home.purchase.supplier_error` | Enter the supplier's name | — | A10; поле пустое |
+| `home.purchase.supplier_short` | Enter at least 2 characters | — | A10; 1 знак |
 | `support.prefill.purchase_request` | Hello, I'd like to make a purchase through Tadum for {company}. Supplier: {supplier}. Amount: {amount}. | — | D-100 |
 | `support.prefill.limit_full` | Hello, the trade limit for {company} is fully used. I'd like to discuss my next purchase. | — | A2 |
 | `home.welcome.title` / `.item1…3` / `.dismiss` | Your trade limit is active / … / Got it | — | D-101; тексты строк — в брифе TD-002 |
 | `how_to_buy.hide` / `how_to_buy.show` | Hide / How to make a purchase | — | |
 | `limit.cancelled` | Your trade limit is not active right now | — | A4; без причины |
 | `home.docs_link` | Agreement and documents | — | → `/c/documents` |
+| `home.manager.cta` | Message us | راسلنا | лимит выбран полностью (A2), взнос со сроком в прошлом (A13); решение Кирилла 2026-11-27 |
+| `repayments.title` / `.history` / `.next` | Payment schedule / Payment history / Next payment | — | D-102 |
+| `repayments.overdue` / `.groups.overdue` | Payment date has passed / Past payment date | — | A13; без «просрочка» |
+| `repayments.due_today` / `.due_in_days` / `.overdue_days` | Due today / Tomorrow, In {count} days / {count} days ago | — | дни — календарные по Asia/Riyadh |
+| `repayments.empty` | Your payment schedule will appear once we pay your supplier for your purchase | — | A12 |
+| `repayments.how_to_pay.cta` | How to pay | — | точка входа (D-104) |
+| `support.prefill.repayment` | Hello, I have a question about payment {reference} for {company}. | — | A13 |
+| `support.prefill.repayment_pay` | Hello, I'd like to pay payment {reference} for {company}. | — | «Как оплатить» (D-104) |
 
 Проверка TOV: «торговый лимит», «купите сейчас — платите частями», «Tadum покупает товар у вашего поставщика» — из разрешённого списка; нет «кредит / процент / BNPL».
 
@@ -149,6 +181,11 @@
 | `limit_fully_used_viewed` | показано состояние A2 | `{}` |
 | `limit_cancelled_viewed` | показано A4 | `{}` |
 | `data_inconsistency` | A3 | `{ kind }` |
+| `repayments_viewed` | блок графика в области видимости | `{ upcoming_count_bucket, has_overdue }` |
+| `repayment_history_opened` | открыта «История платежей» | `{ has_overdue }` |
+| `repayment_details_opened` | открыты детали взноса | `{ status, source }` |
+| `repayment_pay_clicked` | нажата «Как оплатить» (D-104) | `{ status }` |
+| `repayment_overdue_contact_clicked` | «Написать нам» у взноса со сроком в прошлом | `{}` |
 
 Суммы и название поставщика в события не отправляем — только корзины. `how_to_buy_whatsapp_clicked` с D-100 не используется: кнопки в блоке нет.
 
@@ -162,6 +199,7 @@
 - [ ] Инструкция «Как оформить покупку» — три шага и кнопка WhatsApp с предзаполненным текстом на языке интерфейса; в тексте нет запрещённых слов.
 - [ ] Переход `approved(active) → first_purchase` обновляет шкалу и карточку без перезагрузки; блок инструкции остаётся.
 - [ ] `cancelled` и несогласованные данные (A3, A4) не ломают макет и дают нейтральные тексты.
+- [ ] График платежей (D-102, D-104): взнос со сроком в прошлом виден на главной первым и с меткой; «История платежей» — в боковой панели; в деталях — «Как оплатить» без описания способа оплаты.
 - [ ] Тексты в `ar` и `en`; axe без нарушений; визуализация имеет текстовую альтернативу.
 - [ ] Storybook: `LimitBlock` active / not-used / fully-used / cancelled / loading; `HowToBuy` normal / fully-used × AR/EN × light/dark; экстремальные суммы.
 - [ ] Playwright: `client_active` → проверка сумм и формата в обеих локалях → `createDeal`+`payDeal` из демо-панели → `first_purchase`.

@@ -1,4 +1,4 @@
-<!-- source: Drive 1yQY2Qrdzd1LD4aHNoG1sxWY_MY-sw0n7, synced: 2026-11-27. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1IGWXtH9hB3Zf_naV8nzCD6GJUgQZOQuU, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # Метрики и словарь событий — Tadum
 
 **Версия:** 1.1 (черновик — живой каркас) · **Дата:** 2026-11-04 · **Статус:** все вопросы закрыты (D-057…D-059).
@@ -193,7 +193,7 @@ O1 KR2  Assessed leads от малых поставщиков: 12 → 30 / 70 / 
 | `repayments_viewed` | блок «График платежей» в области видимости (D-102) | `{ upcoming_count_bucket, has_overdue: boolean }` | SC-07 | v4 |
 | `repayment_history_opened` | открыта панель «История платежей» | `{ has_overdue: boolean }` | SC-07 | v4 |
 | `repayment_details_opened` | открыты детали взноса | `{ status: 'upcoming' \| 'overdue' \| 'paid', source: 'home' \| 'history' }` | SC-07 | v4 |
-| `repayment_details_copied` | скопированы реквизиты в деталях взноса | `{ field: 'iban' \| 'reference' }` | SC-07 | v4 |
+| `repayment_pay_clicked` | нажата «Как оплатить» в деталях взноса (D-104) | `{ status: 'upcoming' \| 'overdue' }` | SC-07 | v4 |
 | `repayment_overdue_contact_clicked` | «Написать менеджеру» у просроченного взноса | `{}` | SC-07 | v4 |
 | `closed_reapply_clicked` | «Подать новую заявку» на `/c/closed` | `{}` | SC-08, SC-09 | v4 |
 | `reapply_submitted` | «Создать заявку» на `/c/reapply` (D-038) | `{}` | SC-08 | v4 |
