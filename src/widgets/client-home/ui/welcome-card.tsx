@@ -37,7 +37,7 @@ export function WelcomeCard({ limitId }: { limitId: string }) {
       <ul className="flex flex-col gap-3">
         {ITEMS.map((key) => (
           <li key={key} className="flex items-start gap-3 text-sm">
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
               <Icon icon={RiCheckLine} className="size-4" />
             </span>
             <span className="pt-0.5">{t(key)}</span>

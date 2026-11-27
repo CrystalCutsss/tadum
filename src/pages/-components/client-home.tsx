@@ -106,12 +106,13 @@ export function ClientHome() {
       {cancelled ? null : <WelcomeCard limitId={lim.id} />}
       <LimitOverview limit={lim} company={companyName} updatedAt={limit.dataUpdatedAt} />
       {cancelled ? null : <HowToBuy />}
-      {/* Менеджер и договор: на телефоне и планшете — внизу колонки, на ≥ 1024 px — в боковой колонке. */}
+      {/* Менеджер и договор (A-077): на телефоне и планшете — внизу колонки вместе с блоком поддержки (сайдбар там
+          скрыт в шторке); на ≥ 1024 px — ссылка в боковой колонке, а поддержка уже видна в сайдбаре, второй блок не нужен. */}
       <div className="lg:hidden">
         <HomeAside support={<SupportBar status={app.data.client_status} />} />
       </div>
       <CabinetAside>
-        <HomeAside support={<SupportBar status={app.data.client_status} />} />
+        <HomeAside support={null} />
       </CabinetAside>
     </div>
   );
