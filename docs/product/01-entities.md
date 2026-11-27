@@ -1,4 +1,4 @@
-<!-- source: Drive 1gkIFke1xV1f-YruGjiwKqMB8nYbENNpb, synced: 2026-11-27. Не редактировать — источник в Drive. -->
+<!-- source: Drive 19mRZ77LijWZY9JMixDL8DR8bphXVYXLB, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # 01 · Сущности и данные
 
 **Проект:** Tadum · **Раздел:** Требования к продукту · **Версия:** 1.0 · **Дата:** 2026-11-04 · **Статус:** черновик на согласование
@@ -188,12 +188,10 @@ Installment:                       # взнос по сделке
   paid_at?: datetime               # для paid
 RepaymentSchedule:
   installments: Installment[]      # все взносы по сделкам текущей заявки, по due_date
-  payment_details:                 # реквизиты Tadum для оплаты взноса (детали платежа, «Как оплатить»)
-    beneficiary: string
-    bank_name: string
-    iban: string
+# Способ оплаты не прорабатывается (D-104): реквизитов в данных нет; «Как оплатить» в деталях — точка входа в WhatsApp.
 # Правила: сначала overdue (по due_date), затем ближайшие upcoming; paid — только в истории.
-# Σ amount по overdue и upcoming = Σ Deal.outstanding; расхождение — data_inconsistency {kind: repayments_mismatch}.
+# Σ amount по overdue и upcoming = Σ Deal.outstanding по сделкам, оплаченным поставщику (stage = payment_done) (D-104);
+# расхождение — data_inconsistency {kind: repayments_mismatch}.
 # До оплаты первой сделки поставщику взносов нет — installments пустой.
 ```
 
@@ -338,7 +336,8 @@ DocumentHint:                      # то, что реально показыв�
 | `client_signing_partial` | client_owner | `approved`, лимит `ready`, SPA `done`, вексель `pending` | SC-06 |
 | `client_limit_cancelled` | client_owner | `approved`, лимит `cancelled` | SC-06 A7 |
 | `client_active` | client_owner | `approved`, лимит `active` 150 000 SAR, использовано 42 500 | SC-06, SC-07 |
-| `client_first_purchase` | client_owner | `first_purchase`, одна сделка `payment_done` | SC-06, SC-07 |
+| `client_first_purchase` | client_owner | `first_purchase`, одна сделка `payment_done` 40 000; четыре взноса по 10 000: оплачен, срок прошёл, два впереди (D-102) | SC-06, SC-07 |
+| `client_repaying` | client_owner | `first_purchase`, лимит `active` 200 000; две сделки `payment_done` у разных поставщиков: 60 000 (два взноса оплачены, у третьего прошёл срок) и 30 000 (три взноса впереди); использовано 50 000 (D-104) | SC-07 |
 | `client_closed_rejected` | client_contact | `closed` (Rejected by UW), лимит `rejected` | SC-08 |
 | `client_closed_lost` | client_contact | `closed` (Lost) | SC-08 |
 | `supplier_new` | supplier | `docs_required`, 0 клиентов | SP-01, SP-03 |
