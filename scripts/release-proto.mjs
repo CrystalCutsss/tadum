@@ -45,6 +45,9 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
  * v26 (Кирилл 2026-11-25, A-074): третий пункт входа — новый клиент (`login-new-client`): номер → Contact name
  * и Business name → код. Развилка «Join as a supplier» — пункт `login-new-supplier` во вкладке «Поставщик»: та же
  * форма; с отметкой «Join as a supplier» после кода — кабинет поставщика (по умолчанию чекбокс снят).
+ * v28 (TD-002, D-098…D-104): «Лимит одобрен» открывает главную — пункт переименован в «Home: лимит активен»;
+ * «Home: платит по графику» (`client-repaying`) — график платежей во всех состояниях. Вкладка «Клиент» — 12 пунктов,
+ * предел Proto.
  */
 export const PERSONA_ITEMS = [
   { id: 'login', title: 'Вход по номеру', group: 'Клиент' },
@@ -57,7 +60,8 @@ export const PERSONA_ITEMS = [
   { id: 'client-approved-unsigned', title: 'Подписание', group: 'Клиент' },
   { id: 'client-signing-partial', title: 'Подписание, частично', group: 'Клиент' },
   { id: 'client-limit-cancelled', title: 'Лимит отменён', group: 'Клиент' },
-  { id: 'client-active', title: 'Лимит одобрен', group: 'Клиент' },
+  { id: 'client-active', title: 'Home: лимит активен', group: 'Клиент' },
+  { id: 'client-repaying', title: 'Home: платит по графику', group: 'Клиент' },
   { id: 'login-new-supplier', title: 'Вход: новый поставщик', group: 'Поставщик' },
   { id: 'supplier-new', title: 'Подача документов', group: 'Поставщик' },
   { id: 'supplier-review', title: 'Документы на проверке', group: 'Поставщик' },

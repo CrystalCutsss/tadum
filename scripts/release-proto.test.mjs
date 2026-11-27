@@ -80,6 +80,7 @@ describe('метаданные Proto', () => {
       'client-signing-partial',
       'client-limit-cancelled',
       'client-active',
+      'client-repaying',
       'login-new-supplier',
       'supplier-new',
       'supplier-review',
