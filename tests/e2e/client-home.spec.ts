@@ -14,7 +14,7 @@ async function captureWindowOpen(page: Page) {
     window.open = ((url?: string | URL) => {
       w.__opened.push(String(url));
       return null;
-    }) as typeof window.open;
+    });
   });
   return () => page.evaluate(() => (window as unknown as { __opened: string[] }).__opened);
 }

@@ -10,8 +10,8 @@ import { formatMoney, type Language } from '@/shared/i18n';
 export const SUPPLIER_MIN = 2;
 export const SUPPLIER_MAX = 80;
 
-export type AmountError = 'home.purchase.amount_error' | 'home.purchase.amount_over';
-export type SupplierError = 'home.purchase.supplier_error';
+type AmountError = 'home.purchase.amount_error' | 'home.purchase.amount_over';
+type SupplierError = 'home.purchase.supplier_error';
 
 export interface PurchaseDraft {
   amount: string;

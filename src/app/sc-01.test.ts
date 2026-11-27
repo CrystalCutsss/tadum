@@ -84,12 +84,17 @@ describe('SC-01 §1 — основной сценарий', () => {
     expect(loginFlow.enteredPhone()).toBeNull();
     expect(loginFlow.lastPhone()).toBe(PHONE);
   });
-  it('номер → код 0000 → сессия на 30 дней → /c/home', async () => {
+  it('номер → код 0000 → сессия на 30 дней → /c/home → без активного лимита «Заявка» (D-098)', async () => {
     const challenge = await api.auth.requestOtp(PHONE);
     loginFlow.start({ phone: PHONE, challenge });
     expect((await open('/login/code')).pathname).toBe('/login/code');
     const session = await api.auth.verifyOtp(PHONE, '0000');
     expect(destinationAfterLogin(session, authMemory.returnTo(), familyMemory.last())).toEqual({ to: '/c/home', returned: false });
+    expect((await open('/')).pathname).toBe('/c/documents');
+    expect((await open('/c/home')).pathname).toBe('/c/documents');
+  });
+  it('активный лимит (client_active) → / и вход ведут на /c/home (D-098)', async () => {
+    api.demo!.setPersona('client_active');
     expect((await open('/')).pathname).toBe('/c/home');
   });
   it('одна роль supplier → /s/documents', async () => {
