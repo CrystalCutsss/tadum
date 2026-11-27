@@ -108,3 +108,25 @@ test('лимит, отменённый до активации (client_limit_can
   await openSidebar(page, 'en');
   await expect(homeNav(page)).toHaveCount(0);
 });
+
+test('@smoke D-102: график платежей — срок прошёл виден на Home; история в панели; детали с «Как оплатить»', async ({ page }) => {
+  await asPersona(page, 'client_first_purchase');
+  const block = page.locator('#repayments');
+  await expect(block.getByRole('heading', { name: tr('en', 'repayments.title') })).toBeVisible();
+  // Просроченный взнос — первым и с меткой, при нём «Написать менеджеру».
+  await expect(block.getByText(tr('en', 'repayments.overdue')).first()).toBeVisible();
+  await expect(block.getByRole('link', { name: tr('en', 'home.manager.cta') })).toHaveAttribute('href', /wa\.me/);
+  // На главной — три взноса (без оплаченного).
+  await expect(block.getByRole('button', { name: /10,000/ })).toHaveCount(3);
+  await block.getByRole('button', { name: tr('en', 'repayments.history') }).click();
+  const panel = page.getByRole('dialog', { name: tr('en', 'repayments.history') });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('heading', { name: tr('en', 'repayments.groups.paid') })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /10,000/ })).toHaveCount(4);
+  await panel.getByRole('button', { name: /10,000/ }).nth(1).click();
+  const details = page.getByRole('dialog', { name: tr('en', 'repayments.details.title') });
+  await expect(details.getByRole('heading', { name: tr('en', 'repayments.how_to_pay.title') })).toBeVisible();
+  await expect(details).toContainText('SA4420000001234567891234');
+  await details.getByRole('button', { name: tr('en', 'repayments.details.back') }).click();
+  await expect(page.getByRole('dialog', { name: tr('en', 'repayments.history') })).toBeVisible();
+});

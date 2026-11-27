@@ -87,6 +87,10 @@ export interface LimitPort {
 
 /** График платежей клиента (D-102, 01-entities.md §2.9a). До оплаты первой сделки поставщику — пустой список. */
 export interface RepaymentPort {
+  /**
+   * D-102: все взносы по сделкам текущей заявки и реквизиты Tadum для оплаты; статус взноса считает бэкенд.
+   * До оплаты первой сделки поставщику — `installments: []`. Только клиент; поставщику — `Forbidden`.
+   */
   getSchedule(): Promise<RepaymentSchedule>;
 }
 

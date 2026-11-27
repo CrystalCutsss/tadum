@@ -36,7 +36,7 @@ function jsdoc(node, sf) {
 
 // ---------- Порты ----------
 
-const PORT_ORDER = ['auth', 'application', 'documents', 'limit', 'supplier', 'referredClients', 'offer'];
+const PORT_ORDER = ['auth', 'application', 'documents', 'limit', 'repayment', 'supplier', 'referredClients', 'offer'];
 const interfaces = new Map();
 ports.forEachChild((n) => {
   if (ts.isInterfaceDeclaration(n)) interfaces.set(n.name.text, n);
@@ -54,6 +54,7 @@ const ENTITY_LINKS = {
   Document: '`01-entities.md` §2.5',
   Limit: '`01-entities.md` §2.7',
   OnboardingChecklist: '`01-entities.md` §2.8',
+  RepaymentSchedule: '`01-entities.md` §2.9a',
   Supplier: '`01-entities.md` §2.10',
   SupplierCounters: '`01-entities.md` §2.10 (`counters`)',
   ReferredClientsPage: '`01-entities.md` §2.11 (страница)',

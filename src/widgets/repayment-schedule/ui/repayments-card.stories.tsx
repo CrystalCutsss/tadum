@@ -9,12 +9,12 @@ import { tr } from '../../../../.storybook/story-helpers';
 import type { Installment, RepaymentSchedule } from '@/entities/repayment';
 import { setAnalyticsProviders, type CapturedEvent } from '@/shared/analytics';
 import { createI18n } from '@/shared/i18n';
-import { now } from '@/shared/lib';
+import { now, toDate } from '@/shared/lib';
 
 import { RepaymentsCard } from './repayments-card';
 
 const DAY = 86_400_000;
-const date = (days: number) => new Date(now() + 3 * 3_600_000 + days * DAY).toISOString().slice(0, 10);
+const date = (days: number) => toDate(now() + 3 * 3_600_000 + days * DAY).toISOString().slice(0, 10);
 const item = (n: number, days: number, status: Installment['status']): Installment => ({
   id: `i${n}`,
   deal_id: 'deal_1',
@@ -23,7 +23,7 @@ const item = (n: number, days: number, status: Installment['status']): Installme
   due_date: date(days),
   amount: { amount_minor: 1_000_000, currency: 'SAR' },
   status,
-  ...(status === 'paid' ? { paid_at: new Date(now() + (days - 2) * DAY).toISOString() } : {}),
+  ...(status === 'paid' ? { paid_at: toDate(now() + (days - 2) * DAY).toISOString() } : {}),
 });
 const details = { beneficiary: 'Tadum Trading Company', bank_name: 'Demo Bank', iban: 'SA4420000001234567891234' };
 const withOverdue: RepaymentSchedule = { installments: [item(1, -35, 'paid'), item(2, -5, 'overdue'), item(3, 25, 'upcoming'), item(4, 55, 'upcoming')], payment_details: details };

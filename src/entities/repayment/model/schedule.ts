@@ -1,6 +1,7 @@
 // Правила блока «График платежей» (D-102, 01-entities.md §2.9a): просроченные взносы — первыми, затем ближайшие
 // предстоящие; оплаченные — только в истории. Даты взносов — календарные дни по Эр-Рияду.
 import type { Installment } from '@/shared/api';
+import { toDate } from '@/shared/lib';
 
 const DAY = 86_400_000;
 const RIYADH_OFFSET = 3 * 3_600_000;
@@ -27,9 +28,9 @@ export function groupSchedule(installments: readonly Installment[]): ScheduleGro
 }
 
 /** Сегодня по Эр-Рияду, `YYYY-MM-DD`. */
-export const riyadhToday = (nowMs: number): string => new Date(nowMs + RIYADH_OFFSET).toISOString().slice(0, 10);
+export const riyadhToday = (nowMs: number): string => toDate(nowMs + RIYADH_OFFSET).toISOString().slice(0, 10);
 
 /** Дней от сегодняшней даты (Эр-Рияд) до даты взноса: 0 — сегодня, отрицательное — срок прошёл. */
 export function daysUntil(dueDate: string, nowMs: number): number {
-  return Math.round((Date.parse(`${dueDate}T00:00:00Z`) - Date.parse(`${riyadhToday(nowMs)}T00:00:00Z`)) / DAY);
+  return Math.round((toDate(`${dueDate}T00:00:00Z`).getTime() - toDate(`${riyadhToday(nowMs)}T00:00:00Z`).getTime()) / DAY);
 }

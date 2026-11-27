@@ -27,7 +27,7 @@ export const sar = (amount: number): Money => ({ amount_minor: amount * 100, cur
 export const ZERO: Money = sar(0);
 
 /** Дата `YYYY-MM-DD` по Эр-Рияду (UTC+3) для момента `ms`. */
-export const riyadhDate = (ms: number): string => new Date(ms + 3 * HOUR).toISOString().slice(0, 10);
+export const riyadhDate = (ms: number): string => toDate(ms + 3 * HOUR).toISOString().slice(0, 10);
 
 /** Реквизиты Tadum для оплаты взносов в демо (A-081: способ оплаты — допущение, реквизиты вымышленные). */
 export const DEMO_PAYMENT_DETAILS: PaymentDetails = {

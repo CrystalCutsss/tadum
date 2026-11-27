@@ -40,6 +40,8 @@ export const Active: Story = {
     await expect(c.getByRole('button', { name: tr('home.purchase.cta') })).toBeVisible();
     await expect(c.getByRole('heading', { name: tr('how_to_buy.title') })).toBeVisible();
     await expect(c.getAllByRole('link', { name: tr('home.docs_link') })[0]).toHaveAttribute('href', '/c/documents');
+    // Сделка ещё не оплачена поставщику — графика нет, одна строка (D-102).
+    await waitFor(() => expect(c.getByText(tr('repayments.empty'))).toBeVisible());
     await expect(c.queryByRole('heading', { name: tr('home.welcome.title') })).toBeNull();
     // Шкалы и «следующего шага» на главной нет (D-098).
     await expect(c.queryByRole('list', { name: /timeline|المراحل/i })).toBeNull();
@@ -74,6 +76,10 @@ export const FirstPurchase: Story = {
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement).toHaveTextContent('70,000'));
     await expect(canvasElement).toHaveTextContent('100,000');
+    // График платежей (D-102): взнос со сроком в прошлом — первым и с меткой.
+    const c = within(canvasElement);
+    await waitFor(() => expect(c.getByRole('heading', { name: tr('repayments.title') })).toBeVisible());
+    await expect(c.getAllByText(tr('repayments.overdue'))[0]).toBeVisible();
   },
 };
 

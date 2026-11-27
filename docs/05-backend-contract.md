@@ -52,6 +52,12 @@
 | `get` | `get(): Promise<Limit>` | `01-entities.md` §2.7 | — |
 | `getChecklist` | `getChecklist(): Promise<OnboardingChecklist>` | `01-entities.md` §2.8 | — |
 
+### `repayment` — `RepaymentPort`
+
+| Метод | Сигнатура | Ответ описан в | Примечание |
+|---|---|---|---|
+| `getSchedule` | `getSchedule(): Promise<RepaymentSchedule>` | `01-entities.md` §2.9a | D-102: все взносы по сделкам текущей заявки и реквизиты Tadum для оплаты; статус взноса считает бэкенд. До оплаты первой сделки поставщику — `installments: []`. Только клиент; поставщику — `Forbidden`. |
+
 ### `supplier` — `SupplierPort`
 
 | Метод | Сигнатура | Ответ описан в | Примечание |
