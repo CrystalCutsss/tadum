@@ -1,4 +1,4 @@
-<!-- source: Drive 1I3bib6B4BngVmpTUfzmjy5VQxLH2pA7k, synced: 2026-11-27. Не редактировать — источник в Drive. -->
+<!-- source: Drive 1sogPGgSDu3NC0tkBanUKOQaviNAUiVm1, synced: 2026-11-27. Не редактировать — источник в Drive. -->
 # SC-07 · Лимит одобрен
 
 | Поле | Значение |
@@ -161,7 +161,7 @@
 | `repayments.empty` | Your payment schedule will appear once we pay your supplier for your purchase | — | A12 |
 | `repayments.how_to_pay.cta` | How to pay | — | точка входа (D-104) |
 | `support.prefill.repayment` | Hello, I have a question about payment {reference} for {company}. | — | A13 |
-| `support.prefill.repayment_pay` | Hello, I'd like to pay payment {reference} for {company}. | — | «Как оплатить» (D-104) |
+| `support.prefill.repayment_pay` | Hello, I'd like to make payment {reference} for {company}. | — | «Как оплатить» (D-104); решение Кирилла 2026-11-27 |
 
 Проверка TOV: «торговый лимит», «купите сейчас — платите частями», «Tadum покупает товар у вашего поставщика» — из разрешённого списка; нет «кредит / процент / BNPL».
 
