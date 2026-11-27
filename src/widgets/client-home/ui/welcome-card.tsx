@@ -1,7 +1,7 @@
 // Карточка первого визита после активации лимита (D-101, бенчмарк № 106): «Что теперь можно» — три строки и «Понятно».
 // После закрытия больше не показывается (флаг по id лимита).
 import { RiCheckLine } from '@remixicon/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { track } from '@/shared/analytics';
@@ -13,6 +13,7 @@ const ITEMS = ['home.welcome.item1', 'home.welcome.item2', 'home.welcome.item3']
 
 export function WelcomeCard({ limitId }: { limitId: string }) {
   const { t } = useTranslation();
+  const titleId = useId();
   const [visible, setVisible] = useState(() => !homeFlags.welcomeDismissed(limitId));
 
   useEffect(() => {
@@ -29,8 +30,8 @@ export function WelcomeCard({ limitId }: { limitId: string }) {
   };
 
   return (
-    <section aria-labelledby="home-welcome-title" className="flex flex-col gap-4 rounded-xl border bg-card p-4 text-card-foreground md:p-5">
-      <h2 id="home-welcome-title" className="text-base font-semibold">
+    <section aria-labelledby={titleId} className="flex flex-col gap-4 rounded-xl border bg-card p-4 text-card-foreground md:p-5">
+      <h2 id={titleId} className="text-base font-semibold">
         {t('home.welcome.title')}
       </h2>
       <ul className="flex flex-col gap-3">

@@ -2,7 +2,7 @@
 // главная кнопка одна, под суммой. Клиент сворачивает блок до заголовка; состояние запоминается (homeFlags).
 // Переход по ссылке …/c/home#how-to-buy раскрывает свёрнутый блок и прокручивает к нему.
 import { useRouterState } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { track } from '@/shared/analytics';
@@ -15,6 +15,7 @@ const STEPS = ['how_to_buy.step1', 'how_to_buy.step2', 'how_to_buy.step3'] as co
 
 export function HowToBuy() {
   const { t } = useTranslation();
+  const titleId = useId();
   const hash = useRouterState({ select: (s) => s.location.hash });
   const linked = hash === HOW_TO_BUY_ID;
   const [open, setOpen] = useState(() => linked || !homeFlags.howToBuyCollapsed());
@@ -52,9 +53,9 @@ export function HowToBuy() {
 
   return (
     <Collapsible open={open} onOpenChange={toggle} asChild>
-      <section ref={ref} id={HOW_TO_BUY_ID} aria-labelledby="how-to-buy-title" className="scroll-mt-4 rounded-xl border bg-card p-4 text-card-foreground md:p-5">
+      <section ref={ref} id={HOW_TO_BUY_ID} aria-labelledby={titleId} className="scroll-mt-4 rounded-xl border bg-card p-4 text-card-foreground md:p-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 id="how-to-buy-title" className="text-base font-semibold">
+          <h2 id={titleId} className="text-base font-semibold">
             {open ? (
               t('how_to_buy.title')
             ) : (

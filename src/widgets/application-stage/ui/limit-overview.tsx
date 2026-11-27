@@ -3,7 +3,7 @@
 // Под суммой одна главная кнопка: «Новая покупка»; лимит выбран полностью — «Написать менеджеру» (SC-07 A2).
 // Лимит отменён после активации — суммы остаются, под блоком нейтральная плашка и «Связаться с нами» (A4, D-086).
 import { RiWhatsappLine } from '@remixicon/react';
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { availableOf, limitShare, type Limit } from '@/entities/limit';
@@ -29,6 +29,7 @@ export interface LimitOverviewProps {
 
 export function LimitOverview({ limit, company, updatedAt, forceOffline = false }: LimitOverviewProps) {
   const { t, i18n } = useTranslation();
+  const titleId = useId();
   const lang = isLanguage(i18n.language) ? i18n.language : 'en';
   const online = useOnline() && !forceOffline;
   const now = useNow(MINUTE);
@@ -64,9 +65,9 @@ export function LimitOverview({ limit, company, updatedAt, forceOffline = false 
 
   return (
     <div className="flex flex-col gap-3">
-      <LimitSurface id="limit" aria-labelledby="limit-title" className="scroll-mt-4 gap-5">
+      <LimitSurface id="limit" aria-labelledby={titleId} className="scroll-mt-4 gap-5">
         <div className="flex flex-col gap-3">
-          <h2 id="limit-title" className="font-heading text-base font-medium">
+          <h2 id={titleId} className="font-heading text-base font-medium">
             {t('limit.available')}
           </h2>
           <LimitAmount value={available} />
