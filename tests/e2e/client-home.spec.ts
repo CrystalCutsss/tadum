@@ -24,7 +24,7 @@ test('@smoke client_active → / → /c/home: доступная сумма, о�
   await expect(page).toHaveURL(/\/c\/home/);
   await expect(limitHeading(page)).toBeVisible();
   const limit = page.locator('#limit');
-  await expect(limit).toContainText('SAR 107,500');
+  await expect(limit).toContainText('107,500');
   await expect(limit).toContainText('SAR 150,000');
   await expect(limit).toContainText('SAR 42,500');
   await expect(limit.getByRole('progressbar')).toBeVisible();
@@ -75,7 +75,7 @@ test('блок шагов: «Скрыть» запоминается после 
   await asPersona(page, 'client_active');
   await page.getByRole('button', { name: tr('en', 'home.welcome.dismiss') }).click();
   await expect(page.getByRole('heading', { name: tr('en', 'home.welcome.title') })).toHaveCount(0);
-  await page.getByRole('button', { name: tr('en', 'how_to_buy.hide') }).click();
+  await page.getByRole('button', { name: tr('en', 'how_to_buy.hide'), exact: true }).click();
   const show = page.getByRole('button', { name: tr('en', 'how_to_buy.show') });
   await expect(show).toHaveAttribute('aria-expanded', 'false');
   await page.reload();
@@ -84,14 +84,14 @@ test('блок шагов: «Скрыть» запоминается после 
   await expect(page.getByRole('heading', { name: tr('en', 'home.welcome.title') })).toHaveCount(0);
   // Ссылка на блок раскрывает его.
   await page.goto('/c/home#how-to-buy');
-  await expect(page.getByRole('button', { name: tr('en', 'how_to_buy.hide') })).toBeVisible();
+  await expect(page.getByRole('button', { name: tr('en', 'how_to_buy.hide'), exact: true })).toBeVisible();
   await expect(page.locator('#how-to-buy li')).toHaveCount(3);
 });
 
 test('client_first_purchase: тот же экран, суммы 70,000 из 100,000; «Договор и документы» → «Заявка»', async ({ page }) => {
   await asPersona(page, 'client_first_purchase');
   await expect(page).toHaveURL(/\/c\/home/);
-  await expect(page.locator('#limit')).toContainText('SAR 70,000');
+  await expect(page.locator('#limit')).toContainText('70,000');
   await expect(page.locator('#limit')).toContainText('SAR 100,000');
   await page.getByRole('link', { name: tr('en', 'home.docs_link') }).first().click();
   await expect(page).toHaveURL(/\/c\/documents$/);

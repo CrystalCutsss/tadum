@@ -57,7 +57,8 @@ export async function asPersona(page: Page, persona: string, lang: Lang = 'en', 
 
 /** Сайдбар: на телефоне — шторка по кнопке в шапке, на десктопе виден сразу (решение Кирилла 2026-11-06). */
 export async function openSidebar(page: Page, lang: Lang) {
-  const account = page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
+  // Имя начинается с «Аккаунт» (nav-account.tsx): якорь ^ — чтобы не совпасть с кнопками помощи документов на «Заявке».
+  const account = page.getByRole('button', { name: new RegExp(`^${tr(lang, 'nav.account')}`) });
   // Телефон — по ширине окна (брейкпоинт useIsMobile — 768 px), а не по видимости аккаунта: пока данные грузятся,
   // аккаунта ещё нет и на десктопе, а нажатие кнопки там свернуло бы сайдбар.
   const mobile = (page.viewportSize()?.width ?? 0) < 768;
@@ -76,7 +77,7 @@ export async function openAccountMenu(page: Page, lang: Lang, { dismissHint = fa
     // Подсказка появляется вместе с данными сессии — даём ей короткое время, отсутствие не ошибка.
     if (await hint.waitFor({ timeout: 2_000 }).then(() => true, () => false)) await hint.click();
   }
-  await page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) }).click();
+  await page.getByRole('button', { name: new RegExp(`^${tr(lang, 'nav.account')}`) }).click();
   await page.getByRole('menu').waitFor();
 }
 

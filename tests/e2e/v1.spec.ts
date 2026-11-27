@@ -8,7 +8,8 @@ import { asPersona, enterCode, expect, openAccountMenu, openSidebar, signIn, tes
 // (/c/documents), пункта «Home» в меню нет. Персона проверяется по названию компании в аккаунте сайдбара.
 const application = (lang: 'ar' | 'en') => ({ name: tr(lang, 'documents.title'), level: 1 });
 const homeNav = (page: Page, lang: 'ar' | 'en') => page.getByRole('navigation', { name: tr(lang, 'nav.main') }).getByRole('link', { name: tr(lang, 'nav.home') });
-const account = (page: Page, lang: 'ar' | 'en') => page.getByRole('button', { name: new RegExp(tr(lang, 'nav.account')) });
+// Имя кнопки аккаунта начинается с «Аккаунт» (nav-account.tsx); якорь ^ — чтобы не совпасть с «Помощь: …выписка по счёту» на «Заявке».
+const account = (page: Page, lang: 'ar' | 'en') => page.getByRole('button', { name: new RegExp(`^${tr(lang, 'nav.account')}`) });
 
 test('@smoke client_new → вход (0000) → /c/documents: «Заявка», без пункта Home, компания в аккаунте', async ({ page }) => {
   await signIn(page, 'ar', '500000001');
