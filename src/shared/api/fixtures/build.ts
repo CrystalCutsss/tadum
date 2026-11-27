@@ -1,7 +1,7 @@
 // Помощники для рукописных фикстур: даты от «сейчас», деньги в SAR, документы и файлы.
 
 import { toDate } from '@/shared/lib';
-import type { Document, DocumentSet, DocumentStatus, FileAsset, Money, PortalKey, PrevalidationResult } from '../ports/schemas';
+import type { Deal, Document, DocumentSet, DocumentStatus, FileAsset, Installment, Money, PaymentDetails, PortalKey, PrevalidationResult } from '../ports/schemas';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -25,6 +25,45 @@ export const ahead = (now: number, o: Offset): string =>
 export const sar = (amount: number): Money => ({ amount_minor: amount * 100, currency: 'SAR' });
 
 export const ZERO: Money = sar(0);
+
+/** Дата `YYYY-MM-DD` по Эр-Рияду (UTC+3) для момента `ms`. */
+export const riyadhDate = (ms: number): string => new Date(ms + 3 * HOUR).toISOString().slice(0, 10);
+
+/** Реквизиты Tadum для оплаты взносов в демо (A-081: способ оплаты — допущение, реквизиты вымышленные). */
+export const DEMO_PAYMENT_DETAILS: PaymentDetails = {
+  beneficiary: 'Tadum Trading Company',
+  bank_name: 'Demo Bank',
+  iban: 'SA4420000001234567891234',
+};
+
+/**
+ * Взносы по сделке (D-102): `count` помесячных взносов (каждые 30 дней от оплаты поставщику), последний забирает
+ * остаток от деления. Статус — по дате и числу уже оплаченных: оплачены первые `paid`, прошедшие без оплаты — overdue.
+ */
+export function installmentsFor(
+  deal: Pick<Deal, 'id' | 'amount' | 'paid_at'>,
+  supplierName: string,
+  now: number,
+  { count = 3, paid = 0 }: { count?: number; paid?: number } = {},
+): Installment[] {
+  const start = deal.paid_at ? toDate(deal.paid_at).getTime() : now;
+  const part = Math.floor(deal.amount.amount_minor / count);
+  return Array.from({ length: count }, (_, i) => {
+    const due = start + (i + 1) * 30 * DAY;
+    const amount = i === count - 1 ? deal.amount.amount_minor - part * (count - 1) : part;
+    const isPaid = i < paid;
+    return {
+      id: `${deal.id}_i${i + 1}`,
+      deal_id: deal.id,
+      reference: `${deal.id.toUpperCase().replace(/_/g, '-')}-${i + 1}`,
+      supplier_name: supplierName,
+      due_date: riyadhDate(due),
+      amount: { amount_minor: amount, currency: 'SAR' as const },
+      status: isPaid ? ('paid' as const) : due < now ? ('overdue' as const) : ('upcoming' as const),
+      ...(isPaid ? { paid_at: toDate(due - 2 * DAY).toISOString() } : {}),
+    };
+  });
+}
 
 /** Телефон из тестового диапазона +966 50 000 0XXX. */
 export const phone = (n: number): string => `+9665000${String(n).padStart(5, '0')}`;

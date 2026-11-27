@@ -5,7 +5,7 @@
 import { MOCK_LATENCY, MOCK_REVIEW_DELAY_MS, OTP, SESSION_TTL_MS } from '@/shared/config';
 import { now as clockNow, storage, toDate } from '@/shared/lib';
 
-import { CLIENT_BASE_KEYS, checklist } from '../../fixtures/build';
+import { CLIENT_BASE_KEYS, DEMO_PAYMENT_DETAILS, checklist, installmentsFor } from '../../fixtures/build';
 import { PERSONAS } from '../../fixtures/personas';
 import { PersonaGraphSchema } from '../../fixtures/schema';
 import { PERSONA_IDS, type PersonaGraph, type PersonaId } from '../../fixtures/types';
@@ -32,6 +32,7 @@ import {
   type Limit,
   type OnboardingChecklist,
   type PrevalidationResult,
+  type RepaymentSchedule,
   type Role,
   type Session,
 } from '../../ports/schemas';
@@ -48,11 +49,14 @@ import { hash, hashRange, sha256Hex } from './hash';
  * 7 — сброс после демо-автоподписи договора: у `client_approved_unsigned` в браузере оставался «подписан» (2026-11-18).
  * 8 — поставщик: номер CR вместо файла `sup_cr` (D-093); в браузере у `supplier_new` оставался файл CR рядом с блоком
  * номера (2026-11-24).
+ * 9 — график платежей (D-102): у `client_first_purchase` появились взносы, сохранённое состояние без них сбрасывается.
  */
-export const MOCK_SCHEMA_VERSION = 8;
+export const MOCK_SCHEMA_VERSION = 9;
 
 /** Код OTP, который мок принимает (D-021). */
 const MOCK_OTP_CODE = '0000';
+/** Поставщик сделок, созданных демо-действием createDeal (в Deal только supplier_id). */
+const DEMO_SUPPLIER_NAME = 'Al Noor Trading';
 
 export interface MockApiOptions {
   domain: MockDomain;
@@ -609,6 +613,16 @@ export function createMockApi(options: MockApiOptions): Api {
         }),
     },
 
+    repayment: {
+      getSchedule: () =>
+        io('repayment.getSchedule', (): RepaymentSchedule => {
+          const g = fresh(asClient().state);
+          const app = currentApp(g);
+          const deals = new Set(g.deals.filter((x) => x.application_id === app.id).map((x) => x.id));
+          const installments = (g.installments ?? []).filter((i) => deals.has(i.deal_id)).sort((a, b) => a.due_date.localeCompare(b.due_date));
+          return { installments, payment_details: DEMO_PAYMENT_DETAILS };
+        }),
+    },
     limit: {
       get: () =>
         io('limit.get', () => {
@@ -882,6 +896,8 @@ export function createMockApi(options: MockApiOptions): Api {
         if (!deal || deal.application_id !== app.id || deal.stage !== 'approved') throw new DomainError('not_allowed');
         deal.stage = 'payment_done';
         deal.paid_at = iso(clockNow());
+        // График платежей (D-102): три помесячных взноса от даты оплаты поставщику.
+        g.installments = [...(g.installments ?? []), ...installmentsFor(deal, DEMO_SUPPLIER_NAME, clockNow())];
         if (app.odoo_stage === 'Client Approved') app.odoo_stage = 'Payment done';
         touch(app);
       }),

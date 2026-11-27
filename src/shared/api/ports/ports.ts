@@ -13,6 +13,7 @@ import type {
   OfferContent,
   OnboardingChecklist,
   PortalKey,
+  RepaymentSchedule,
   Session,
   Supplier,
   SupplierProfilePatch,
@@ -84,6 +85,11 @@ export interface LimitPort {
   getChecklist(): Promise<OnboardingChecklist>;
 }
 
+/** График платежей клиента (D-102, 01-entities.md §2.9a). До оплаты первой сделки поставщику — пустой список. */
+export interface RepaymentPort {
+  getSchedule(): Promise<RepaymentSchedule>;
+}
+
 export interface SupplierPort {
   get(): Promise<Supplier>;
   getCounters(): Promise<SupplierCounters>;
@@ -107,6 +113,7 @@ export interface Ports {
   application: ApplicationPort;
   documents: DocumentsPort;
   limit: LimitPort;
+  repayment: RepaymentPort;
   supplier: SupplierPort;
   referredClients: ReferredClientsPort;
   offer: OfferPort;

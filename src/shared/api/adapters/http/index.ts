@@ -10,6 +10,7 @@ import type {
   DocumentSetOwner,
   DocumentsPort,
   LimitPort,
+  RepaymentPort,
   ReferredClientsPort,
   ReferredClientsQuery,
   SupplierPort,
@@ -82,6 +83,12 @@ const limit: LimitPort = {
   },
 };
 
+const repayment: RepaymentPort = {
+  async getSchedule() {
+    return todo('repayment', 'getSchedule');
+  },
+};
+
 const supplier: SupplierPort = {
   async get() {
     return todo('supplier', 'get');
@@ -109,6 +116,7 @@ export function createHttpApi(): Api {
     application,
     documents,
     limit,
+    repayment,
     supplier,
     referredClients,
     offer: { get: () => Promise.resolve(loadOfferContent()) },

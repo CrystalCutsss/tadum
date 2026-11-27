@@ -1,6 +1,6 @@
 // Граф данных персоны: всё, что «знает бэкенд» об одном номере телефона.
 
-import type { Application, Company, Deal, DocumentSet, Limit, OdooStage, Supplier } from '../ports/schemas';
+import type { Application, Company, Deal, DocumentSet, Installment, Limit, OdooStage, Supplier } from '../ports/schemas';
 
 export const PERSONA_IDS = [
   'client_new',
@@ -58,6 +58,8 @@ export interface PersonaGraph {
   limits: Limit[];
   /** Сделки клиента и сделки приведённых клиентов поставщика. */
   deals: Deal[];
+  /** Взносы по оплаченным сделкам клиента (D-102); нет — графика нет. */
+  installments?: Installment[];
   supplier: Supplier | null;
   referrals: Referral[];
 }

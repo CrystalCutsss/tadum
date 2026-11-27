@@ -7,6 +7,7 @@ import {
   DateTimeSchema,
   DealSchema,
   DocumentSetSchema,
+  InstallmentSchema,
   LimitSchema,
   OdooStageSchema,
   SupplierSchema,
@@ -28,6 +29,7 @@ export const PersonaGraphSchema = z.object({
   document_sets: z.array(DocumentSetSchema),
   limits: z.array(LimitSchema),
   deals: z.array(DealSchema),
+  installments: z.array(InstallmentSchema).optional(),
   supplier: SupplierSchema.nullable(),
   referrals: z.array(
     z.object({

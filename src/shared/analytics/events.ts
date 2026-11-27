@@ -148,6 +148,11 @@ export type AnalyticsEvent =
   | { name: 'home_welcome_viewed'; props: Record<string, never> }
   | { name: 'home_welcome_dismissed'; props: Record<string, never> }
   | { name: 'how_to_buy_toggled'; props: { open: boolean } }
+  | { name: 'repayments_viewed'; props: { upcoming_count_bucket: CountBucket; has_overdue: boolean } }
+  | { name: 'repayment_history_opened'; props: { has_overdue: boolean } }
+  | { name: 'repayment_details_opened'; props: { status: 'upcoming' | 'overdue' | 'paid'; source: 'home' | 'history' } }
+  | { name: 'repayment_details_copied'; props: { field: 'iban' | 'reference' } }
+  | { name: 'repayment_overdue_contact_clicked'; props: Record<string, never> }
   | { name: 'closed_reapply_clicked'; props: Record<string, never> }
   | { name: 'reapply_submitted'; props: Record<string, never> }
   | { name: 'reapply_pending_viewed'; props: Record<string, never> }
@@ -235,6 +240,11 @@ export const EVENT_VERSIONS = {
   home_welcome_viewed: 'v4',
   home_welcome_dismissed: 'v4',
   how_to_buy_toggled: 'v4',
+  repayments_viewed: 'v4',
+  repayment_history_opened: 'v4',
+  repayment_details_opened: 'v4',
+  repayment_details_copied: 'v4',
+  repayment_overdue_contact_clicked: 'v4',
   closed_reapply_clicked: 'v4',
   reapply_submitted: 'v4',
   reapply_pending_viewed: 'v4',

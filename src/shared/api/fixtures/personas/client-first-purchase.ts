@@ -1,11 +1,22 @@
 // client_first_purchase — client_owner; first_purchase, одна сделка payment_done (SC-07).
-import { CLIENT_BASE_KEYS, ago, checklist, documentSet, phone, sar, uploaded } from '../build';
+// График платежей (D-102): сделка 40 000 оплачена поставщику 65 дней назад, 4 взноса по 10 000 — первый оплачен,
+// второй просрочен (срок 5 дней назад), два впереди; остаток 30 000 = использовано лимита.
+import { CLIENT_BASE_KEYS, ago, checklist, documentSet, installmentsFor, phone, sar, uploaded } from '../build';
 import type { PersonaFixture } from '../types';
 
 const SET = 'set_cfp_1';
 
 export const clientFirstPurchase: PersonaFixture = (now) => {
-  const t = ago(now, { days: 30 });
+  const t = ago(now, { days: 95 });
+  const deal = {
+    id: 'deal_cfp_1',
+    application_id: 'app_cfp',
+    supplier_id: 'sup_ext_01',
+    amount: sar(40_000),
+    stage: 'payment_done' as const,
+    outstanding: sar(30_000),
+    paid_at: ago(now, { days: 65 }),
+  };
   return {
     persona_id: 'client_first_purchase',
     phone: phone(8),
@@ -20,8 +31,8 @@ export const clientFirstPurchase: PersonaFixture = (now) => {
         next_step: { owner: 'none', text_key: 'next_step.first_purchase_done' },
         current_document_set_id: SET,
         limit_id: 'lim_cfp',
-        created_at: ago(now, { days: 35 }),
-        updated_at: ago(now, { days: 4 }),
+        created_at: ago(now, { days: 100 }),
+        updated_at: ago(now, { days: 65 }),
         source: { supplier_id: 'sup_ext_01', channel: 'referral_link' },
       },
     ],
@@ -45,20 +56,11 @@ export const clientFirstPurchase: PersonaFixture = (now) => {
         used: sar(30_000),
         available: sar(70_000),
         checklist: checklist('done', 'done'),
-        activated_at: ago(now, { days: 15 }),
+        activated_at: ago(now, { days: 80 }),
       },
     ],
-    deals: [
-      {
-        id: 'deal_cfp_1',
-        application_id: 'app_cfp',
-        supplier_id: 'sup_ext_01',
-        amount: sar(30_000),
-        stage: 'payment_done',
-        outstanding: sar(30_000),
-        paid_at: ago(now, { days: 4 }),
-      },
-    ],
+    deals: [deal],
+    installments: installmentsFor(deal, 'Al Noor Trading', now, { count: 4, paid: 1 }),
     supplier: null,
     referrals: [],
   };

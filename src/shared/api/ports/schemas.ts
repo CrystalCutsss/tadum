@@ -230,6 +230,34 @@ export const DealSchema = z.object({
   paid_at: DateTimeSchema.optional(),
 });
 
+/** Дата без времени (Asia/Riyadh), `YYYY-MM-DD`. */
+export const DateSchema = z.iso.date();
+
+// График платежей (01-entities.md §2.9a, D-102).
+export const InstallmentStatusSchema = z.enum(['upcoming', 'overdue', 'paid']);
+
+export const InstallmentSchema = z.object({
+  id: z.string(),
+  deal_id: z.string(),
+  reference: z.string(),
+  supplier_name: z.string(),
+  due_date: DateSchema,
+  amount: MoneySchema,
+  status: InstallmentStatusSchema,
+  paid_at: DateTimeSchema.optional(),
+});
+
+export const PaymentDetailsSchema = z.object({
+  beneficiary: z.string(),
+  bank_name: z.string(),
+  iban: z.string(),
+});
+
+export const RepaymentScheduleSchema = z.object({
+  installments: z.array(InstallmentSchema),
+  payment_details: PaymentDetailsSchema,
+});
+
 // ---------- 2.10 Supplier ----------
 
 export const SupplierSchema = z.object({
@@ -319,6 +347,10 @@ export type OnboardingChecklist = z.infer<typeof OnboardingChecklistSchema>;
 export type Limit = z.infer<typeof LimitSchema>;
 export type DealStage = z.infer<typeof DealStageSchema>;
 export type Deal = z.infer<typeof DealSchema>;
+export type InstallmentStatus = z.infer<typeof InstallmentStatusSchema>;
+export type Installment = z.infer<typeof InstallmentSchema>;
+export type PaymentDetails = z.infer<typeof PaymentDetailsSchema>;
+export type RepaymentSchedule = z.infer<typeof RepaymentScheduleSchema>;
 export type Supplier = z.infer<typeof SupplierSchema>;
 /** Поля профиля поставщика, которые он заполняет сам (A-075); сохраняются по одному. */
 export const SupplierProfilePatchSchema = SupplierSchema.pick({ email: true, industry: true, city: true });
