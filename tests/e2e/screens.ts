@@ -62,6 +62,14 @@ export const SCREENS: readonly Screen[] = [
   },
   // /c/home — главная активного клиента (D-098, TD-002); клиент без активного лимита попадает в «Заявку».
   persona('client.home', 'client_active', '/', heading('limit.available')),
+  // График платежей (D-102): взнос со сроком в прошлом на главной, история и детали взноса в панели.
+  persona('client.home.repayments', 'client_first_purchase', '/', heading('repayments.title')),
+  persona('client.home.repayment_details', 'client_first_purchase', '/c/home', async (page, lang) => {
+    await page.locator('#repayments').getByRole('button', { name: /10,000/ }).first().click();
+    const panel = page.getByRole('dialog', { name: tr(lang, 'repayments.details.title') });
+    await expect(panel.getByRole('heading', { name: tr(lang, 'repayments.how_to_pay.title') })).toBeVisible();
+    await panel.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
+  }),
   persona('client.home.purchase', 'client_active', '/c/home', async (page, lang) => {
     await page.getByRole('button', { name: tr(lang, 'home.purchase.cta') }).click();
     const dialog = page.getByRole('dialog', { name: tr(lang, 'home.purchase.title') });
