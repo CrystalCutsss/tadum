@@ -619,7 +619,7 @@
       "purchase_request": "Hello, I'd like to make a purchase through Tadum for {company}. Supplier: {supplier}. Amount: {amount}.",
       "quotation": "Hello, I'd like to make a purchase through Tadum for {company}. Here is the quotation:",
       "repayment": "Hello, I have a question about payment {reference} for {company}.",
-      "repayment_pay": "Hello, I'd like to pay payment {reference} for {company}.",
+      "repayment_pay": "Hello, I'd like to make payment {reference} for {company}.",
       "under_review": "Hello, I have a question about my Tadum application for {company}."
     },
     "whatsapp": "WhatsApp"
