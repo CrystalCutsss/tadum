@@ -23,6 +23,8 @@ test('@smoke client_new → вход (0000) → /c/documents: «Заявка», 
   await expect(page).toHaveURL(/\/c\/documents$/);
   await expect(page.getByRole('heading', application('ar'))).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  // Заголовок вкладки по экрану, бренд латиницей (D-052).
+  await expect(page).toHaveTitle(tr('ar', 'meta.title', { page: tr('ar', 'nav.application') }));
 });
 
 const personas = [

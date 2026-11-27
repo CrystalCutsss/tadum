@@ -62,7 +62,7 @@ export const Errors: Story = {
     // Короткое имя поставщика.
     await userEvent.type(supplier, 'A');
     await userEvent.tab();
-    await expect(d.getByText(tr('home.purchase.supplier_error'))).toBeVisible();
+    await expect(d.getByText(tr('home.purchase.supplier_short'))).toBeVisible();
     await expect(submit).toHaveAttribute('aria-disabled', 'true');
   },
 };

@@ -282,17 +282,19 @@
     "docs_link": "Agreement and documents",
     "documents_view": "View",
     "manager": {
-      "cta": "Message your manager"
+      "cta": "Message us"
     },
     "purchase": {
       "amount": "Amount",
       "amount_error": "Enter the purchase amount",
       "amount_hint": "You have {amount} available",
+      "amount_invalid": "Enter an amount greater than 0",
       "amount_over": "This is more than your available amount. Enter up to {amount}",
       "cta": "New purchase",
       "submit": "Send on WhatsApp",
       "supplier": "Supplier",
       "supplier_error": "Enter the supplier's name",
+      "supplier_short": "Enter at least 2 characters",
       "title": "New purchase"
     },
     "welcome": {
@@ -308,7 +310,7 @@
     "show": "How to make a purchase",
     "step1": "Agree on the goods and price with your supplier",
     "step2": "Ask the supplier for a quotation in your company's name",
-    "step3": "Send the quotation to us on WhatsApp. Tadum buys the goods from your supplier, and you pay in parts",
+    "step3": "Tap New purchase and send the details on WhatsApp. Tadum buys the goods from your supplier, and you pay in parts",
     "title": "How to make a purchase"
   },
   "lang": {
@@ -325,6 +327,9 @@
     "updated_at": "Updated {time}",
     "used": "Used",
     "used_share": "{percent} used"
+  },
+  "meta": {
+    "title": "{page} — Tadum"
   },
   "nav": {
     "account": "Account",
@@ -438,12 +443,12 @@
       "supplier": "Supplier",
       "title": "Payment"
     },
-    "due_in_days_one": "In {count} day",
+    "due_in_days_one": "Tomorrow",
     "due_in_days_other": "In {count} days",
     "due_today": "Due today",
     "empty": "Your payment schedule will appear once we pay your supplier for your purchase",
     "groups": {
-      "overdue": "Payment date has passed",
+      "overdue": "Past payment date",
       "paid": "Paid",
       "upcoming": "Upcoming"
     },
@@ -460,7 +465,7 @@
     "overdue": "Payment date has passed",
     "overdue_days_one": "{count} day ago",
     "overdue_days_other": "{count} days ago",
-    "overdue_hint": "If you've already paid, nothing else is needed from you. If you have a question, message your manager",
+    "overdue_hint": "If you've already paid, nothing else is needed from you. If you have a question, message us",
     "paid_on": "Paid on {date}",
     "title": "Payment schedule"
   },

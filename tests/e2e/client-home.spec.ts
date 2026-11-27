@@ -23,6 +23,8 @@ test('@smoke client_active → / → /c/home: доступная сумма, о�
   await asPersona(page, 'client_active');
   await expect(page).toHaveURL(/\/c\/home/);
   await expect(limitHeading(page)).toBeVisible();
+  // Заголовок вкладки по экрану (WCAG 2.4.2).
+  await expect(page).toHaveTitle(tr('en', 'meta.title', { page: tr('en', 'nav.home') }));
   const limit = page.locator('#limit');
   await expect(limit).toContainText('107,500');
   await expect(limit).toContainText('SAR 150,000');
@@ -58,7 +60,9 @@ test('@smoke форма покупки: ошибки блокируют отпр
   await expect(submit).toHaveAttribute('aria-disabled', 'true');
   await supplier.fill('A');
   await supplier.blur();
-  await expect(dialog.getByText(tr('en', 'home.purchase.supplier_error'))).toBeVisible();
+  await expect(dialog.getByText(tr('en', 'home.purchase.supplier_short'))).toBeVisible();
+  await amount.fill('0');
+  await expect(dialog.getByText(tr('en', 'home.purchase.amount_invalid'))).toBeVisible();
 
   await amount.fill('25000');
   await supplier.fill('Al Noor Trading');

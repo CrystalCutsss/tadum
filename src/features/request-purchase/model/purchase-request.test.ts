@@ -12,9 +12,14 @@ describe('checkPurchase', () => {
   it('сумма и поставщик в порядке — можно отправить', () => {
     expect(checkPurchase({ amount: '25,000', supplier: 'Al Noor' }, AVAILABLE)).toEqual({ amount: sar(2_500_000), amountError: null, supplierError: null, valid: true });
   });
-  it.each(['', '0', 'abc'])('сумма %j — amount_error', (amount) => {
+  it.each(['', '   '])('сумма %j — amount_error (пусто)', (amount) => {
     const r = checkPurchase({ amount, supplier: 'Al Noor' }, AVAILABLE);
     expect(r.amountError).toBe('home.purchase.amount_error');
+    expect(r.valid).toBe(false);
+  });
+  it.each(['0', 'abc', '1.234'])('сумма %j — amount_invalid (введено, но не больше 0 или не число)', (amount) => {
+    const r = checkPurchase({ amount, supplier: 'Al Noor' }, AVAILABLE);
+    expect(r.amountError).toBe('home.purchase.amount_invalid');
     expect(r.valid).toBe(false);
   });
   it('больше доступной — amount_over, отправка недоступна', () => {
@@ -23,8 +28,11 @@ describe('checkPurchase', () => {
     expect(r.valid).toBe(false);
   });
   it('ровно доступная сумма — можно', () => expect(checkPurchase({ amount: '107500', supplier: 'Al Noor' }, AVAILABLE).valid).toBe(true));
-  it.each(['', ' A ', 'x'.repeat(81)])('поставщик %j — supplier_error', (supplier) => {
+  it.each(['', '   '])('поставщик %j — supplier_error (пусто)', (supplier) => {
     expect(checkPurchase({ amount: '100', supplier }, AVAILABLE).supplierError).toBe('home.purchase.supplier_error');
+  });
+  it.each([' A ', 'x'.repeat(81)])('поставщик %j — supplier_short', (supplier) => {
+    expect(checkPurchase({ amount: '100', supplier }, AVAILABLE).supplierError).toBe('home.purchase.supplier_short');
   });
 });
 

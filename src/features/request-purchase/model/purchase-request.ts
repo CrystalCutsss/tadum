@@ -10,8 +10,8 @@ import { formatMoney, type Language } from '@/shared/i18n';
 export const SUPPLIER_MIN = 2;
 export const SUPPLIER_MAX = 80;
 
-type AmountError = 'home.purchase.amount_error' | 'home.purchase.amount_over';
-type SupplierError = 'home.purchase.supplier_error';
+type AmountError = 'home.purchase.amount_error' | 'home.purchase.amount_invalid' | 'home.purchase.amount_over';
+type SupplierError = 'home.purchase.supplier_error' | 'home.purchase.supplier_short';
 
 export interface PurchaseDraft {
   amount: string;
@@ -28,9 +28,17 @@ export interface PurchaseCheck {
 /** Сумма — положительное число до 2 знаков и не больше доступной (решение Кирилла 2026-11-27); поставщик — 2–80 знаков. */
 export function checkPurchase(draft: PurchaseDraft, available: Money): PurchaseCheck {
   const amount = parseAmount(draft.amount);
-  const amountError: AmountError | null = !amount ? 'home.purchase.amount_error' : amount.amount_minor > available.amount_minor ? 'home.purchase.amount_over' : null;
+  // Пусто — «введите сумму»; введено, но 0 или не число — «больше 0» (решение Кирилла 2026-11-27); больше доступной — блок.
+  const amountError: AmountError | null = !amount
+    ? draft.amount.trim() === ''
+      ? 'home.purchase.amount_error'
+      : 'home.purchase.amount_invalid'
+    : amount.amount_minor > available.amount_minor
+      ? 'home.purchase.amount_over'
+      : null;
   const name = draft.supplier.trim();
-  const supplierError: SupplierError | null = name.length < SUPPLIER_MIN || name.length > SUPPLIER_MAX ? 'home.purchase.supplier_error' : null;
+  const supplierError: SupplierError | null =
+    name.length === 0 ? 'home.purchase.supplier_error' : name.length < SUPPLIER_MIN || name.length > SUPPLIER_MAX ? 'home.purchase.supplier_short' : null;
   return { amount, amountError, supplierError, valid: amountError === null && supplierError === null };
 }
 
